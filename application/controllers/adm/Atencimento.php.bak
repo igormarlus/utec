@@ -1,0 +1,287 @@
+<?php
+defined('BASEPATH') OR exit('No direct script access allowed');
+
+class Atencimento extends CI_Controller {
+
+	function __construct()
+	{
+		parent::__construct();
+		$this->load->library('session');
+		$this->load->helper(array('form','url'));
+		$this->load->model('adm/usuarios_model');
+		$this->load->model('padrao_model');
+		#$this->padrao_model->indexador();
+		$this->usuarios_model->verSession();
+
+   } // fecha fn USER
+
+function Index(){
+	#echo "teste";
+	$dados["usuarios"] = $this->db->query("SELECT * FROM usuarios");
+	$dados['nivel'] = 1;
+	#$this->load->view('adm/usuarios/lista', $dados);
+	$this->load->view('adm/usuarios/new/lista', $dados);
+
+}
+
+function novo(){
+	//echo "teste";
+	#if ($this->session->userdata('nivel') > 2) {
+		$this->padrao_model->indexador();
+		$dados['niveis'] = $this->db->get('usuarios_niveis');
+		#$dados['setores'] = $this->padrao_model->get_by_matriz('id_setor','0','usuarios_setores');
+		#$dados['unidades'] = $this->db->get('unidades');
+		$this->load->view('adm/usuarios/novo' , $dados);
+		
+	#} else {
+	#	echo "Você não tem permissão para acessar esta página";	
+	#}
+}
+
+
+
+function cadastro($nivel){
+	
+	#$dados["usuario"] = $this->db->query("SELECT * FROM usuarios WHERE id = ".$id)->row();
+	#$this->load->view('adm/usuarios/edicao', $dados);	
+	$this->load->model('padrao_model');
+	#$dados["usuario"] = $this->db->query("SELECT * FROM usuarios WHERE id = ".$id)->row();
+
+	#$dados["exames"] = $this->db->query("SELECT * FROM exames ORDER BY nome asc ");
+	#$dados["consultas"] = $this->db->query("SELECT * FROM consultas ORDER BY nome asc");
+	#$dados["procedimentos"] = $this->db->query("SELECT * FROM procedimentos ORDER BY nome asc");
+
+	$dados['nivel'] = $nivel;
+	
+	#$this->load->view('adm/usuarios/edicao', $dados);	
+	$this->load->view('adm/usuarios/new/cadastro', $dados);
+
+}
+
+function cadastrar() {
+
+	
+
+	#return false;
+	
+	$dd = array(
+		#'id_setor' => $_POST['id_setor'],
+		'id_user' => $this->session->userdata('id'),
+		'nome' => $_POST['nome'],
+		'nivel' => $_POST['nivel'],
+		'telefone' => $_POST['telefone'],
+		'profissao' => $_POST['profissao'],
+		'rg' => $_POST['identidade'],
+		'cpf' => $_POST['cpf'],
+		//'login' => $_POST['login'],
+		#'senha' => md5($_POST['senha']),
+		'email' => $_POST['email'],
+		#'id_setor' => $_POST['id_setor'],
+
+		'endereco' => $_POST['endereco'],
+		'numero' => $_POST['numero'],
+		'bairro' => $_POST['bairro'],
+		'cidade' => $_POST['cidade'],
+		'uf' => $_POST['uf'],
+		'complemento' => $_POST['complemento'],
+		'cep' => $_POST['cep'],
+		'redes_sociais' => $_POST['redes_sociais']
+	);
+	if($_POST['nivel'] == '3'){
+		$dd['especialidade'] = $_POST['especialidade'];
+		$dd['classe'] = $_POST['classe'];
+	}
+
+	
+
+	#$this->db->where('id', $_POST['id']);	
+	if ($this->db->insert('agendamento', $dd)) {
+		redirect('adm/usuarios/edicao/'.$this->db->insert_id());
+	} else {
+		echo "Falha ao alterar usuario!";	
+	}
+	
+}
+
+
+
+
+function prontuario($id_user=1){
+
+	//echo "teste";
+	if($id_user == 1){ return; }
+	$this->load->model('padrao_model');
+	$nivel = 5;
+	$dados['nivel'] = $nivel;
+	
+	$dados["usuarios"] = $this->db->query("SELECT * FROM usuarios WHERE nivel = $nivel ");
+
+	$dados["dd"] = $this->db->query("SELECT * FROM usuarios WHERE id = $id_user ")->row();
+
+	$qr_agendamentos = $this->db->query("SELECT * FROM agendamentos where id_paciente = $id_user ");
+	$dados["qr_agendamentos"] = $qr_agendamentos;
+
+
+	$this->load->view('adm/usuarios/new/prontuario', $dados);
+
+} // x fn
+
+###################### set status
+function set_status($id_user,$status){
+	$this->padrao_model->indexador();
+	#echo $status;
+	#echo "<br>";
+	if($status == "1"){
+		$new_status = 0;
+	}
+	if($status == "0"){
+		$new_status = 1;
+	}
+	if($status == "2"){
+		$new_status = 0;
+	}
+
+	$dd_status = array('status' => $new_status);
+	$this->db->where('id',$id_user);
+	$this->db->update('usuarios',$dd_status);
+	#print_r($dd_status);
+	redirect('adm/usuarios','refresh');
+
+}
+
+
+function set_user_cliente(){
+	$nome = $this->input->post('nome');
+	$telefone = "55".$this->input->post('telefone');
+
+	$arr = array("(",")","-"," ");
+	$whats_trat = str_replace($arr, "", $telefone);
+
+	#echo $telefone." - ".$whats_trat;
+	$dd_insert = array(
+		"id_user" => $this->session->userdata('id'),
+		"telefone" => $whats_trat,
+		"nome" => $nome
+	);
+	$this->db->insert('pi_whats_users' , $dd_insert);
+	#print_r($_POST);
+	redirect('adm/usuarios/dash','refresh');
+}
+
+
+
+
+
+
+function edicao($id){
+	
+	#$dados["usuario"] = $this->db->query("SELECT * FROM usuarios WHERE id = ".$id)->row();
+	#$this->load->view('adm/usuarios/edicao', $dados);	
+	$this->load->model('padrao_model');
+	$dados["usuario"] = $this->db->query("SELECT * FROM usuarios WHERE id = ".$id)->row();
+
+	#$dados["exames"] = $this->db->query("SELECT * FROM exames ORDER BY nome asc ");
+	#$dados["consultas"] = $this->db->query("SELECT * FROM consultas ORDER BY nome asc");
+	#$dados["procedimentos"] = $this->db->query("SELECT * FROM procedimentos ORDER BY nome asc");
+
+	
+	#$this->load->view('adm/usuarios/edicao', $dados);	
+	$this->load->view('adm/usuarios/new/edicao', $dados);
+
+}
+
+
+
+
+public function do_upload()
+    {
+            $config['upload_path']          = './uploads/';
+            $config['allowed_types']        = 'mp4|mov|avi';
+            $config['max_size']             = 16000;
+            $config['max_width']            = 1024;
+            $config['max_height']           = 768;
+
+            $this->load->library('upload', $config);
+
+            if ( ! $this->upload->do_upload('userfile'))
+            {
+                    $error = array('error' => $this->upload->display_errors());
+                    print_r($error);
+                    return $error;
+                    #$this->load->view('upload_form', $error);
+            }
+            else
+            {
+                    $data = array('upload_data' => $this->upload->data());
+                    #print_r($data['upload_data']);
+                    #echo '<br><br>';
+                    return $data['upload_data']['file_name'];
+
+                    #$this->load->view('upload_success', $data);
+            }
+    }
+
+
+
+function upImgPost(){
+	//echo "teste";
+		##################### X IMAGENS #########################
+		
+		//upload codeigniter lib
+		$config['upload_path'] = './imagens/usuarios/';
+		$config['allowed_types'] = 'jpg|jpeg|gif|png';
+	  	$this->load->library('upload', $config);
+
+		
+		if (!$this->upload->do_upload('photoimg')) {
+			$status = 'error';
+			$error = array('error' => $this->upload->display_errors());
+			$msg = 'erro ao enviar o arquivo, tente novamente'.$error;
+			echo $msg;
+			print_r($error);
+		} else  {
+			$data = $this->upload->data();
+		 
+			$this->load->library('image_lib');
+			
+			//alterando img principal
+			$conf['image_library'] = 'gd2';
+			$conf['source_image'] = './imagens/usuarios/'.$data['file_name'];
+			$conf['new_image'] = './imagens/usuarios/min/'.$data['file_name'];
+			$conf['maintain_ratio'] = FALSE;
+			//$conf['master_dim'] = 'height';
+			$conf['height'] = 72;
+			$conf['width'] = 120;
+			$this->image_lib->initialize($conf); 
+			$this->image_lib->resize();
+			
+			$conf2['image_library'] = 'gd2';
+			$conf2['source_image'] = './imagens/usuarios/'.$data['file_name'];
+			$conf2['new_image'] = './imagens/usuarios/des/'.$data['file_name'];
+			$conf2['maintain_ratio'] = FALSE;
+			//$conf['master_dim'] = 'height';
+			$conf2['height'] = 210;
+			$conf2['width'] = 300;
+			$this->image_lib->initialize($conf2); 
+			$this->image_lib->resize();
+			
+			echo "<img src='".base_url()."imagens/usuarios/min/".$data['file_name']."'>
+					<input name='imagem' type='hidden' value='".$data['file_name']."'>";
+		}
+
+
+	}
+
+
+function remover($id){
+		
+	$this->db->where('id', $id);
+	$this->db->delete('usuarios');
+	redirect('adm/usuarios','refresh');
+	#$this->lista();
+
+}
+
+
+	
+}
