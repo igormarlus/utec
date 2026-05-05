@@ -75,9 +75,9 @@
 
                       <div class="alert alert-warning">Solicite sua ativação falando com:<br> <a href="https://api.whatsapp.com/send?phone=5581983276882&text=Ol%C3%A1!%20Gostaria%20de%20ativar%20minha%20conta" class="read-more">Nosso Whatsapp (81 98327-6882)</a>
                       </div>
-                      <? if($usuario->status == "1"){ ?>
+                      <?php if($usuario->status == "1"){ ?>
                         <div class="alert alert-success">Dados validados</div>
-                      <? } ?>
+                      <?php } ?>
 
                       <div class="element-box">
 
@@ -99,11 +99,7 @@
                                     <input type="file" name="userfile" id="userfile" />
                                 </div>
                                 <div class="mws-form-item">
-                                    <div id=''>
-                                        <? /* if($usuario->video != ""){ ?>
-                                            <a href="<?=base_url()?>uploads/<?=$usuario->video?>" title="<?=$usuario->video?>" target="_blank"><?=$usuario->video?></a>
-                                        <? } */ ?>
-                                    </div>
+                                    <div id=''></div>
                                 </div>
                             </div>
                           </div>
@@ -124,9 +120,9 @@
                                 
                                 <div class="mws-form-item">
                                     <div id='preview'>
-                                        <? if($usuario->img != ""){ ?>
+                                        <?php if($usuario->img != ""){ ?>
                                             <img src="<?=base_url()?>imagens/usuarios/min/<?=$usuario->img?>" alt="Foto usuário">
-                                        <? } ?>
+                                        <?php } ?>
                                     </div>
                                 </div>
                             </div>
@@ -175,9 +171,9 @@
                                     </div>
                                 </div>    
 
-                                <? } ?>
+                                <?php } ?>
 
-                                <? if($usuario->nivel == 5){ ?>
+                                <?php if($usuario->nivel == 5){ ?>
 
                                 <div class="form-group">
                                     <label class="mws-form-label">Afiliações </label>
@@ -193,9 +189,9 @@
                                     </div>
                                 </div>
 
-                                <? } ?>
+                                <?php } ?>
 
-                                <? if($usuario->nivel < 5){ ?>
+                                <?php if($usuario->nivel < 5){ ?>
                                   <div class="row">
                                     <div class="col-sm-6">                                                              
                                       <div class="form-group">
@@ -218,7 +214,7 @@
                                     </div>
                                   </div>
 
-                                  <? } ?>
+                                  <?php } ?>
                                 
                                 <div class="form-group">
                                     <label class="mws-form-label">E-mail</label>
@@ -268,10 +264,10 @@
                                     <label class="mws-form-label">Nível</label>
                                     <div class="mws-form-item clearfix">                                                                                
                                         <select name="nivel" class="form-control">
-                                        <? foreach($this->db->get('usuarios_niveis')->result() as $niv){ ?>
+                                        <?php foreach($this->db->get('usuarios_niveis')->result() as $niv){ ?>
                                           <?php if($usuario->nivel == $niv->id){ $sel_niv = 'selected="selected"'; }else{ $sel_niv = ''; } ?>
                                             <option <?=$sel_niv?> value="<?=$niv->id?>"><?=$niv->nome?></option>                                           
-                                        <? } ?>
+                                        <?php } ?>
                                         </select>
                                     </div>
                                 </div>   
