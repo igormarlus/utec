@@ -346,6 +346,130 @@ function dash(){
 
 }
 
+function relatorios_clinicos(){
+		$this->load->model('padrao_model');
+
+		$dd_user = $this->padrao_model->get_by_id($this->session->userdata('id'),'usuarios')->row();
+		$dados['dd_user'] = $dd_user;
+
+		$data_inicio = $this->input->get('data_inicio', true);
+		$data_fim = $this->input->get('data_fim', true);
+		$id_prestador = (int)$this->input->get('id_prestador');
+
+		if(!preg_match('/^\d{4}-\d{2}-\d{2}$/', (string)$data_inicio)){
+			$data_inicio = date('Y-m-01');
+		}
+		if(!preg_match('/^\d{4}-\d{2}-\d{2}$/', (string)$data_fim)){
+			$data_fim = date('Y-m-d');
+		}
+		if($data_inicio > $data_fim){
+			$tmp = $data_inicio;
+			$data_inicio = $data_fim;
+			$data_fim = $tmp;
+		}
+
+		$where_agenda = ["a.data_agenda >= '".$data_inicio."'", "a.data_agenda <= '".$data_fim."'"];
+		$where_exames = ["ag.data_agenda >= '".$data_inicio."'", "ag.data_agenda <= '".$data_fim."'"];
+
+		if($dd_user->nivel == "4"){
+			$id_prestador = (int)$dd_user->id_user;
+		}
+		if($dd_user->nivel == "3" || $dd_user->nivel == "2"){
+			$id_prestador = (int)$dd_user->id;
+		}
+
+		if($id_prestador > 0){
+			$where_agenda[] = "a.id_prestador = ".$id_prestador;
+			$where_exames[] = "ag.id_prestador = ".$id_prestador;
+		}
+
+		$where_agenda_sql = " WHERE ".implode(" AND ", $where_agenda)." ";
+		$where_exames_sql = " WHERE ".implode(" AND ", $where_exames)." ";
+
+		$dados['filtros'] = [
+			'data_inicio' => $data_inicio,
+			'data_fim' => $data_fim,
+			'id_prestador' => $id_prestador,
+		];
+
+		$dados['prestadores'] = $this->db->query("SELECT id, nome FROM usuarios WHERE nivel = 3 ORDER BY nome ASC");
+
+		$dados['metricas_relatorio'] = [
+			'atendimentos' => 0,
+			'finalizados' => 0,
+			'pendentes' => 0,
+			'pacientes_ativos' => 0,
+			'exames_solicitados' => 0,
+			'exames_pendentes' => 0,
+		];
+
+		$dados['metricas_relatorio']['atendimentos'] = (int)$this->db->query(
+			"SELECT COUNT(a.id) total FROM agendamentos a ".$where_agenda_sql
+		)->row()->total;
+
+		$dados['metricas_relatorio']['finalizados'] = (int)$this->db->query(
+			"SELECT COUNT(a.id) total FROM agendamentos a ".$where_agenda_sql." AND a.status = 2"
+		)->row()->total;
+
+		$dados['metricas_relatorio']['pendentes'] = (int)$this->db->query(
+			"SELECT COUNT(a.id) total FROM agendamentos a ".$where_agenda_sql." AND a.status = 0"
+		)->row()->total;
+
+		$dados['metricas_relatorio']['pacientes_ativos'] = (int)$this->db->query(
+			"SELECT COUNT(DISTINCT a.id_paciente) total FROM agendamentos a ".$where_agenda_sql
+		)->row()->total;
+
+		$dados['metricas_relatorio']['exames_solicitados'] = (int)$this->db->query(
+			"SELECT COUNT(uea.id) total
+			FROM usuarios_exames_atendimento uea
+			INNER JOIN agendamentos ag ON ag.id = uea.id_atendimento
+			".$where_exames_sql
+		)->row()->total;
+
+		$dados['metricas_relatorio']['exames_pendentes'] = (int)$this->db->query(
+			"SELECT COUNT(uea.id) total
+			FROM usuarios_exames_atendimento uea
+			INNER JOIN agendamentos ag ON ag.id = uea.id_atendimento
+			".$where_exames_sql." AND uea.status IN (0,1)"
+		)->row()->total;
+
+		$dados['resumo_profissionais'] = $this->db->query(
+			"SELECT pr.nome AS prestador_nome,
+			        COUNT(a.id) AS total_atendimentos,
+			        SUM(CASE WHEN a.status = 2 THEN 1 ELSE 0 END) AS total_finalizados,
+			        COUNT(DISTINCT a.id_paciente) AS total_pacientes
+			FROM agendamentos a
+			LEFT JOIN usuarios pr ON pr.id = a.id_prestador
+			".$where_agenda_sql."
+			GROUP BY a.id_prestador, pr.nome
+			ORDER BY total_atendimentos DESC, pr.nome ASC"
+		);
+
+		$dados['atendimentos_recentes'] = $this->db->query(
+			"SELECT a.*, p.nome AS paciente_nome, pr.nome AS prestador_nome
+			FROM agendamentos a
+			LEFT JOIN usuarios p ON p.id = a.id_paciente
+			LEFT JOIN usuarios pr ON pr.id = a.id_prestador
+			".$where_agenda_sql."
+			ORDER BY a.data_agenda DESC, a.hora_agenda DESC, a.id DESC
+			LIMIT 20"
+		);
+
+		$dados['exames_pendentes_lista'] = $this->db->query(
+			"SELECT uea.*, ex.nome AS exame_nome, p.nome AS paciente_nome, pr.nome AS prestador_nome, ag.data_agenda, ag.hora_agenda
+			FROM usuarios_exames_atendimento uea
+			INNER JOIN agendamentos ag ON ag.id = uea.id_atendimento
+			LEFT JOIN exames ex ON ex.id = uea.id_exame
+			LEFT JOIN usuarios p ON p.id = uea.id_user
+			LEFT JOIN usuarios pr ON pr.id = ag.id_prestador
+			".$where_exames_sql." AND uea.status IN (0,1)
+			ORDER BY ag.data_agenda DESC, ag.hora_agenda DESC, uea.id DESC
+			LIMIT 20"
+		);
+
+		$this->load->view('adm/relatorios/clinicos', $dados);
+}
+
 function rel_pedidos(){
 
 	$dd_user = $this->padrao_model->get_by_id($this->session->userdata('id'),'usuarios')->row();

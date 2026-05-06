@@ -32,12 +32,7 @@ class Produtos extends CI_Controller {
 	
 	
 	function novo(){
-		//echo "teste";
-		$dados["categorias"] = $this->db->query("SELECT * FROM produtos_categorias ORDER BY nome asc ");
-		$dados["fornecedores"] = $this->db->query("SELECT * FROM parceiros");
-		
-
-		$this->load->view('adm/produtos/novo', $dados);
+		redirect('adm/produtos');
 
 	}
 	

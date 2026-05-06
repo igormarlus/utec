@@ -16,39 +16,72 @@ class Atendimento extends CI_Controller {
    } // fecha fn USER
 
 function Index(){
-	#echo "teste";
 	$dados["usuarios"] = $this->db->query("SELECT * FROM usuarios");
 	$dados['nivel'] = 1;
 
 	$dd_user = $this->padrao_model->get_by_id($this->session->userdata('id'),'usuarios')->row();
-
-	if($dd_user->nivel == "4"){
-		$id_prestador = $dd_user->id_user;
-	}
-
-	if($dd_user->nivel == "3"){
-		$id_prestador = $dd_user->id;
-	}
-
-	if($dd_user->nivel == "2"){
-		$id_prestador = $dd_user->id;
-	}
-
-	$id_user = $id_prestador;
-
-	#echo $id_user;
-	#return false;
-	
-
-	$qr_agendamentos = $this->db->query("SELECT * FROM agendamentos where id_prestador = $id_user ");
-	#$qr_agendamentos = $this->db->query("SELECT * FROM agendamentos");
-	$dados["qr_agendamentos"] = $qr_agendamentos;
 	$dados["dd"] = $dd_user;
-	$dados["id_user"] = $id_user;
+
+	$data_agenda = $this->input->get('data_agenda', true);
+	$status = $this->input->get('status', true);
+	$id_prestador = (int)$this->input->get('id_prestador');
+	$hoje = date('Y-m-d');
+
+	if(!preg_match('/^\d{4}-\d{2}-\d{2}$/', (string)$data_agenda)){
+		$data_agenda = $hoje;
+	}
+
+	$where = [];
+	if($dd_user->nivel == "4"){
+		$id_prestador = (int)$dd_user->id_user;
+	}
+	if($dd_user->nivel == "3" || $dd_user->nivel == "2"){
+		$id_prestador = (int)$dd_user->id;
+	}
+	if($id_prestador > 0){
+		$where[] = "a.id_prestador = ".$id_prestador;
+	}
+	if($data_agenda){
+		$where[] = "a.data_agenda = '".$data_agenda."'";
+	}
+	if($status !== null && $status !== '' && in_array((string)$status, ['0','1','2'], true)){
+		$where[] = "a.status = ".(int)$status;
+	}
+	$where_sql = count($where) ? " WHERE ".implode(" AND ", $where)." " : "";
+
+	$qr_agendamentos = $this->db->query(
+		"SELECT a.*, p.nome AS paciente_nome, p.telefone AS paciente_telefone, p.img AS paciente_img, pr.nome AS prestador_nome, cad.nome AS cadastrado_por_nome
+		FROM agendamentos a
+		LEFT JOIN usuarios p ON p.id = a.id_paciente
+		LEFT JOIN usuarios pr ON pr.id = a.id_prestador
+		LEFT JOIN usuarios cad ON cad.id = a.id_user
+		".$where_sql."
+		ORDER BY a.data_agenda ASC, a.hora_agenda ASC, a.id DESC"
+	);
+	$dados["qr_agendamentos"] = $qr_agendamentos;
+	$dados["id_user"] = $id_prestador > 0 ? $id_prestador : 0;
+	$dados["prestadores"] = $this->db->query("SELECT id, nome FROM usuarios WHERE nivel = 3 ORDER BY nome ASC");
+	$dados["filtros"] = [
+		'data_agenda' => $data_agenda,
+		'status' => ($status !== null ? (string)$status : ''),
+		'id_prestador' => $id_prestador,
+	];
+
+	$dados["metricas_agenda"] = [
+		'total' => 0,
+		'pendentes' => 0,
+		'em_atendimento' => 0,
+		'finalizados' => 0,
+	];
+
+	foreach($qr_agendamentos->result() as $agenda_item){
+		$dados["metricas_agenda"]['total']++;
+		if((int)$agenda_item->status === 0){ $dados["metricas_agenda"]['pendentes']++; }
+		if((int)$agenda_item->status === 1){ $dados["metricas_agenda"]['em_atendimento']++; }
+		if((int)$agenda_item->status === 2){ $dados["metricas_agenda"]['finalizados']++; }
+	}
 
 	$this->load->view('adm/usuarios/new/atendimentos', $dados);
-	#$this->load->view('adm/usuarios/lista', $dados);
-	#$this->load->view('adm/usuarios/new/lista', $dados);
 
 }
 
@@ -60,6 +93,16 @@ function novo($id_user){
 	$dados['prestadores'] = $this->db->query("SELECT * FROM usuarios WHERE nivel = 3"); 
 
 	$dados["nivel"] = $dados["dd"]->nivel;
+	$dados["prestador_padrao"] = 0;
+	$dd_user = $this->padrao_model->get_by_id($this->session->userdata('id'),'usuarios')->row();
+	if($dd_user){
+		if($dd_user->nivel == "3" || $dd_user->nivel == "2"){
+			$dados["prestador_padrao"] = (int)$dd_user->id;
+		}
+		if($dd_user->nivel == "4"){
+			$dados["prestador_padrao"] = (int)$dd_user->id_user;
+		}
+	}
 
 	$this->load->view('adm/atendimento/atendimento' , $dados);	
 }
@@ -99,6 +142,7 @@ function cadastrar() {
 		'data_agenda' => $this->input->post('data_agenda'),
 		'hora_agenda' => $this->input->post('hora_agenda'),
 		'data_hora_agenda' => $this->input->post('data_agenda')." ".$this->input->post('hora_agenda'),
+		'status' => 0,
 		
 	);
 	

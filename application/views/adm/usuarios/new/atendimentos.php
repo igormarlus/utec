@@ -1,343 +1,275 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Atendimentos</title>
+    <title>Agenda Clinica</title>
     <meta charset="utf-8">
     <meta content="ie=edge" http-equiv="x-ua-compatible">
     <meta content="agenda clinica utec saude" name="keywords">
-    <meta content="Tamerlan Soziev" name="author">
-    <meta content="Agenda clinica com atendimentos e proximas acoes." name="description">
+    <meta content="Agenda clinica com filtros, status operacionais e atalhos de atendimento." name="description">
     <meta content="width=device-width, initial-scale=1" name="viewport">
-    <link href="favicon.png" rel="shortcut icon">
-    <link href="apple-touch-icon.png" rel="apple-touch-icon">
     <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700" rel="stylesheet" type="text/css">
     <link href="<?=base_url()?>bower_components/select2/dist/css/select2.min.css" rel="stylesheet">
-    <link href="<?=base_url()?>bower_components/bootstrap-daterangepicker/daterangepicker.css" rel="stylesheet">
-    <link href="<?=base_url()?>bower_components/dropzone/dist/dropzone.css" rel="stylesheet">
-
-    <!-- <link href="<?=base_url()?>bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css" rel="stylesheet"> -->
-    
-
-    <link href="<?=base_url()?>bower_components/fullcalendar/dist/fullcalendar.min.css" rel="stylesheet">
     <link href="<?=base_url()?>bower_components/perfect-scrollbar/css/perfect-scrollbar.min.css" rel="stylesheet">
     <link href="<?=base_url()?>bower_components/slick-carousel/slick/slick.css" rel="stylesheet">
-    <!--<link href="<?=base_url()?>css/main.css?version=4.5.0" rel="stylesheet">-->
     <link href="<?=base_url()?>css/clicklinica-main.css" rel="stylesheet">
-
-    <link rel="stylesheet" href="<?=base_url()?>bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css">
-    
+    <style>
+      .agenda-stat-card {
+        background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+        border: 1px solid #e2e8f0;
+        border-radius: 18px;
+        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
+        height: 100%;
+        padding: 18px 20px;
+      }
+      .agenda-stat-label {
+        color: #64748b;
+        font-size: 12px;
+        letter-spacing: .08em;
+        margin-bottom: 8px;
+        text-transform: uppercase;
+      }
+      .agenda-stat-value {
+        color: #0f172a;
+        font-size: 30px;
+        font-weight: 700;
+        line-height: 1;
+      }
+      .agenda-filter-card,
+      .agenda-panel {
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: 18px;
+        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+      }
+      .agenda-filter-card { padding: 20px; margin-bottom: 24px; }
+      .agenda-panel-header { padding: 18px 20px 0; }
+      .agenda-panel-body { padding: 18px 20px 20px; }
+      .status-pill {
+        border-radius: 999px;
+        display: inline-block;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: .04em;
+        padding: 5px 10px;
+        text-transform: uppercase;
+      }
+      .status-pendente { background: #fee2e2; color: #b91c1c; }
+      .status-atendimento { background: #dcfce7; color: #166534; }
+      .status-finalizado { background: #fef3c7; color: #92400e; }
+      .patient-cell {
+        align-items: center;
+        display: flex;
+        gap: 12px;
+      }
+      .patient-avatar {
+        align-items: center;
+        background: #e2e8f0;
+        border-radius: 999px;
+        color: #334155;
+        display: inline-flex;
+        font-weight: 700;
+        height: 42px;
+        justify-content: center;
+        overflow: hidden;
+        width: 42px;
+      }
+      .patient-avatar img {
+        height: 100%;
+        object-fit: cover;
+        width: 100%;
+      }
+      .patient-name {
+        color: #0f172a;
+        font-weight: 700;
+      }
+      .patient-subtitle {
+        color: #64748b;
+        font-size: 12px;
+      }
+      .action-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .empty-state {
+        color: #64748b;
+        padding: 26px 12px;
+        text-align: center;
+      }
+    </style>
   </head>
   <body class="menu-position-side menu-side-left full-screen with-content-panel">
     <div class="all-wrapper with-side-panel solid-bg-all">
-      
       <? include("includes/adm/search.php"); ?>
       <div class="layout-w">
-        
-        
-        <? #include("includes/adm/menu.php"); ?>
-        <!--------------------
-        END - Mobile Menu
-        --------------------><!--------------------
-        START - Main Menu
-        -------------------->
-        <? #include("includes/adm/paciente/menu.php"); ?>
         <? include("includes/adm/menu.php"); ?>
-        
-        <!--------------------
-        END - Main Menu
-        -------------------->
         <div class="content-w">
-          <!--------------------
-          START - Top Bar
-          -------------------->
-          
           <? include("includes/adm/top.php"); ?>
-          <!--------------------
-          END - Top Bar
-          --------------------><!--------------------
-          START - Breadcrumbs
-          -------------------->
           <ul class="breadcrumb">
             <li class="breadcrumb-item">
               <a href="<?=base_url()?>adm/usuarios/dash">Painel</a>
             </li>
             <li class="breadcrumb-item">
-              <a href="<?=base_url()?>adm/atendimento">Agenda clinica</a>
-            </li>
-            <li class="breadcrumb-item">
-              <span>Agenda</span>
+              <span>Agenda clinica</span>
             </li>
           </ul>
-          <!--------------------
-          END - Breadcrumbs
-          -------------------->
           <div class="content-panel-toggler">
-            <i class="os-icon os-icon-grid-squares-22"></i><span>Sidebar</span>
+            <i class="os-icon os-icon-grid-squares-22"></i><span>Menu</span>
           </div>
           <div class="content-i">
             <div class="content-box">
-              <div class="row">
-                <div class="col-sm-12">
-                  <div class="element-wrapper">
-                    <div class="element-actions">
-                      <form class="form-inline justify-content-sm-end">
-                        <select class="form-control form-control-sm">
-                          <option value="Pending">
-                            Hoje
-                          </option>
-                          <option value="Active">
-                            Última semana
-                          </option>
-                          <option value="Cancelled">
-                            Últimos 30 dias
-                          </option>
-                        </select>
-                      </form>
+              <div class="element-wrapper">
+                <div class="element-actions">
+                  <a href="<?=base_url()?>adm/usuarios/rel/5" class="btn btn-outline-primary btn-sm">Ver pacientes</a>
+                </div>
+                <h6 class="element-header">Agenda clinica</h6>
+                <p style="color:#64748b">Acompanhe os atendimentos do dia, altere status rapidamente e abra o prontuario sem sair do fluxo.</p>
+              </div>
+
+              <div class="agenda-filter-card">
+                <form method="get" action="<?=base_url()?>adm/atendimento">
+                  <div class="row">
+                    <div class="col-md-3">
+                      <label>Data</label>
+                      <input type="date" name="data_agenda" class="form-control" value="<?=$filtros['data_agenda']?>">
                     </div>
-                    <h6 class="element-header">
-                      <?=$this->padrao_model->get_by_matriz('nivel',$nivel,'usuarios_niveis')->row()->nome?>
-                    </h6>
+                    <div class="col-md-3">
+                      <label>Status</label>
+                      <select name="status" class="form-control">
+                        <option value="" <?=$filtros['status'] === '' ? 'selected="selected"' : ''?>>Todos</option>
+                        <option value="0" <?=$filtros['status'] === '0' ? 'selected="selected"' : ''?>>Pendentes</option>
+                        <option value="1" <?=$filtros['status'] === '1' ? 'selected="selected"' : ''?>>Em atendimento</option>
+                        <option value="2" <?=$filtros['status'] === '2' ? 'selected="selected"' : ''?>>Finalizados</option>
+                      </select>
+                    </div>
+                    <div class="col-md-4">
+                      <label>Profissional</label>
+                      <select name="id_prestador" class="form-control">
+                        <option value="0">Todos os profissionais</option>
+                        <? foreach($prestadores->result() as $prestador){ ?>
+                          <option value="<?=$prestador->id?>" <?=$filtros['id_prestador'] == $prestador->id ? 'selected="selected"' : ''?>><?=$prestador->nome?></option>
+                        <? } ?>
+                      </select>
+                    </div>
+                    <div class="col-md-2 d-flex align-items-end">
+                      <button type="submit" class="btn btn-primary btn-block">Filtrar</button>
+                    </div>
+                  </div>
+                </form>
+              </div>
 
-                    <p>
-                      <a href="<?=base_url()?>adm/atendimento/novo/<?=$id_user?>" class="btn btn-success">Novo Agendamento</a>
-                    </p>
-
+              <div class="row">
+                <div class="col-lg-3 col-md-6">
+                  <div class="agenda-stat-card">
+                    <div class="agenda-stat-label">Atendimentos</div>
+                    <div class="agenda-stat-value"><?=$metricas_agenda['total']?></div>
+                    <div style="color:#475569;font-size:13px;margin-top:8px">para a selecao atual</div>
+                  </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                  <div class="agenda-stat-card">
+                    <div class="agenda-stat-label">Pendentes</div>
+                    <div class="agenda-stat-value"><?=$metricas_agenda['pendentes']?></div>
+                    <div style="color:#475569;font-size:13px;margin-top:8px">aguardando inicio</div>
+                  </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                  <div class="agenda-stat-card">
+                    <div class="agenda-stat-label">Em atendimento</div>
+                    <div class="agenda-stat-value"><?=$metricas_agenda['em_atendimento']?></div>
+                    <div style="color:#475569;font-size:13px;margin-top:8px">atendimentos ativos</div>
+                  </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                  <div class="agenda-stat-card">
+                    <div class="agenda-stat-label">Finalizados</div>
+                    <div class="agenda-stat-value"><?=$metricas_agenda['finalizados']?></div>
+                    <div style="color:#475569;font-size:13px;margin-top:8px">encerrados no dia</div>
                   </div>
                 </div>
               </div>
 
-              <? /* if($id_agenda > 0){ ?>
-              <div class="row">
-                <div class="col-sm-12 col-xxxl-12">
-                  <div class="element-wrapper">
-                    
-                    <div class="element-box">
-
-                      <!-- FORM -->
-
-                      <form id="form" name="form" class="mws-form" method="post" action="<?php echo base_url() ?>index.php/adm/atendimento/set" enctype='multipart/form-data'>
-                        <input type="number" name="id_agenda" value="<?=$id_agenda?>">
-                          <h5 class="form-header">
-                            Informações do atendimento
-                          </h5>
-
-                          <div class="form-desc">
-                            Preencha as informações corretamente.
-                          </div>
-
-                          <div class="form-group">
-                              <label class="mws-form-label">Atendimento Inicial</label>
-                              <div class="mws-form-item">
-                                <!-- <input type="hidden" name="id" value="<?php #echo $usuario->id; ?>"> -->
-                                  <textarea name="atendimento_inicial" class="form-control" placeholder="Preencha o atendimento inicial"><?=$dd_agenda->atendimento_inicial?></textarea>
-                              </div>
-                          </div>
-
-                          
-                            <div class="row">
-
-                              <div class="col-sm-12">
-                                <div class="form-group bordered">
-                                    <label class="mws-form-label">Avaliação </label>
-                                    <div class="mws-form-item">
-                                        <textarea name="avaliacao" class="form-control" placeholder="Preencha sua Avaliação"><?=$dd_agenda->avaliacao?></textarea>
-                                    </div>
-                                </div>  
-                              </div>  
-
-                              <div class="col-sm-12">
-                                <div class="form-group bordered">
-                                    <label class="mws-form-label">Reavaliação </label>
-                                    <div class="mws-form-item">
-                                        <textarea  name="reavaliacao" class="form-control" placeholder="Preencha sua Revaliação"><?=$dd_agenda->reavaliacao?></textarea>
-                                    </div>
-                                </div>  
-                              </div>  
-
-                              <div class="row">
-                                <div class="col-sm-12">
-                                  <div class="form-group">
-                                    <label class="mws-form-label"> </label>
-                                    <div class="mws-form-item">
-                                      <button class="btn btn-primary" type="submit"> Salvar</button>
-                                    </div>
-                                  </div>
+              <div class="agenda-panel" style="margin-top:24px">
+                <div class="agenda-panel-header">
+                  <div class="d-flex flex-wrap justify-content-between align-items-start" style="gap:12px">
+                    <div>
+                      <h6 class="element-header" style="margin-bottom:4px">Lista operacional da agenda</h6>
+                      <p style="margin:0;color:#64748b">Use os atalhos para iniciar, concluir ou abrir o prontuario do paciente.</p>
+                    </div>
+                    <a href="<?=base_url()?>adm/usuarios/rel/5" class="btn btn-success btn-sm">Novo agendamento via paciente</a>
+                  </div>
+                </div>
+                <div class="agenda-panel-body">
+                  <div class="table-responsive">
+                    <table class="table table-lightborder">
+                      <thead>
+                        <tr>
+                          <th>Horario</th>
+                          <th>Paciente</th>
+                          <th>Tipo</th>
+                          <th>Profissional</th>
+                          <th>Status</th>
+                          <th>Contato</th>
+                          <th>Acoes</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <? if($qr_agendamentos->num_rows() > 0){ foreach($qr_agendamentos->result() as $agenda){ ?>
+                          <? $status_class = 'status-pendente'; $status_nome = 'Pendente'; ?>
+                          <? if((int)$agenda->status === 1){ $status_class = 'status-atendimento'; $status_nome = 'Em atendimento'; } ?>
+                          <? if((int)$agenda->status === 2){ $status_class = 'status-finalizado'; $status_nome = 'Finalizado'; } ?>
+                          <? $iniciais = strtoupper(substr(trim($agenda->paciente_nome), 0, 1)); ?>
+                          <tr>
+                            <td>
+                              <strong><?=substr($agenda->hora_agenda,0,5)?>h</strong><br>
+                              <small><?=$this->padrao_model->converte_data($agenda->data_agenda)?></small>
+                            </td>
+                            <td>
+                              <div class="patient-cell">
+                                <div class="patient-avatar">
+                                  <? if($agenda->paciente_img != ""){ ?>
+                                    <img src="<?=base_url()?>imagens/usuarios/min/<?=$agenda->paciente_img?>" alt="<?=$agenda->paciente_nome?>">
+                                  <? } else { ?>
+                                    <?=$iniciais ? $iniciais : 'P'?>
+                                  <? } ?>
+                                </div>
+                                <div>
+                                  <div class="patient-name"><?=$agenda->paciente_nome?></div>
+                                  <div class="patient-subtitle">Agendamento #<?=$agenda->id?></div>
                                 </div>
                               </div>
-
-                            </div>
-                        </form>
-
-                      <!-- X FORM -->
-
-                    </div>
+                            </td>
+                            <td><?=ucfirst($agenda->tipo)?></td>
+                            <td><?=$agenda->prestador_nome ? $agenda->prestador_nome : 'Nao informado'?></td>
+                            <td><span class="status-pill <?=$status_class?>"><?=$status_nome?></span></td>
+                            <td>
+                              <? $tel = str_replace(["-"," ","+","(",")"], "", $agenda->paciente_telefone); ?>
+                              <? if($agenda->paciente_telefone){ ?>
+                                <a href="https://api.whatsapp.com/send?phone=55<?=$tel?>" target="_blank"><?=$agenda->paciente_telefone?></a>
+                              <? } else { ?>
+                                <span class="patient-subtitle">Nao informado</span>
+                              <? } ?>
+                            </td>
+                            <td>
+                              <div class="action-group">
+                                <a href="<?=base_url()?>adm/usuarios/prontuario/<?=$agenda->id_paciente?>/<?=$agenda->id?>" class="btn btn-sm btn-primary">Prontuario</a>
+                                <a href="<?=base_url()?>adm/atendimento/set_status_agenda/<?=$agenda->id?>/<?=$agenda->status?>" class="btn btn-sm btn-outline-secondary">
+                                  <?=$agenda->status == 0 ? 'Iniciar' : ($agenda->status == 1 ? 'Finalizar' : 'Reabrir')?>
+                                </a>
+                              </div>
+                            </td>
+                          </tr>
+                        <? } } else { ?>
+                          <tr>
+                            <td colspan="7" class="empty-state">Nenhum agendamento encontrado para os filtros selecionados.</td>
+                          </tr>
+                        <? } ?>
+                      </tbody>
+                    </table>
                   </div>
                 </div>
               </div>
-            <? } */ ?>
-
-              <div class="row">
-                <div class="col-sm-12 col-xxxl-12">
-                  <div class="element-wrapper">
-                    
-                    <div class="element-box">
-
-
-                      <div class="table-responsive">
-                          
-                        <table class="table table-lightborder" id="">
-                            <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Dt. Cadastro</th>
-                                    
-                                    
-                                    <!--<th>Vídeo</th>-->
-                                    <th>Foto</th>
-
-                                    <th>Nome</th>
-
-                                    <th>Prontuário</th>
-                                    
-                                    <th>Data</th>
-                                    <th>hora</th>
-                                    <th>Status</th>
-                                    <!-- <th>Produtos</th>
-                                    <th>Solicitações</th> -->
-                                    
-                                    <th>Telefone</th>   
-                                    <th>Cad. Por</th>
-                                    
-                                    
-                                    <th align="center" style="text-align: center;">Ações</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                              <?php 
-                              if($qr_agendamentos->num_rows() > 0){
-                                foreach ($qr_agendamentos->result() as $agenda) {
-                                $usuario = $this->padrao_model->get_by_id($agenda->id_paciente,'usuarios')->row();
-                ?>
-                                <tr>
-                                  <td><?=$agenda->id?></td>
-                                  <td><?=$agenda->dt_cadastro?></td>
-                                  
-                                  
-                                  <!--<td>
-                                        <? /* if($usuario->video != ""){ ?>
-                                            <a target="_blank" href="<?=base_url()?>uploads/<?=$usuario->video?>" alt="Foto usuário"><?=substr($usuario->video,0,10)?></a>
-                                        <? }else{ ?>
-                                            Sem Vídeo
-                                        <? } */ ?>
-                                    </td>-->
-                                  <td>
-                                    <? if($usuario->img != ""){ ?>
-                                            <a target="_blank" href="<?=base_url()?>imagens/usuarios/<?=$usuario->img?>" ><img src="<?=base_url()?>imagens/usuarios/min/<?=$usuario->img?>" alt="Foto usuário"></a>
-                                        <? }else{ ?>
-                                            Sem foto
-                                        <? } ?>
-                                  </td>
-                                    
-                                    <td> 
-                                      <a href="<?=base_url('adm/usuarios/prontuario/'.$usuario->id.'/'.$agenda->id)?>">
-                                        <?php echo $usuario->nome; ?>
-                                      </a>
-                                    </td>
-
-
-                                    <td>
-                                      
-                                      <span class="btn-group">
-                                            <!-- <a href="#" class="btn btn-small"><i class="icon-search"></i></a> -->
-                                            <? #if($usuario->nivel == 5){ ?>
-                                            <a href="<?php echo base_url().'index.php/adm/atendimento/prontuario/'.$usuario->id; ?>" class="btn btn-small" style="color:blue" target="_blank">
-                                                <i class="os-icon os-icon-edit"></i>
-                                                Prontuário
-                                                <!-- <i class="icon-tag"></i> -->
-                                            </a>
-
-                                            <? #} ?>
-                                    </td>
-
-
-                                    
-
-                                    
-                                    <td>
-                                      <?=$this->padrao_model->converte_data($agenda->data_agenda)?>
-                                      
-                                      <? #=$agenda->data_hora_agenda?>
-                                    </td>
-
-                                    <td>
-                                      
-                                      <?=substr($agenda->hora_agenda,0,5)?>h
-                                      <? #=$agenda->data_hora_agenda?>
-                                    </td>
-
-                                    <td>
-                                        <a href="<?php echo base_url().'index.php/adm/atendimento/set_status_agenda/'.$agenda->id.'/'.$agenda->status; ?>" class="btn btn-small">
-                                          <? if($agenda->status == 1){ ?>
-                                              <!--<i class="os-icon os-icon-check"></i>-->
-                                              <i class="os-icon os-icon-check-circle"  title="Em atendimento" style="color:green"></i>
-                                           <? } ?>
-                                           <? if($agenda->status == 2){ ?>
-                                              <i class="os-icon os-icon-check-circle" title="Finalizado" style="color:orange"></i>
-                                           <? } ?>
-                                           <? if($agenda->status == 0){ ?>
-                                              <i class="os-icon os-icon-check-circle" title="Pendente" style="color:red"></i>
-                                           <? } ?>
-                                        </a>
-                                        
-                                    </td>
-
-
-                                 
-                                    
-                                    <td title="<?php #echo $usuario->device; ?>">
-                                        <?
-                                        $arr_replcae_tel = array("-"," ","+","(",")"); 
-                                        $tel_trat = str_replace($arr_replcae_tel, "",$usuario->telefone);
-                                        ?>
-                                        <a href="https://api.whatsapp.com/send?phone=55<?=$tel_trat?>" target="_blank">
-                                            <?php echo $usuario->telefone; ?>                                           
-                                        </a> 
-                                    </td>
-
-                                    <td><?=$this->padrao_model->get_by_id($agenda->id_user,'usuarios')->row()->nome?></td>
-                                    
-                                    
-
-                                    <td>
-                                      
-                                    <span class="btn-group">
-                                      
-                                            
-                                            <a href="<?php echo base_url().'adm/usuarios/prontuario/'.$usuario->id.'/'.$agenda->id; ?>" class="btn btn-small" style="color:orange"><i class="os-icon os-icon-edit"></i>Edição</a>
-                                            
-                                        </span>
-                                    </td>
-                                </tr>
-                                <?php
-                }
-              }
-                ?>
-                            </tbody>
-                        </table>
-
-
-
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                
-                
-
             </div>
-            <!--------------------
-            END - Sidebar
-            -------------------->
           </div>
         </div>
       </div>
@@ -345,28 +277,12 @@
     </div>
     <script src="<?=base_url()?>bower_components/jquery/dist/jquery.min.js"></script>
     <script src="<?=base_url()?>bower_components/popper.js/dist/umd/popper.min.js"></script>
-    <script src="<?=base_url()?>bower_components/moment/moment.js"></script>
-    <script src="<?=base_url()?>bower_components/chart.js/dist/Chart.min.js"></script>
     <script src="<?=base_url()?>bower_components/select2/dist/js/select2.full.min.js"></script>
-    <script src="<?=base_url()?>bower_components/jquery-bar-rating/dist/jquery.barrating.min.js"></script>
-    <script src="<?=base_url()?>bower_components/ckeditor/ckeditor.js"></script>
-    <script src="<?=base_url()?>bower_components/bootstrap-validator/dist/validator.min.js"></script>
-    <script src="<?=base_url()?>bower_components/bootstrap-daterangepicker/daterangepicker.js"></script>
-    <script src="<?=base_url()?>bower_components/ion.rangeSlider/js/ion.rangeSlider.min.js"></script>
-    <script src="<?=base_url()?>bower_components/dropzone/dist/dropzone.js"></script>
-    <script src="<?=base_url()?>bower_components/editable-table/mindmup-editabletable.js"></script>
-
-    <script src="<?=base_url()?>bower_components/datatables.net/js/jquery.dataTables.min.js"></script>
-    <script src="<?=base_url()?>bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>
-
-    <script src="<?=base_url()?>bower_components/fullcalendar/dist/fullcalendar.min.js"></script>
     <script src="<?=base_url()?>bower_components/perfect-scrollbar/js/perfect-scrollbar.jquery.min.js"></script>
-    <script src="<?=base_url()?>bower_components/tether/dist/js/tether.min.js"></script>
     <script src="<?=base_url()?>bower_components/slick-carousel/slick/slick.min.js"></script>
     <script src="<?=base_url()?>bower_components/bootstrap/js/dist/util.js"></script>
     <script src="<?=base_url()?>bower_components/bootstrap/js/dist/alert.js"></script>
     <script src="<?=base_url()?>bower_components/bootstrap/js/dist/button.js"></script>
-    <script src="<?=base_url()?>bower_components/bootstrap/js/dist/carousel.js"></script>
     <script src="<?=base_url()?>bower_components/bootstrap/js/dist/collapse.js"></script>
     <script src="<?=base_url()?>bower_components/bootstrap/js/dist/dropdown.js"></script>
     <script src="<?=base_url()?>bower_components/bootstrap/js/dist/modal.js"></script>
@@ -375,42 +291,5 @@
     <script src="<?=base_url()?>bower_components/bootstrap/js/dist/popover.js"></script>
     <script src="<?=base_url()?>js/demo_customizer.js?version=4.5.0"></script>
     <script src="<?=base_url()?>js/main.js?version=4.5.0"></script>
-
-    <script>
-      $(document).ready(function() {
-          $('.table__').DataTable({
-              "pageLength": 10,
-              //"order": [], // evita ordenação automática
-               "order": [[0, 'desc']],
-              "language": {
-                  "url": "//cdn.datatables.net/plug-ins/1.10.20/i18n/Portuguese-Brasil.json"
-              }
-          });
-
-          $('.table').DataTable({
-              "paging": true,
-              "lengthChange": true,
-              "searching": true,
-              "ordering": true,
-              "order": [[0, 'desc']],
-              "info": true,
-              "autoWidth": false,
-              "language": {
-                  "url": "//cdn.datatables.net/plug-ins/1.10.20/i18n/Portuguese-Brasil.json"
-              },
-          });
-      });
-      </script>
-
-
-    <script>
-      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
-      
-      ga('create', 'UA-XXXXXXXX-9', 'auto');
-      ga('send', 'pageview');
-    </script>
   </body>
 </html>
