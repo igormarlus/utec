@@ -1,364 +1,247 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Exames</title>
+    <title>Checklist de Exames</title>
     <meta charset="utf-8">
     <meta content="ie=edge" http-equiv="x-ua-compatible">
     <meta content="exames clinicos utec saude" name="keywords">
-    <meta content="Tamerlan Soziev" name="author">
-    <meta content="Solicitacao e acompanhamento de exames do paciente." name="description">
+    <meta content="Checklist operacional de exames com solicitacao e acompanhamento por atendimento." name="description">
     <meta content="width=device-width, initial-scale=1" name="viewport">
-    <link href="favicon.png" rel="shortcut icon">
-    <link href="apple-touch-icon.png" rel="apple-touch-icon">
     <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700" rel="stylesheet" type="text/css">
     <link href="<?=base_url()?>bower_components/select2/dist/css/select2.min.css" rel="stylesheet">
-    <link href="<?=base_url()?>bower_components/bootstrap-daterangepicker/daterangepicker.css" rel="stylesheet">
-    <link href="<?=base_url()?>bower_components/dropzone/dist/dropzone.css" rel="stylesheet">
-
-    <!-- <link href="<?=base_url()?>bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css" rel="stylesheet"> -->
-    
-
-    <link href="<?=base_url()?>bower_components/fullcalendar/dist/fullcalendar.min.css" rel="stylesheet">
     <link href="<?=base_url()?>bower_components/perfect-scrollbar/css/perfect-scrollbar.min.css" rel="stylesheet">
     <link href="<?=base_url()?>bower_components/slick-carousel/slick/slick.css" rel="stylesheet">
-    <!--<link href="<?=base_url()?>css/main.css?version=4.5.0" rel="stylesheet">-->
     <link href="<?=base_url()?>css/clicklinica-main.css" rel="stylesheet">
-
-    <link rel="stylesheet" href="<?=base_url()?>bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css">
-    
+    <style>
+      .exam-stat-card {
+        background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+        border: 1px solid #e2e8f0;
+        border-radius: 18px;
+        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
+        height: 100%;
+        padding: 18px 20px;
+      }
+      .exam-stat-label {
+        color: #64748b;
+        font-size: 12px;
+        letter-spacing: .08em;
+        margin-bottom: 8px;
+        text-transform: uppercase;
+      }
+      .exam-stat-value {
+        color: #0f172a;
+        font-size: 30px;
+        font-weight: 700;
+        line-height: 1;
+      }
+      .exam-panel {
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: 18px;
+        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+        margin-bottom: 24px;
+      }
+      .exam-panel-header {
+        padding: 18px 20px 0;
+      }
+      .exam-panel-body {
+        padding: 18px 20px 20px;
+      }
+      .exam-option-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 12px;
+      }
+      .exam-option {
+        align-items: flex-start;
+        background: #f8fbff;
+        border: 1px solid #dde7f3;
+        border-radius: 14px;
+        display: flex;
+        gap: 10px;
+        padding: 14px;
+      }
+      .status-pill {
+        border-radius: 999px;
+        display: inline-block;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: .04em;
+        padding: 5px 10px;
+        text-transform: uppercase;
+      }
+      .status-pendente { background: #fee2e2; color: #b91c1c; }
+      .status-solicitado { background: #dbeafe; color: #1d4ed8; }
+      .status-entregue { background: #dcfce7; color: #166534; }
+      .exam-table td, .exam-table th {
+        vertical-align: middle;
+      }
+      .empty-state {
+        color: #64748b;
+        padding: 24px 12px;
+        text-align: center;
+      }
+    </style>
   </head>
   <body class="menu-position-side menu-side-left full-screen with-content-panel">
     <div class="all-wrapper with-side-panel solid-bg-all">
-      
       <? include("includes/adm/search.php"); ?>
       <div class="layout-w">
-        
-        
-        <? #include("includes/adm/menu.php"); ?>
-        <!--------------------
-        END - Mobile Menu
-        --------------------><!--------------------
-        START - Main Menu
-        -------------------->
         <? include("includes/adm/paciente/menu.php"); ?>
-        
-        <!--------------------
-        END - Main Menu
-        -------------------->
         <div class="content-w">
-          <!--------------------
-          START - Top Bar
-          -------------------->
-          
           <? include("includes/adm/top.php"); ?>
-          <!--------------------
-          END - Top Bar
-          --------------------><!--------------------
-          START - Breadcrumbs
-          -------------------->
           <ul class="breadcrumb">
             <li class="breadcrumb-item">
               <a href="<?=base_url()?>adm/usuarios/dash">Painel</a>
             </li>
             <li class="breadcrumb-item">
-              <a href="<?=base_url()?>adm/usuarios/prontuario/<?=$dd->id?>">Paciente</a>
+              <a href="<?=base_url()?>adm/usuarios/prontuario/<?=$dd->id?>">Prontuario</a>
             </li>
             <li class="breadcrumb-item">
-              <span>Exames</span>
+              <span>Checklist de exames</span>
             </li>
           </ul>
-          <!--------------------
-          END - Breadcrumbs
-          -------------------->
           <div class="content-panel-toggler">
-            <i class="os-icon os-icon-grid-squares-22"></i><span>Sidebar</span>
+            <i class="os-icon os-icon-grid-squares-22"></i><span>Menu</span>
           </div>
           <div class="content-i">
             <div class="content-box">
+              <div class="element-wrapper">
+                <div class="element-actions">
+                  <a href="<?=base_url()?>adm/usuarios/prontuario/<?=$dd->id?>" class="btn btn-outline-primary btn-sm">Voltar ao prontuario</a>
+                </div>
+                <h6 class="element-header">Checklist operacional de exames</h6>
+                <p style="color:#64748b">Solicite exames por atendimento e acompanhe o que ainda esta pendente, solicitado ou entregue.</p>
+              </div>
+
               <div class="row">
-                <div class="col-sm-12">
-                  <div class="element-wrapper">
-                    <div class="element-actions">
-                      <form class="form-inline justify-content-sm-end">
-                        <select class="form-control form-control-sm">
-                          <option value="Pending">
-                            Hoje
-                          </option>
-                          <option value="Active">
-                            Última semana
-                          </option>
-                          <option value="Cancelled">
-                            Últimos 30 dias
-                          </option>
+                <div class="col-lg-3 col-md-6">
+                  <div class="exam-stat-card">
+                    <div class="exam-stat-label">Total</div>
+                    <div class="exam-stat-value"><?=$metricas_exames['total']?></div>
+                    <div style="color:#475569;font-size:13px;margin-top:8px">itens no checklist</div>
+                  </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                  <div class="exam-stat-card">
+                    <div class="exam-stat-label">Pendentes</div>
+                    <div class="exam-stat-value"><?=$metricas_exames['pendentes']?></div>
+                    <div style="color:#475569;font-size:13px;margin-top:8px">ainda nao solicitados</div>
+                  </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                  <div class="exam-stat-card">
+                    <div class="exam-stat-label">Solicitados</div>
+                    <div class="exam-stat-value"><?=$metricas_exames['solicitados']?></div>
+                    <div style="color:#475569;font-size:13px;margin-top:8px">aguardando retorno</div>
+                  </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                  <div class="exam-stat-card">
+                    <div class="exam-stat-label">Entregues</div>
+                    <div class="exam-stat-value"><?=$metricas_exames['entregues']?></div>
+                    <div style="color:#475569;font-size:13px;margin-top:8px">ja anexados/recebidos</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="exam-panel" style="margin-top:24px">
+                <div class="exam-panel-header">
+                  <h6 class="element-header" style="margin-bottom:4px">Nova solicitacao</h6>
+                  <p style="margin:0;color:#64748b">Associe os exames ao atendimento correto para manter o historico clinico consistente.</p>
+                </div>
+                <div class="exam-panel-body">
+                  <form id="form" name="form" method="post" action="<?php echo base_url() ?>index.php/adm/atendimento/set_exame">
+                    <input type="hidden" name="id_user" value="<?=$dd->id?>">
+                    <div class="row">
+                      <div class="col-md-6">
+                        <label>Atendimento de referencia</label>
+                        <select name="id_agendamento" class="form-control" required>
+                          <? if($qr_agendamentos->num_rows() > 0){ foreach ($qr_agendamentos->result() as $agenda) { ?>
+                            <option value="<?=$agenda->id?>"><?=$this->padrao_model->converte_data($agenda->data_agenda)?> as <?=substr($agenda->hora_agenda,0,5)?>h · <?=ucfirst($agenda->tipo)?></option>
+                          <? } } ?>
                         </select>
-                      </form>
-                    </div>
-                    <h6 class="element-header">
-                      <? #=$this->padrao_model->get_by_matriz('nivel',$nivel,'usuarios_niveis')->row()->nome?>
-                      Exames
-                    </h6>
-
-                    <!-- <p>
-                      <a href="<?=base_url()?>adm/atendimento/novo_exame/<?=$dd->id?>" class="btn btn-success">Novo Exame</a>
-                    </p> -->
-
-                  </div>
-                </div>
-              </div>
-
-              <? #if($id_agenda > 0){ ?>
-              <div class="row">
-                <div class="col-sm-12 col-xxxl-12">
-                  <div class="element-wrapper">
-                    
-                    <div class="element-box">
-
-                      <!-- FORM -->
-
-                      <form id="form" name="form" class="mws-form" method="post" action="<?php echo base_url() ?>index.php/adm/atendimento/set_exame" enctype='multipart/form-data'>
-                        <input type="hidden" name="id_user" value="<?=$dd->id?>">
-                          <h5 class="form-header">
-                            Cadastro de novos exames
-                          </h5>
-
-                          <div class="form-desc">
-                            Preencha as informações corretamente.
-                          </div>
-
-                          <div class="form-group">
-                              <label class="mws-form-label">Atendimento Inicial</label>
-                              <div class="mws-form-item">
-                                <select name="id_agendamento" id="" class="form-control" >
-                                  <?
-                                  if($qr_agendamentos->num_rows() > 0){
-                                    foreach ($qr_agendamentos->result() as $agenda) { ?>
-                                      <option value="<?=$agenda->id?>"><?=$this->padrao_model->converte_data($agenda->data_agenda)?></option>
-
-                                  <? } } ?>
-                                </select>
-                              </div>
-                          </div>
-
-                          
-                            <div class="row">
-
-                              <div class="col-sm-12">
-                                <div class="form-group bordered">
-                                    <label class="mws-form-label">Exames </label>
-                                    <div class="mws-form-item">
-                                        
-                                          <?
-                                          if($exames->num_rows() > 0){
-                                            foreach ($exames->result() as $exame) { ?>
-                                              <input type="checkbox" name="exames[]" value="<?=$exame->id?>" id="exame<?=$exame->id?>"> - <label for="exame<?=$exame->id?>"><?=$exame->nome?></label> <br>
-
-                                          <? } } ?>
-                                        
-                                    </div>
-                                </div>  
-                              </div>  
-
-                              <div class="col-sm-12">
-                                <div class="form-group bordered">
-                                    <label class="mws-form-label">OBS </label>
-                                    <div class="mws-form-item">
-                                        <textarea  name="obs" class="form-control" placeholder="Observação"><? #=$dd_agenda->reavaliacao?></textarea>
-                                    </div>
-                                </div>  
-                              </div>  
-
-                              <div class="row">
-                                <div class="col-sm-12">
-                                  <div class="form-group">
-                                    <label class="mws-form-label"> </label>
-                                    <div class="mws-form-item">
-                                      <button class="btn btn-primary" type="submit"> Salvar</button>
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-
-                            </div>
-                        </form>
-
-                      <!-- X FORM -->
-
-                    </div>
-                  </div>
-                </div>
-              </div>
-            <? #}  ?>
-
-              <div class="row">
-                <div class="col-sm-12 col-xxxl-12">
-                  <div class="element-wrapper">
-                    
-                    <div class="element-box">
-
-
-                      <div class="table-responsive">
-                          
-                        <table class="table table-lightborder" id="">
-                            <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Dt. Cadastro</th>
-                                    
-                                    
-                                    <!--<th>Vídeo</th>-->
-                                    <th>Exame</th>
-
-                                    <th>Nome</th>
-
-                                    <th>Colaborador</th>
-
-                                    <th>Prontuário</th>
-                                    
-                                    <th>Data</th>
-                                    <th>hora</th>
-                                    <th>Status</th>
-                                    <!-- <th>Produtos</th>
-                                    <th>Solicitações</th> -->
-                                    
-                                    <th>Telefone</th>   
-                                    <th>Cad. Por</th>
-                                    
-                                    
-                                    <th align="center" style="text-align: center;">Ações</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                              <?php 
-                              if($exames_user->num_rows() > 0){
-                                foreach ($exames_user->result() as $ex) {
-                                $agenda = $this->padrao_model->get_by_id($ex->id_atendimento,'agendamentos')->row();
-                                $usuario = $this->padrao_model->get_by_id($agenda->id_paciente,'usuarios')->row();
-                                $prestador = $this->padrao_model->get_by_id($agenda->id_prestador,'usuarios')->row();
-                ?>
-                                <tr>
-                                  <td><?=$agenda->id?></td>
-                                  <td><?=$agenda->dt_cadastro?></td>
-                                  
-                                  
-                                  <!--<td>
-                                        <? /* if($usuario->video != ""){ ?>
-                                            <a target="_blank" href="<?=base_url()?>uploads/<?=$usuario->video?>" alt="Foto usuário"><?=substr($usuario->video,0,10)?></a>
-                                        <? }else{ ?>
-                                            Sem Vídeo
-                                        <? } */ ?>
-                                    </td>-->
-                                  <td>
-                                    <? 
-                                    $qr_exame = $this->padrao_model->get_by_id($ex->id_exame,'exames')->row();
-                                    echo $qr_exame->nome;
-                                    ?>
-                                  </td>
-
-                                  <td>
-                                    <a href="<?=base_url('adm/atendimento/prontuario/'.$usuario->id.'/'.$agenda->id)?>" target="_blank">
-                                        <?php echo $usuario->nome; ?>
-                                      </a>
-                                  </td>
-                                    
-                                    <td> 
-                                      
-                                        <?php echo $prestador->nome; ?>
-                                      
-                                    </td>
-
-                                    <td>
-                                      
-                                      <span class="btn-group">
-                                            <!-- <a href="#" class="btn btn-small"><i class="icon-search"></i></a> -->
-                                            <? #if($usuario->nivel == 5){ ?>
-                                            <a href="<?php echo base_url().'index.php/adm/usuarios/prontuario/'.$usuario->id; ?>" class="btn btn-small" style="color:blue" target="_blank">
-                                                <i class="os-icon os-icon-edit"></i>
-                                                Prontuário
-                                                <!-- <i class="icon-tag"></i> -->
-                                            </a>
-
-                                            <? #} ?>
-                                    </td>
-
-                                    
-
-                                    
-                                    <td>
-                                      <?=$this->padrao_model->converte_data($agenda->data_agenda)?>
-                                      
-                                      <? #=$agenda->data_hora_agenda?>
-                                    </td>
-
-                                    <td>
-                                      
-                                      <?=substr($agenda->hora_agenda,0,5)?>h
-                                      <? #=$agenda->data_hora_agenda?>
-                                    </td>
-
-                                    <td>
-                                        <a href="<?php echo base_url().'index.php/adm/atendimento/set_status_exame/'.$ex->id.'/'.$ex->status; ?>" class="btn btn-small">
-                                          
-                                          <? if($ex->status === "2"){ ?>
-                                              
-                                              <i class="os-icon os-icon-check-circle"  title="Entregue" style="color:green"></i>
-                                           <? } ?>
-                                           <? if($ex->status === "1"){ ?>
-                                              <i class="os-icon os-icon-check-circle" title="Solicitado" style="color:orange"></i>
-                                           <? } ?>
-                                           <? if($ex->status === "0"){ ?>
-                                              <i class="os-icon os-icon-check-circle" title="Pendente" style="color:red"></i>
-                                           <? } ?>
-                                        </a>
-                                        
-                                    </td>
-
-
-                                 
-                                    
-                                    <td title="<?php #echo $usuario->device; ?>">
-                                        <?
-                                        $arr_replcae_tel = array("-"," ","+","(",")"); 
-                                        $tel_trat = str_replace($arr_replcae_tel, "",$usuario->telefone);
-                                        ?>
-                                        <a href="https://api.whatsapp.com/send?phone=55<?=$tel_trat?>" target="_blank">
-                                            <?php echo $usuario->telefone; ?>                                           
-                                        </a> 
-                                    </td>
-
-                                    <td><?=$this->padrao_model->get_by_id($agenda->id_user,'usuarios')->row()->nome?></td>
-                                    
-                                    
-
-                                    <td>
-                                      
-                                    <span class="btn-group">
-                                      
-                                            
-                                            <a href="<?php echo base_url().'adm/usuarios/prontuario/'.$usuario->id.'/'.$agenda->id; ?>" class="btn btn-small" style="color:orange"><i class="os-icon os-icon-edit"></i>Editar prontuário</a>
-                                            
-                                        </span>
-                                    </td>
-                                </tr>
-                                <?php
-                }
-              }
-                ?>
-                            </tbody>
-                        </table>
-
-
-
+                      </div>
+                      <div class="col-md-6">
+                        <label>Observacoes</label>
+                        <input type="text" name="obs" class="form-control" placeholder="Ex: jejum, urgencia, preparo ou retorno previsto">
                       </div>
                     </div>
+                    <div style="margin-top:16px">
+                      <label>Selecione os exames</label>
+                      <div class="exam-option-grid">
+                        <? if($exames->num_rows() > 0){ foreach ($exames->result() as $exame) { ?>
+                          <label class="exam-option" for="exame<?=$exame->id?>">
+                            <input type="checkbox" name="exames[]" value="<?=$exame->id?>" id="exame<?=$exame->id?>">
+                            <span><?=$exame->nome?></span>
+                          </label>
+                        <? } } else { ?>
+                          <div class="empty-state">Nenhum exame cadastrado para selecao.</div>
+                        <? } ?>
+                      </div>
+                    </div>
+                    <div style="margin-top:18px">
+                      <button class="btn btn-primary" type="submit">Adicionar ao checklist</button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+
+              <div class="exam-panel">
+                <div class="exam-panel-header">
+                  <h6 class="element-header" style="margin-bottom:4px">Checklist por atendimento</h6>
+                  <p style="margin:0;color:#64748b">Atualize o status dos exames a medida que forem solicitados ou entregues.</p>
+                </div>
+                <div class="exam-panel-body">
+                  <div class="table-responsive">
+                    <table class="table table-lightborder exam-table">
+                      <thead>
+                        <tr>
+                          <th>Exame</th>
+                          <th>Atendimento</th>
+                          <th>Profissional</th>
+                          <th>Status</th>
+                          <th>Observacoes</th>
+                          <th>Acoes</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <? if($exames_user->num_rows() > 0){ foreach ($exames_user->result() as $ex) { ?>
+                          <? $status_class = 'status-pendente'; $status_nome = 'Pendente'; ?>
+                          <? if((string)$ex->status === '1'){ $status_class = 'status-solicitado'; $status_nome = 'Solicitado'; } ?>
+                          <? if((string)$ex->status === '2'){ $status_class = 'status-entregue'; $status_nome = 'Entregue'; } ?>
+                          <tr>
+                            <td>
+                              <strong><?=$ex->exame_nome ? $ex->exame_nome : 'Exame nao identificado'?></strong><br>
+                              <small>Paciente: <?=$dd->nome?></small>
+                            </td>
+                            <td>
+                              <?=$this->padrao_model->converte_data($ex->data_agenda)?> as <?=substr($ex->hora_agenda,0,5)?>h<br>
+                              <small>Atendimento #<?=$ex->id_atendimento?></small>
+                            </td>
+                            <td><?=$ex->prestador_nome ? $ex->prestador_nome : 'Nao informado'?></td>
+                            <td><span class="status-pill <?=$status_class?>"><?=$status_nome?></span></td>
+                            <td><?=trim((string)$ex->obs) !== '' ? nl2br(htmlspecialchars($ex->obs)) : '<span style="color:#94a3b8">Sem observacoes</span>'?></td>
+                            <td>
+                              <div style="display:flex;gap:8px;flex-wrap:wrap">
+                                <a href="<?=base_url()?>adm/atendimento/set_status_exame/<?=$ex->id?>/<?=$ex->status?>" class="btn btn-sm btn-outline-primary">
+                                  <?=$ex->status == '0' ? 'Solicitar' : ($ex->status == '1' ? 'Marcar entregue' : 'Reabrir')?>
+                                </a>
+                                <a href="<?=base_url()?>adm/atendimento/prontuario/<?=$dd->id?>/<?=$ex->id_atendimento?>" class="btn btn-sm btn-outline-secondary">Atendimento</a>
+                              </div>
+                            </td>
+                          </tr>
+                        <? } } else { ?>
+                          <tr>
+                            <td colspan="6" class="empty-state">Nenhum exame foi adicionado ao checklist deste paciente.</td>
+                          </tr>
+                        <? } ?>
+                      </tbody>
+                    </table>
                   </div>
                 </div>
-                
-                
-
+              </div>
             </div>
-            <!--------------------
-            END - Sidebar
-            -------------------->
           </div>
         </div>
       </div>
@@ -366,28 +249,12 @@
     </div>
     <script src="<?=base_url()?>bower_components/jquery/dist/jquery.min.js"></script>
     <script src="<?=base_url()?>bower_components/popper.js/dist/umd/popper.min.js"></script>
-    <script src="<?=base_url()?>bower_components/moment/moment.js"></script>
-    <script src="<?=base_url()?>bower_components/chart.js/dist/Chart.min.js"></script>
     <script src="<?=base_url()?>bower_components/select2/dist/js/select2.full.min.js"></script>
-    <script src="<?=base_url()?>bower_components/jquery-bar-rating/dist/jquery.barrating.min.js"></script>
-    <script src="<?=base_url()?>bower_components/ckeditor/ckeditor.js"></script>
-    <script src="<?=base_url()?>bower_components/bootstrap-validator/dist/validator.min.js"></script>
-    <script src="<?=base_url()?>bower_components/bootstrap-daterangepicker/daterangepicker.js"></script>
-    <script src="<?=base_url()?>bower_components/ion.rangeSlider/js/ion.rangeSlider.min.js"></script>
-    <script src="<?=base_url()?>bower_components/dropzone/dist/dropzone.js"></script>
-    <script src="<?=base_url()?>bower_components/editable-table/mindmup-editabletable.js"></script>
-
-    <script src="<?=base_url()?>bower_components/datatables.net/js/jquery.dataTables.min.js"></script>
-    <script src="<?=base_url()?>bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>
-
-    <script src="<?=base_url()?>bower_components/fullcalendar/dist/fullcalendar.min.js"></script>
     <script src="<?=base_url()?>bower_components/perfect-scrollbar/js/perfect-scrollbar.jquery.min.js"></script>
-    <script src="<?=base_url()?>bower_components/tether/dist/js/tether.min.js"></script>
     <script src="<?=base_url()?>bower_components/slick-carousel/slick/slick.min.js"></script>
     <script src="<?=base_url()?>bower_components/bootstrap/js/dist/util.js"></script>
     <script src="<?=base_url()?>bower_components/bootstrap/js/dist/alert.js"></script>
     <script src="<?=base_url()?>bower_components/bootstrap/js/dist/button.js"></script>
-    <script src="<?=base_url()?>bower_components/bootstrap/js/dist/carousel.js"></script>
     <script src="<?=base_url()?>bower_components/bootstrap/js/dist/collapse.js"></script>
     <script src="<?=base_url()?>bower_components/bootstrap/js/dist/dropdown.js"></script>
     <script src="<?=base_url()?>bower_components/bootstrap/js/dist/modal.js"></script>
@@ -396,41 +263,5 @@
     <script src="<?=base_url()?>bower_components/bootstrap/js/dist/popover.js"></script>
     <script src="<?=base_url()?>js/demo_customizer.js?version=4.5.0"></script>
     <script src="<?=base_url()?>js/main.js?version=4.5.0"></script>
-
-    <script>
-      $(document).ready(function() {
-          $('.table__').DataTable({
-              "pageLength": 10,
-              "order": [], // evita ordenação automática
-              "language": {
-                  "url": "//cdn.datatables.net/plug-ins/1.10.20/i18n/Portuguese-Brasil.json"
-              }
-          });
-
-          $('.table').DataTable({
-              "paging": true,
-              "lengthChange": true,
-              "searching": true,
-              "ordering": true,
-              "order": [[0, 'desc']],
-              "info": true,
-              "autoWidth": false,
-              "language": {
-                  "url": "//cdn.datatables.net/plug-ins/1.10.20/i18n/Portuguese-Brasil.json"
-              },
-          });
-      });
-      </script>
-
-
-    <script>
-      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
-      
-      ga('create', 'UA-XXXXXXXX-9', 'auto');
-      ga('send', 'pageview');
-    </script>
   </body>
 </html>

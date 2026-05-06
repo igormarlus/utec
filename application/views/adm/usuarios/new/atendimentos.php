@@ -56,6 +56,7 @@
       .status-pendente { background: #fee2e2; color: #b91c1c; }
       .status-atendimento { background: #dcfce7; color: #166534; }
       .status-finalizado { background: #fef3c7; color: #92400e; }
+      .status-cancelado { background: #e2e8f0; color: #475569; }
       .patient-cell {
         align-items: center;
         display: flex;
@@ -140,6 +141,7 @@
                         <option value="0" <?=$filtros['status'] === '0' ? 'selected="selected"' : ''?>>Pendentes</option>
                         <option value="1" <?=$filtros['status'] === '1' ? 'selected="selected"' : ''?>>Em atendimento</option>
                         <option value="2" <?=$filtros['status'] === '2' ? 'selected="selected"' : ''?>>Finalizados</option>
+                        <option value="3" <?=$filtros['status'] === '3' ? 'selected="selected"' : ''?>>Cancelados</option>
                       </select>
                     </div>
                     <div class="col-md-4">
@@ -200,6 +202,25 @@
                   </div>
                 </div>
                 <div class="agenda-panel-body">
+                  <div id="remarcacao-box" class="agenda-filter-card" style="display:none;margin-bottom:20px;padding:16px">
+                    <form method="post" action="<?=base_url()?>adm/atendimento/remarcar_agenda">
+                      <input type="hidden" name="id_agenda" id="remarcar-id-agenda">
+                      <div class="row">
+                        <div class="col-md-4">
+                          <label>Nova data</label>
+                          <input type="date" name="data_agenda" id="remarcar-data" class="form-control" required>
+                        </div>
+                        <div class="col-md-3">
+                          <label>Novo horario</label>
+                          <input type="time" name="hora_agenda" id="remarcar-hora" class="form-control" required>
+                        </div>
+                        <div class="col-md-5 d-flex align-items-end" style="gap:8px">
+                          <button type="submit" class="btn btn-primary">Salvar remarcacao</button>
+                          <button type="button" class="btn btn-secondary" id="cancelar-remarcacao">Fechar</button>
+                        </div>
+                      </div>
+                    </form>
+                  </div>
                   <div class="table-responsive">
                     <table class="table table-lightborder">
                       <thead>
@@ -218,6 +239,7 @@
                           <? $status_class = 'status-pendente'; $status_nome = 'Pendente'; ?>
                           <? if((int)$agenda->status === 1){ $status_class = 'status-atendimento'; $status_nome = 'Em atendimento'; } ?>
                           <? if((int)$agenda->status === 2){ $status_class = 'status-finalizado'; $status_nome = 'Finalizado'; } ?>
+                          <? if((int)$agenda->status === 3){ $status_class = 'status-cancelado'; $status_nome = 'Cancelado'; } ?>
                           <? $iniciais = strtoupper(substr(trim($agenda->paciente_nome), 0, 1)); ?>
                           <tr>
                             <td>
@@ -256,6 +278,17 @@
                                 <a href="<?=base_url()?>adm/atendimento/set_status_agenda/<?=$agenda->id?>/<?=$agenda->status?>" class="btn btn-sm btn-outline-secondary">
                                   <?=$agenda->status == 0 ? 'Iniciar' : ($agenda->status == 1 ? 'Finalizar' : 'Reabrir')?>
                                 </a>
+                                <button
+                                  type="button"
+                                  class="btn btn-sm btn-outline-primary btn-remarcar"
+                                  data-id="<?=$agenda->id?>"
+                                  data-data="<?=$agenda->data_agenda?>"
+                                  data-hora="<?=substr($agenda->hora_agenda,0,5)?>">
+                                  Remarcar
+                                </button>
+                                <? if((int)$agenda->status !== 3){ ?>
+                                  <a href="<?=base_url()?>adm/atendimento/cancelar_agenda/<?=$agenda->id?>" class="btn btn-sm btn-outline-danger" onclick="return confirm('Cancelar este agendamento?')">Cancelar</a>
+                                <? } ?>
                               </div>
                             </td>
                           </tr>
@@ -291,5 +324,17 @@
     <script src="<?=base_url()?>bower_components/bootstrap/js/dist/popover.js"></script>
     <script src="<?=base_url()?>js/demo_customizer.js?version=4.5.0"></script>
     <script src="<?=base_url()?>js/main.js?version=4.5.0"></script>
+    <script>
+      $(document).on('click', '.btn-remarcar', function(){
+        $('#remarcar-id-agenda').val($(this).data('id'));
+        $('#remarcar-data').val($(this).data('data'));
+        $('#remarcar-hora').val($(this).data('hora'));
+        $('#remarcacao-box').show();
+        $('html, body').animate({ scrollTop: $('#remarcacao-box').offset().top - 90 }, 250);
+      });
+      $('#cancelar-remarcacao').on('click', function(){
+        $('#remarcacao-box').hide();
+      });
+    </script>
   </body>
 </html>

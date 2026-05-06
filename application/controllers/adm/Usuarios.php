@@ -21,7 +21,14 @@ class Usuarios extends CI_Controller {
 
 function Index(){
 	#echo "teste";
-	$dados["usuarios"] = $this->db->query("SELECT * FROM usuarios");
+	$dd_user = $this->padrao_model->get_usuario_logado();
+	$scope_ids = $this->padrao_model->get_scope_user_ids($dd_user);
+	$scope_sql = $this->padrao_model->ids_to_sql_in($scope_ids);
+	if((int)$dd_user->nivel === 1){
+		$dados["usuarios"] = $this->db->query("SELECT * FROM usuarios");
+	}else{
+		$dados["usuarios"] = $this->db->query("SELECT * FROM usuarios WHERE id IN (".$scope_sql.")");
+	}
 	$dados['nivel'] = 1;
 	#$this->load->view('adm/usuarios/lista', $dados);
 	$this->load->view('adm/usuarios/new/lista', $dados);
@@ -152,25 +159,14 @@ function rel($nivel=3){
 		$nivel = (int)$nivel;
 		$this->load->model('padrao_model');
 		$dados['nivel'] = $nivel;
-
-		#if($this->session->userdata('nivel') == 7 && ($nivel == 5 || $nivel == 2)) {
-		#	$dados["usuarios"] = $this->db->query("SELECT * FROM usuarios WHERE nivel = $nivel AND id_user = ".$this->session->userdata('id')." ");
-		#}else{
+		$dd_user = $this->padrao_model->get_usuario_logado();
+		$scope_ids = $this->padrao_model->get_scope_user_ids($dd_user);
+		$scope_sql = $this->padrao_model->ids_to_sql_in($scope_ids);
+		if((int)$dd_user->nivel === 1){
 			$dados["usuarios"] = $this->db->query("SELECT * FROM usuarios WHERE nivel = $nivel ");
-		#}
-
-		/*
-
-		if($this->session->userdata('nivel') == 7 || $this->session->userdata('nivel') == 1){
-			$dados["usuarios"] = $this->db->query("SELECT * FROM usuarios WHERE id_prestador = ".$this->session->userdata('id')." AND nivel = $nivel ");
+		}else{
+			$dados["usuarios"] = $this->db->query("SELECT * FROM usuarios WHERE nivel = $nivel AND id IN (".$scope_sql.") ");
 		}
-
-
-		if($this->session->userdata('id') == 39 || $this->session->userdata('id') == 284 || $this->session->userdata('id') == 352 ) {
-			$dados["usuarios"] = $this->db->query("SELECT * FROM usuarios WHERE nivel = $nivel ");
-		}
-		
-		*/
 
 		$this->load->view('adm/usuarios/new/lista', $dados);
 
@@ -189,12 +185,20 @@ function prontuario($id_user=1,$id_agenda=0){
 	$id_user  = (int)$id_user;
 	$id_agenda = (int)$id_agenda;
 	if($id_user == 1){ return; }
+	if(!$this->padrao_model->can_access_usuario($id_user)){
+		show_error('Acesso negado ao prontuario selecionado.', 403);
+		return;
+	}
 	$this->load->model('padrao_model');
 	$nivel = 5;
 	$dados['nivel'] = $nivel;
 	$dados['id_agenda'] = $id_agenda;
 
 	if($id_agenda > 0){
+		if(!$this->padrao_model->can_access_agendamento($id_agenda)){
+			show_error('Acesso negado ao atendimento selecionado.', 403);
+			return;
+		}
 		$qr_agenda = $this->db->query("SELECT * FROM agendamentos WHERE id = $id_agenda ");
 		if($qr_agenda->num_rows() == 0){
 			echo "Falha 125";
@@ -267,16 +271,14 @@ function dash(){
 
 		$dd_user = $this->padrao_model->get_by_id($this->session->userdata('id'),'usuarios')->row();
 		$dados['dd_user'] = $dd_user;
+		$scope_ids = $this->padrao_model->get_scope_user_ids($dd_user);
+		$scope_sql = $this->padrao_model->ids_to_sql_in($scope_ids);
 
 		$hoje = date('Y-m-d');
 		$where_scope = "";
 
-		if($dd_user->nivel == "4"){
-			$where_scope = " WHERE a.id_prestador = ".(int)$dd_user->id_user." ";
-		}
-
-		if($dd_user->nivel == "3" || $dd_user->nivel == "2"){
-			$where_scope = " WHERE a.id_prestador = ".(int)$dd_user->id." ";
+		if((int)$dd_user->nivel !== 1){
+			$where_scope = " WHERE (a.id_user IN (".$scope_sql.") OR a.id_paciente IN (".$scope_sql.") OR a.id_prestador IN (".$scope_sql.")) ";
 		}
 
 		$dados['metricas'] = [
@@ -351,6 +353,9 @@ function relatorios_clinicos(){
 
 		$dd_user = $this->padrao_model->get_by_id($this->session->userdata('id'),'usuarios')->row();
 		$dados['dd_user'] = $dd_user;
+		$scope_ids = $this->padrao_model->get_scope_user_ids($dd_user);
+		$scope_sql = $this->padrao_model->ids_to_sql_in($scope_ids);
+		$visible_prestador_ids = $this->padrao_model->get_visible_prestador_ids($dd_user);
 
 		$data_inicio = $this->input->get('data_inicio', true);
 		$data_fim = $this->input->get('data_fim', true);
@@ -371,11 +376,12 @@ function relatorios_clinicos(){
 		$where_agenda = ["a.data_agenda >= '".$data_inicio."'", "a.data_agenda <= '".$data_fim."'"];
 		$where_exames = ["ag.data_agenda >= '".$data_inicio."'", "ag.data_agenda <= '".$data_fim."'"];
 
-		if($dd_user->nivel == "4"){
-			$id_prestador = (int)$dd_user->id_user;
+		if((int)$dd_user->nivel !== 1){
+			$where_agenda[] = "(a.id_user IN (".$scope_sql.") OR a.id_paciente IN (".$scope_sql.") OR a.id_prestador IN (".$scope_sql."))";
+			$where_exames[] = "(ag.id_user IN (".$scope_sql.") OR ag.id_paciente IN (".$scope_sql.") OR ag.id_prestador IN (".$scope_sql."))";
 		}
-		if($dd_user->nivel == "3" || $dd_user->nivel == "2"){
-			$id_prestador = (int)$dd_user->id;
+		if((int)$dd_user->nivel !== 1 && $id_prestador > 0 && !in_array($id_prestador, $visible_prestador_ids)){
+			$id_prestador = 0;
 		}
 
 		if($id_prestador > 0){
@@ -392,7 +398,11 @@ function relatorios_clinicos(){
 			'id_prestador' => $id_prestador,
 		];
 
-		$dados['prestadores'] = $this->db->query("SELECT id, nome FROM usuarios WHERE nivel = 3 ORDER BY nome ASC");
+		if((int)$dd_user->nivel === 1){
+			$dados['prestadores'] = $this->db->query("SELECT id, nome FROM usuarios WHERE nivel = 3 ORDER BY nome ASC");
+		}else{
+			$dados['prestadores'] = $this->db->query("SELECT id, nome FROM usuarios WHERE nivel = 3 AND id IN (".$this->padrao_model->ids_to_sql_in($visible_prestador_ids).") ORDER BY nome ASC");
+		}
 
 		$dados['metricas_relatorio'] = [
 			'atendimentos' => 0,

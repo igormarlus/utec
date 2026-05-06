@@ -70,6 +70,7 @@
       .status-atendimento { background: #dcfce7; color: #166534; }
       .status-finalizado { background: #fef3c7; color: #92400e; }
       .status-solicitado { background: #dbeafe; color: #1d4ed8; }
+      .status-cancelado { background: #e2e8f0; color: #475569; }
     </style>
   </head>
   <body class="menu-position-side menu-side-left full-screen with-content-panel">
@@ -233,6 +234,8 @@
                                 <td>
                                   <? if((int)$agenda->status === 2){ ?>
                                     <span class="status-badge status-finalizado">Finalizado</span>
+                                  <? } elseif((int)$agenda->status === 3){ ?>
+                                    <span class="status-badge status-cancelado">Cancelado</span>
                                   <? } elseif((int)$agenda->status === 1){ ?>
                                     <span class="status-badge status-atendimento">Em atendimento</span>
                                   <? } else { ?>

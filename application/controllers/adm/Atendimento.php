@@ -21,6 +21,8 @@ function Index(){
 
 	$dd_user = $this->padrao_model->get_by_id($this->session->userdata('id'),'usuarios')->row();
 	$dados["dd"] = $dd_user;
+	$scope_ids = $this->padrao_model->get_scope_user_ids($dd_user);
+	$scope_sql = $this->padrao_model->ids_to_sql_in($scope_ids);
 
 	$data_agenda = $this->input->get('data_agenda', true);
 	$status = $this->input->get('status', true);
@@ -32,11 +34,19 @@ function Index(){
 	}
 
 	$where = [];
-	if($dd_user->nivel == "4"){
-		$id_prestador = (int)$dd_user->id_user;
+	$visible_prestador_ids = $this->padrao_model->get_visible_prestador_ids($dd_user);
+	$visible_prestador_sql = $this->padrao_model->ids_to_sql_in($visible_prestador_ids);
+	if((int)$dd_user->nivel !== 1){
+		$where[] = "(a.id_user IN (".$scope_sql.") OR a.id_paciente IN (".$scope_sql.") OR a.id_prestador IN (".$scope_sql."))";
 	}
-	if($dd_user->nivel == "3" || $dd_user->nivel == "2"){
-		$id_prestador = (int)$dd_user->id;
+	if((int)$dd_user->nivel !== 1){
+		$visible_prestadores = $this->db->query("SELECT id, nome FROM usuarios WHERE nivel = 3 AND id IN (".$visible_prestador_sql.") ORDER BY nome ASC");
+		$dados["prestadores"] = $visible_prestadores;
+	} else {
+		$dados["prestadores"] = $this->db->query("SELECT id, nome FROM usuarios WHERE nivel = 3 ORDER BY nome ASC");
+	}
+	if((int)$dd_user->nivel !== 1 && $id_prestador > 0 && !in_array($id_prestador, $visible_prestador_ids)){
+		$id_prestador = 0;
 	}
 	if($id_prestador > 0){
 		$where[] = "a.id_prestador = ".$id_prestador;
@@ -44,7 +54,7 @@ function Index(){
 	if($data_agenda){
 		$where[] = "a.data_agenda = '".$data_agenda."'";
 	}
-	if($status !== null && $status !== '' && in_array((string)$status, ['0','1','2'], true)){
+	if($status !== null && $status !== '' && in_array((string)$status, ['0','1','2','3'], true)){
 		$where[] = "a.status = ".(int)$status;
 	}
 	$where_sql = count($where) ? " WHERE ".implode(" AND ", $where)." " : "";
@@ -60,7 +70,6 @@ function Index(){
 	);
 	$dados["qr_agendamentos"] = $qr_agendamentos;
 	$dados["id_user"] = $id_prestador > 0 ? $id_prestador : 0;
-	$dados["prestadores"] = $this->db->query("SELECT id, nome FROM usuarios WHERE nivel = 3 ORDER BY nome ASC");
 	$dados["filtros"] = [
 		'data_agenda' => $data_agenda,
 		'status' => ($status !== null ? (string)$status : ''),
@@ -87,20 +96,30 @@ function Index(){
 
 function novo($id_user){
 	$id_user = (int)$id_user;
+	if(!$this->padrao_model->can_access_usuario($id_user)){
+		show_error('Acesso negado ao paciente selecionado.', 403);
+		return;
+	}
 	$dados["dd"] = $this->db->query("SELECT * FROM usuarios WHERE id = $id_user ")->row();
 	
 	// criar regra para filtrar de acordo com o login
-	$dados['prestadores'] = $this->db->query("SELECT * FROM usuarios WHERE nivel = 3"); 
+	$dd_user = $this->padrao_model->get_by_id($this->session->userdata('id'),'usuarios')->row();
+	$visible_prestador_ids = $this->padrao_model->get_visible_prestador_ids($dd_user);
+	$visible_prestador_sql = $this->padrao_model->ids_to_sql_in($visible_prestador_ids);
+	if((int)$dd_user->nivel === 1){
+		$dados['prestadores'] = $this->db->query("SELECT * FROM usuarios WHERE nivel = 3 ORDER BY nome ASC");
+	}else{
+		$dados['prestadores'] = $this->db->query("SELECT * FROM usuarios WHERE nivel = 3 AND id IN (".$visible_prestador_sql.") ORDER BY nome ASC");
+	}
 
 	$dados["nivel"] = $dados["dd"]->nivel;
 	$dados["prestador_padrao"] = 0;
-	$dd_user = $this->padrao_model->get_by_id($this->session->userdata('id'),'usuarios')->row();
 	if($dd_user){
-		if($dd_user->nivel == "3" || $dd_user->nivel == "2"){
+		if($dd_user->nivel == "3"){
 			$dados["prestador_padrao"] = (int)$dd_user->id;
 		}
-		if($dd_user->nivel == "4"){
-			$dados["prestador_padrao"] = (int)$dd_user->id_user;
+		if($dd_user->nivel == "2" || $dd_user->nivel == "4"){
+			$dados["prestador_padrao"] = 0;
 		}
 	}
 
@@ -128,6 +147,11 @@ function cadastro($nivel){
 }
 
 function cadastrar() {
+	$id_paciente = (int)$this->input->post('id_paciente');
+	if(!$this->padrao_model->can_access_usuario($id_paciente)){
+		show_error('Acesso negado ao paciente selecionado.', 403);
+		return;
+	}
 
 	#print_r($_POST);
 	#return false;
@@ -136,7 +160,7 @@ function cadastrar() {
 	$dd = array(
 		#'id_setor' => $_POST['id_setor'],
 		'id_user' => $this->session->userdata('id'),
-		'id_paciente' => $this->input->post('id_paciente'),
+		'id_paciente' => $id_paciente,
 		'id_prestador' => $this->input->post('id_prestador'),
 		'tipo' => $this->input->post('tipo'),
 		'data_agenda' => $this->input->post('data_agenda'),
@@ -169,9 +193,31 @@ function set() {
 	if($qr_agenda->num_rows() == 0){ echo "Falha 114"; return; }
 
 	$dd_agenda = $qr_agenda->row();
+	if(!$this->padrao_model->can_access_agendamento($id_agenda)){
+		show_error('Acesso negado ao atendimento selecionado.', 403);
+		return;
+	}
 
 	// valida se é o prestador que salva os dados
 	#if($this->session->userdata('id') != $dd_agenda->id_prestador){ echo "Falha 157"; return; }
+
+	$acao_status = $this->input->post('acao_status');
+	$status_destino = 2;
+	if($acao_status === 'salvar'){
+		$status_destino = (int)$dd_agenda->status;
+		if($status_destino < 0 || $status_destino > 2){
+			$status_destino = 0;
+		}
+	}
+	if($acao_status === 'iniciar'){
+		$status_destino = 1;
+	}
+	if($acao_status === 'finalizar'){
+		$status_destino = 2;
+	}
+	if($acao_status === 'reabrir'){
+		$status_destino = 0;
+	}
 
 	$dd = array(
 		#'id_setor' => $_POST['id_setor'],
@@ -179,7 +225,7 @@ function set() {
 		'atendimento_inicial' => $this->input->post('atendimento_inicial'),
 		'avaliacao' => $this->input->post('avaliacao'),
 		'reavaliacao' => $this->input->post('reavaliacao'),	
-		'status' => 2 	
+		'status' => $status_destino	
 		
 	);
 
@@ -188,7 +234,7 @@ function set() {
 
 	$this->db->where('id', $id_agenda);	
 	if ($this->db->update('agendamentos', $dd)) {
-		redirect('adm/usuarios/prontuario/'.$dd_agenda->id_paciente);
+		redirect('adm/atendimento/prontuario/'.$dd_agenda->id_paciente.'/'.$id_agenda);
 	} else {
 		echo "Falha ao agendar paciente!";	
 	}
@@ -210,7 +256,7 @@ function prontuario__($id_user=1){
 
 	$dados["dd"] = $this->db->query("SELECT * FROM usuarios WHERE id = $id_user ")->row();
 
-	$qr_agendamentos = $this->db->query("SELECT * FROM agendamentos where id_paciente = $id_user ");
+	$qr_agendamentos = $this->db->query("SELECT * FROM agendamentos where id_paciente = $id_user ORDER BY data_agenda DESC, hora_agenda DESC, id DESC");
 	$dados["qr_agendamentos"] = $qr_agendamentos;
 
 
@@ -222,12 +268,20 @@ function prontuario($id_user=1,$id_agenda=0){
 	$id_user  = (int)$id_user;
 	$id_agenda = (int)$id_agenda;
 	if($id_user == 1){ return; }
+	if(!$this->padrao_model->can_access_usuario($id_user)){
+		show_error('Acesso negado ao prontuario selecionado.', 403);
+		return;
+	}
 	$this->load->model('padrao_model');
 	$nivel = 5;
 	$dados['nivel'] = $nivel;
 	$dados['id_agenda'] = $id_agenda;
 
 	if($id_agenda > 0){
+		if(!$this->padrao_model->can_access_agendamento($id_agenda)){
+			show_error('Acesso negado ao atendimento selecionado.', 403);
+			return;
+		}
 		$qr_agenda = $this->db->query("SELECT * FROM agendamentos WHERE id = $id_agenda ");
 		if($qr_agenda->num_rows() == 0){
 			echo "Falha 125";
@@ -241,7 +295,11 @@ function prontuario($id_user=1,$id_agenda=0){
 
 	$dados["dd"] = $this->db->query("SELECT * FROM usuarios WHERE id = $id_user ")->row();
 
-	$qr_agendamentos = $this->db->query("SELECT * FROM agendamentos where id_paciente = $id_user ");
+	$dd_user = $this->padrao_model->get_usuario_logado();
+	$scope_ids = $this->padrao_model->get_scope_user_ids($dd_user);
+	$scope_sql = $this->padrao_model->ids_to_sql_in($scope_ids);
+	$where_scope = ((int)$dd_user->nivel === 1) ? "" : " AND (id_user IN (".$scope_sql.") OR id_paciente IN (".$scope_sql.") OR id_prestador IN (".$scope_sql."))";
+	$qr_agendamentos = $this->db->query("SELECT * FROM agendamentos where id_paciente = $id_user ".$where_scope." ORDER BY data_agenda DESC, hora_agenda DESC, id DESC");
 	$dados["qr_agendamentos"] = $qr_agendamentos;
 
 	$dados["arquivos"] = $this->db->query(
@@ -255,6 +313,10 @@ function prontuario($id_user=1,$id_agenda=0){
 function exames($id_user=1){
 	$id_user = (int)$id_user;
 	if($id_user == 1){ return; }
+	if(!$this->padrao_model->can_access_usuario($id_user)){
+		show_error('Acesso negado ao checklist de exames selecionado.', 403);
+		return;
+	}
 	$this->load->model('padrao_model');
 	$nivel = 5;
 	$dados['nivel'] = $nivel;
@@ -263,13 +325,39 @@ function exames($id_user=1){
 
 	$dados["dd"] = $this->db->query("SELECT * FROM usuarios WHERE id = $id_user ")->row();
 
-	$qr_agendamentos = $this->db->query("SELECT * FROM agendamentos where id_paciente = $id_user ORDER BY id desc");
+	$qr_agendamentos = $this->db->query("SELECT * FROM agendamentos where id_paciente = $id_user ORDER BY data_agenda DESC, hora_agenda DESC, id DESC");
 	$dados["qr_agendamentos"] = $qr_agendamentos;
 
-	// 
 	$dados["exames"] = $this->db->query("SELECT * FROM exames WHERE id_user = '1' ");
 
-	$dados["exames_user"] = $this->db->query("SELECT * FROM usuarios_exames_atendimento WHERE id_user = $id_user ");
+	$dados["exames_user"] = $this->db->query(
+		"SELECT uea.*, 
+		        ag.data_agenda, ag.hora_agenda, ag.id_prestador, ag.id_user AS id_cadastro_agenda,
+		        ex.nome AS exame_nome,
+		        pr.nome AS prestador_nome,
+		        cad.nome AS cadastrado_por_nome
+		FROM usuarios_exames_atendimento uea
+		LEFT JOIN agendamentos ag ON ag.id = uea.id_atendimento
+		LEFT JOIN exames ex ON ex.id = uea.id_exame
+		LEFT JOIN usuarios pr ON pr.id = ag.id_prestador
+		LEFT JOIN usuarios cad ON cad.id = ag.id_user
+		WHERE uea.id_user = $id_user
+		ORDER BY ag.data_agenda DESC, ag.hora_agenda DESC, uea.id DESC"
+	);
+
+	$dados['metricas_exames'] = [
+		'total' => 0,
+		'pendentes' => 0,
+		'solicitados' => 0,
+		'entregues' => 0,
+	];
+
+	foreach($dados["exames_user"]->result() as $item_exame){
+		$dados['metricas_exames']['total']++;
+		if((string)$item_exame->status === '0'){ $dados['metricas_exames']['pendentes']++; }
+		if((string)$item_exame->status === '1'){ $dados['metricas_exames']['solicitados']++; }
+		if((string)$item_exame->status === '2'){ $dados['metricas_exames']['entregues']++; }
+	}
 
 
 	$this->load->view('adm/usuarios/new/exames', $dados);
@@ -284,6 +372,10 @@ function exames($id_user=1){
 			'id_agendamento' => $this->input->post('id_agendamento'), 			
 			'obs' => $this->input->post('obs'),
 		];
+		if(!$this->padrao_model->can_access_usuario((int)$dd_post['id_user']) || !$this->padrao_model->can_access_agendamento((int)$dd_post['id_agendamento'])){
+			show_error('Acesso negado ao exame selecionado.', 403);
+			return;
+		}
 
 		$dd_agenda = $this->padrao_model->get_by_id($this->input->post('id_agendamento'),'agendamentos')->row();
 		if($dd_agenda){
@@ -309,7 +401,8 @@ function exames($id_user=1){
 					'id_atendimento' => $dd_post['id_agendamento'],
 					'id_exame_atendimento' => $id_exame_ag,
 					'id_user' => $dd_post['id_user'],
-					'id_exame' => $ex
+					'id_exame' => $ex,
+					'status' => 0
 				];
 				$this->db->where($dd_exame);
 				$qr_ver_exa_age = $this->db->get('usuarios_exames_atendimento');
@@ -329,6 +422,10 @@ function set_status_agenda($id_agenda,$status){
 	$id_agenda = (int)$id_agenda;
 	$status    = (int)$status;
 	$refer	= $this->agent->referrer();
+	if(!$this->padrao_model->can_access_agendamento($id_agenda)){
+		show_error('Acesso negado ao atendimento selecionado.', 403);
+		return;
+	}
 	
 	#return false;
 	#$this->padrao_model->indexador();
@@ -344,6 +441,9 @@ function set_status_agenda($id_agenda,$status){
 	if($status == "2"){
 		$new_status = 0;
 	}
+	if($status == "3"){
+		$new_status = 0;
+	}
 
 	$dd_status = array('status' => $new_status);
 	$this->db->where('id',$id_agenda);
@@ -356,11 +456,51 @@ function set_status_agenda($id_agenda,$status){
 
 }
 
+function cancelar_agenda($id_agenda){
+	$id_agenda = (int)$id_agenda;
+	if(!$this->padrao_model->can_access_agendamento($id_agenda)){
+		show_error('Acesso negado ao atendimento selecionado.', 403);
+		return;
+	}
+	$refer = $this->agent->referrer();
+	$this->db->where('id', $id_agenda);
+	$this->db->update('agendamentos', ['status' => 3, 'id_user_alt' => $this->session->userdata('id')]);
+	$refer = str_replace(base_url(),"",$refer);
+	redirect($refer);
+}
+
+function remarcar_agenda(){
+	$id_agenda = (int)$this->input->post('id_agenda');
+	if(!$this->padrao_model->can_access_agendamento($id_agenda)){
+		show_error('Acesso negado ao atendimento selecionado.', 403);
+		return;
+	}
+	$data_agenda = $this->input->post('data_agenda');
+	$hora_agenda = $this->input->post('hora_agenda');
+	if(!preg_match('/^\d{4}-\d{2}-\d{2}$/', (string)$data_agenda) || !preg_match('/^\d{2}:\d{2}$/', (string)$hora_agenda)){
+		show_error('Data ou horario invalidos para remarcacao.', 400);
+		return;
+	}
+	$this->db->where('id', $id_agenda);
+	$this->db->update('agendamentos', [
+		'data_agenda' => $data_agenda,
+		'hora_agenda' => $hora_agenda,
+		'data_hora_agenda' => $data_agenda.' '.$hora_agenda,
+		'status' => 0,
+		'id_user_alt' => $this->session->userdata('id')
+	]);
+	redirect('adm/atendimento?data_agenda='.$data_agenda);
+}
+
 function set_status_exame($id_exame,$status){
 	$id_exame = (int)$id_exame;
 	$status   = (int)$status;
 	#$this->padrao_model->indexador();
 	$dd = $this->padrao_model->get_by_id($id_exame,'usuarios_exames_atendimento')->row();
+	if(!$dd || !$this->padrao_model->can_access_agendamento((int)$dd->id_atendimento)){
+		show_error('Acesso negado ao exame selecionado.', 403);
+		return;
+	}
 	#echo $id_exame;
 	#print_r($dd);
 	#echo $status;

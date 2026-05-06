@@ -87,13 +87,46 @@ c:\htdocs\utec\
 
 ## Níveis de Usuário (`usuarios.nivel`)
 
-| Nível | Perfil           | Comportamento pós-login                         |
-|-------|------------------|-------------------------------------------------|
-| 1     | Administrador    | Redireciona para `adm/usuarios`                 |
-| 2     | Recepcionista    | Redireciona para `adm/atendimento`              |
-| 3     | Médico/Prestador | Redireciona para `adm/atendimento`              |
-| 4     | Clínica/Empresa  | Redireciona para `adm/atendimento`              |
-| 5     | Paciente         | Redireciona para `adm/usuarios` (lista pacientes)|
+| Nível | Perfil             | Comportamento pós-login                         |
+|-------|--------------------|-------------------------------------------------|
+| 1     | Administrador      | Redireciona para `adm/usuarios`                 |
+| 2     | Estabelecimento    | Redireciona para `adm/atendimento`              |
+| 3     | Prestador          | Redireciona para `adm/atendimento`              |
+| 4     | Colaborador        | Redireciona para `adm/atendimento`              |
+| 5     | Paciente           | Redireciona para `adm/usuarios` (lista pacientes)|
+
+### Regras de Escopo por Nível
+
+- **Nível 1 — Administrador**
+  - Vê tudo de todos.
+  - Não possui restrição de escopo clínico ou comercial.
+
+- **Nível 2 — Estabelecimento**
+  - Vê pacientes, agenda, exames e relatórios gerados por ele e por toda a árvore de usuários vinculados ao seu `id`.
+  - Na prática, o escopo inclui o próprio usuário e todos os registros criados por usuários cujo `id_user` aponta para o estabelecimento, incluindo descendentes.
+
+- **Nível 3 — Prestador**
+  - Vê tudo o que cadastrou e tudo o que os colaboradores vinculados a ele registraram.
+  - O escopo inclui o próprio prestador e sua árvore de usuários descendentes.
+
+- **Nível 4 — Colaborador**
+  - Vê o que cadastrou e também o que outros colaboradores vinculados ao mesmo `id_user` registraram.
+  - O escopo inclui os colaboradores irmãos do mesmo vínculo e os registros descendentes dessa subárvore.
+
+- **Nível 5 — Paciente**
+  - Sem portal dedicado no momento.
+  - Base preparada para futuras notificações de agendamento e evolução de relacionamento.
+
+### Observações de Vínculo (`usuarios.id_user`)
+
+- `usuarios.id_user` define o vínculo operacional do usuário dentro da árvore de acesso.
+- O escopo clínico atual usa essa relação para filtrar:
+  - lista de pacientes,
+  - agenda clínica,
+  - prontuário,
+  - checklist de exames,
+  - relatórios clínicos.
+- O helper central dessas regras está em `Padrao_model.php`.
 
 ---
 
@@ -263,3 +296,9 @@ Se precisar rodar queries, criar tabelas ou fazer migrações durante o desenvol
 - [ ] Notificações / lembretes de consulta via WhatsApp
 - [ ] Relatórios PDF de prontuário
 - [ ] Multi-clínica / multi-tenant
+- [x] Timeline de prontuário
+- [x] Relatórios clínicos
+- [x] Módulo comercial reposicionado para planos/assinaturas
+- [x] Agenda com filtros operacionais
+- [x] Checklist operacional de exames
+- [x] Cancelamento e remarcação direto na agenda

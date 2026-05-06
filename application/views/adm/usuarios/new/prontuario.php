@@ -146,6 +146,7 @@
       .timeline-status.status-pendente { background: #fff1f0; color: #d64545; }
       .timeline-status.status-atendimento { background: #ebfff1; color: #16874b; }
       .timeline-status.status-finalizado { background: #fff6e5; color: #b97700; }
+      .timeline-status.status-cancelado { background: #e2e8f0; color: #475569; }
       .timeline-sections {
         display: grid;
         gap: 12px;
@@ -196,6 +197,10 @@
         font-size: 20px;
         font-weight: 700;
         margin-bottom: 14px;
+      }
+      .section-jump {
+        color: #64748b;
+        font-size: 13px;
       }
     </style>
     
@@ -328,6 +333,23 @@
                     <div class="section-heading" style="font-size:22px;margin-bottom:4px">Registro do atendimento em andamento</div>
                     <p style="margin:0;color:#5f708c"><?=$this->padrao_model->converte_data($dd_agenda->data_agenda)?> as <?=substr($dd_agenda->hora_agenda,0,5)?>h</p>
                   </div>
+                  <div>
+                    <?php
+                      $status_card_nome = 'Pendente';
+                      $status_card_class = 'status-pendente';
+                      if ((int)$dd_agenda->status === 1) {
+                        $status_card_nome = 'Em atendimento';
+                        $status_card_class = 'status-atendimento';
+                      } elseif ((int)$dd_agenda->status === 2) {
+                        $status_card_nome = 'Finalizado';
+                        $status_card_class = 'status-finalizado';
+                      } elseif ((int)$dd_agenda->status === 3) {
+                        $status_card_nome = 'Cancelado';
+                        $status_card_class = 'status-cancelado';
+                      }
+                    ?>
+                    <span class="timeline-status <?=$status_card_class?>"><?=$status_card_nome?></span>
+                  </div>
                 </div>
                 <form id="form" name="form" class="mws-form" method="post" action="<?php echo base_url() ?>index.php/adm/atendimento/set" enctype='multipart/form-data'>
                   <input type="hidden" name="id_agenda" value="<?=$id_agenda?>">
@@ -349,7 +371,20 @@
                       </div>
                     </div>
                   </div>
-                  <button class="btn btn-primary" type="submit">Salvar atendimento</button>
+                  <div class="timeline-actions">
+                    <button class="btn btn-outline-secondary" type="submit" name="acao_status" value="salvar">Salvar sem encerrar</button>
+                    <? if((int)$dd_agenda->status !== 1){ ?>
+                      <button class="btn btn-primary" type="submit" name="acao_status" value="iniciar">Marcar como em atendimento</button>
+                    <? } ?>
+                    <? if((int)$dd_agenda->status !== 2){ ?>
+                      <button class="btn btn-success" type="submit" name="acao_status" value="finalizar">Finalizar atendimento</button>
+                    <? } ?>
+                    <? if((int)$dd_agenda->status === 2){ ?>
+                      <button class="btn btn-warning" type="submit" name="acao_status" value="reabrir">Reabrir atendimento</button>
+                    <? } ?>
+                    <a href="<?=base_url()?>adm/atendimento/exames/<?=$paciente->id?>" class="btn btn-outline-primary">Solicitar exames</a>
+                    <a href="#arquivos-paciente" class="btn btn-outline-secondary">Ver arquivos</a>
+                  </div>
                 </form>
               </div>
             <? } ?>
@@ -376,6 +411,9 @@
                           } elseif ((int)$agenda->status === 2) {
                             $status_nome = 'Finalizado';
                             $status_class = 'status-finalizado';
+                          } elseif ((int)$agenda->status === 3) {
+                            $status_nome = 'Cancelado';
+                            $status_class = 'status-cancelado';
                           }
                           $profissional = $this->padrao_model->get_by_id($agenda->id_user,'usuarios');
                           $nome_profissional = $profissional->num_rows() ? $profissional->row()->nome : 'Nao identificado';
@@ -422,8 +460,14 @@
                             </div>
 
                             <div class="timeline-actions">
-                              <a href="<?=base_url('adm/atendimento/prontuario/'.$paciente->id.'/'.$agenda->id)?>" class="btn btn-primary">Abrir atendimento</a>
-                              <a href="<?php echo base_url().'index.php/adm/atendimento/set_status_agenda/'.$agenda->id.'/'.$agenda->status; ?>" class="btn btn-outline-secondary">Atualizar status</a>
+                              <a href="<?=base_url('adm/atendimento/prontuario/'.$paciente->id.'/'.$agenda->id)?>" class="btn btn-primary">
+                                <?=$agenda->status == 2 ? 'Revisar registro' : ($agenda->status == 3 ? 'Reabrir contexto' : 'Abrir atendimento')?>
+                              </a>
+                              <a href="<?=base_url()?>adm/atendimento/exames/<?=$paciente->id?>" class="btn btn-outline-primary">Exames</a>
+                              <a href="#arquivos-paciente" class="btn btn-outline-secondary">Arquivos</a>
+                              <a href="<?php echo base_url().'index.php/adm/atendimento/set_status_agenda/'.$agenda->id.'/'.$agenda->status; ?>" class="btn btn-outline-secondary">
+                                <?=$agenda->status == 0 ? 'Iniciar' : ($agenda->status == 1 ? 'Finalizar' : 'Reabrir')?>
+                              </a>
                             </div>
                           </div>
                         </div>
@@ -444,11 +488,12 @@
             <div class="row">
               <div class="col-sm-12">
                 <div class="element-wrapper">
-                  <div class="element-box">
+                  <div class="element-box" id="arquivos-paciente">
                     <h6 class="element-header">
                       <i class="os-icon os-icon-folder" style="margin-right:6px"></i>
                       Arquivos do Paciente
                     </h6>
+                    <p class="section-jump">Centralize exames, receitas, laudos e documentos para consulta rápida durante o atendimento.</p>
 
                     <!-- Upload form -->
                     <form id="form-upload-arquivo" method="post"
