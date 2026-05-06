@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Manual de Uso - UTEC Saude</title>
+  <style>
+    :root {
+      --bg: #f4f7fb;
+      --text: #1f2937;
+      --muted: #5b6472;
+      --primary: #0f6cbd;
+      --primary-dark: #0a4f8a;
+      --accent: #0f766e;
+      --line: #d9e2ec;
+      --card: #ffffff;
+      --soft: #eef6ff;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.55;
+    }
+
+    .page {
+      width: 210mm;
+      min-height: 297mm;
+      margin: 0 auto;
+      background: var(--card);
+      padding: 20mm 18mm;
+    }
+
+    .hero {
+      background: linear-gradient(135deg, #0f6cbd 0%, #0f766e 100%);
+      color: #fff;
+      border-radius: 20px;
+      padding: 28px 30px;
+      margin-bottom: 26px;
+    }
+
+    .hero h1 {
+      margin: 0 0 10px;
+      font-size: 30px;
+      line-height: 1.15;
+    }
+
+    .hero p {
+      margin: 8px 0 0;
+      font-size: 15px;
+      max-width: 720px;
+    }
+
+    .badge {
+      display: inline-block;
+      margin-bottom: 14px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.18);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+
+    h2 {
+      color: var(--primary-dark);
+      font-size: 21px;
+      margin: 28px 0 12px;
+      border-bottom: 2px solid var(--line);
+      padding-bottom: 6px;
+    }
+
+    h3 {
+      color: var(--accent);
+      font-size: 16px;
+      margin: 20px 0 8px;
+    }
+
+    p {
+      margin: 8px 0;
+    }
+
+    .lead {
+      font-size: 15px;
+      color: var(--muted);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin: 14px 0 8px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 16px 18px;
+      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.04);
+    }
+
+    .soft {
+      background: var(--soft);
+    }
+
+    .card h3 {
+      margin-top: 0;
+    }
+
+    ul, ol {
+      margin: 8px 0 8px 20px;
+      padding: 0;
+    }
+
+    li {
+      margin: 6px 0;
+    }
+
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0;
+      font-size: 13px;
+    }
+
+    .table th,
+    .table td {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    .table th {
+      background: #eff6ff;
+      color: var(--primary-dark);
+    }
+
+    .highlight {
+      background: #f8fafc;
+      border-left: 4px solid var(--primary);
+      padding: 12px 14px;
+      border-radius: 10px;
+      margin: 12px 0;
+    }
+
+    .footer-note {
+      margin-top: 24px;
+      font-size: 12px;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .page-break {
+      page-break-before: always;
+      break-before: page;
+    }
+
+    @media print {
+      body {
+        background: #fff;
+      }
+
+      .page {
+        width: auto;
+        min-height: auto;
+        margin: 0;
+        padding: 14mm 12mm;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <section class="hero">
+      <div class="badge">Manual de Uso e Apresentacao</div>
+      <h1>UTEC Saude</h1>
+      <p>Sistema web de gestao clinica com agenda, prontuario, exames, relatorios clinicos e modulo comercial de planos e assinaturas.</p>
+      <p>Documento preparado para apresentacao institucional e apoio comercial.</p>
+    </section>
+
+    <section>
+      <h2>1. Visao Geral</h2>
+      <p class="lead">O UTEC Saude foi estruturado para atender clinicas, consultorios e profissionais de saude que precisam organizar o atendimento, acompanhar pacientes e comercializar a contratacao da plataforma como produto SaaS.</p>
+
+      <div class="grid">
+        <div class="card soft">
+          <h3>Proposta de valor</h3>
+          <p>Centralizar operacao clinica e gestao comercial em um unico ambiente, com foco em produtividade, organizacao e clareza operacional.</p>
+        </div>
+        <div class="card soft">
+          <h3>Perfil de uso</h3>
+          <p>Administradores, estabelecimentos, prestadores, colaboradores e, futuramente, pacientes com acesso a notificacoes e comunicacao.</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>2. Perfis de Acesso</h2>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Nivel</th>
+            <th>Perfil</th>
+            <th>Uso principal</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td>Administrador</td>
+            <td>Ve toda a operacao, controla usuarios, acessa o comercial e acompanha relatorios.</td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>Estabelecimento</td>
+            <td>Gerencia sua estrutura, equipe, pacientes, agenda, exames e assinaturas do proprio grupo.</td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td>Prestador</td>
+            <td>Acompanha sua agenda, prontuarios, exames e colaboradores vinculados.</td>
+          </tr>
+          <tr>
+            <td>4</td>
+            <td>Colaborador</td>
+            <td>Opera agenda, pacientes e apoio clinico dentro do mesmo vinculo operacional.</td>
+          </tr>
+          <tr>
+            <td>5</td>
+            <td>Paciente</td>
+            <td>Base pronta para futuras notificacoes e acesso simplificado.</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="highlight">
+        O sistema trabalha com escopo por vinculo operacional. Isso significa que cada perfil visualiza apenas os dados do seu grupo, com regras diferentes para admin, estabelecimento, prestador e colaborador.
+      </div>
+    </section>
+
+    <section>
+      <h2>3. Modulos Principais</h2>
+      <div class="grid">
+        <div class="card">
+          <h3>Painel principal</h3>
+          <p>Mostra indicadores do dia, agenda, atendimentos, exames pendentes e visao geral da operacao clinica.</p>
+        </div>
+        <div class="card">
+          <h3>Agenda clinica</h3>
+          <p>Permite organizar consultas, filtrar por data, profissional e status, alem de iniciar, finalizar, cancelar e remarcar atendimentos.</p>
+        </div>
+        <div class="card">
+          <h3>Pacientes e prontuario</h3>
+          <p>Centraliza o historico do paciente, com timeline de atendimentos, observacoes, exames e arquivos relacionados.</p>
+        </div>
+        <div class="card">
+          <h3>Exames</h3>
+          <p>Funciona como checklist operacional do atendimento, registrando itens solicitados, pendentes e entregues.</p>
+        </div>
+        <div class="card">
+          <h3>Relatorios clinicos</h3>
+          <p>Apresenta produtividade, atendimentos por periodo, pacientes ativos, exames solicitados e pendencias operacionais.</p>
+        </div>
+        <div class="card">
+          <h3>Planos e assinaturas</h3>
+          <p>Transforma o modulo comercial em catalogo de planos, tipos de plano e historico de contratacoes da plataforma.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="page-break"></div>
+
+    <section>
+      <h2>4. Fluxo de Uso Diario</h2>
+
+      <h3>4.1 Inicio da operacao</h3>
+      <ol>
+        <li>O usuario acessa o sistema com seu login.</li>
+        <li>Ao entrar, visualiza o painel principal com a visao correspondente ao seu perfil.</li>
+        <li>A partir do painel, pode seguir para agenda, pacientes, relatorios ou comercial.</li>
+      </ol>
+
+      <h3>4.2 Agendamento e atendimento</h3>
+      <ol>
+        <li>Na agenda, o usuario pode filtrar atendimentos por data, profissional e status.</li>
+        <li>Um novo agendamento pode ser criado vinculando paciente, horario e prestador.</li>
+        <li>Quando o paciente chega, o atendimento pode ser iniciado.</li>
+        <li>Durante o atendimento, o prontuario registra observacoes e dados clinicos.</li>
+        <li>Ao final, o atendimento pode ser finalizado ou reaberto, se necessario.</li>
+      </ol>
+
+      <h3>4.3 Prontuario e exames</h3>
+      <ol>
+        <li>Cada paciente possui uma timeline com historico cronologico.</li>
+        <li>O profissional ou colaborador pode abrir o prontuario e revisar atendimentos anteriores.</li>
+        <li>Exames podem ser solicitados e acompanhados como checklist.</li>
+        <li>Arquivos e documentos podem ser associados ao historico do paciente.</li>
+      </ol>
+
+      <h3>4.4 Ajustes operacionais</h3>
+      <ol>
+        <li>Atendimentos podem ser cancelados diretamente na agenda.</li>
+        <li>Tambem podem ser remarcados com nova data e horario.</li>
+        <li>Os status ajudam a diferenciar pendente, em atendimento, finalizado e cancelado.</li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>5. Modulo Comercial</h2>
+      <p class="lead">O sistema aproveita a base de produtos e pedidos como estrutura comercial do proprio SaaS, evitando desperdicio de desenvolvimento e criando um modulo util para venda da plataforma.</p>
+
+      <div class="grid">
+        <div class="card">
+          <h3>Planos</h3>
+          <p>Permitem cadastrar nome, tipo, valor, limite, status e descricao comercial do pacote vendido.</p>
+        </div>
+        <div class="card">
+          <h3>Tipos de plano</h3>
+          <p>Organizam a classificacao comercial, como mensal, premium, clinica ou profissional.</p>
+        </div>
+        <div class="card">
+          <h3>Assinaturas</h3>
+          <p>Exibem as contratacoes realizadas, com cliente, valor, data e status da adesao.</p>
+        </div>
+        <div class="card">
+          <h3>Detalhes da contratacao</h3>
+          <p>Mostram os itens do pedido, plano adquirido e composicao da assinatura.</p>
+        </div>
+      </div>
+
+      <div class="highlight">
+        Essa estrutura permite evoluir naturalmente para cobranca recorrente, upgrades de plano, renovacoes e indicadores comerciais.
+      </div>
+    </section>
+
+    <section>
+      <h2>6. Diferenciais do Produto</h2>
+      <ul>
+        <li>Unificacao entre rotina clinica e visao comercial da plataforma.</li>
+        <li>Controle por niveis de acesso com escopo real por estrutura operacional.</li>
+        <li>Timeline de prontuario com leitura mais clara do historico do paciente.</li>
+        <li>Agenda com cancelamento e remarcacao diretos.</li>
+        <li>Checklist de exames integrado ao atendimento.</li>
+        <li>Base pronta para crescer com notificacoes, automacoes e recursos premium.</li>
+      </ul>
+    </section>
+
+    <div class="page-break"></div>
+
+    <section>
+      <h2>7. Estado Atual do Sistema</h2>
+      <p>O produto ja possui uma base funcional para apresentacao, testes com usuarios reais e evolucao comercial. As principais frentes ja estruturadas sao:</p>
+      <ul>
+        <li>Limpeza visual do admin e padronizacao das telas centrais.</li>
+        <li>Painel principal voltado para operacao clinica.</li>
+        <li>Agenda com filtros, remarcacao e cancelamento.</li>
+        <li>Prontuario em formato de timeline.</li>
+        <li>Exames como checklist operacional.</li>
+        <li>Relatorios clinicos iniciais.</li>
+        <li>Modulo comercial adaptado para planos e assinaturas.</li>
+        <li>Regras de permissao e escopo por nivel de usuario.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>8. Proximos Passos Recomendados</h2>
+      <ol>
+        <li>Polir ainda mais as telas comerciais, com filtros e indicadores de assinatura.</li>
+        <li>Expandir a visao de documentos do paciente e versao de impressao/PDF do prontuario.</li>
+        <li>Adicionar notificacoes automatizadas de agendamento para pacientes.</li>
+        <li>Preparar o fluxo de assinatura com pagamento recorrente e renovacao.</li>
+        <li>Refinar onboarding inicial para novas clinicas e novos clientes SaaS.</li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>9. Resumo Executivo</h2>
+      <div class="highlight">
+        O UTEC Saude ja se apresenta como uma base solida para um produto de gestao clinica comercializavel. A plataforma cobre o nucleo operacional da clinica, organiza os fluxos de atendimento e ainda reaproveita o modulo comercial para venda de planos e assinaturas do proprio sistema.
+      </div>
+      <p>Para apresentacao a socios, investidores ou parceiros, a mensagem principal e clara: existe produto, existe direcionamento de mercado, existe base funcional e existe um roadmap objetivo para transformar a operacao atual em um SaaS mais maduro e escalavel.</p>
+    </section>
+
+    <p class="footer-note">UTEC Saude · Manual de uso e apresentacao · Gerado em 06/05/2026</p>
+  </div>
+</body>
+</html>

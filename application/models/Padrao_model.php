@@ -182,6 +182,173 @@ function get_visible_prestador_ids($usuario=null){
 	return [];
 }
 
+function get_nivel_nome($nivel){
+	$nivel = (int)$nivel;
+	$qr = $this->db->query("SELECT nome FROM usuarios_niveis WHERE id = ".$nivel." LIMIT 1");
+	return $qr->num_rows() ? $qr->row()->nome : 'Nivel '.$nivel;
+}
+
+function get_allowed_child_levels($usuario=null){
+	if(!$usuario){
+		$usuario = $this->get_usuario_logado();
+	}
+	if(!$usuario){
+		return [];
+	}
+
+	switch((int)$usuario->nivel){
+		case 1:
+			return [1,2,3,4,5];
+		case 2:
+			return [3,4,5];
+		case 3:
+			return [4,5];
+		case 4:
+			return [5];
+		default:
+			return [];
+	}
+}
+
+function sanitize_child_level($target_level,$usuario=null,$current_level=0){
+	$target_level = (int)$target_level;
+	$current_level = (int)$current_level;
+	if(!$usuario){
+		$usuario = $this->get_usuario_logado();
+	}
+	if(!$usuario){
+		return $target_level;
+	}
+
+	if((int)$usuario->nivel === 1){
+		return $target_level > 0 ? $target_level : $current_level;
+	}
+
+	$allowed = $this->get_allowed_child_levels($usuario);
+	if($current_level > 0 && in_array($current_level, $allowed)){
+		return $current_level;
+	}
+	if(in_array($target_level, $allowed)){
+		return $target_level;
+	}
+	return count($allowed) ? (int)$allowed[0] : $target_level;
+}
+
+function get_vinculo_default_id($target_level,$usuario=null){
+	$target_level = (int)$target_level;
+	if(!$usuario){
+		$usuario = $this->get_usuario_logado();
+	}
+	if(!$usuario){
+		return 0;
+	}
+
+	$nivel_usuario = (int)$usuario->nivel;
+	if($nivel_usuario === 1){
+		return (int)$usuario->id;
+	}
+	if($nivel_usuario === 2){
+		return (int)$usuario->id;
+	}
+	if($nivel_usuario === 3){
+		return (int)$usuario->id;
+	}
+	if($nivel_usuario === 4){
+		$parent_id = (int)$usuario->id_user;
+		if($target_level === 5 && $parent_id > 0){
+			return $parent_id;
+		}
+		return $parent_id > 0 ? $parent_id : (int)$usuario->id;
+	}
+	return (int)$usuario->id;
+}
+
+function get_vinculo_options($target_level,$usuario=null){
+	$target_level = (int)$target_level;
+	if(!$usuario){
+		$usuario = $this->get_usuario_logado();
+	}
+	if(!$usuario){
+		return [];
+	}
+
+	$options = [];
+	if((int)$usuario->nivel === 1){
+		if($target_level === 2){
+			$qr = $this->db->query("SELECT id, nome, nivel FROM usuarios WHERE nivel IN (1,2) ORDER BY nome ASC");
+		}elseif($target_level === 3){
+			$qr = $this->db->query("SELECT id, nome, nivel FROM usuarios WHERE nivel IN (1,2) ORDER BY nome ASC");
+		}else{
+			$qr = $this->db->query("SELECT id, nome, nivel FROM usuarios WHERE nivel IN (2,3,4) ORDER BY nome ASC");
+		}
+
+		foreach($qr->result() as $row){
+			$options[] = [
+				'id' => (int)$row->id,
+				'nome' => $row->nome,
+				'nivel' => (int)$row->nivel,
+				'label' => $row->nome.' ('.$this->get_nivel_nome($row->nivel).')'
+			];
+		}
+		return $options;
+	}
+
+	$default_id = $this->get_vinculo_default_id($target_level, $usuario);
+	if($default_id > 0){
+		$dd_vinculo = $this->get_by_id($default_id, 'usuarios');
+		if($dd_vinculo->num_rows()){
+			$row = $dd_vinculo->row();
+			$options[] = [
+				'id' => (int)$row->id,
+				'nome' => $row->nome,
+				'nivel' => (int)$row->nivel,
+				'label' => $row->nome.' ('.$this->get_nivel_nome($row->nivel).')'
+			];
+		}
+	}
+	return $options;
+}
+
+function resolve_vinculo_id($target_level,$posted_id_user=0,$usuario=null){
+	$target_level = (int)$target_level;
+	$posted_id_user = (int)$posted_id_user;
+	if(!$usuario){
+		$usuario = $this->get_usuario_logado();
+	}
+	if(!$usuario){
+		return $posted_id_user;
+	}
+
+	if((int)$usuario->nivel !== 1){
+		return $this->get_vinculo_default_id($target_level, $usuario);
+	}
+
+	$options = $this->get_vinculo_options($target_level, $usuario);
+	foreach($options as $option){
+		if((int)$option['id'] === $posted_id_user){
+			return $posted_id_user;
+		}
+	}
+
+	if(count($options)){
+		return (int)$options[0]['id'];
+	}
+	return $posted_id_user > 0 ? $posted_id_user : (int)$usuario->id;
+}
+
+function get_vinculo_label($id_user){
+	$id_user = (int)$id_user;
+	if($id_user <= 0){
+		return 'Nao definido';
+	}
+	$qr = $this->db->query("SELECT id, nome, nivel FROM usuarios WHERE id = ".$id_user." LIMIT 1");
+	if(!$qr->num_rows()){
+		return 'Nao definido';
+	}
+	$row = $qr->row();
+	return $row->nome.' ('.$this->get_nivel_nome($row->nivel).')';
+}
+
 function get_by_martix($id_matrix,$id,$tabela,$campo="id",$ord='desc'){
 	$this->db->where(array($id_matrix => $id));
 	$this->db->order_by($campo,$ord);

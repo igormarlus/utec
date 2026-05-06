@@ -52,17 +52,15 @@ function novo(){
 
 
 function cadastro($nivel){
-	
-	#$dados["usuario"] = $this->db->query("SELECT * FROM usuarios WHERE id = ".$id)->row();
-	#$this->load->view('adm/usuarios/edicao', $dados);	
 	$this->load->model('padrao_model');
-	#$dados["usuario"] = $this->db->query("SELECT * FROM usuarios WHERE id = ".$id)->row();
-
-	#$dados["exames"] = $this->db->query("SELECT * FROM exames ORDER BY nome asc ");
-	#$dados["consultas"] = $this->db->query("SELECT * FROM consultas ORDER BY nome asc");
-	#$dados["procedimentos"] = $this->db->query("SELECT * FROM procedimentos ORDER BY nome asc");
+	$dd_user = $this->padrao_model->get_usuario_logado();
+	$nivel = $this->padrao_model->sanitize_child_level($nivel, $dd_user);
 
 	$dados['nivel'] = $nivel;
+	$dados['niveis_permitidos'] = $this->padrao_model->get_allowed_child_levels($dd_user);
+	$dados['vinculo_options'] = $this->padrao_model->get_vinculo_options($nivel, $dd_user);
+	$dados['vinculo_default'] = $this->padrao_model->get_vinculo_default_id($nivel, $dd_user);
+	$dados['usuario_logado'] = $dd_user;
 	
 	#$this->load->view('adm/usuarios/edicao', $dados);	
 	$this->load->view('adm/usuarios/new/cadastro', $dados);
@@ -70,15 +68,14 @@ function cadastro($nivel){
 }
 
 function cadastrar() {
-
-	
-
-	#return false;
+	$dd_user = $this->padrao_model->get_usuario_logado();
+	$nivel = $this->padrao_model->sanitize_child_level($this->input->post('nivel'), $dd_user);
+	$vinculo_id = $this->padrao_model->resolve_vinculo_id($nivel, $this->input->post('id_user'), $dd_user);
 	
 	$dd = array(
-		'id_user' => $this->session->userdata('id'),
+		'id_user' => $vinculo_id,
 		'nome' => $this->input->post('nome'),
-		'nivel' => $this->input->post('nivel'),
+		'nivel' => $nivel,
 		'telefone' => $this->input->post('telefone'),
 		'profissao' => $this->input->post('profissao'),
 		'rg' => $this->input->post('identidade'),
@@ -93,12 +90,12 @@ function cadastrar() {
 		'cep' => $this->input->post('cep'),
 		'redes_sociais' => $this->input->post('redes_sociais')
 	);
-	if($this->input->post('nivel') == '3'){
+	if($nivel == 3){
 		$dd['especialidade'] = $this->input->post('especialidade');
 		$dd['classe'] = $this->input->post('classe');
 	}
 
-	if($this->input->post('nivel') < 5){
+	if($nivel < 5){
 		$dd['login'] = $this->input->post('login');
 		$senha_nova  = $this->input->post('senha');
 		if($senha_nova){
@@ -1354,7 +1351,18 @@ function saldo_hoje($id_cliente=1,$tempo="hoje",$tipo="2"){ // 1 a receber, 2 ac
 function edicao($id){
 	$id = (int)$id;
 	$this->load->model('padrao_model');
+	if(!$this->padrao_model->can_access_usuario($id)){
+		redirect('adm/usuarios');
+	}
+	$dd_user = $this->padrao_model->get_usuario_logado();
 	$dados["usuario"] = $this->db->query("SELECT * FROM usuarios WHERE id = $id ")->row();
+	if(!$dados["usuario"]){
+		redirect('adm/usuarios');
+	}
+	$dados['niveis_permitidos'] = $this->padrao_model->get_allowed_child_levels($dd_user);
+	$dados['pode_editar_regra'] = ((int)$dd_user->nivel === 1);
+	$dados['vinculo_options'] = $this->padrao_model->get_vinculo_options((int)$dados["usuario"]->nivel, $dd_user);
+	$dados['vinculo_label'] = $this->padrao_model->get_vinculo_label((int)$dados["usuario"]->id_user);
 
 	#$dados["exames"] = $this->db->query("SELECT * FROM exames ORDER BY nome asc ");
 	#$dados["consultas"] = $this->db->query("SELECT * FROM consultas ORDER BY nome asc");
@@ -1484,10 +1492,16 @@ function editar() {
 
 
 function editar() {
-
-	
-
-	#return false;
+	$id_editar = (int)$this->input->post('id');
+	if(!$this->padrao_model->can_access_usuario($id_editar)){
+		redirect('adm/usuarios');
+	}
+	$dd_user = $this->padrao_model->get_usuario_logado();
+	$usuario_atual = $this->db->query("SELECT * FROM usuarios WHERE id = ".$id_editar." LIMIT 1")->row();
+	if(!$usuario_atual){
+		redirect('adm/usuarios');
+	}
+	$nivel = $this->padrao_model->sanitize_child_level($this->input->post('nivel'), $dd_user, (int)$usuario_atual->nivel);
 	
 	$dd = array(
 		'nome'        => $this->input->post('nome'),
@@ -1506,12 +1520,17 @@ function editar() {
 		'redes_sociais' => $this->input->post('redes_sociais')
 	);
 
-	if($this->input->post('nivel') == '3'){
+	if((int)$dd_user->nivel === 1){
+		$dd['nivel'] = $nivel;
+		$dd['id_user'] = $this->padrao_model->resolve_vinculo_id($nivel, $this->input->post('id_user'), $dd_user);
+	}
+
+	if($nivel == '3'){
 		$dd['especialidade'] = $this->input->post('especialidade');
 		$dd['classe']        = $this->input->post('classe');
 	}
 
-	if($this->input->post('nivel') < 5){
+	if($nivel < 5){
 		$dd['login'] = $this->input->post('login');
 		$senha_edit  = $this->input->post('senha');
 		if($senha_edit){
@@ -1534,7 +1553,6 @@ function editar() {
 		$dd['video'] = $this->do_upload();
 	}
 
-	$id_editar = (int)$this->input->post('id');
 	$this->db->where('id', $id_editar);
 	if($this->db->update('usuarios', $dd)){
 		redirect('adm/usuarios/edicao/'.$id_editar);

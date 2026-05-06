@@ -134,8 +134,35 @@
                           <div class="form-group">
                               <label class="mws-form-label">Nível</label>
                               <div class="mws-form-item">
-                                
+                                <?php if($pode_editar_regra){ ?>
+                                  <select name="nivel" class="form-control">
+                                  <?php foreach($this->db->get('usuarios_niveis')->result() as $niv){ ?>
+                                    <?php if(!in_array((int)$niv->id, $niveis_permitidos) && (int)$niv->id !== (int)$usuario->nivel){ continue; } ?>
+                                    <option value="<?=$niv->id?>" <?php if($usuario->nivel == $niv->id){ echo 'selected="selected"'; } ?>><?=$niv->nome?></option>
+                                  <?php } ?>
+                                  </select>
+                                <?php }else{ ?>
+                                  <input type="hidden" name="nivel" value="<?=$usuario->nivel?>">
                                   <input disabled="disabled" type="text" name="nivel_atual" class="form-control" value="<?=$this->padrao_model->get_by_matriz('nivel',$usuario->nivel,'usuarios_niveis')->row()->nome?>">
+                                <?php } ?>
+                              </div>
+                          </div>
+
+                          <div class="form-group">
+                              <label class="mws-form-label">Vínculo operacional</label>
+                              <div class="mws-form-item">
+                                <?php if($pode_editar_regra){ ?>
+                                  <select name="id_user" class="form-control">
+                                    <?php foreach($vinculo_options as $vinculo){ ?>
+                                      <option value="<?=$vinculo['id']?>" <?php if((int)$usuario->id_user === (int)$vinculo['id']){ echo 'selected="selected"'; } ?>><?=$vinculo['label']?></option>
+                                    <?php } ?>
+                                  </select>
+                                  <small class="form-text text-muted">Responsável principal por esse cadastro dentro da clínica.</small>
+                                <?php }else{ ?>
+                                  <input type="hidden" name="id_user" value="<?=$usuario->id_user?>">
+                                  <input type="text" class="form-control" disabled="disabled" value="<?=$vinculo_label?>">
+                                  <small class="form-text text-muted">Esse vínculo segue a estrutura operacional definida para o seu perfil.</small>
+                                <?php } ?>
                               </div>
                           </div>
 
@@ -260,19 +287,6 @@
                                 </div>                 
                                 
                                 
-                                 <div class="form-group" style="display: none">
-                                    <label class="mws-form-label">Nível</label>
-                                    <div class="mws-form-item clearfix">                                                                                
-                                        <select name="nivel" class="form-control">
-                                        <?php foreach($this->db->get('usuarios_niveis')->result() as $niv){ ?>
-                                          <?php if($usuario->nivel == $niv->id){ $sel_niv = 'selected="selected"'; }else{ $sel_niv = ''; } ?>
-                                            <option <?=$sel_niv?> value="<?=$niv->id?>"><?=$niv->nome?></option>                                           
-                                        <?php } ?>
-                                        </select>
-                                    </div>
-                                </div>   
-
-
                                 <div class="form-group">
                                     <label class="mws-form-label">CEP </label>
                                     <div class="mws-form-item">

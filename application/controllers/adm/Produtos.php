@@ -3,6 +3,15 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 class Produtos extends CI_Controller {
 
+	private function get_scope_sql(){
+		$dd_user = $this->padrao_model->get_usuario_logado();
+		$scope_ids = $this->padrao_model->get_scope_user_ids($dd_user);
+		if((int)$dd_user->nivel === 1){
+			return ['user' => $dd_user, 'sql' => ''];
+		}
+		return ['user' => $dd_user, 'sql' => $this->padrao_model->ids_to_sql_in($scope_ids)];
+	}
+	
 	function __construct()
 		   {
 				parent::__construct();
@@ -16,11 +25,14 @@ class Produtos extends CI_Controller {
 		   } // fecha fn USER
 	
 	function Index(){
+		$scope = $this->get_scope_sql();
 		$id = $this->session->userdata('id');
-		$dados["categorias"] = $this->db->query("SELECT * FROM produtos_categorias WHERE id_user = '".$this->session->userdata('id')."' ORDER BY nome asc ");
-		$dados["produtos"] = $this->db->query("SELECT p.id, p.codigo,p.qtd,p.destaque, p.adicional, p.status, p.preco, p.preco_venda,p.id_fornecedor,p.atividade, p.modelo, p.img_portfolio, p.id_categoria,p.especificacoes, p.dt,pc.nome FROM produtos p 
+		$where = $scope['sql'] !== '' ? " WHERE id_user IN (".$scope['sql'].") " : "";
+		$where_produtos = $scope['sql'] !== '' ? " WHERE p.id_user IN (".$scope['sql'].") " : "";
+		$dados["categorias"] = $this->db->query("SELECT * FROM produtos_categorias ".$where." ORDER BY nome asc ");
+		$dados["produtos"] = $this->db->query("SELECT p.id, p.codigo,p.qtd,p.destaque, p.adicional, p.status, p.preco, p.preco_venda,p.id_fornecedor,p.atividade, p.modelo, p.img_portfolio, p.id_categoria,p.especificacoes, p.dt,pc.nome, p.id_user FROM produtos p 
 												INNER JOIN produtos_categorias pc ON pc.id = p.id_categoria
-												WHERE p.id_user  = '".$id."'
+												".$where_produtos."
 												ORDER BY p.id desc");
 
 		$dados["usuario"] = $this->db->query("SELECT * FROM usuarios WHERE id = ".$id)->row();
@@ -166,7 +178,7 @@ class Produtos extends CI_Controller {
 	
 	
 	function edicao($id){
-		$id_user = $this->session->userdata('id');
+		$scope = $this->get_scope_sql();
 		$produto = $this->db->query("SELECT 
 										p.id,
 										p.id_user, 
@@ -204,16 +216,18 @@ class Produtos extends CI_Controller {
 		
 
 		$dados["produto"] = $produto;
-		$dados["categorias"] = $this->db->query("SELECT * FROM produtos_categorias WHERE id_user = '".$id_user."' ");
+		$where = $scope['sql'] !== '' ? " WHERE id_user IN (".$scope['sql'].") " : "";
+		$where_produtos = $scope['sql'] !== '' ? " WHERE p.id_user IN (".$scope['sql'].") " : "";
+		$dados["categorias"] = $this->db->query("SELECT * FROM produtos_categorias ".$where." ");
 
-		$dados["produtos"] = $this->db->query("SELECT p.id, p.codigo,p.qtd,p.destaque, p.preco, p.preco_venda,p.id_fornecedor,p.atividade, p.modelo, p.img_portfolio, p.id_categoria,p.especificacoes, p.dt,pc.nome FROM produtos p 
+		$dados["produtos"] = $this->db->query("SELECT p.id, p.codigo,p.qtd,p.destaque, p.preco, p.preco_venda,p.id_fornecedor,p.atividade, p.modelo, p.img_portfolio, p.id_categoria,p.especificacoes, p.dt,pc.nome, p.id_user FROM produtos p 
 												INNER JOIN produtos_categorias pc ON pc.id = p.id_categoria
-												WHERE p.id_user  = '".$id_user."'
+												".$where_produtos."
 												ORDER BY p.id desc");
 
 		#echo $produto->id_user." != ".$this->session->userdata('id');
 		#return false;
-		if($produto->id_user != $this->session->userdata('id')){
+		if(!$produto || !$this->padrao_model->can_access_usuario((int)$produto->id_user)){
 			redirect('adm/produtos','refresh');
 		}
 		#$dados["fornecedores"] = $this->db->query("SELECT * FROM parceiros");
@@ -239,21 +253,15 @@ class Produtos extends CI_Controller {
 
 
 	function categorias(){
+		$scope = $this->get_scope_sql();
 		$id = $this->session->userdata('id');
-		$dados["categorias"] = $this->db->query("SELECT * FROM produtos_categorias WHERE id_user = '".$this->session->userdata('id')."' ");
-
-		$id = $this->session->userdata('id');
-		$dados["produtos"] = $this->db->query("SELECT p.id, p.codigo,p.qtd,p.destaque, p.status, p.preco, p.preco_venda,p.id_fornecedor,p.atividade, p.modelo, p.img_portfolio, p.id_categoria,p.especificacoes, p.dt,pc.nome FROM produtos p 
+		$where = $scope['sql'] !== '' ? " WHERE id_user IN (".$scope['sql'].") " : "";
+		$where_produtos = $scope['sql'] !== '' ? " WHERE p.id_user IN (".$scope['sql'].") " : "";
+		$dados["categorias"] = $this->db->query("SELECT * FROM produtos_categorias ".$where." ");
+		$dados["produtos"] = $this->db->query("SELECT p.id, p.codigo,p.qtd,p.destaque, p.status, p.preco, p.preco_venda,p.id_fornecedor,p.atividade, p.modelo, p.img_portfolio, p.id_categoria,p.especificacoes, p.dt,pc.nome, p.id_user FROM produtos p 
 												INNER JOIN produtos_categorias pc ON pc.id = p.id_categoria
-												WHERE p.id_user  = '".$id."'
+												".$where_produtos."
 												ORDER BY p.id desc");
-
-
-		$dados["produtos"] = $this->db->query("SELECT p.id, p.codigo,p.qtd,p.destaque, p.status, p.preco, p.preco_venda,p.id_fornecedor,p.atividade, p.modelo, p.img_portfolio, p.id_categoria,p.especificacoes, p.dt,pc.nome FROM produtos p 
-												INNER JOIN produtos_categorias pc ON pc.id = p.id_categoria
-												WHERE p.id_user  = '".$id."'
-												ORDER BY p.id desc");
-
 		$dados["usuario"] = $this->db->query("SELECT * FROM usuarios WHERE id = ".$id)->row();
 		#$this->load->view('adm/produtos/lista', $dados);
 		$this->load->view('adm/produtos/new/categorias', $dados);
@@ -270,7 +278,7 @@ class Produtos extends CI_Controller {
 
 	function edicao_cat($id){
 		$id      = (int)$id;
-		$id_user = $this->session->userdata('id');
+		$scope = $this->get_scope_sql();
 		$qr_categoria = $this->db->query("SELECT * FROM produtos_categorias WHERE id = $id");
 
 		#echo $qr_categoria->num_rows();
@@ -281,21 +289,19 @@ class Produtos extends CI_Controller {
 		$dados["categoria"] = $categoria;
 		
 
+		$where = $scope['sql'] !== '' ? " WHERE id_user IN (".$scope['sql'].") " : "";
+		$where_produtos = $scope['sql'] !== '' ? " WHERE p.id_user IN (".$scope['sql'].") " : "";
+		$dados["categorias"] = $this->db->query("SELECT * FROM produtos_categorias ".$where." ");
 
-		
-
-		$dados["produto"] = $produto;
-		$dados["categorias"] = $this->db->query("SELECT * FROM produtos_categorias WHERE id_user = '".$id_user."' ");
-
-		$dados["produtos"] = $this->db->query("SELECT p.id, p.codigo,p.qtd,p.destaque, p.preco, p.preco_venda,p.id_fornecedor,p.atividade, p.modelo, p.img_portfolio, p.id_categoria,p.especificacoes, p.dt,pc.nome FROM produtos p 
+		$dados["produtos"] = $this->db->query("SELECT p.id, p.codigo,p.qtd,p.destaque, p.preco, p.preco_venda,p.id_fornecedor,p.atividade, p.modelo, p.img_portfolio, p.id_categoria,p.especificacoes, p.dt,pc.nome, p.id_user FROM produtos p 
 												INNER JOIN produtos_categorias pc ON pc.id = p.id_categoria
-												WHERE p.id_user  = '".$id_user."'
+												".$where_produtos."
 												ORDER BY p.id desc");
 
 		#echo $produto->id_user." != ".$this->session->userdata('id');
 		#return false;
-		if($categoria->id_user != $this->session->userdata('id')){
-			redirect('adm/categorias','refresh');
+		if(!$categoria || !$this->padrao_model->can_access_usuario((int)$categoria->id_user)){
+			redirect('adm/produtos/categorias','refresh');
 		}
 		#$dados["fornecedores"] = $this->db->query("SELECT * FROM parceiros");
 		#$dados["atendimento"] = $this->db->query("SELECT * FROM produtos_categorias WHERE id <> ?", $produto->id);
@@ -309,14 +315,29 @@ class Produtos extends CI_Controller {
 
 
 
+	function rel_pedidos(){
+		$scope = $this->get_scope_sql();
+		$where = $scope['sql'] !== '' ? " WHERE id_cliente IN (".$scope['sql'].") " : "";
+		$dados['pedidos_finalizados'] = $this->db->query("SELECT * FROM pedidos ".$where." ORDER BY id desc LIMIT 100");
+		$dados['dd_user'] = $scope['user'];
+		$this->load->view('adm/produtos/new/rel_pedidos', $dados);
+	}
+
 	function pedido($id_pedido){
-		$this->db->where('id',$id_pedido);
-		$qr = $this->db->get('pedidos');
-		$dados['pedido'] = $qr;
+		$id_pedido = trim($id_pedido);
 		$dados['id_pedido'] = $id_pedido;
-		$dados['carrinho'] = $this->db->query("SELECT * FROM carrinho WHERE id_pedido = '".$id_pedido."' AND status = 1 ORDER BY dt asc");
-		$dados['comprador'] = $this->padrao_model->get_by_id($qr->row()->id_comprador,'MJ_users')->row();
-		$this->load->view('adm/produtos/pedido' , $dados);
+		$qr = $this->db->query("SELECT * FROM pedidos WHERE id_pedido = ? LIMIT 1", array($id_pedido));
+		if(!$qr->num_rows()){
+			redirect('adm/produtos/rel_pedidos');
+		}
+		$pedido_item = $qr->row();
+		if(!$this->padrao_model->can_access_usuario((int)$pedido_item->id_cliente)){
+			redirect('adm/produtos/rel_pedidos');
+		}
+		$dados['pedido'] = $qr;
+		$dados['carrinhos'] = $this->db->query("SELECT * FROM carrinho_hist WHERE id_pedido = ? ORDER BY dt asc, id asc", array($id_pedido));
+		$dados['comprador'] = $this->padrao_model->get_by_id($pedido_item->id_user,'usuarios')->row();
+		$this->load->view('adm/produtos/new/pedido' , $dados);
 	}
 	
 
@@ -357,6 +378,10 @@ class Produtos extends CI_Controller {
 	}
 
 	function remover_cat($id_categoria){
+		$dd_categoria = $this->padrao_model->get_by_id($id_categoria,'produtos_categorias')->row();
+		if(!$dd_categoria || !$this->padrao_model->can_access_usuario((int)$dd_categoria->id_user)){
+			redirect("adm/produtos/categorias/");
+		}
 		$this->db->where('id',$id_categoria);
 		$this->db->delete('produtos_categorias');
 		redirect("adm/produtos/categorias/");
@@ -367,7 +392,10 @@ class Produtos extends CI_Controller {
 	
 	
 	function remover($id){
-			
+		$dd_produto = $this->padrao_model->get_by_id($id,'produtos')->row();
+		if(!$dd_produto || !$this->padrao_model->can_access_usuario((int)$dd_produto->id_user)){
+			redirect('adm/produtos' , 'refresh');
+		}
 	   	$this->produtos_model->remover($id);
 		redirect('adm/produtos' , 'refresh');
 	
@@ -376,6 +404,10 @@ class Produtos extends CI_Controller {
 	
 			
 	function setStatus($id, $status){
+		$dd_produto = $this->padrao_model->get_by_id($id,'produtos')->row();
+		if(!$dd_produto || !$this->padrao_model->can_access_usuario((int)$dd_produto->id_user)){
+			redirect('adm/produtos' , 'refresh');
+		}
 		$dd = array('status' => $status);
 		$this->db->where('id', $id);
 		$this->db->update('produtos' , $dd);
@@ -384,6 +416,10 @@ class Produtos extends CI_Controller {
 	}
 
 	function setStatus_cat($id, $status){
+		$dd_categoria = $this->padrao_model->get_by_id($id,'produtos_categorias')->row();
+		if(!$dd_categoria || !$this->padrao_model->can_access_usuario((int)$dd_categoria->id_user)){
+			redirect('adm/produtos/categorias' , 'refresh');
+		}
 		$dd = array('status' => $status);
 		$this->db->where('id', $id);
 		$this->db->update('produtos_categorias' , $dd);

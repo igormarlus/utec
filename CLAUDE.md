@@ -125,7 +125,15 @@ c:\htdocs\utec\
   - agenda clínica,
   - prontuário,
   - checklist de exames,
-  - relatórios clínicos.
+  - relatórios clínicos,
+  - catálogo de planos,
+  - tipos de plano,
+  - assinaturas e detalhes das contratações.
+- Regras práticas de cadastro:
+  - `Administrador` pode definir manualmente o vínculo operacional no cadastro e na edição.
+  - `Estabelecimento` cria `Prestador`, `Colaborador` e `Paciente` vinculados ao próprio estabelecimento.
+  - `Prestador` cria `Colaborador` e `Paciente` vinculados ao próprio prestador.
+  - `Colaborador` cria `Paciente` herdando o vínculo principal do grupo (`id_user` do estabelecimento ou prestador).
 - O helper central dessas regras está em `Padrao_model.php`.
 
 ---

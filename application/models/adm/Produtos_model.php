@@ -27,6 +27,9 @@ class Produtos_model extends CI_Model{
 	
 	
 	function cadastrar($tipo='cad'){
+		$CI =& get_instance();
+		$CI->load->model('padrao_model');
+		$dd_user = $CI->padrao_model->get_usuario_logado();
 		
 		// perfil produto
 		if(isset($_POST['destaque'])){
@@ -47,7 +50,6 @@ class Produtos_model extends CI_Model{
 		#return false;
 		
 		$dd = array(
-			'id_user' => $this->session->userdata('id'),
 			'modelo' => $this->input->post('modelo'),
 			'id_categoria' => $this->input->post('id_categoria'),
 			
@@ -124,6 +126,7 @@ class Produtos_model extends CI_Model{
 		
 
 		if($tipo == 'cad'){
+			$dd['id_user'] = $this->session->userdata('id');
 			$this->db->insert('produtos', $dd);
 			#$id_produto = $this->db->insert_id();
 			#$dd_atendimento['id_produto'] = $id_produto;
@@ -149,8 +152,12 @@ class Produtos_model extends CI_Model{
 
 			$dd['keywords'] = $this->input->post('keywords');
 
-			$where_user = array('id' =>  $this->input->post('id') , 'id_user' => $this->session->userdata('id'));
+			$where_user = array('id' =>  $this->input->post('id'));
 			$this->db->where($where_user);
+			if((int)$dd_user->nivel !== 1){
+				$scope_ids = $CI->padrao_model->get_scope_user_ids($dd_user);
+				$this->db->where_in('id_user', $scope_ids);
+			}
 			$this->db->update('produtos', $dd);
 			
 		}
@@ -163,6 +170,9 @@ class Produtos_model extends CI_Model{
 
 	// cadastrar_categoria
 	function cadastrar_categoria($tipo='cad'){
+		$CI =& get_instance();
+		$CI->load->model('padrao_model');
+		$dd_user = $CI->padrao_model->get_usuario_logado();
 		
 		// perfil produto
 		if(isset($_POST['destaque'])){
@@ -175,7 +185,6 @@ class Produtos_model extends CI_Model{
 		#return false;
 		
 		$dd = array(
-			'id_user' => $this->session->userdata('id'),
 			'nome' => $this->input->post('nome'),
 			
 			'status' => $this->input->post('status'),
@@ -188,18 +197,23 @@ class Produtos_model extends CI_Model{
 			$dd['img_portfolio'] = $_POST['imagem'];
 		}
 		if($tipo == 'cad'){
+			$dd['id_user'] = $this->session->userdata('id');
 			$this->db->insert('produtos_categorias', $dd);
 			#$id_produto = $this->db->insert_id();
 			#$dd_atendimento['id_produto'] = $id_produto;
 			#$this->db->insert('produtos_atendimento', $dd_atendimento);
 		}
 		if($tipo == 'edit'){
-			$where_user = array('id' =>  $this->input->post('id') , 'id_user' => $this->session->userdata('id'));
+			$where_user = array('id' =>  $this->input->post('id'));
 			#print_r($where_user);
 
 			#echo "<br>";
 			#print_r($_POST);
 			$this->db->where($where_user);
+			if((int)$dd_user->nivel !== 1){
+				$scope_ids = $CI->padrao_model->get_scope_user_ids($dd_user);
+				$this->db->where_in('id_user', $scope_ids);
+			}
 			$this->db->update('produtos_categorias', $dd);
 			
 		}
@@ -211,6 +225,9 @@ class Produtos_model extends CI_Model{
 	
 	
 	function editar(){
+		$CI =& get_instance();
+		$CI->load->model('padrao_model');
+		$dd_user = $CI->padrao_model->get_usuario_logado();
 		$valor = str_replace("R$ ","",$_POST['preco']);
 		$valor = str_replace(".","",$valor);
 		$valor = str_replace(",",".",$valor);
@@ -221,8 +238,6 @@ class Produtos_model extends CI_Model{
 		$valor_venda = str_replace(",",".",$valor_venda);
 		
 		$dd = array(
-
-			'id_user' => $this->session->userdata('id'),
 			'modelo' => $this->input->post('modelo'),
 			'id_categoria' => $this->input->post('id_categoria'),			
 			'preco' => $valor,
@@ -239,6 +254,10 @@ class Produtos_model extends CI_Model{
 		}
 		
 		$this->db->where('id', $this->input->post('id'));
+		if((int)$dd_user->nivel !== 1){
+			$scope_ids = $CI->padrao_model->get_scope_user_ids($dd_user);
+			$this->db->where_in('id_user', $scope_ids);
+		}
 
 		if ($this->db->update('produtos', $dd)) {
 			return true;
@@ -249,8 +268,14 @@ class Produtos_model extends CI_Model{
 	}
 	
 	function remover($id) {
-		$where = array('id' => $id , 'id_user' => $this->session->userdata('id'));
-		$this->db->where($where);
+		$CI =& get_instance();
+		$CI->load->model('padrao_model');
+		$dd_user = $CI->padrao_model->get_usuario_logado();
+		$this->db->where('id', $id);
+		if((int)$dd_user->nivel !== 1){
+			$scope_ids = $CI->padrao_model->get_scope_user_ids($dd_user);
+			$this->db->where_in('id_user', $scope_ids);
+		}
 		$this->db->delete('produtos');	
 		
 	}

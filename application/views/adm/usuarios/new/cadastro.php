@@ -118,12 +118,32 @@
                               <div class="mws-form-item clearfix">                                                                                
                                   <select name="nivel" class="form-control">
                                   <? foreach($this->db->get('usuarios_niveis')->result() as $niv){ ?>
-                                    <?php if($nivel == $niv->id){ $sel_niv = 'selected="selected"'; }else{ $sel_niv = ''; } ?>
-                                      <option <?=$sel_niv?> value="<?=$niv->id?>"><?=$niv->nome?></option>                                           
+                                    <?php if(in_array((int)$niv->id, $niveis_permitidos)){ ?>
+                                      <?php if($nivel == $niv->id){ $sel_niv = 'selected="selected"'; }else{ $sel_niv = ''; } ?>
+                                        <option <?=$sel_niv?> value="<?=$niv->id?>"><?=$niv->nome?></option>
+                                    <?php } ?>                                           
                                   <? } ?>
                                   </select>
                               </div>
                           </div> 
+
+                          <div class="form-group">
+                              <label class="mws-form-label">Vínculo operacional</label>
+                              <div class="mws-form-item">
+                                <?php if((int)$usuario_logado->nivel === 1){ ?>
+                                  <select name="id_user" class="form-control">
+                                    <?php foreach($vinculo_options as $vinculo){ ?>
+                                      <option value="<?=$vinculo['id']?>" <?=(($vinculo_default == $vinculo['id']) ? 'selected="selected"' : '')?>><?=$vinculo['label']?></option>
+                                    <?php } ?>
+                                  </select>
+                                  <small class="form-text text-muted">Define quem será o responsável principal por este cadastro dentro da operação.</small>
+                                <?php }else{ ?>
+                                  <input type="hidden" name="id_user" value="<?=$vinculo_default?>">
+                                  <input type="text" class="form-control" disabled="disabled" value="<?=count($vinculo_options) ? $vinculo_options[0]['label'] : 'Vínculo automático'?>">
+                                  <small class="form-text text-muted">Esse vínculo é definido automaticamente pela sua estrutura de acesso.</small>
+                                <?php } ?>
+                              </div>
+                          </div>
 
 
 

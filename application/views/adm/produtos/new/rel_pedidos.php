@@ -62,7 +62,7 @@
                               <span class="status-pill status-pendente">Pendente</span>
                             <? } ?>
                           </td>
-                          <td><a href="<?=base_url()?>adm/usuarios/pedido/<?=$pedido->id_pedido?>" class="btn btn-sm btn-outline-primary">Detalhes</a></td>
+                          <td><a href="<?=base_url()?>adm/produtos/pedido/<?=$pedido->id_pedido?>" class="btn btn-sm btn-outline-primary">Detalhes</a></td>
                         </tr>
                       <? } } else { ?>
                         <tr><td colspan="6">Nenhuma assinatura registrada ainda.</td></tr>
