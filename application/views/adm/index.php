@@ -6,7 +6,7 @@
 <head>
 <meta charset="utf-8">
 
-<title>Pedidos</title>
+<title>Assinaturas | UTEC</title>
 
 <!-- Viewport Metatag -->
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
@@ -59,7 +59,7 @@
             <div class="container">
 
 
-                <h2>Pedidos (<?=$pedidos->num_rows()?>)</h2>
+                <h2>Assinaturas (<?=$pedidos->num_rows()?>)</h2>
 
                 <? if($pedidos->num_rows() > 0){ ?>
 
@@ -68,7 +68,7 @@
                         
                         <div class="mws-panel grid_8">
                             <div class="mws-panel-header">
-                                <span><i class="icon-table"></i>Lista de Produtos</span>
+                                <span><i class="icon-table"></i>Contratações registradas</span>
                             </div>
                             <div class="mws-panel-body no-padding">
                                 <table class="mws-datatable-fn mws-table" id="tabela">
@@ -76,7 +76,7 @@
                                         <tr>
                                             <th>ID</th>
                                             <th>Data</th>
-                                            <th>Vendedor</th>
+                                            <th>Responsável</th>
                                             <th>Cliente</th>
                                             <th>Status</th>
                                             <th></th>
@@ -126,11 +126,11 @@
                                                     <input type="hidden" value="<?=$pedido->id?>" name="id_pedido">
                                                     <select name="status" class="set_status" title="<?=$pedido->id?>" >
                                                         <? if($pedido->status == '0'){ $sel_opt = 'selected="selected"'; }else{ $sel_opt = "";  } ?>
-                                                        <option value="0" <?=$sel_opt?> style="color: red" >Aguardando</option>
+                                                        <option value="0" <?=$sel_opt?> style="color: red" >Pendente</option>
                                                         <? if($pedido->status == '1'){ $sel_opt = 'selected="selected"'; }else{ $sel_opt = "";  } ?>
-                                                        <option value="1" <?=$sel_opt?> style="color: orange" >Atendido</option>
+                                                        <option value="1" <?=$sel_opt?> style="color: orange" >Em análise</option>
                                                         <? if($pedido->status == '2'){ $sel_opt = 'selected="selected"'; }else{ $sel_opt = "";  } ?>
-                                                        <option value="2" <?=$sel_opt?> style="color: green">Finalizado</option>
+                                                        <option value="2" <?=$sel_opt?> style="color: green">Ativa</option>
                                                     </select>
                                                     <input type="submit" name="" value="OK" class="btn btn-primary">
                                                 </form>
@@ -145,7 +145,7 @@
                                                 </span>
                                             </td>
                                         </tr>
-                                        <!-- PLISTA DE PRODUTOS -->
+                                        <!-- Itens vinculados à contratação -->
                                         <tr>
                                                 <td><?php echo $pedido->id; ?></td>
                                                 <td><?php echo $this->padrao_model->converte_data(substr($pedido->dt, 0,10)); ?> 
@@ -269,7 +269,7 @@
     <script src="<?php echo base_url(); ?>js/adm/core/mws.js"></script>
 
 
-    <!-- Demo Scripts (remove if not needed) -->
+    <!-- Scripts de apoio -->
     <script src="<?php echo base_url(); ?>js/adm/demo/demo.dashboard.js"></script>
 
     <script type="text/javascript">

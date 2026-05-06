@@ -208,7 +208,7 @@ function prontuario($id_user=1,$id_agenda=0){
 
 	$dados["dd"] = $this->db->query("SELECT * FROM usuarios WHERE id = $id_user ")->row();
 
-	$qr_agendamentos = $this->db->query("SELECT * FROM agendamentos where id_paciente = $id_user ");
+	$qr_agendamentos = $this->db->query("SELECT * FROM agendamentos where id_paciente = $id_user ORDER BY data_agenda DESC, hora_agenda DESC, id DESC ");
 	$dados["qr_agendamentos"] = $qr_agendamentos;
 
 	$dados["arquivos"] = $this->db->query(

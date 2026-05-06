@@ -25,6 +25,179 @@
     <link href="<?=base_url()?>css/clicklinica-main.css" rel="stylesheet">
 
     <link rel="stylesheet" href="<?=base_url()?>bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css">
+    <style>
+      .patient-summary-card {
+        background: linear-gradient(135deg, #f4f8ff 0%, #ffffff 100%);
+        border: 1px solid #d7e3f7;
+        border-radius: 18px;
+        padding: 24px;
+        margin-bottom: 24px;
+        box-shadow: 0 14px 30px rgba(40, 72, 120, 0.08);
+      }
+      .patient-summary-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 14px;
+        margin-top: 18px;
+      }
+      .patient-summary-item {
+        background: #fff;
+        border: 1px solid #e6edf7;
+        border-radius: 14px;
+        padding: 14px 16px;
+      }
+      .patient-summary-label {
+        color: #7d8aa5;
+        display: block;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: .08em;
+        margin-bottom: 4px;
+        text-transform: uppercase;
+      }
+      .quick-metrics {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 14px;
+        margin-bottom: 24px;
+      }
+      .quick-metric-card {
+        background: #fff;
+        border: 1px solid #e9eef6;
+        border-radius: 16px;
+        padding: 18px;
+        box-shadow: 0 10px 22px rgba(40, 72, 120, 0.06);
+      }
+      .quick-metric-card strong {
+        color: #183153;
+        display: block;
+        font-size: 28px;
+        line-height: 1.1;
+      }
+      .timeline-list {
+        position: relative;
+        margin-top: 10px;
+      }
+      .timeline-list:before {
+        background: linear-gradient(180deg, #d8e3f2 0%, #eef4fb 100%);
+        border-radius: 999px;
+        bottom: 0;
+        content: "";
+        left: 19px;
+        position: absolute;
+        top: 0;
+        width: 3px;
+      }
+      .timeline-item {
+        padding-left: 56px;
+        position: relative;
+      }
+      .timeline-item + .timeline-item {
+        margin-top: 18px;
+      }
+      .timeline-dot {
+        align-items: center;
+        background: #fff;
+        border: 3px solid #047bf8;
+        border-radius: 999px;
+        color: #047bf8;
+        display: inline-flex;
+        height: 22px;
+        justify-content: center;
+        left: 10px;
+        position: absolute;
+        top: 24px;
+        width: 22px;
+        z-index: 2;
+      }
+      .timeline-card {
+        background: #fff;
+        border: 1px solid #e6edf7;
+        border-radius: 18px;
+        box-shadow: 0 12px 28px rgba(40, 72, 120, 0.08);
+        padding: 22px;
+      }
+      .timeline-topbar {
+        align-items: flex-start;
+        display: flex;
+        gap: 12px;
+        justify-content: space-between;
+        margin-bottom: 16px;
+      }
+      .timeline-date {
+        color: #183153;
+        font-size: 18px;
+        font-weight: 700;
+      }
+      .timeline-meta {
+        color: #7d8aa5;
+        font-size: 12px;
+        margin-top: 4px;
+      }
+      .timeline-status {
+        border-radius: 999px;
+        display: inline-block;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: .04em;
+        padding: 6px 10px;
+        text-transform: uppercase;
+      }
+      .timeline-status.status-pendente { background: #fff1f0; color: #d64545; }
+      .timeline-status.status-atendimento { background: #ebfff1; color: #16874b; }
+      .timeline-status.status-finalizado { background: #fff6e5; color: #b97700; }
+      .timeline-sections {
+        display: grid;
+        gap: 12px;
+      }
+      .timeline-section {
+        background: #f8fbff;
+        border: 1px solid #e4edf8;
+        border-radius: 14px;
+        padding: 14px 16px;
+      }
+      .timeline-section h6 {
+        color: #183153;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: .04em;
+        margin-bottom: 8px;
+        text-transform: uppercase;
+      }
+      .timeline-section p {
+        color: #50627c;
+        margin: 0;
+        white-space: pre-line;
+      }
+      .timeline-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 16px;
+      }
+      .timeline-empty {
+        background: #fff;
+        border: 1px dashed #cdd9eb;
+        border-radius: 16px;
+        color: #6e7f99;
+        padding: 28px;
+        text-align: center;
+      }
+      .current-appointment-card {
+        background: #ffffff;
+        border: 1px solid #d8e4f4;
+        border-radius: 18px;
+        box-shadow: 0 14px 30px rgba(40, 72, 120, 0.08);
+        margin-bottom: 24px;
+        padding: 24px;
+      }
+      .section-heading {
+        color: #183153;
+        font-size: 20px;
+        font-weight: 700;
+        margin-bottom: 14px;
+      }
+    </style>
     
   </head>
   <body class="menu-position-side menu-side-left full-screen with-content-panel">
@@ -70,6 +243,21 @@
           <!--------------------
           END - Breadcrumbs
           -------------------->
+          <?php
+            $paciente = $dd;
+            $agendamentos = $qr_agendamentos->result();
+            $total_agendamentos = count($agendamentos);
+            $total_finalizados = 0;
+            $total_pendentes = 0;
+            foreach ($agendamentos as $item_agenda) {
+              if ((int)$item_agenda->status === 2) {
+                $total_finalizados++;
+              }
+              if ((int)$item_agenda->status === 0) {
+                $total_pendentes++;
+              }
+            }
+          ?>
           <div class="content-panel-toggler">
             <i class="os-icon os-icon-grid-squares-22"></i><span>Sidebar</span>
           </div>
@@ -77,270 +265,179 @@
             <div class="content-box">
               <div class="row">
                 <div class="col-sm-12">
-                  <div class="element-wrapper">
-                    <div class="element-actions">
-                      <form class="form-inline justify-content-sm-end">
-                        <select class="form-control form-control-sm">
-                          <option value="Pending">
-                            Hoje
-                          </option>
-                          <option value="Active">
-                            Última semana
-                          </option>
-                          <option value="Cancelled">
-                            Últimos 30 dias
-                          </option>
-                        </select>
-                      </form>
+                  <div class="patient-summary-card">
+                    <div class="d-flex flex-wrap justify-content-between align-items-start" style="gap:16px">
+                      <div>
+                        <div class="section-heading" style="margin-bottom:6px"><?=$paciente->nome?></div>
+                        <p style="margin:0;color:#5f708c">Prontuário com histórico de atendimentos, evolução clínica e arquivos do paciente.</p>
+                      </div>
+                      <div class="timeline-actions" style="margin-top:0">
+                        <a href="<?=base_url()?>adm/atendimento" class="btn btn-secondary">Voltar</a>
+                        <a href="<?=base_url()?>adm/atendimento/novo/<?=$paciente->id?>" class="btn btn-success">Novo agendamento</a>
+                      </div>
                     </div>
-                    <h6 class="element-header">
-                      <?=$this->padrao_model->get_by_matriz('nivel',$nivel,'usuarios_niveis')->row()->nome?>
-                    </h6>
-
-                    <p>
-                      <a href="<?=base_url()?>adm/atendimento" class="btn btn-primary">Voltar</a>
-                    </p>
-
-                    <p>
-                      <a href="<?=base_url()?>adm/atendimento/novo/<?=$dd->id?>" class="btn btn-success">Novo Agendamento</a>
-                    </p>
-
+                    <div class="patient-summary-grid">
+                      <div class="patient-summary-item">
+                        <span class="patient-summary-label">Telefone</span>
+                        <strong><?=$paciente->telefone ? $paciente->telefone : 'Nao informado'?></strong>
+                      </div>
+                      <div class="patient-summary-item">
+                        <span class="patient-summary-label">E-mail</span>
+                        <strong><?=$paciente->email ? $paciente->email : 'Nao informado'?></strong>
+                      </div>
+                      <div class="patient-summary-item">
+                        <span class="patient-summary-label">Cadastro</span>
+                        <strong><?=$paciente->dt_cadastro ? $this->padrao_model->converte_data(substr($paciente->dt_cadastro, 0, 10)) : 'Nao informado'?></strong>
+                      </div>
+                      <div class="patient-summary-item">
+                        <span class="patient-summary-label">Perfil</span>
+                        <strong><?=$this->padrao_model->get_by_matriz('nivel',$nivel,'usuarios_niveis')->row()->nome?></strong>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
 
+              <div class="quick-metrics">
+                <div class="quick-metric-card">
+                  <span class="patient-summary-label">Atendimentos</span>
+                  <strong><?=$total_agendamentos?></strong>
+                  <span style="color:#6f809b">registros no histórico</span>
+                </div>
+                <div class="quick-metric-card">
+                  <span class="patient-summary-label">Finalizados</span>
+                  <strong><?=$total_finalizados?></strong>
+                  <span style="color:#6f809b">consultas concluídas</span>
+                </div>
+                <div class="quick-metric-card">
+                  <span class="patient-summary-label">Pendentes</span>
+                  <strong><?=$total_pendentes?></strong>
+                  <span style="color:#6f809b">itens em aberto</span>
+                </div>
+                <div class="quick-metric-card">
+                  <span class="patient-summary-label">Arquivos</span>
+                  <strong><?=isset($arquivos) ? $arquivos->num_rows() : 0?></strong>
+                  <span style="color:#6f809b">documentos anexados</span>
+                </div>
+              </div>
+
               <? if($id_agenda > 0){ ?>
-              <div class="row">
-                <div class="col-sm-12 col-xxxl-12">
-                  <div class="element-wrapper">
-                    
-                    <div class="element-box">
-
-                      <!-- FORM -->
-
-                      <h4><?=$this->padrao_model->converte_data($dd_agenda->data_agenda)?> - <?=$dd_agenda->hora_agenda?></h4>
-
-                      <form id="form" name="form" class="mws-form" method="post" action="<?php echo base_url() ?>index.php/adm/atendimento/set" enctype='multipart/form-data'>
-                        <input type="hidden" name="id_agenda" value="<?=$id_agenda?>">
-                          <h5 class="form-header">
-                            Informações do atendimento
-                          </h5>
-
-                          <div class="form-desc">
-                            Preencha as informações corretamente.
-                          </div>
-
-                          <div class="form-group">
-                              <label class="mws-form-label">Atendimento Inicial</label>
-                              <div class="mws-form-item">
-                                <!-- <input type="hidden" name="id" value="<?php #echo $usuario->id; ?>"> -->
-                                  <textarea name="atendimento_inicial" class="form-control" placeholder="Preencha o atendimento inicial"><?=$dd_agenda->atendimento_inicial?></textarea>
-                              </div>
-                          </div>
-
-                          
-                            <div class="row">
-
-                              <div class="col-sm-12">
-                                <div class="form-group bordered">
-                                    <label class="mws-form-label">Avaliação </label>
-                                    <div class="mws-form-item">
-                                        <textarea name="avaliacao" class="form-control" placeholder="Preencha sua Avaliação"><?=$dd_agenda->avaliacao?></textarea>
-                                    </div>
-                                </div>  
-                              </div>  
-
-                              <div class="col-sm-12">
-                                <div class="form-group bordered">
-                                    <label class="mws-form-label">Reavaliação </label>
-                                    <div class="mws-form-item">
-                                        <textarea  name="reavaliacao" class="form-control" placeholder="Preencha sua Revaliação"><?=$dd_agenda->reavaliacao?></textarea>
-                                    </div>
-                                </div>  
-                              </div>  
-
-                              <div class="row">
-                                <div class="col-sm-12">
-                                  <div class="form-group">
-                                    <label class="mws-form-label"> </label>
-                                    <div class="mws-form-item">
-                                      <button class="btn btn-primary" type="submit"> Salvar</button>
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-
-                            </div>
-                        </form>
-
-                      <!-- X FORM -->
-
-                    </div>
+              <div class="current-appointment-card">
+                <div class="d-flex flex-wrap justify-content-between align-items-start" style="gap:12px;margin-bottom:18px">
+                  <div>
+                    <div class="section-heading" style="font-size:22px;margin-bottom:4px">Registro do atendimento em andamento</div>
+                    <p style="margin:0;color:#5f708c"><?=$this->padrao_model->converte_data($dd_agenda->data_agenda)?> as <?=substr($dd_agenda->hora_agenda,0,5)?>h</p>
                   </div>
                 </div>
+                <form id="form" name="form" class="mws-form" method="post" action="<?php echo base_url() ?>index.php/adm/atendimento/set" enctype='multipart/form-data'>
+                  <input type="hidden" name="id_agenda" value="<?=$id_agenda?>">
+                  <div class="form-group">
+                    <label class="mws-form-label">Atendimento inicial</label>
+                    <textarea name="atendimento_inicial" class="form-control" placeholder="Descreva a queixa principal, contexto e primeiros registros."><?=$dd_agenda->atendimento_inicial?></textarea>
+                  </div>
+                  <div class="row">
+                    <div class="col-sm-12">
+                      <div class="form-group bordered">
+                        <label class="mws-form-label">Avaliação</label>
+                        <textarea name="avaliacao" class="form-control" placeholder="Registre avaliação clínica, hipóteses e condutas adotadas."><?=$dd_agenda->avaliacao?></textarea>
+                      </div>
+                    </div>
+                    <div class="col-sm-12">
+                      <div class="form-group bordered">
+                        <label class="mws-form-label">Reavaliação</label>
+                        <textarea name="reavaliacao" class="form-control" placeholder="Registre evolução, retorno ou observações complementares."><?=$dd_agenda->reavaliacao?></textarea>
+                      </div>
+                    </div>
+                  </div>
+                  <button class="btn btn-primary" type="submit">Salvar atendimento</button>
+                </form>
               </div>
             <? } ?>
 
               <div class="row">
                 <div class="col-sm-12 col-xxxl-12">
                   <div class="element-wrapper">
-                    
                     <div class="element-box">
-
-
-                      <div class="table-responsive">
-                          
-                        <table class="table table-lightborder" id="">
-                            <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Dt. Cadastro</th>
-                                    
-                                    
-                                    <!--<th>Vídeo</th>-->
-                                    <!-- <th>Foto</th> -->
-
-                                    <th>Nome</th>
-
-                                    <th>Prontuário</th>
-                                    
-                                    <th>Data</th>
-                                    <th>hora</th>
-                                    <th>Status</th>
-                                    <!-- <th>Produtos</th>
-                                    <th>Solicitações</th> -->
-                                    
-                                    <th>Telefone</th>   
-                                    <th>Cad. Por</th>
-                                    
-                                    
-                                    <th align="center" style="text-align: center;">Ações</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                              <?php 
-                              if($qr_agendamentos->num_rows() > 0){
-                                foreach ($qr_agendamentos->result() as $agenda) {
-                                $usuario = $this->padrao_model->get_by_id($agenda->id_paciente,'usuarios')->row();
-                ?>
-                                <tr>
-                                  <td><?=$agenda->id?></td>
-                                  <td><?=$agenda->dt_cadastro?></td>
-                                  
-                                  
-                                  <!--<td>
-                                        <? /* if($usuario->video != ""){ ?>
-                                            <a target="_blank" href="<?=base_url()?>uploads/<?=$usuario->video?>" alt="Foto usuário"><?=substr($usuario->video,0,10)?></a>
-                                        <? }else{ ?>
-                                            Sem Vídeo
-                                        <? } */ ?>
-                                    </td>-->
-                                  <!-- <td>
-                                    <? if($usuario->img != ""){ ?>
-                                            <a target="_blank" href="<?=base_url()?>imagens/usuarios/<?=$usuario->img?>" ><img src="<?=base_url()?>imagens/usuarios/min/<?=$usuario->img?>" alt="Foto usuário"></a>
-                                        <? }else{ ?>
-                                            Sem foto
-                                        <? } ?>
-                                  </td> -->
-                                    
-                                    <td> 
-                                      <a href="<?=base_url('adm/atendimento/prontuario/'.$usuario->id)?>" target="_blank">
-                                        <?php echo $usuario->nome; ?>
-                                      </a>
-                                    </td>
-
-                                    <td>
-                                      
-                                      <span class="btn-group">
-                                            <!-- <a href="#" class="btn btn-small"><i class="icon-search"></i></a> -->
-                                            <? #if($usuario->nivel == 5){ ?>
-                                            <!-- <a href="<?php echo base_url().'index.php/adm/usuarios/prontuario/'.$usuario->id; ?>" 
-                                              class="btn btn-small" style="color:blue" target="_blank"> -->
-
-                                             <a href="<?=base_url('adm/atendimento/prontuario/'.$usuario->id.'/'.$agenda->id)?>" target="_blank">
-                                                <i class="os-icon os-icon-edit"></i>
-                                                Prontuário
-                                                <!-- <i class="icon-tag"></i> -->
-                                            </a>
-
-                                            <? #} ?>
-                                    </td>
-
-                                    
-
-                                    
-                                    <td>
-                                      <?=$this->padrao_model->converte_data($agenda->data_agenda)?>
-                                      
-                                      <? #=$agenda->data_hora_agenda?>
-                                    </td>
-
-                                    <td>
-                                      
-                                      <?=substr($agenda->hora_agenda,0,5)?>h
-                                      <? #=$agenda->data_hora_agenda?>
-                                    </td>
-
-                                    <td>
-                                        <a href="<?php echo base_url().'index.php/adm/atendimento/set_status_agenda/'.$agenda->id.'/'.$agenda->status; ?>" class="btn btn-small">
-                                          <? if($agenda->status == 1){ ?>
-                                              <!--<i class="os-icon os-icon-check"></i>-->
-                                              <i class="os-icon os-icon-check-circle"  title="Em atendimento" style="color:green"></i>
-                                           <? } ?>
-                                           <? if($agenda->status == 2){ ?>
-                                              <i class="os-icon os-icon-check-circle" title="Finalizado" style="color:orange"></i>
-                                           <? } ?>
-                                           <? if($agenda->status == 0){ ?>
-                                              <i class="os-icon os-icon-check-circle" title="Pendente" style="color:red"></i>
-                                           <? } ?>
-                                        </a>
-                                        
-                                    </td>
-
-
-                                 
-                                    
-                                    <td title="<?php #echo $usuario->device; ?>">
-                                        <?
-                                        $arr_replcae_tel = array("-"," ","+","(",")"); 
-                                        $tel_trat = str_replace($arr_replcae_tel, "",$usuario->telefone);
-                                        ?>
-                                        <a href="https://api.whatsapp.com/send?phone=55<?=$tel_trat?>" target="_blank">
-                                            <?php echo $usuario->telefone; ?>                                           
-                                        </a> 
-                                    </td>
-
-                                    <td><?=$this->padrao_model->get_by_id($agenda->id_user,'usuarios')->row()->nome?></td>
-                                    
-                                    
-
-                                    <td>
-                                      
-                                    <span class="btn-group">
-                                      
-                                            
-                                            <a href="<?php echo base_url().'adm/usuarios/prontuario/'.$usuario->id.'/'.$agenda->id; ?>" class="btn btn-small" style="color:orange"><i class="os-icon os-icon-edit"></i>Edição</a>
-                                            
-                                        </span>
-                                    </td>
-                                </tr>
-                                <?php
-                }
-              }
-                ?>
-                            </tbody>
-                        </table>
-
-
-
+                      <div class="d-flex flex-wrap justify-content-between align-items-start" style="gap:12px;margin-bottom:18px">
+                        <div>
+                          <div class="section-heading" style="margin-bottom:4px">Timeline do prontuário</div>
+                          <p style="margin:0;color:#5f708c">Histórico clínico em ordem cronológica, com acesso rápido para edição e acompanhamento.</p>
+                        </div>
                       </div>
+
+                      <?php if($qr_agendamentos->num_rows() > 0){ ?>
+                      <div class="timeline-list">
+                        <?php foreach ($agendamentos as $agenda) {
+                          $status_nome = 'Pendente';
+                          $status_class = 'status-pendente';
+                          if ((int)$agenda->status === 1) {
+                            $status_nome = 'Em atendimento';
+                            $status_class = 'status-atendimento';
+                          } elseif ((int)$agenda->status === 2) {
+                            $status_nome = 'Finalizado';
+                            $status_class = 'status-finalizado';
+                          }
+                          $profissional = $this->padrao_model->get_by_id($agenda->id_user,'usuarios');
+                          $nome_profissional = $profissional->num_rows() ? $profissional->row()->nome : 'Nao identificado';
+                        ?>
+                        <div class="timeline-item">
+                          <span class="timeline-dot"></span>
+                          <div class="timeline-card">
+                            <div class="timeline-topbar">
+                              <div>
+                                <div class="timeline-date"><?=$this->padrao_model->converte_data($agenda->data_agenda)?> as <?=substr($agenda->hora_agenda,0,5)?>h</div>
+                                <div class="timeline-meta">Agendamento #<?=$agenda->id?> • registrado por <?=$nome_profissional?></div>
+                              </div>
+                              <span class="timeline-status <?=$status_class?>"><?=$status_nome?></span>
+                            </div>
+
+                            <div class="timeline-sections">
+                              <?php if(trim((string)$agenda->atendimento_inicial) !== ''){ ?>
+                              <div class="timeline-section">
+                                <h6>Atendimento inicial</h6>
+                                <p><?=nl2br(htmlspecialchars($agenda->atendimento_inicial))?></p>
+                              </div>
+                              <?php } ?>
+
+                              <?php if(trim((string)$agenda->avaliacao) !== ''){ ?>
+                              <div class="timeline-section">
+                                <h6>Avaliação</h6>
+                                <p><?=nl2br(htmlspecialchars($agenda->avaliacao))?></p>
+                              </div>
+                              <?php } ?>
+
+                              <?php if(trim((string)$agenda->reavaliacao) !== ''){ ?>
+                              <div class="timeline-section">
+                                <h6>Reavaliação</h6>
+                                <p><?=nl2br(htmlspecialchars($agenda->reavaliacao))?></p>
+                              </div>
+                              <?php } ?>
+
+                              <?php if(trim((string)$agenda->atendimento_inicial) === '' && trim((string)$agenda->avaliacao) === '' && trim((string)$agenda->reavaliacao) === ''){ ?>
+                              <div class="timeline-section">
+                                <h6>Registro clínico</h6>
+                                <p>Nenhuma evolução foi preenchida para este atendimento até o momento.</p>
+                              </div>
+                              <?php } ?>
+                            </div>
+
+                            <div class="timeline-actions">
+                              <a href="<?=base_url('adm/atendimento/prontuario/'.$paciente->id.'/'.$agenda->id)?>" class="btn btn-primary">Abrir atendimento</a>
+                              <a href="<?php echo base_url().'index.php/adm/atendimento/set_status_agenda/'.$agenda->id.'/'.$agenda->status; ?>" class="btn btn-outline-secondary">Atualizar status</a>
+                            </div>
+                          </div>
+                        </div>
+                        <?php } ?>
+                      </div>
+                      <?php } else { ?>
+                      <div class="timeline-empty">
+                        Nenhum atendimento foi registrado ainda para este paciente.
+                      </div>
+                      <?php } ?>
                     </div>
                   </div>
                 </div>
-                
-                
-
-            </div>
+              </div>
             <!-- ═══════════════════════════════════════════════════════
                  SEÇÃO: ARQUIVOS DO PACIENTE
             ═══════════════════════════════════════════════════════ -->

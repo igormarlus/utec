@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<title>NuvemADMLab </title>
+<title>Alterar Senha | UTEC</title>
 
 <!-- Plugin Stylesheets first to ease overrides -->
 <link rel="stylesheet" type="text/css" href="<?php echo base_url(); ?>plugins/colorpicker/colorpicker.css" media="screen">
@@ -61,7 +61,7 @@
                 <div class="mws-panel grid_4">
                     
                     <div class="mws-panel-header">
-                        <span>Novo usuário</span>
+                        <span>Segurança da conta</span>
                     </div>
                     
                     <div class="mws-panel-body no-padding">
@@ -104,7 +104,7 @@
                                                                 
                             </div>
                             <div class="mws-button-row">
-                                <input type="submit" id="botao" value="Enviar" class="btn btn-danger">
+                                <input type="submit" id="botao" value="Atualizar senha" class="btn btn-danger">
                             </div>
                             
                             <div id="resposta" style="color:#900">

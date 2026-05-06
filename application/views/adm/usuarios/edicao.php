@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<title>NuvemADMLab </title>
+<title>Editar Usuário | UTEC</title>
 
 <!-- Plugin Stylesheets first to ease overrides -->
 <link rel="stylesheet" type="text/css" href="<?php echo base_url(); ?>plugins/colorpicker/colorpicker.css" media="screen">
@@ -61,7 +61,7 @@
                 <div class="mws-panel grid_4">
                     
                     <div class="mws-panel-header">
-                        <span><i class="icon-pencil"></i> Editar usuário</span>
+                        <span><i class="icon-pencil"></i> Editar usuário da plataforma</span>
                     </div>
                     
                     <div class="mws-panel-body no-padding">
@@ -71,7 +71,7 @@
                             <div class="mws-form-inline">
                                 
                                  <div class="mws-form-row bordered">
-                                    <label class="mws-form-label">Unidades </label>
+                                    <label class="mws-form-label">Unidade </label>
                                     <div class="mws-form-item">
                                         <select name="id_unidade">
                                         	<? foreach($unidades->result() as $unidade){ ?>
@@ -126,7 +126,7 @@
                                 
                                 
                                  <div class="mws-form-row bordered">
-                                    <label class="mws-form-label">Nível</label>
+                                    <label class="mws-form-label">Perfil de acesso</label>
                                     <div class="mws-form-item clearfix">                                                                                
                                         <select name="nivel" class="large">
                                         <? foreach($this->db->get('usuarios_niveis')->result() as $niv){ ?>
@@ -140,7 +140,7 @@
                                 
                             </div>
                             <div class="mws-button-row">
-                                <input type="submit" id="botao" value="Enviar" class="btn btn-danger">
+                                <input type="submit" id="botao" value="Salvar alterações" class="btn btn-danger">
                             </div>
                             
                             <div id="resposta" style="color:#900">

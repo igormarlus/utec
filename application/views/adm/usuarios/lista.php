@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<title>NuvemADMLab </title>
+<title>Usuários da Plataforma | UTEC</title>
 
 <!-- Plugin Stylesheets first to ease overrides -->
 <link rel="stylesheet" type="text/css" href="<?php echo base_url(); ?>plugins/colorpicker/colorpicker.css" media="screen">
@@ -60,7 +60,7 @@
                 
             	<div class="mws-panel grid_8">
                 	<div class="mws-panel-header">
-                    	<span><i class="icon-table"></i> Usuários </span>
+                    	<span><i class="icon-table"></i> Usuários da plataforma</span>
                     </div>
                     <div class="mws-panel-body no-padding">
                         <table class="mws-datatable-fn mws-table">
@@ -69,8 +69,8 @@
                                     <th>Nome</th>
                                     <th>Login</th>
                                     <th>E-mail</th>
-                                    <th>Nível</th>   
-                                    <th>Editar I Excluir</th>
+                                    <th>Perfil</th>   
+                                    <th>Ações</th>
                                 </tr>
                             </thead>
                             <tbody>
