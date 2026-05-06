@@ -263,112 +263,86 @@ function set_user_cliente(){
 
 
 function dash(){
-		//echo "teste";
 		$this->load->model('padrao_model');
 
 		$dd_user = $this->padrao_model->get_by_id($this->session->userdata('id'),'usuarios')->row();
-		if($dd_user->status  == 0){
-			#redirect('adm/usuarios/edicao/'.$this->session->userdata('id'),'refresh');
-		}
-
 		$dados['dd_user'] = $dd_user;
 
-		if($this->session->userdata('nivel') == 1){
+		$hoje = date('Y-m-d');
+		$where_scope = "";
 
-			$this->db->order_by('id','desc');
-			$this->db->limit(10);
-			$dados['carrinhos'] = $this->db->get('carrinho');
-
-			$this->db->where('status',1);
-			$dados['carrinhos_pagos'] = $this->db->get('carrinho');
-
-			$this->db->where('status',1);
-			$dados['carrinhos_pagos'] = $this->db->get('carrinho');
-
-			#$this->db->where('id_cliente',$this->session->userdata('id'));
-			$this->db->where("dt BETWEEN '".date("Y-m-d H:i:s")." 00:00:01' AND '".date("Y-m-d")." 23:59:59' ");
-			$dados['vendas'] = $this->db->get('pedidos');
-
-
-			$dados['clientes'] = $this->db->query("SELECT DISTINCT id_user FROM carrinho WHERE status = 1");
-
-			
-			
-			$dados['pedidos_finalizados'] = $this->db->get('carrinho_hist');
-
-			$agenda_hj = $this->db->query("SELECT * FROM carrinho WHERE dt = '".date("Y-m-d")."' ");
-			$dados['agenda_hj'] = $agenda_hj;
-			$dados['saldo'] = $this->db->query("SELECT count(id) as total from carrinho WHERE status = 1 ");
-			$dados['saldo_mensal'] = $this->db->query("SELECT count(id) as total from carrinho WHERE dt BETWEEN '".date('y')."-".date('m')."-01' AND '".date('y')."-".date('m')."-31' AND status = 1 ");
-
-			$dados['pedidos'] = $this->db->query("SELECT  DISTINCT(id_pedido) FROM carrinho  ORDER BY id desc");
-			$dados['pedidos_finalizados'] = $this->db->query("SELECT  DISTINCT(id_pedido) FROM carrinho_hist ");
-			
-
-			$n_finalizadas = $this->db->query("SELECT * FROM carrinho WHERE status = 0 ORDER BY dt asc ");
-			$dados['n_finalizadas'] = $n_finalizadas;
+		if($dd_user->nivel == "4"){
+			$where_scope = " WHERE a.id_prestador = ".(int)$dd_user->id_user." ";
 		}
 
-		if($this->session->userdata('nivel') > 1){
-
-			$this->db->where('id_cliente',$this->session->userdata('id'));
-			$this->db->order_by('id','desc');
-			$this->db->limit(10);
-			$dados['carrinhos'] = $this->db->get('carrinho');
-
-			$this->db->where('status',1);
-			$this->db->where('id_cliente',$this->session->userdata('id'));
-			$dados['carrinhos_pagos'] = $this->db->get('carrinho');
-
-			$this->db->where('id_cliente',$this->session->userdata('id'));
-			$this->db->where("dt BETWEEN '".date("Y-m-d")." 00:00:01' AND '".date("Y-m-d")." 23:59:59' ");
-			$dados['vendas'] = $this->db->get('pedidos');
-
-			$dados['pedidos'] = $this->db->query("SELECT  DISTINCT(id_pedido) FROM carrinho WHERE id_cliente =  '".$this->session->userdata('id')."' ORDER BY id desc LIMIT 100");
-
-			#$dados['pedidos_finalizados'] = $this->db->query("SELECT  DISTINCT(id_pedido) FROM carrinho_hist WHERE id_cliente =  '".$this->session->userdata('id')."' ORDER BY id desc LIMIT 100");
-			$dados['pedidos_finalizados'] = $this->db->query("SELECT  * FROM pedidos WHERE id_cliente =  '".$this->session->userdata('id')."' ORDER BY id desc LIMIT 100");
-
-
-			$dados['saldo_hj'] = $this->saldo_hoje($this->session->userdata('id'),"hoje");
-			$dados['saldo_mes'] = $this->saldo_hoje($this->session->userdata('id'),"mes");
-
-			#echo $this->saldo_hoje($this->session->userdata('id'),"mes");
-			#return false;
-
-			
-
-			#$dados['clientes'] = $this->db->query("SELECT DISTINCT id_user FROM carrinho WHERE id_cliente = '".$this->session->userdata('id')."'  AND status = 1");
-			// pi_whats_users
-			$dados['clientes'] = $this->db->query("SELECT * FROM pi_whats_users WHERE id_user = '".$this->session->userdata('id')."' ");
-
-			$dados['saldo'] = $this->db->query("SELECT count(id) as total from carrinho WHERE id_cliente = '".$this->session->userdata('id')."' AND status = 1 ");
-			$dados['saldo_mensal'] = $this->db->query("SELECT count(id) as total from carrinho WHERE id_cliente = '".$this->session->userdata('id')."' AND dt BETWEEN '".date('y')."-".date('m')."-01' AND '".date('y')."-".date('m')."-31' AND status = 1 ");
-
-			$this->db->where('status',0);
-			$this->db->where('id_cliente',$this->session->userdata('id'));
-			$dados['carrinhos_pendentes'] = $this->db->get('carrinho');
-
-			$agenda_hj = $this->db->query("SELECT * FROM carrinho WHERE  id_cliente = '".$this->session->userdata('id')."' AND status = 1 ORDER BY dt desc ");
-			$dados['agenda_hj'] = $agenda_hj;
-
-			$n_finalizadas = $this->db->query("SELECT * FROM carrinho WHERE  id_cliente = '".$this->session->userdata('id')."' AND status = 0 ORDER BY dt desc ");
-			$dados['n_finalizadas'] = $n_finalizadas;
+		if($dd_user->nivel == "3" || $dd_user->nivel == "2"){
+			$where_scope = " WHERE a.id_prestador = ".(int)$dd_user->id." ";
 		}
 
-		$dados["usuarios"] = $this->db->query("SELECT * FROM usuarios");
+		$dados['metricas'] = [
+			'agendados_hoje' => 0,
+			'confirmados_hoje' => 0,
+			'finalizados_hoje' => 0,
+			'pacientes_ativos' => 0,
+		];
 
-		$dados["produtos"] = $this->db->query("SELECT * FROM produtos WHERE id_user = '".$this->session->userdata('id')."' ORDER BY modelo asc ");
+		$qr_agendados_hoje = $this->db->query(
+			"SELECT COUNT(a.id) AS total
+			FROM agendamentos a
+			".$where_scope.(empty($where_scope) ? " WHERE " : " AND ")."a.data_agenda = '".$hoje."'"
+		);
+		$dados['metricas']['agendados_hoje'] = (int)$qr_agendados_hoje->row()->total;
 
+		$qr_confirmados_hoje = $this->db->query(
+			"SELECT COUNT(a.id) AS total
+			FROM agendamentos a
+			".$where_scope.(empty($where_scope) ? " WHERE " : " AND ")."a.data_agenda = '".$hoje."' AND a.status = 1"
+		);
+		$dados['metricas']['confirmados_hoje'] = (int)$qr_confirmados_hoje->row()->total;
 
-		$this->db->order_by('id','desc');
-		$this->db->limit(10);
-		$qr_pacientes = $this->db->get('pi_whats_users');
-		$dados['qr_pacientes'] = $qr_pacientes;
-		
+		$qr_finalizados_hoje = $this->db->query(
+			"SELECT COUNT(a.id) AS total
+			FROM agendamentos a
+			".$where_scope.(empty($where_scope) ? " WHERE " : " AND ")."a.data_agenda = '".$hoje."' AND a.status = 2"
+		);
+		$dados['metricas']['finalizados_hoje'] = (int)$qr_finalizados_hoje->row()->total;
 
-		#$this->load->view('adm/dash', $dados);
-		$this->load->view('adm/produtos/new/dash', $dados);
+		$qr_pacientes_ativos = $this->db->query(
+			"SELECT COUNT(DISTINCT a.id_paciente) AS total
+			FROM agendamentos a
+			".$where_scope
+		);
+		$dados['metricas']['pacientes_ativos'] = (int)$qr_pacientes_ativos->row()->total;
+
+		$dados['agendamentos_hoje'] = $this->db->query(
+			"SELECT a.*, p.nome AS paciente_nome, pr.nome AS prestador_nome
+			FROM agendamentos a
+			LEFT JOIN usuarios p ON p.id = a.id_paciente
+			LEFT JOIN usuarios pr ON pr.id = a.id_prestador
+			".$where_scope.(empty($where_scope) ? " WHERE " : " AND ")."a.data_agenda = '".$hoje."'
+			ORDER BY a.hora_agenda ASC, a.id DESC"
+		);
+
+		$dados['proximos_agendamentos'] = $this->db->query(
+			"SELECT a.*, p.nome AS paciente_nome, pr.nome AS prestador_nome
+			FROM agendamentos a
+			LEFT JOIN usuarios p ON p.id = a.id_paciente
+			LEFT JOIN usuarios pr ON pr.id = a.id_prestador
+			".$where_scope."
+			ORDER BY a.data_agenda DESC, a.hora_agenda DESC, a.id DESC
+			LIMIT 10"
+		);
+
+		$dados['pacientes_recentes'] = $this->db->query(
+			"SELECT DISTINCT p.id, p.nome, p.telefone, p.email
+			FROM agendamentos a
+			INNER JOIN usuarios p ON p.id = a.id_paciente
+			".$where_scope."
+			ORDER BY p.id DESC
+			LIMIT 8"
+		);
+
+		$this->load->view('adm/dash', $dados);
 
 }
 

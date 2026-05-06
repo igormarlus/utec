@@ -4,9 +4,9 @@
     <title>Edição de dados</title>
     <meta charset="utf-8">
     <meta content="ie=edge" http-equiv="x-ua-compatible">
-    <meta content="template language" name="keywords">
+    <meta content="edicao de usuario utec saude" name="keywords">
     <meta content="Tamerlan Soziev" name="author">
-    <meta content="Admin dashboard html template" name="description">
+    <meta content="Edicao de cadastro e perfil do usuario." name="description">
     <meta content="width=device-width, initial-scale=1" name="viewport">
     <link href="favicon.png" rel="shortcut icon">
     <link href="apple-touch-icon.png" rel="apple-touch-icon">
@@ -45,7 +45,7 @@
           -------------------->
           <ul class="breadcrumb">
             <li class="breadcrumb-item">
-              <a href="<?=base_url()?>adm/usuarios/dash">Home</a>
+              <a href="<?=base_url()?>adm/usuarios/dash">Painel</a>
             </li>
             
             <li class="breadcrumb-item">

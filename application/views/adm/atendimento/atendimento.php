@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Usuários</title>
+    <title>Novo Atendimento</title>
     <meta charset="utf-8">
     <meta content="ie=edge" http-equiv="x-ua-compatible">
-    <meta content="template language" name="keywords">
+    <meta content="novo atendimento clinico utec saude" name="keywords">
     <meta content="Tamerlan Soziev" name="author">
-    <meta content="Admin dashboard html template" name="description">
+    <meta content="Cadastro e registro de um novo atendimento clinico." name="description">
     <meta content="width=device-width, initial-scale=1" name="viewport">
     <link href="favicon.png" rel="shortcut icon">
     <link href="apple-touch-icon.png" rel="apple-touch-icon">
@@ -58,13 +58,13 @@
           -------------------->
           <ul class="breadcrumb">
             <li class="breadcrumb-item">
-              <a href="<?=base_url()?>adm/usuarios/dash">Home</a>
+              <a href="<?=base_url()?>adm/usuarios/dash">Painel</a>
             </li>
             <li class="breadcrumb-item">
-              <a href="<?=base_url()?>adm/usuarios/dash">Novo atendimento</a>
+              <a href="<?=base_url()?>adm/atendimento">Agenda</a>
             </li>
             <li class="breadcrumb-item">
-              <span>Lista</span>
+              <span>Novo atendimento</span>
             </li>
           </ul>
           <!--------------------
