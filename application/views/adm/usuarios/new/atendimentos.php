@@ -45,18 +45,55 @@
       .agenda-panel-header { padding: 18px 20px 0; }
       .agenda-panel-body { padding: 18px 20px 20px; }
       .status-pill {
+        align-items: center;
         border-radius: 999px;
-        display: inline-block;
+        display: inline-flex;
         font-size: 11px;
         font-weight: 700;
+        gap: 6px;
+        justify-content: center;
         letter-spacing: .04em;
-        padding: 5px 10px;
+        line-height: 1.2;
+        min-height: 30px;
+        padding: 6px 12px;
         text-transform: uppercase;
+        white-space: nowrap;
       }
       .status-pendente { background: #fee2e2; color: #b91c1c; }
       .status-atendimento { background: #dcfce7; color: #166534; }
       .status-finalizado { background: #fef3c7; color: #92400e; }
       .status-cancelado { background: #e2e8f0; color: #475569; }
+      .agenda-table {
+        min-width: 980px;
+      }
+      .agenda-table td,
+      .agenda-table th {
+        vertical-align: middle;
+      }
+      .agenda-table th:nth-child(1),
+      .agenda-table td:nth-child(1) {
+        min-width: 92px;
+      }
+      .agenda-table th:nth-child(2),
+      .agenda-table td:nth-child(2) {
+        min-width: 220px;
+      }
+      .agenda-table th:nth-child(4),
+      .agenda-table td:nth-child(4) {
+        min-width: 130px;
+      }
+      .agenda-table th:nth-child(5),
+      .agenda-table td:nth-child(5) {
+        min-width: 130px;
+      }
+      .agenda-table th:nth-child(6),
+      .agenda-table td:nth-child(6) {
+        min-width: 110px;
+      }
+      .agenda-table th:nth-child(7),
+      .agenda-table td:nth-child(7) {
+        min-width: 240px;
+      }
       .patient-cell {
         align-items: center;
         display: flex;
@@ -222,7 +259,7 @@
                     </form>
                   </div>
                   <div class="table-responsive">
-                    <table class="table table-lightborder">
+                    <table class="table table-lightborder agenda-table">
                       <thead>
                         <tr>
                           <th>Horario</th>

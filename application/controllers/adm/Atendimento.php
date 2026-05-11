@@ -332,11 +332,13 @@ function exames($id_user=1){
 
 	$dados["exames_user"] = $this->db->query(
 		"SELECT uea.*, 
+		        ue.obs AS obs,
 		        ag.data_agenda, ag.hora_agenda, ag.id_prestador, ag.id_user AS id_cadastro_agenda,
 		        ex.nome AS exame_nome,
 		        pr.nome AS prestador_nome,
 		        cad.nome AS cadastrado_por_nome
 		FROM usuarios_exames_atendimento uea
+		LEFT JOIN usuarios_exames ue ON ue.id = uea.id_exame_atendimento
 		LEFT JOIN agendamentos ag ON ag.id = uea.id_atendimento
 		LEFT JOIN exames ex ON ex.id = uea.id_exame
 		LEFT JOIN usuarios pr ON pr.id = ag.id_prestador

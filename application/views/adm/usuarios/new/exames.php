@@ -221,7 +221,8 @@
                             </td>
                             <td><?=$ex->prestador_nome ? $ex->prestador_nome : 'Nao informado'?></td>
                             <td><span class="status-pill <?=$status_class?>"><?=$status_nome?></span></td>
-                            <td><?=trim((string)$ex->obs) !== '' ? nl2br(htmlspecialchars($ex->obs)) : '<span style="color:#94a3b8">Sem observacoes</span>'?></td>
+                            <?php $observacoes_exame = isset($ex->obs) ? trim((string)$ex->obs) : ''; ?>
+                            <td><?=$observacoes_exame !== '' ? nl2br(htmlspecialchars($observacoes_exame)) : '<span style="color:#94a3b8">Sem observacoes</span>'?></td>
                             <td>
                               <div style="display:flex;gap:8px;flex-wrap:wrap">
                                 <a href="<?=base_url()?>adm/atendimento/set_status_exame/<?=$ex->id?>/<?=$ex->status?>" class="btn btn-sm btn-outline-primary">
