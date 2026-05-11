@@ -95,6 +95,10 @@ function cadastrar() {
 		$dd['classe'] = $this->input->post('classe');
 	}
 
+	if($nivel == 5 && $this->db->field_exists('afiliacoes', 'usuarios')){
+		$dd['afiliacoes'] = $this->input->post('afiliacoes');
+	}
+
 	if($nivel < 5){
 		$dd['login'] = $this->input->post('login');
 		$senha_nova  = $this->input->post('senha');
@@ -1544,6 +1548,10 @@ function editar() {
 	if($nivel == '3'){
 		$dd['especialidade'] = $this->input->post('especialidade');
 		$dd['classe']        = $this->input->post('classe');
+	}
+
+	if($nivel == 5 && $this->db->field_exists('afiliacoes', 'usuarios')){
+		$dd['afiliacoes'] = $this->input->post('afiliacoes');
 	}
 
 	if($nivel < 5){

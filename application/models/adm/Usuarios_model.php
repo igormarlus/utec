@@ -69,7 +69,19 @@ class Usuarios_model extends CI_Model{
 		$current_class = $CI->router->fetch_class();
 		$current_method = $CI->router->fetch_method();
 
-		if($usuario && (int)$usuario->nivel !== 1 && !$CI->padrao_model->tenant_allows_access($usuario)){
+		$tenant_allows_access = true;
+		if($usuario && (int)$usuario->nivel !== 1){
+			if(method_exists($CI->padrao_model, 'tenant_allows_access')){
+				$tenant_allows_access = $CI->padrao_model->tenant_allows_access($usuario);
+			}elseif(isset($usuario->tenant_id) && (int)$usuario->tenant_id > 0 && $CI->db->table_exists('saas_tenants')){
+				$qr_tenant = $CI->db->query("SELECT status FROM saas_tenants WHERE id = ".(int)$usuario->tenant_id." LIMIT 1");
+				if($qr_tenant->num_rows()){
+					$tenant_allows_access = ((int)$qr_tenant->row()->status === 1);
+				}
+			}
+		}
+
+		if($usuario && (int)$usuario->nivel !== 1 && !$tenant_allows_access){
 			if($current_class !== 'saas' || $current_method !== 'bloqueado'){
 				redirect('adm/saas/bloqueado');
 				return;

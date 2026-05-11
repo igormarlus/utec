@@ -188,7 +188,7 @@
                             <div class="form-group">
                                 <label class="mws-form-label">Afiliações </label>
                                 <div class="mws-form-item">
-                                    <input type="text" name="afiliacoes" class="form-control" placeholder="Pai, mãe..." value="<?php #echo $usuario->afiliacoes; ?>">
+                                    <input type="text" name="afiliacoes" class="form-control" placeholder="Pai, mãe...">
                                 </div>
                             </div>
                           <? } ?>
