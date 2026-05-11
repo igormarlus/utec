@@ -454,9 +454,9 @@
                 </div>
 
                 <div class="hero-actions">
-                    <button class="btn-primary" onclick="document.getElementById('contato').scrollIntoView({behavior:'smooth'})">
-                        Solicitar demonstração
-                    </button>
+                    <a class="btn-primary" href="<?=base_url()?>assinar">
+                        Começar assinatura
+                    </a>
                     <button class="btn-secondary" onclick="document.getElementById('campo-login').scrollIntoView({behavior:'smooth'})">
                         <span class="icon">🔐</span>
                         Entrar no sistema
@@ -496,7 +496,7 @@
 
                     <div class="login-extra">
                         Sua clínica ainda não tem acesso?
-                        <a href="#contato">Solicitar cadastro</a>
+                        <a href="<?=base_url()?>assinar">Criar assinatura</a>
                     </div>
                 </form>
             </div>

@@ -55,4 +55,7 @@ $route['translate_uri_dashes'] = FALSE;
 
 
 $route['locations'] = 'rpgLocations/index';
+$route['assinar'] = 'home/assinar';
+$route['assinar/enviar'] = 'home/contratar';
+$route['assinar/sucesso'] = 'home/assinatura_sucesso';
 $route['webhooks/mercadopago'] = 'adm/saas/webhook_mercadopago';

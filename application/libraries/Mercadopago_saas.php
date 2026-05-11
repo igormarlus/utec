@@ -86,14 +86,14 @@ class Mercadopago_saas {
 		];
 	}
 
-	public function build_preapproval($subscription, $tenant, $owner, $plano)
+	public function build_preapproval($subscription, $tenant, $owner, $plano, $options=array())
 	{
 		$this->assert_ready();
 		$preapproval = new MercadoPago\Preapproval();
 		$preapproval->payer_email = $owner->email;
-		$preapproval->back_url = $this->get_back_urls()['success'];
-		$preapproval->reason = $this->build_reason($tenant, $plano);
-		$preapproval->external_reference = 'saas-sub-'.$subscription->id;
+		$preapproval->back_url = isset($options['back_url']) && trim((string)$options['back_url']) !== '' ? trim((string)$options['back_url']) : $this->get_back_urls()['success'];
+		$preapproval->reason = isset($options['reason']) && trim((string)$options['reason']) !== '' ? trim((string)$options['reason']) : $this->build_reason($tenant, $plano);
+		$preapproval->external_reference = isset($options['external_reference']) && trim((string)$options['external_reference']) !== '' ? trim((string)$options['external_reference']) : 'saas-sub-'.$subscription->id;
 		$preapproval->status = 'pending';
 		$preapproval->auto_recurring = [
 			'frequency' => max(1, (int)$subscription->billing_interval_count),
@@ -105,10 +105,10 @@ class Mercadopago_saas {
 		return $preapproval;
 	}
 
-	public function create_preapproval($subscription, $tenant, $owner, $plano)
+	public function create_preapproval($subscription, $tenant, $owner, $plano, $options=array())
 	{
 		$this->assert_ready();
-		$preapproval = $this->build_preapproval($subscription, $tenant, $owner, $plano);
+		$preapproval = $this->build_preapproval($subscription, $tenant, $owner, $plano, $options);
 		$preapproval->save();
 		return $preapproval;
 	}
