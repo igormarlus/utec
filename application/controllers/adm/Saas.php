@@ -7,7 +7,6 @@ class Saas extends CI_Controller {
 	{
 		parent::__construct();
 		$this->load->library('session');
-		$this->load->library('mercadopago_saas');
 		$this->load->helper(array('form', 'url'));
 		$this->load->model('adm/usuarios_model');
 		$this->load->model('adm/saas_model');
@@ -24,6 +23,8 @@ class Saas extends CI_Controller {
 		$dados['viewer'] = $viewer;
 		$dados['flash_ok'] = $this->session->flashdata('saas_ok');
 		$dados['flash_error'] = $this->session->flashdata('saas_error');
+		$this->load->library('mercadopago_saas');
+		$dados['mercadopago_ready'] = $this->mercadopago_saas->is_available();
 		$this->load->view('adm/saas/index', $dados);
 	}
 
@@ -57,10 +58,13 @@ class Saas extends CI_Controller {
 		$detail['viewer'] = $viewer;
 		$detail['flash_ok'] = $this->session->flashdata('saas_ok');
 		$detail['flash_error'] = $this->session->flashdata('saas_error');
+		$this->load->library('mercadopago_saas');
+		$detail['mercadopago_ready'] = $this->mercadopago_saas->is_available();
 		$this->load->view('adm/saas/tenant', $detail);
 	}
 
 	function checkout($subscription_id){
+		$this->load->library('mercadopago_saas');
 		$viewer = $this->padrao_model->get_usuario_logado();
 		$detail = $this->saas_model->get_subscription_detail($subscription_id, $viewer);
 		if(!$detail){
@@ -105,6 +109,7 @@ class Saas extends CI_Controller {
 	}
 
 	function webhook_mercadopago(){
+		$this->load->library('mercadopago_saas');
 		$raw = file_get_contents('php://input');
 		$payload = json_decode($raw, true);
 		$type = isset($_GET['type']) ? $_GET['type'] : (isset($payload['type']) ? $payload['type'] : '');
@@ -140,6 +145,7 @@ class Saas extends CI_Controller {
 	}
 
 	function sincronizar($subscription_id){
+		$this->load->library('mercadopago_saas');
 		$viewer = $this->padrao_model->get_usuario_logado();
 		$detail = $this->saas_model->get_subscription_detail($subscription_id, $viewer);
 		if(!$detail){

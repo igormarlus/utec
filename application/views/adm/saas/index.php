@@ -56,6 +56,11 @@
                   Webhook Mercado Pago configuravel em: <strong><?=base_url()?>webhooks/mercadopago</strong>
                 </div>
               <? } ?>
+              <? if($schema_ok && isset($mercadopago_ready) && !$mercadopago_ready){ ?>
+                <div class="alert alert-warning">
+                  O arquivo <strong>application/config/mercadopago.php</strong> ainda nao existe neste servidor. O painel SaaS funciona normalmente, mas checkout e sincronizacao com Mercado Pago ficam indisponiveis ate o arquivo ser publicado.
+                </div>
+              <? } ?>
 
               <? if($flash_ok){ ?><div class="alert alert-success"><?=$flash_ok?></div><? } ?>
               <? if($flash_error){ ?><div class="alert alert-danger"><?=$flash_error?></div><? } ?>

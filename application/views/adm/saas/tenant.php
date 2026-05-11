@@ -44,6 +44,7 @@
 
               <? if(isset($flash_ok) && $flash_ok){ ?><div class="alert alert-success"><?=$flash_ok?></div><? } ?>
               <? if(isset($flash_error) && $flash_error){ ?><div class="alert alert-danger"><?=$flash_error?></div><? } ?>
+              <? if(isset($mercadopago_ready) && !$mercadopago_ready){ ?><div class="alert alert-warning">O arquivo <strong>application/config/mercadopago.php</strong> ainda nao existe neste servidor. Checkout e sincronizacao Mercado Pago ficam indisponiveis ate ele ser publicado.</div><? } ?>
 
               <div class="info-grid">
                 <div class="info-card"><div class="info-label">Responsavel</div><div class="info-value"><?=$tenant->owner_nome ? $tenant->owner_nome : 'Nao definido'?></div></div>
@@ -77,10 +78,12 @@
                             <td>R$ <?=number_format((float)$assinatura->valor, 2, ',', '.')?></td>
                             <td><?=$assinatura->next_billing_at ? date('d/m/Y', strtotime($assinatura->next_billing_at)) : 'Nao definido'?></td>
                             <td>
-                              <? if((int)$viewer->nivel === 1){ ?>
+                              <? if((int)$viewer->nivel === 1 && isset($mercadopago_ready) && $mercadopago_ready){ ?>
                                 <a href="<?=base_url()?>adm/saas/sincronizar/<?=$assinatura->id?>" class="btn btn-sm btn-outline-info">Sincronizar MP</a>
                               <? } ?>
-                              <a href="<?=base_url()?>adm/saas/checkout/<?=$assinatura->id?>" class="btn btn-sm btn-outline-primary">Gerar checkout MP</a>
+                              <? if(isset($mercadopago_ready) && $mercadopago_ready){ ?>
+                                <a href="<?=base_url()?>adm/saas/checkout/<?=$assinatura->id?>" class="btn btn-sm btn-outline-primary">Gerar checkout MP</a>
+                              <? } ?>
                               <? if(isset($assinatura->checkout_url) && trim((string)$assinatura->checkout_url) !== ''){ ?>
                                 <a href="<?=$assinatura->checkout_url?>" target="_blank" class="btn btn-sm btn-outline-secondary">Abrir link</a>
                               <? } ?>

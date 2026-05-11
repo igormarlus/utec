@@ -4,16 +4,25 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 class Mercadopago_saas {
 
 	protected $CI;
+	protected $config_loaded = false;
+	protected $config_exists = false;
 
 	public function __construct()
 	{
 		$this->CI =& get_instance();
-		$this->CI->load->config('mercadopago', true);
-		$this->boot_sdk();
+		$this->config_exists = file_exists(APPPATH.'config/mercadopago.php');
+		if($this->config_exists){
+			$this->CI->load->config('mercadopago', true);
+			$this->config_loaded = true;
+			$this->boot_sdk();
+		}
 	}
 
 	protected function boot_sdk()
 	{
+		if(!$this->config_loaded){
+			return;
+		}
 		$autoload = FCPATH.'includes/mercadopago/lib/mercadopago/vendor/autoload.php';
 		if(file_exists($autoload)){
 			require_once $autoload;
@@ -24,24 +33,52 @@ class Mercadopago_saas {
 		}
 	}
 
+	public function is_available()
+	{
+		return $this->config_exists;
+	}
+
+	public function assert_ready()
+	{
+		if(!$this->config_exists){
+			throw new Exception('O arquivo application/config/mercadopago.php ainda nao foi publicado no servidor.');
+		}
+	}
+
 	public function get_access_token()
 	{
+		if(!$this->config_loaded){
+			return '';
+		}
 		return (string)$this->CI->config->item('mercadopago_access_token', 'mercadopago');
 	}
 
 	public function get_public_key()
 	{
+		if(!$this->config_loaded){
+			return '';
+		}
 		return (string)$this->CI->config->item('mercadopago_public_key', 'mercadopago');
 	}
 
 	public function get_currency_id()
 	{
+		if(!$this->config_loaded){
+			return 'BRL';
+		}
 		$currency = (string)$this->CI->config->item('mercadopago_currency_id', 'mercadopago');
 		return $currency !== '' ? $currency : 'BRL';
 	}
 
 	public function get_back_urls()
 	{
+		if(!$this->config_loaded){
+			return [
+				'success' => '',
+				'pending' => '',
+				'failure' => '',
+			];
+		}
 		return [
 			'success' => (string)$this->CI->config->item('mercadopago_back_url_success', 'mercadopago'),
 			'pending' => (string)$this->CI->config->item('mercadopago_back_url_pending', 'mercadopago'),
@@ -51,6 +88,7 @@ class Mercadopago_saas {
 
 	public function build_preapproval($subscription, $tenant, $owner, $plano)
 	{
+		$this->assert_ready();
 		$preapproval = new MercadoPago\Preapproval();
 		$preapproval->payer_email = $owner->email;
 		$preapproval->back_url = $this->get_back_urls()['success'];
@@ -69,6 +107,7 @@ class Mercadopago_saas {
 
 	public function create_preapproval($subscription, $tenant, $owner, $plano)
 	{
+		$this->assert_ready();
 		$preapproval = $this->build_preapproval($subscription, $tenant, $owner, $plano);
 		$preapproval->save();
 		return $preapproval;
@@ -76,6 +115,7 @@ class Mercadopago_saas {
 
 	public function get_preapproval($gateway_subscription_id)
 	{
+		$this->assert_ready();
 		return MercadoPago\Preapproval::find_by_id($gateway_subscription_id);
 	}
 
