@@ -54,9 +54,110 @@
         }
         .btn-primary { background: linear-gradient(90deg, var(--primary), var(--accent)); color: #fff; }
         .btn-secondary { background: #fff; border: 1px solid var(--line); color: var(--ink); }
+        .onboarding {
+            margin-top: 28px;
+            border: 1px solid var(--line);
+            border-radius: 24px;
+            padding: 22px;
+            background: #f9fbfd;
+        }
+        .onboarding-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 14px;
+            flex-wrap: wrap;
+            margin-bottom: 14px;
+        }
+        .onboarding-title {
+            font-size: 28px;
+            margin: 0;
+        }
+        .progress-pill {
+            border-radius: 999px;
+            background: #ecfeff;
+            color: #0f766e;
+            border: 1px solid rgba(15,118,110,.16);
+            padding: 8px 12px;
+            font-size: 13px;
+            font-weight: 700;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 12px;
+            border-radius: 999px;
+            background: #e5eef6;
+            overflow: hidden;
+            margin-bottom: 18px;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+        }
+        .checklist {
+            display: grid;
+            gap: 12px;
+        }
+        .check-item {
+            display: grid;
+            grid-template-columns: 44px 1fr;
+            gap: 14px;
+            align-items: start;
+            border-radius: 18px;
+            padding: 14px 16px;
+            border: 1px solid #dde6ef;
+            background: #fff;
+        }
+        .check-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            font-weight: 700;
+        }
+        .check-done .check-icon {
+            background: #ecfdf3;
+            color: #15803d;
+        }
+        .check-pending .check-icon {
+            background: #fff7ed;
+            color: #c2410c;
+        }
+        .check-name {
+            font-size: 17px;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+        .check-copy {
+            font-size: 14px;
+            line-height: 1.7;
+            color: #55657b;
+        }
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+            gap: 12px;
+            margin-top: 18px;
+        }
+        .metric {
+            background: #fff;
+            border: 1px solid #dde6ef;
+            border-radius: 18px;
+            padding: 14px;
+        }
+        .metric .label {
+            font-size: 11px;
+        }
+        .metric .value {
+            font-size: 22px;
+        }
         @media (max-width: 720px) {
             h1 { font-size: 34px; }
             .grid { grid-template-columns: 1fr; }
+            .metrics-grid { grid-template-columns: 1fr 1fr; }
         }
     </style>
 </head>
@@ -99,11 +200,63 @@
                 </div>
             </div>
 
+            <? if(isset($onboarding) && isset($onboarding['items'])){ ?>
+                <div class="onboarding">
+                    <div class="onboarding-head">
+                        <div>
+                            <h2 class="onboarding-title">Primeiros passos da clinica</h2>
+                            <p class="copy" style="margin:6px 0 0;">Este checklist mostra o quanto a operacao ja esta pronta para sair do cadastro e entrar em uso real.</p>
+                        </div>
+                        <div class="progress-pill"><?=$onboarding['completed']?> de <?=$onboarding['total']?> etapas concluidas</div>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: <?=$onboarding['progress']?>%;"></div>
+                    </div>
+                    <div class="checklist">
+                        <? foreach($onboarding['items'] as $item){ ?>
+                            <div class="check-item <?=$item['done'] ? 'check-done' : 'check-pending'?>">
+                                <div class="check-icon"><?=$item['done'] ? '✓' : '!'?></div>
+                                <div>
+                                    <div class="check-name"><?=$item['title']?></div>
+                                    <div class="check-copy"><?=$item['description']?></div>
+                                </div>
+                            </div>
+                        <? } ?>
+                    </div>
+
+                    <? if(isset($onboarding['metrics'])){ ?>
+                        <div class="metrics-grid">
+                            <div class="metric">
+                                <div class="label">Usuarios</div>
+                                <div class="value"><?=$onboarding['metrics']['usuarios']?></div>
+                            </div>
+                            <div class="metric">
+                                <div class="label">Profissionais</div>
+                                <div class="value"><?=$onboarding['metrics']['profissionais']?></div>
+                            </div>
+                            <div class="metric">
+                                <div class="label">Colaboradores</div>
+                                <div class="value"><?=$onboarding['metrics']['colaboradores']?></div>
+                            </div>
+                            <div class="metric">
+                                <div class="label">Pacientes</div>
+                                <div class="value"><?=$onboarding['metrics']['pacientes']?></div>
+                            </div>
+                            <div class="metric">
+                                <div class="label">Agendamentos</div>
+                                <div class="value"><?=$onboarding['metrics']['agendamentos']?></div>
+                            </div>
+                        </div>
+                    <? } ?>
+                </div>
+            <? } ?>
+
             <div class="actions">
                 <? if(isset($detail['subscription']->checkout_url) && trim((string)$detail['subscription']->checkout_url) !== ''){ ?>
                     <a class="btn btn-primary" href="<?=$detail['subscription']->checkout_url?>" target="_blank">Abrir checkout Mercado Pago</a>
                 <? } ?>
                 <a class="btn btn-secondary" href="<?=base_url()?>admin">Ir para o login do sistema</a>
+                <a class="btn btn-secondary" href="<?=base_url()?>assinar/sucesso?subscription=<?=(int)$detail['subscription']->id?>">Atualizar jornada</a>
                 <a class="btn btn-secondary" href="<?=base_url()?>assinar">Criar outra assinatura</a>
             </div>
         </div>

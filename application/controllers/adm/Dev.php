@@ -29,6 +29,72 @@ class Dev extends CI_Controller {
 		return $this->run_sql("ALTER TABLE `".$table."` ADD COLUMN `".$column."` ".$definition, $logs, 'coluna `'.$table.'.'.$column.'` criada');
 	}
 
+	private function SE($table, $data){
+		$filtered = [];
+		foreach($data as $column => $value){
+			if($this->column_exists($table, $column)){
+				$filtered[$column] = $value;
+			}
+		}
+		return $filtered;
+	}
+
+	private function ensure_plan_category($nome, &$logs){
+		$qr = $this->db->query("SELECT * FROM produtos_categorias WHERE nome = ".$this->db->escape($nome)." LIMIT 1");
+		if($qr->num_rows()){
+			$logs[] = 'OK: categoria `'.$nome.'` ja existia';
+			return (int)$qr->row()->id;
+		}
+
+		$data = $this->filter_existing_columns('produtos_categorias', [
+			'nome' => $nome,
+			'status' => 1,
+			'id_user' => (int)$this->session->userdata('id'),
+		]);
+		$this->db->insert('produtos_categorias', $data);
+		$logs[] = 'OK: categoria `'.$nome.'` criada';
+		return (int)$this->db->insert_id();
+	}
+
+	private function upsert_saas_plan($category_id, $plan, &$logs){
+		$where_field = $this->column_exists('produtos', 'plan_code') ? 'plan_code' : 'codigo';
+		$where_value = $this->column_exists('produtos', 'plan_code') ? $plan['plan_code'] : $plan['codigo'];
+		$qr = $this->db->query("SELECT id FROM produtos WHERE ".$where_field." = ".$this->db->escape($where_value)." LIMIT 1");
+
+		$data = $this->filter_existing_columns('produtos', [
+			'modelo' => $plan['modelo'],
+			'id_categoria' => $category_id,
+			'preco' => $plan['preco'],
+			'preco_venda' => $plan['preco_venda'],
+			'qtd' => $plan['qtd'],
+			'codigo' => $plan['codigo'],
+			'status' => 1,
+			'especificacoes' => $plan['especificacoes'],
+			'plan_code' => $plan['plan_code'],
+			'billing_interval' => 'monthly',
+			'billing_interval_count' => 1,
+			'trial_days' => 7,
+			'setup_fee' => 0.00,
+			'max_profissionais' => $plan['max_profissionais'],
+			'max_colaboradores' => $plan['max_colaboradores'],
+			'max_pacientes' => $plan['max_pacientes'],
+			'saas_publicado' => $plan['saas_publicado'],
+			'id_user' => (int)$this->session->userdata('id'),
+		]);
+
+		if($qr->num_rows()){
+			$id = (int)$qr->row()->id;
+			$this->db->where('id', $id);
+			$this->db->update('produtos', $data);
+			$logs[] = 'OK: plano `'.$plan['modelo'].'` atualizado';
+			return $id;
+		}
+
+		$this->db->insert('produtos', $data);
+		$logs[] = 'OK: plano `'.$plan['modelo'].'` criado';
+		return (int)$this->db->insert_id();
+	}
+
 	function __construct()
 	{
 		parent::__construct();
@@ -44,6 +110,7 @@ class Dev extends CI_Controller {
 		echo '<h2>Dev Controller</h2><ul>';
 		echo '<li><a href="'.base_url().'adm/dev/criar_tabela_arquivos_paciente">Criar tabela pacientes_arquivos</a></li>';
 		echo '<li><a href="'.base_url().'adm/dev/migrar_fase1_saas">Migrar fase 1 SaaS</a></li>';
+		echo '<li><a href="'.base_url().'adm/dev/seed_planos_saas_comerciais">Criar planos SaaS sugeridos</a></li>';
 		echo '</ul>';
 	}
 
@@ -200,5 +267,83 @@ class Dev extends CI_Controller {
 		}
 		echo '</ul>';
 		echo '<p><a href="'.base_url().'adm/saas">Abrir modulo SaaS</a></p>';
+	}
+
+	function seed_planos_saas_comerciais(){
+		$logs = [];
+
+		if(!$this->table_exists('produtos') || !$this->table_exists('produtos_categorias')){
+			echo '<p>As tabelas de produtos ainda nao existem neste ambiente.</p>';
+			return;
+		}
+
+		$category_id = $this->ensure_plan_category('Assinaturas SaaS', $logs);
+
+		$plans = [
+			[
+				'modelo' => 'Solo Start',
+				'codigo' => 'SAAS-SOLO',
+				'plan_code' => 'solo-start-mensal',
+				'preco' => 99.90,
+				'preco_venda' => 99.90,
+				'qtd' => 1,
+				'max_profissionais' => 1,
+				'max_colaboradores' => 2,
+				'max_pacientes' => 800,
+				'saas_publicado' => 1,
+				'especificacoes' => "Indicado para profissional autonomo ou consultorio enxuto.\nInclui agenda, cadastro de pacientes, prontuario eletronico, timeline clinica, anexos de exames e relatorios basicos.\nLimites: 1 profissional, 2 colaboradores e ate 800 pacientes ativos.",
+			],
+			[
+				'modelo' => 'Clinica Essencial',
+				'codigo' => 'SAAS-ESS',
+				'plan_code' => 'clinica-essencial-mensal',
+				'preco' => 197.00,
+				'preco_venda' => 197.00,
+				'qtd' => 3,
+				'max_profissionais' => 3,
+				'max_colaboradores' => 6,
+				'max_pacientes' => 3000,
+				'saas_publicado' => 1,
+				'especificacoes' => "Indicado para clinicas em inicio de operacao estruturada.\nInclui tudo do Solo Start com operacao multiprofissional, mais capacidade de equipe e melhor cobertura para recepcao e atendimento.\nLimites: 3 profissionais, 6 colaboradores e ate 3.000 pacientes ativos.",
+			],
+			[
+				'modelo' => 'Clinica Pro',
+				'codigo' => 'SAAS-PRO',
+				'plan_code' => 'clinica-pro-mensal',
+				'preco' => 397.00,
+				'preco_venda' => 397.00,
+				'qtd' => 6,
+				'max_profissionais' => 6,
+				'max_colaboradores' => 12,
+				'max_pacientes' => 12000,
+				'saas_publicado' => 1,
+				'especificacoes' => "Indicado para clinicas em crescimento com maior volume operacional.\nInclui toda a base clinica do sistema com capacidade ampliada para equipe, prontuarios, anexos, agenda e relatorios.\nLimites: 6 profissionais, 12 colaboradores e ate 12.000 pacientes ativos.",
+			],
+			[
+				'modelo' => 'Enterprise',
+				'codigo' => 'SAAS-ENT',
+				'plan_code' => 'enterprise-mensal',
+				'preco' => 797.00,
+				'preco_venda' => 797.00,
+				'qtd' => 12,
+				'max_profissionais' => 12,
+				'max_colaboradores' => 30,
+				'max_pacientes' => 50000,
+				'saas_publicado' => 0,
+				'especificacoes' => "Plano para operacoes maiores e negociacao consultiva.\nUsa a mesma base clinica do sistema com limites expandidos e margem para customizacao comercial, onboarding assistido e condicoes especiais.\nLimites de referencia: 12 profissionais, 30 colaboradores e ate 50.000 pacientes ativos.",
+			],
+		];
+
+		foreach($plans as $plan){
+			$this->upsert_saas_plan($category_id, $plan, $logs);
+		}
+
+		echo '<h2>Planos SaaS sugeridos</h2><ul>';
+		foreach($logs as $log){
+			echo '<li>'.htmlspecialchars($log).'</li>';
+		}
+		echo '</ul>';
+		echo '<p>Base sugerida a partir de referencias publicas observadas em 11/05/2026, com entrada em faixas como R$ 99,90 (Smed), R$ 79,90-R$ 99,90 por profissional (QuarkClinic) e planos de clinica em R$ 299, R$ 599 e R$ 999 (Prontivus).</p>';
+		echo '<p><a href="'.base_url().'adm/produtos">Abrir catalogo de planos</a></p>';
 	}
 }

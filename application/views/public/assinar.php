@@ -101,6 +101,34 @@
             border-radius: 22px;
             padding: 18px;
             background: linear-gradient(180deg, #ffffff 0%, #f9fbfd 100%);
+            position: relative;
+        }
+        .plan-featured {
+            background: linear-gradient(180deg, #fffdf7 0%, #fff7ed 100%);
+            border-color: rgba(249,115,22,.35);
+            box-shadow: 0 18px 34px rgba(249,115,22,.12);
+            transform: translateY(-6px);
+        }
+        .plan-top {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            align-items: flex-start;
+        }
+        .plan-label {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 999px;
+            padding: 6px 10px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: .04em;
+            text-transform: uppercase;
+            background: #eef2ff;
+            color: #4338ca;
+            border: 1px solid rgba(67,56,202,.14);
+            white-space: nowrap;
         }
         .plan h3 { margin: 0 0 8px; font-size: 24px; }
         .plan-price { font-size: 34px; line-height: 1; margin: 8px 0 10px; }
@@ -116,9 +144,92 @@
             color: var(--primary-strong);
             font-weight: 700;
         }
+        .plan-list {
+            list-style: none;
+            margin: 16px 0 0;
+            padding: 0;
+            display: grid;
+            gap: 8px;
+        }
+        .plan-list li {
+            font-size: 14px;
+            color: #334155;
+            background: rgba(255,255,255,.7);
+            border: 1px solid rgba(208,216,228,.7);
+            border-radius: 12px;
+            padding: 10px 12px;
+        }
+        .plan-action {
+            margin-top: 16px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            border-radius: 999px;
+            border: 1px solid rgba(15,118,110,.18);
+            background: #fff;
+            color: var(--primary-strong);
+            padding: 12px 14px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .compare-card {
+            margin-top: 24px;
+            background: rgba(255,255,255,.84);
+            border: 1px solid rgba(208,216,228,.92);
+            border-radius: 24px;
+            padding: 22px;
+        }
+        .compare-title {
+            font-size: 22px;
+            margin: 0 0 8px;
+        }
+        .compare-copy {
+            font-size: 14px;
+            color: var(--muted);
+            line-height: 1.7;
+            margin: 0 0 16px;
+        }
+        .compare-grid {
+            display: grid;
+            grid-template-columns: 1.15fr repeat(3, minmax(0, 1fr));
+            gap: 0;
+            border: 1px solid #dbe2ea;
+            border-radius: 18px;
+            overflow: hidden;
+            background: #fff;
+        }
+        .compare-cell {
+            padding: 14px 12px;
+            border-right: 1px solid #e5ecf3;
+            border-bottom: 1px solid #e5ecf3;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        .compare-cell:last-child {
+            border-right: 0;
+        }
+        .compare-head {
+            background: #f8fafc;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: .06em;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
+        .compare-row-title {
+            font-weight: 700;
+            color: #1e293b;
+            background: #fcfdff;
+        }
+        .compare-highlight {
+            background: #fff7ed;
+        }
         @media (max-width: 980px) {
             .hero { grid-template-columns: 1fr; }
             .plans-grid { grid-template-columns: 1fr; }
+            .compare-grid { grid-template-columns: 1fr; }
         }
         @media (max-width: 680px) {
             h1 { font-size: 36px; }
@@ -219,11 +330,15 @@
 
         <div class="plans-card">
             <h2 class="card-title">Planos publicados</h2>
-            <p class="card-subtitle">Os planos abaixo sao puxados diretamente do catalogo comercial do sistema.</p>
+            <p class="card-subtitle">Os planos abaixo sao puxados diretamente do catalogo comercial do sistema e ja refletem os limites operacionais do seu tenant.</p>
             <div class="plans-grid">
-                <? if(count($planos)){ foreach($planos as $plano){ ?>
-                    <div class="plan">
-                        <h3><?=$plano->modelo?></h3>
+                <? if(count($planos)){ foreach($planos as $idx => $plano){ ?>
+                    <? $is_featured = stripos((string)$plano->modelo, 'Essencial') !== false || $idx === 1; ?>
+                    <div class="plan <?=$is_featured ? 'plan-featured' : ''?>">
+                        <div class="plan-top">
+                            <h3><?=$plano->modelo?></h3>
+                            <span class="plan-label"><?=$is_featured ? 'Mais equilibrado' : ((int)$plano->max_profissionais <= 1 ? 'Entrada' : 'Escala')?></span>
+                        </div>
                         <div class="plan-price">R$ <?=number_format((float)$plano->preco_venda, 2, ',', '.')?></div>
                         <div class="plan-meta">
                             Recorrencia: <?=$plano->billing_interval?> / <?=max(1, (int)$plano->billing_interval_count)?><br>
@@ -238,12 +353,63 @@
                             <span class="plan-badge"><?=max(0, (int)$plano->max_colaboradores)?> colaboradores</span>
                             <span class="plan-badge"><?=max(0, (int)$plano->max_pacientes)?> pacientes</span>
                         </div>
+                        <ul class="plan-list">
+                            <li>Agenda, pacientes, prontuario e historico clinico em uma unica operacao.</li>
+                            <li>Tenant criado com owner principal, assinatura e ciclo inicial prontos para cobranca.</li>
+                            <li>Base preparada para evoluir com WhatsApp, portal do paciente e onboarding guiado.</li>
+                        </ul>
+                        <button type="button" class="plan-action" data-plan-id="<?=$plano->id?>">Escolher este plano</button>
                     </div>
                 <? } } else { ?>
                     <div class="alert alert-warn">Nenhum plano SaaS publicado para contratacao publica neste momento.</div>
                 <? } ?>
             </div>
+
+            <? if(count($planos) >= 3){ ?>
+                <div class="compare-card">
+                    <h3 class="compare-title">Qual plano faz mais sentido para cada momento?</h3>
+                    <p class="compare-copy">Esta comparacao nao tenta inventar modulos novos. Ela organiza comercialmente a mesma base clinica do sistema de acordo com porte, equipe e volume operacional.</p>
+                    <div class="compare-grid">
+                        <div class="compare-cell compare-head">Cenario</div>
+                        <? foreach(array_slice($planos, 0, 3) as $head_plan){ ?>
+                            <? $head_featured = stripos((string)$head_plan->modelo, 'Essencial') !== false; ?>
+                            <div class="compare-cell compare-head <?=$head_featured ? 'compare-highlight' : ''?>"><?=$head_plan->modelo?></div>
+                        <? } ?>
+
+                        <div class="compare-cell compare-row-title">Perfil ideal</div>
+                        <div class="compare-cell">Profissional autonomo ou consultorio enxuto.</div>
+                        <div class="compare-cell compare-highlight">Clinica pequena estruturando recepcao, equipe e recorrencia.</div>
+                        <div class="compare-cell">Clinica em crescimento com maior volume e mais agenda compartilhada.</div>
+
+                        <div class="compare-cell compare-row-title">Equipe</div>
+                        <div class="compare-cell">Operacao compacta, com poucos acessos simultaneos.</div>
+                        <div class="compare-cell compare-highlight">Time equilibrado para recepcao, atendimento e gestao.</div>
+                        <div class="compare-cell">Equipe multiprofissional com mais colaboradores e fluxo continuo.</div>
+
+                        <div class="compare-cell compare-row-title">Objetivo comercial</div>
+                        <div class="compare-cell">Baixa barreira de entrada para validar o sistema.</div>
+                        <div class="compare-cell compare-highlight">Plano principal para vender previsibilidade e estrutura.</div>
+                        <div class="compare-cell">Upgrade natural para quem cresce sem trocar de plataforma.</div>
+                    </div>
+                </div>
+            <? } ?>
         </div>
     </div>
+    <script>
+        (function () {
+            var planButtons = document.querySelectorAll('[data-plan-id]');
+            var planSelect = document.querySelector('select[name="plano_id"]');
+            if (!planButtons.length || !planSelect) {
+                return;
+            }
+            planButtons.forEach(function (button) {
+                button.addEventListener('click', function () {
+                    planSelect.value = button.getAttribute('data-plan-id');
+                    planSelect.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    planSelect.focus();
+                });
+            });
+        })();
+    </script>
 </body>
 </html>

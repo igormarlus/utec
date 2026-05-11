@@ -109,14 +109,28 @@ class Mercadopago_saas {
 	{
 		$this->assert_ready();
 		$preapproval = $this->build_preapproval($subscription, $tenant, $owner, $plano, $options);
-		$preapproval->save();
+		$result = $this->run_sdk_call(function() use ($preapproval) {
+			return $preapproval->save();
+		});
+		if(!$result['ok'] || !$result['result']){
+			throw new Exception($this->build_sdk_error_message($preapproval, $result['warnings']));
+		}
+		if((!isset($preapproval->id) || trim((string)$preapproval->id) === '') && (!isset($preapproval->init_point) || trim((string)$preapproval->init_point) === '')){
+			throw new Exception($this->build_sdk_error_message($preapproval, $result['warnings']));
+		}
 		return $preapproval;
 	}
 
 	public function get_preapproval($gateway_subscription_id)
 	{
 		$this->assert_ready();
-		return MercadoPago\Preapproval::find_by_id($gateway_subscription_id);
+		$result = $this->run_sdk_call(function() use ($gateway_subscription_id) {
+			return MercadoPago\Preapproval::find_by_id($gateway_subscription_id);
+		});
+		if(!$result['ok']){
+			throw new Exception($this->build_sdk_error_message(null, $result['warnings']));
+		}
+		return $result['result'];
 	}
 
 	public function map_gateway_status($gateway_status)
@@ -166,5 +180,79 @@ class Mercadopago_saas {
 			$ts = time();
 		}
 		return date('c', $ts);
+	}
+
+	protected function run_sdk_call($callback)
+	{
+		$warnings = [];
+		$handler = function($severity, $message, $file, $line) use (&$warnings) {
+			if(stripos((string)$file, 'mercadopago') !== false){
+				$warnings[] = trim((string)$message);
+				return true;
+			}
+			return false;
+		};
+
+		$previous = set_error_handler($handler);
+		try {
+			$result = call_user_func($callback);
+			if($previous !== null){
+				restore_error_handler();
+			}else{
+				restore_error_handler();
+			}
+			return ['ok' => true, 'result' => $result, 'warnings' => $warnings];
+		} catch (Exception $e) {
+			if($previous !== null){
+				restore_error_handler();
+			}else{
+				restore_error_handler();
+			}
+			$warnings[] = $e->getMessage();
+			return ['ok' => false, 'result' => null, 'warnings' => $warnings];
+		}
+	}
+
+	protected function build_sdk_error_message($entity=null, $warnings=array())
+	{
+		$parts = [];
+		if($entity && method_exists($entity, 'Error')){
+			$error = $entity->Error();
+			if($error){
+				if(isset($error->error) && trim((string)$error->error) !== ''){
+					$parts[] = trim((string)$error->error);
+				}
+				if(isset($error->message) && trim((string)$error->message) !== ''){
+					$parts[] = trim((string)$error->message);
+				}
+				if(isset($error->status) && trim((string)$error->status) !== ''){
+					$parts[] = 'status '.$error->status;
+				}
+				if(isset($error->causes) && is_array($error->causes)){
+					foreach($error->causes as $cause){
+						if(isset($cause->description) && trim((string)$cause->description) !== ''){
+							$parts[] = trim((string)$cause->description);
+							break;
+						}
+					}
+				}
+			}
+		}
+
+		if(count($warnings)){
+			foreach($warnings as $warning){
+				$warning = trim((string)$warning);
+				if($warning !== ''){
+					$parts[] = $warning;
+				}
+			}
+		}
+
+		$parts = array_values(array_unique(array_filter($parts)));
+		if(count($parts)){
+			return 'Mercado Pago nao conseguiu criar a assinatura: '.implode(' | ', $parts);
+		}
+
+		return 'Mercado Pago nao conseguiu criar a assinatura. Revise token, e-mail do pagador, plano e URLs de retorno.';
 	}
 }

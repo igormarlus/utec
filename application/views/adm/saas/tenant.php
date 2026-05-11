@@ -21,6 +21,16 @@
       .status-paused { background:#ede9fe; color:#5b21b6; }
       .status-pending { background:#e2e8f0; color:#475569; }
       .status-canceled { background:#fee2e2; color:#b91c1c; }
+      .onboarding-wrap { background:#fff; border:1px solid #e2e8f0; border-radius:18px; box-shadow:0 10px 24px rgba(15,23,42,.05); margin-bottom:24px; padding:20px; }
+      .onboarding-progress { width:100%; height:12px; border-radius:999px; background:#e5edf5; overflow:hidden; margin-top:14px; }
+      .onboarding-fill { height:100%; background:linear-gradient(90deg,#0ea5e9,#22c55e); }
+      .onboarding-grid { display:grid; gap:10px; margin-top:18px; }
+      .onboarding-item { display:grid; grid-template-columns:40px 1fr; gap:12px; align-items:flex-start; border:1px solid #e2e8f0; border-radius:14px; padding:14px; background:#f8fafc; }
+      .onboarding-icon { width:40px; height:40px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:18px; }
+      .onboarding-item.done .onboarding-icon { background:#dcfce7; color:#166534; }
+      .onboarding-item.pending .onboarding-icon { background:#fff7ed; color:#c2410c; }
+      .onboarding-title { font-size:16px; font-weight:700; color:#0f172a; }
+      .onboarding-copy { color:#64748b; font-size:13px; margin-top:4px; }
     </style>
   </head>
   <body class="menu-position-side menu-side-left full-screen with-content-panel">
@@ -52,6 +62,32 @@
                 <div class="info-card"><div class="info-label">Contato</div><div class="info-value"><?=$tenant->contato_email ? $tenant->contato_email : 'Sem e-mail'?></div></div>
                 <div class="info-card"><div class="info-label">Vencimento</div><div class="info-value"><?=$tenant->expires_at ? date('d/m/Y', strtotime($tenant->expires_at)) : 'Nao definido'?></div></div>
               </div>
+
+              <? if(isset($onboarding) && isset($onboarding['items'])){ ?>
+                <div class="onboarding-wrap">
+                  <div class="d-flex justify-content-between align-items-center" style="gap:12px;flex-wrap:wrap;">
+                    <div>
+                      <h6 class="element-header" style="margin-bottom:6px;">Jornada de ativacao</h6>
+                      <p style="margin:0;color:#64748b;">Acompanhe o quanto este tenant ja esta pronto para sair da contratacao e entrar em uso real.</p>
+                    </div>
+                    <div class="status-pill status-active"><?=$onboarding['completed']?> de <?=$onboarding['total']?> etapas</div>
+                  </div>
+                  <div class="onboarding-progress">
+                    <div class="onboarding-fill" style="width: <?=$onboarding['progress']?>%;"></div>
+                  </div>
+                  <div class="onboarding-grid">
+                    <? foreach($onboarding['items'] as $item){ ?>
+                      <div class="onboarding-item <?=$item['done'] ? 'done' : 'pending'?>">
+                        <div class="onboarding-icon"><?=$item['done'] ? '✓' : '!'?></div>
+                        <div>
+                          <div class="onboarding-title"><?=$item['title']?></div>
+                          <div class="onboarding-copy"><?=$item['description']?></div>
+                        </div>
+                      </div>
+                    <? } ?>
+                  </div>
+                </div>
+              <? } ?>
 
               <div class="panel-card">
                 <div class="panel-card-header"><h6 class="element-header" style="margin-bottom:0;">Assinaturas</h6></div>

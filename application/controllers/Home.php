@@ -108,6 +108,7 @@ class Home extends CI_Controller {
 			return;
 		}
 		$dados['detail'] = $detail;
+		$dados['onboarding'] = $this->saas_model->get_tenant_onboarding_summary((int)$detail['tenant']->id);
 		$dados['flash_ok'] = $this->session->flashdata('public_signup_ok');
 		$dados['flash_error'] = $this->session->flashdata('public_signup_error');
 		$this->load->view('public/assinar-sucesso', $dados);

@@ -21,15 +21,21 @@ Em termos simples:
 
 ## Como funciona hoje
 
-Hoje o fluxo nao e publico nem automatico.
+Hoje o sistema ja trabalha em 2 formatos:
 
-O cadastro de um tenant acontece de forma interna, pelo painel administrativo:
+- onboarding interno assistido em `https://utecnologia.com.br/adm/saas`
+- onboarding publico inicial em `https://utecnologia.com.br/assinar`
 
-- `https://utecnologia.com.br/adm/saas`
+Isso significa que o tenant pode nascer:
 
-Dentro dessa area, um administrador provisiona manualmente a clinica.
+- manualmente, pelo painel administrativo
+- automaticamente, pela pagina publica de assinatura
 
 ## Fluxo atual do tenant
+
+Hoje existem 2 fluxos validos para criar tenant.
+
+## Fluxo 1: interno pelo painel SaaS
 
 ### 1. Escolher o responsavel base
 
@@ -61,9 +67,38 @@ Quando salva, o sistema cria:
 - 1 ciclo inicial em `saas_subscription_cycles`
 - 1 evento em `saas_billing_events`
 
-### 3. Vincular a equipe ao tenant
+## Fluxo 2: publico pela pagina `assinar`
 
-Depois do provisionamento, o sistema propaga o `tenant_id` para a arvore de usuarios do responsavel principal.
+Na pagina publica:
+
+- `https://utecnologia.com.br/assinar`
+
+o responsavel da clinica informa:
+
+- nome do responsavel
+- nome da clinica
+- e-mail principal
+- telefone
+- documento
+- tipo de operacao
+- plano
+- senha inicial
+
+Quando envia o formulario, o sistema:
+
+- cria o usuario owner automaticamente
+- cria o tenant
+- cria a assinatura inicial
+- cria o primeiro ciclo de cobranca
+- tenta abrir o checkout do Mercado Pago
+
+Se o Mercado Pago estiver pronto no servidor, o fluxo segue direto para o checkout.
+
+Se o checkout ainda nao abrir, o tenant mesmo assim fica criado e a contratacao pode continuar de forma assistida.
+
+## Vinculo da equipe com o tenant
+
+Depois do provisionamento interno, o sistema propaga o `tenant_id` para a arvore de usuarios do responsavel principal.
 
 Ou seja, os usuarios ligados a esse dono passam a carregar:
 
@@ -71,11 +106,13 @@ Ou seja, os usuarios ligados a esse dono passam a carregar:
 - `tenant_role`
 - `onboarding_status`
 
+No fluxo publico, o owner ja nasce com essas informacoes, e os proximos cadastros podem herdar esse tenant.
+
 Na pratica, isso faz a clinica passar a existir como uma operacao separada dentro do SaaS.
 
-### 4. Gerar a assinatura
+## Assinatura
 
-Cada tenant pode ter uma ou mais assinaturas, mas hoje o fluxo principal trabalha com uma assinatura ativa por tenant.
+Cada tenant pode ter uma ou mais assinaturas, mas hoje o fluxo principal trabalha com uma assinatura principal por tenant.
 
 A assinatura guarda:
 
@@ -95,7 +132,7 @@ Status mais comuns:
 - `paused`
 - `canceled`
 
-### 5. Cobrar e acompanhar os ciclos
+## Ciclos de cobranca
 
 O tenant tambem possui ciclos de cobranca.
 
@@ -114,7 +151,71 @@ Exemplos:
 - `paid` = pago
 - `past_due` = vencido
 
-### 6. Controlar o acesso da clinica
+## Como os planos entram nisso
+
+Hoje o tenant sempre depende de um plano para nascer.
+
+Ou seja:
+
+- sem plano, nao existe assinatura
+- sem assinatura, o tenant nao entra no fluxo comercial
+
+Os planos sao cadastrados em:
+
+- `adm/produtos`
+
+Eles definem:
+
+- nome comercial
+- valor
+- ciclo
+- trial
+- setup fee
+- quantidade de profissionais
+- quantidade de colaboradores
+- quantidade de pacientes
+- se o plano aparece publicamente ou nao
+
+## Como criar os planos
+
+Hoje existem 2 jeitos:
+
+### 1. Cadastro manual
+
+Voce acessa:
+
+- `adm/produtos`
+
+e preenche os campos normalmente.
+
+### 2. Seed automatico com base comercial inicial
+
+Foi criada a rota:
+
+- `adm/dev/seed_planos_saas_comerciais`
+
+Ela gera uma base inicial de planos SaaS sugeridos para o produto.
+
+Tambem existe um botao dentro de `adm/produtos`:
+
+- `Criar planos sugeridos`
+
+## Planos sugeridos atuais
+
+A base inicial criada hoje segue este raciocinio:
+
+- `Solo Start`
+  Entrada para autonomo ou consultorio pequeno
+- `Clinica Essencial`
+  Melhor equilibrio entre preco e estrutura
+- `Clinica Pro`
+  Crescimento com equipe maior e mais pacientes
+- `Enterprise`
+  Negociacao consultiva, normalmente nao publico
+
+Esses planos foram posicionados para ficar proximos do mercado brasileiro atual, mas respeitando o que o sistema ja entrega hoje.
+
+## Controle operacional do tenant
 
 O status operacional do tenant depende da assinatura.
 
@@ -189,45 +290,52 @@ Se o usuario for admin, tambem aparece:
 
 ## Existe link publico para a clinica se cadastrar sozinha?
 
-Hoje, nao.
+Hoje, sim.
 
-Atualmente nao existe uma rota publica como:
+Atualmente existe a rota publica:
 
 - `/assinar`
-- `/cadastro-clinica`
-- `/trial`
 
-nem um fluxo automatico que faca tudo sozinho:
+Na pratica ela ja faz:
 
-- cadastro da clinica
-- criacao do usuario owner
-- escolha do plano
-- checkout
-- ativacao automatica do tenant
+- exibicao dos planos publicados
+- captura dos dados da clinica
+- criacao automatica do usuario owner
+- criacao automatica do tenant
+- criacao automatica da assinatura
+- tentativa de redirecionamento para checkout
 
-O que existe hoje e:
-
-- area administrativa interna em `adm/saas`
-- provisionamento manual pelo time interno
-- checkout Mercado Pago gerado depois que a assinatura ja existe
+Entao o sistema ja saiu da fase de provisionamento 100% manual.
 
 ## Entao como a clinica entra hoje?
 
-Hoje o fluxo real e este:
+Hoje o fluxo real pode ser um destes:
 
-1. O time interno cria ou escolhe o usuario responsavel.
-2. O admin acessa `adm/saas`.
-3. O admin provisiona o tenant manualmente.
-4. O sistema cria a assinatura e o primeiro ciclo.
-5. O admin gera o checkout do Mercado Pago.
-6. A clinica paga.
-7. O tenant segue ativo e operacional.
+1. Fluxo interno:
+   Time interno acessa `adm/saas`, provisiona o tenant e gera o checkout.
+2. Fluxo publico:
+   A propria clinica acessa `assinar`, escolhe o plano, cria o owner e segue para a contratacao.
 
-## O que falta para existir um link publico de onboarding
+## O que ainda nao esta totalmente fechado no onboarding publico
 
-Para existir um link publico real, ainda precisamos construir uma fase de onboarding comercial.
+Apesar de o link publico existir, ele ainda esta em fase inicial.
 
-O fluxo ideal seria:
+Ainda faltam evolucoes importantes como:
+
+- confirmacao por e-mail
+- recuperacao de senha comercial mais amigavel
+- pos-pagamento guiado
+- ativacao mais inteligente por webhook
+- pagina publica ainda mais comercial
+- primeiro acesso guiado da clinica
+
+## O que falta para amadurecer o onboarding comercial
+
+O link publico ja existe.
+
+O que falta agora e amadurecer esse onboarding para um nivel comercial mais forte.
+
+O fluxo ideal continua sendo:
 
 1. Pagina publica de planos
 2. Formulario de cadastro da clinica
@@ -240,21 +348,27 @@ O fluxo ideal seria:
 
 ## Recomendacao pratica
 
-Hoje o modulo SaaS ja serve para operacao assistida, onboarding interno e cobranca inicial.
+Hoje o modulo SaaS ja serve para:
 
-Ele ainda nao esta pronto como autosservico publico.
+- operacao assistida
+- onboarding interno
+- onboarding publico inicial
+- cobranca inicial
+
+Ele ja entrou em autosservico, mas ainda nao esta totalmente maduro como onboarding comercial completo.
 
 Se a meta for alugar sem intervencao manual, o proximo passo comercial mais importante e criar:
 
-- landing publica de assinatura
-- onboarding self-service
-- criacao automatica do tenant
+- pos-pagamento guiado
 - ativacao automatica por webhook
+- jornada inicial da clinica
+- recuperacao de senha e confirmacao por e-mail
 
 ## Resumo direto
 
 - `tenant` e a conta SaaS da clinica dentro da plataforma
-- hoje ele e criado manualmente pelo painel `adm/saas`
-- nao existe ainda um link publico onde o usuario se cadastra e comeca sozinho
-- o checkout do Mercado Pago ja pode existir depois que o tenant foi provisionado
-- o proximo passo para vender em escala e criar onboarding publico automatizado
+- hoje ele pode ser criado manualmente em `adm/saas` ou publicamente em `assinar`
+- o plano e a base do contrato comercial do tenant
+- o sistema ja possui seed automatico para planos SaaS sugeridos
+- o checkout do Mercado Pago ja pode nascer no fluxo publico ou no fluxo interno
+- o proximo passo para vender em escala e amadurecer o pos-pagamento e a ativacao automatica

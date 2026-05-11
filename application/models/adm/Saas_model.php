@@ -154,12 +154,14 @@ class Saas_model extends CI_Model {
 			FROM usuarios WHERE tenant_id = ".$tenant_id."
 			ORDER BY nivel ASC, nome ASC"
 		);
+		$onboarding = $this->get_tenant_onboarding_summary($tenant_id);
 
 		return [
 			'tenant' => $tenant,
 			'assinaturas' => $assinaturas,
 			'ciclos' => $ciclos,
 			'usuarios' => $usuarios,
+			'onboarding' => $onboarding,
 		];
 	}
 
@@ -223,6 +225,127 @@ class Saas_model extends CI_Model {
 			'tenant' => $tenant,
 			'owner' => $owner,
 			'plano' => $plano,
+		];
+	}
+
+	function get_tenant_onboarding_summary($tenant_id){
+		$tenant_id = (int)$tenant_id;
+		if($tenant_id <= 0 || !$this->has_schema()){
+			return [
+				'progress' => 0,
+				'completed' => 0,
+				'total' => 0,
+				'items' => [],
+			];
+		}
+
+		$tenant = $this->db->query("SELECT * FROM saas_tenants WHERE id = ".$tenant_id." LIMIT 1")->row();
+		if(!$tenant){
+			return [
+				'progress' => 0,
+				'completed' => 0,
+				'total' => 0,
+				'items' => [],
+			];
+		}
+
+		$subscription = $this->db->query("SELECT * FROM saas_subscriptions WHERE tenant_id = ".$tenant_id." ORDER BY id DESC LIMIT 1")->row();
+		$owner = $tenant->id_owner_user ? $this->db->query("SELECT * FROM usuarios WHERE id = ".(int)$tenant->id_owner_user." LIMIT 1")->row() : null;
+
+		$total_usuarios = (int)$this->db->query("SELECT COUNT(id) AS total FROM usuarios WHERE tenant_id = ".$tenant_id)->row()->total;
+		$total_profissionais = (int)$this->db->query("SELECT COUNT(id) AS total FROM usuarios WHERE tenant_id = ".$tenant_id." AND nivel = 3")->row()->total;
+		$total_colaboradores = (int)$this->db->query("SELECT COUNT(id) AS total FROM usuarios WHERE tenant_id = ".$tenant_id." AND nivel = 4")->row()->total;
+		$total_pacientes = (int)$this->db->query("SELECT COUNT(id) AS total FROM usuarios WHERE tenant_id = ".$tenant_id." AND nivel = 5")->row()->total;
+
+		$scope_ids = [];
+		$qr_scope_users = $this->db->query("SELECT id FROM usuarios WHERE tenant_id = ".$tenant_id);
+		foreach($qr_scope_users->result() as $scope_user){
+			$scope_ids[] = (int)$scope_user->id;
+		}
+		$scope_sql = count($scope_ids) ? implode(',', $scope_ids) : '0';
+		$total_agendamentos = $this->db->table_exists('agendamentos')
+			? (int)$this->db->query(
+				"SELECT COUNT(id) AS total FROM agendamentos
+				WHERE id_user IN (".$scope_sql.") OR id_paciente IN (".$scope_sql.") OR id_prestador IN (".$scope_sql.")"
+			)->row()->total
+			: 0;
+
+		$items = [
+			[
+				'key' => 'owner',
+				'title' => 'Acesso principal criado',
+				'done' => $owner ? true : false,
+				'description' => $owner ? 'O usuario owner ja existe e pode acessar a operacao.' : 'O tenant ainda precisa de um owner valido.',
+			],
+			[
+				'key' => 'billing',
+				'title' => 'Assinatura e cobranca configuradas',
+				'done' => $subscription ? true : false,
+				'description' => $subscription ? 'A assinatura principal do tenant foi criada.' : 'Ainda nao existe assinatura principal para esta operacao.',
+			],
+			[
+				'key' => 'checkout',
+				'title' => 'Checkout pronto para pagamento',
+				'done' => ($subscription && ((isset($subscription->checkout_url) && trim((string)$subscription->checkout_url) !== '') || trim((string)$subscription->gateway_subscription_id) !== '')) ? true : false,
+				'description' => ($subscription && ((isset($subscription->checkout_url) && trim((string)$subscription->checkout_url) !== '') || trim((string)$subscription->gateway_subscription_id) !== ''))
+					? 'A assinatura ja tem checkout ou vinculacao com o gateway.'
+					: 'Ainda falta gerar ou vincular o checkout da assinatura.',
+			],
+			[
+				'key' => 'payment',
+				'title' => 'Pagamento ou trial ativo',
+				'done' => ($subscription && in_array($subscription->status, ['active', 'trial'])) ? true : false,
+				'description' => ($subscription && in_array($subscription->status, ['active', 'trial']))
+					? 'A operacao ja esta coberta por pagamento ativo ou periodo de trial.'
+					: 'A assinatura ainda nao esta em fase ativa ou trial confirmado.',
+			],
+			[
+				'key' => 'team',
+				'title' => 'Equipe inicial cadastrada',
+				'done' => ($total_profissionais > 0 || $total_colaboradores > 0),
+				'description' => ($total_profissionais > 0 || $total_colaboradores > 0)
+					? 'Ja existem usuarios de operacao alem do owner.'
+					: 'Cadastre pelo menos um profissional ou colaborador para iniciar a rotina da clinica.',
+			],
+			[
+				'key' => 'patients',
+				'title' => 'Base inicial de pacientes',
+				'done' => $total_pacientes > 0,
+				'description' => $total_pacientes > 0
+					? 'A clinica ja possui pacientes cadastrados.'
+					: 'A base clinica ainda nao recebeu pacientes.',
+			],
+			[
+				'key' => 'agenda',
+				'title' => 'Primeira agenda ou atendimento',
+				'done' => $total_agendamentos > 0,
+				'description' => $total_agendamentos > 0
+					? 'A rotina operacional ja comecou com agendamentos registrados.'
+					: 'Ainda nao existem agendamentos vinculados ao tenant.',
+			],
+		];
+
+		$completed = 0;
+		foreach($items as $item){
+			if($item['done']){
+				$completed++;
+			}
+		}
+		$total = count($items);
+		$progress = $total > 0 ? (int)round(($completed / $total) * 100) : 0;
+
+		return [
+			'progress' => $progress,
+			'completed' => $completed,
+			'total' => $total,
+			'items' => $items,
+			'metrics' => [
+				'usuarios' => $total_usuarios,
+				'profissionais' => $total_profissionais,
+				'colaboradores' => $total_colaboradores,
+				'pacientes' => $total_pacientes,
+				'agendamentos' => $total_agendamentos,
+			],
 		];
 	}
 

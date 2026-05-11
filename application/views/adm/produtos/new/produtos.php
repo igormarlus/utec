@@ -118,10 +118,14 @@
             <div class="content-box">
               <div class="element-wrapper">
                 <div class="element-actions">
+                  <a href="<?=base_url()?>adm/dev/seed_planos_saas_comerciais" class="btn btn-outline-success btn-sm">Criar planos sugeridos</a>
                   <a href="<?=base_url()?>adm/produtos/categorias" class="btn btn-outline-primary btn-sm">Gerenciar tipos</a>
                 </div>
                 <h6 class="element-header">Catalogo de planos</h6>
                 <p class="form-note">Use este modulo para cadastrar os planos comercializados pela plataforma e controlar o que sera contratado pelos clientes.</p>
+              </div>
+              <div class="alert alert-info">
+                Sugestao pratica: use os planos como embalagem comercial do que o sistema ja entrega hoje. Se quiser partir de uma base de mercado, clique em <strong>Criar planos sugeridos</strong> para importar uma grade inicial SaaS pronta para ajuste fino.
               </div>
               <div class="summary-grid">
                 <div class="summary-card">
