@@ -71,6 +71,29 @@
         color: #64748b;
         font-size: 13px;
       }
+      .summary-grid {
+        display:grid;
+        grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+        gap:16px;
+        margin:16px 0 22px;
+      }
+      .summary-card {
+        background:#fff;
+        border:1px solid #e2e8f0;
+        border-radius:18px;
+        box-shadow:0 10px 24px rgba(15,23,42,.05);
+        padding:18px 20px;
+      }
+      .summary-label { color:#64748b; font-size:12px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; }
+      .summary-value { color:#0f172a; font-size:28px; font-weight:700; margin-top:6px; }
+      .filter-card {
+        background:#fff;
+        border:1px solid #e2e8f0;
+        border-radius:18px;
+        box-shadow:0 10px 24px rgba(15,23,42,.05);
+        margin-bottom:24px;
+        padding:18px 20px;
+      }
     </style>
   </head>
   <body class="menu-position-side menu-side-left full-screen with-content-panel">
@@ -99,6 +122,55 @@
                 </div>
                 <h6 class="element-header">Catalogo de planos</h6>
                 <p class="form-note">Use este modulo para cadastrar os planos comercializados pela plataforma e controlar o que sera contratado pelos clientes.</p>
+              </div>
+              <div class="summary-grid">
+                <div class="summary-card">
+                  <div class="summary-label">Planos</div>
+                  <div class="summary-value"><?=$resumo_planos['total']?></div>
+                </div>
+                <div class="summary-card">
+                  <div class="summary-label">Ativos</div>
+                  <div class="summary-value"><?=$resumo_planos['ativos']?></div>
+                </div>
+                <div class="summary-card">
+                  <div class="summary-label">Inativos</div>
+                  <div class="summary-value"><?=$resumo_planos['inativos']?></div>
+                </div>
+                <div class="summary-card">
+                  <div class="summary-label">Tipos de plano</div>
+                  <div class="summary-value"><?=$resumo_planos['tipos']?></div>
+                </div>
+              </div>
+
+              <div class="filter-card">
+                <form method="get" action="<?=base_url()?>adm/produtos">
+                  <div class="row">
+                    <div class="col-md-4">
+                      <label>Buscar</label>
+                      <input type="text" name="busca" class="form-control" value="<?=htmlspecialchars($filtros['busca'])?>" placeholder="Nome, codigo ou descricao do plano">
+                    </div>
+                    <div class="col-md-3">
+                      <label>Tipo de plano</label>
+                      <select name="id_categoria" class="form-control">
+                        <option value="0">Todos</option>
+                        <? foreach($categorias->result() as $categoria){ ?>
+                          <option value="<?=$categoria->id?>" <?=$filtros['id_categoria'] == $categoria->id ? 'selected="selected"' : ''?>><?=$categoria->nome?></option>
+                        <? } ?>
+                      </select>
+                    </div>
+                    <div class="col-md-3">
+                      <label>Status</label>
+                      <select name="status" class="form-control">
+                        <option value="">Todos</option>
+                        <option value="1" <?=$filtros['status'] === '1' ? 'selected="selected"' : ''?>>Ativo</option>
+                        <option value="0" <?=$filtros['status'] === '0' ? 'selected="selected"' : ''?>>Inativo</option>
+                      </select>
+                    </div>
+                    <div class="col-md-2 d-flex align-items-end">
+                      <button type="submit" class="btn btn-primary btn-block">Filtrar</button>
+                    </div>
+                  </div>
+                </form>
               </div>
 
               <div class="commerce-card">
@@ -151,6 +223,52 @@
                         <textarea name="especificacoes" class="form-control" rows="3" placeholder="Descreva recursos inclusos, limites e observacoes do plano."></textarea>
                       </div>
                     </div>
+                    <div class="row" style="margin-top:14px">
+                      <div class="col-md-2">
+                        <label>Codigo do plano</label>
+                        <input type="text" name="plan_code" class="form-control" placeholder="essential-monthly">
+                      </div>
+                      <div class="col-md-2">
+                        <label>Ciclo</label>
+                        <select name="billing_interval" class="form-control">
+                          <option value="monthly">Mensal</option>
+                          <option value="quarterly">Trimestral</option>
+                          <option value="semiannual">Semestral</option>
+                          <option value="yearly">Anual</option>
+                        </select>
+                      </div>
+                      <div class="col-md-1">
+                        <label>Intervalo</label>
+                        <input type="number" min="1" name="billing_interval_count" class="form-control" value="1">
+                      </div>
+                      <div class="col-md-1">
+                        <label>Trial</label>
+                        <input type="number" min="0" name="trial_days" class="form-control" value="0">
+                      </div>
+                      <div class="col-md-2">
+                        <label>Taxa setup</label>
+                        <input type="text" name="setup_fee" class="form-control" placeholder="0,00">
+                      </div>
+                      <div class="col-md-1">
+                        <label>Prof.</label>
+                        <input type="number" min="0" name="max_profissionais" class="form-control" value="0">
+                      </div>
+                      <div class="col-md-1">
+                        <label>Colab.</label>
+                        <input type="number" min="0" name="max_colaboradores" class="form-control" value="0">
+                      </div>
+                      <div class="col-md-1">
+                        <label>Pac.</label>
+                        <input type="number" min="0" name="max_pacientes" class="form-control" value="0">
+                      </div>
+                      <div class="col-md-1">
+                        <label>Publico</label>
+                        <select name="saas_publicado" class="form-control">
+                          <option value="1">Sim</option>
+                          <option value="0">Nao</option>
+                        </select>
+                      </div>
+                    </div>
                     <div style="margin-top:16px">
                       <button type="submit" class="btn btn-primary">Cadastrar plano</button>
                     </div>
@@ -175,6 +293,13 @@
                       <?=trim(strip_tags($plano->especificacoes)) !== '' ? nl2br(htmlspecialchars($plano->especificacoes)) : 'Sem descricao comercial cadastrada para este plano.'?>
                     </div>
                     <div class="plan-meta">Valor base: R$ <?=number_format((float)$plano->preco, 2, ',', '.')?> · Limite: <?=$plano->qtd ? $plano->qtd : 'Nao definido'?></div>
+                    <div class="plan-meta" style="margin-top:6px">
+                      Recorrencia: <?=isset($plano->billing_interval) ? $plano->billing_interval : 'monthly'?> / <?=isset($plano->billing_interval_count) ? (int)$plano->billing_interval_count : 1?> · Trial: <?=isset($plano->trial_days) ? (int)$plano->trial_days : 0?> dias
+                    </div>
+                    <div class="plan-meta" style="margin-top:6px">
+                      Limites SaaS: <?=isset($plano->max_profissionais) ? (int)$plano->max_profissionais : 0?> prof. · <?=isset($plano->max_colaboradores) ? (int)$plano->max_colaboradores : 0?> colab. · <?=isset($plano->max_pacientes) ? (int)$plano->max_pacientes : 0?> pacientes
+                    </div>
+                    <div class="plan-meta" style="margin-top:6px">Responsavel: <?=$plano->responsavel_nome ? $plano->responsavel_nome : 'Nao identificado'?></div>
                     <div style="margin-top:16px">
                       <a href="<?=base_url()?>adm/produtos/edicao/<?=$plano->id?>" class="btn btn-sm btn-outline-primary">Editar plano</a>
                     </div>

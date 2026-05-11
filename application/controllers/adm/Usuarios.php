@@ -113,6 +113,22 @@ function cadastrar() {
 	if (isset($_POST['imagem'])) {
 		$dd['img'] = $_POST['imagem'];
 	}
+
+	if($this->db->field_exists('tenant_id', 'usuarios')){
+		$tenant_id = 0;
+		if(isset($dd_user->tenant_id) && (int)$dd_user->tenant_id > 0){
+			$tenant_id = (int)$dd_user->tenant_id;
+		}elseif($vinculo_id > 0){
+			$tenant_id = $this->padrao_model->get_usuario_tenant_id($vinculo_id);
+		}
+		if($tenant_id > 0){
+			$dd['tenant_id'] = $tenant_id;
+			$dd['tenant_role'] = $this->padrao_model->infer_tenant_role_by_level($nivel);
+			if($this->db->field_exists('onboarding_status', 'usuarios')){
+				$dd['onboarding_status'] = 'ativo';
+			}
+		}
+	}
 	#print_r($_FILES);
 	#return false;
 	if(isset($_FILES)){

@@ -58,11 +58,21 @@ class Usuarios_model extends CI_Model{
 	function verSession(){
 	
 		$ss = $this->session->userdata('usr');
-		if(isset($ss)){
-			if($ss == true){
-			
-			}else{
-				redirect('admin');
+		if(!isset($ss) || $ss != true){
+			redirect('admin');
+			return;
+		}
+
+		$CI =& get_instance();
+		$CI->load->model('padrao_model');
+		$usuario = $CI->padrao_model->get_usuario_logado();
+		$current_class = $CI->router->fetch_class();
+		$current_method = $CI->router->fetch_method();
+
+		if($usuario && (int)$usuario->nivel !== 1 && !$CI->padrao_model->tenant_allows_access($usuario)){
+			if($current_class !== 'saas' || $current_method !== 'bloqueado'){
+				redirect('adm/saas/bloqueado');
+				return;
 			}
 		}
 	}

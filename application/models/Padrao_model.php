@@ -25,6 +25,75 @@ function get_usuario_logado(){
 	return $qr->num_rows() ? $qr->row() : null;
 }
 
+function get_usuario_tenant_id($user_id){
+	$user_id = (int)$user_id;
+	if($user_id <= 0 || !$this->db->field_exists('tenant_id', 'usuarios')){
+		return 0;
+	}
+	$qr = $this->db->query("SELECT tenant_id FROM usuarios WHERE id = ".$user_id." LIMIT 1");
+	if(!$qr->num_rows()){
+		return 0;
+	}
+	return (int)$qr->row()->tenant_id;
+}
+
+function get_tenant_by_id($tenant_id){
+	$tenant_id = (int)$tenant_id;
+	if($tenant_id <= 0 || !$this->db->table_exists('saas_tenants')){
+		return null;
+	}
+	$qr = $this->db->query("SELECT * FROM saas_tenants WHERE id = ".$tenant_id." LIMIT 1");
+	return $qr->num_rows() ? $qr->row() : null;
+}
+
+function get_logged_tenant(){
+	$usuario = $this->get_usuario_logado();
+	if(!$usuario || !isset($usuario->tenant_id) || (int)$usuario->tenant_id <= 0){
+		return null;
+	}
+	return $this->get_tenant_by_id((int)$usuario->tenant_id);
+}
+
+function tenant_allows_access($usuario=null){
+	if(!$usuario){
+		$usuario = $this->get_usuario_logado();
+	}
+	if(!$usuario){
+		return false;
+	}
+	if((int)$usuario->nivel === 1){
+		return true;
+	}
+	if(!isset($usuario->tenant_id) || (int)$usuario->tenant_id <= 0){
+		return true;
+	}
+	$tenant = $this->get_tenant_by_id((int)$usuario->tenant_id);
+	if(!$tenant){
+		return true;
+	}
+	return (int)$tenant->status === 1;
+}
+
+function infer_tenant_role_by_level($nivel, $is_owner=false){
+	$nivel = (int)$nivel;
+	if($is_owner){
+		return 'owner';
+	}
+	switch($nivel){
+		case 1:
+		case 2:
+			return 'admin';
+		case 3:
+			return 'provider';
+		case 4:
+			return 'staff';
+		case 5:
+			return 'patient';
+		default:
+			return 'member';
+	}
+}
+
 function get_scope_user_ids($usuario=null){
 	if(!$usuario){
 		$usuario = $this->get_usuario_logado();

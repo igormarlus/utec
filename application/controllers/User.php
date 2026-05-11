@@ -3,6 +3,24 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 class User extends CI_Controller {
 
+	private function get_mp_access_token(){
+		$this->load->config('mercadopago', true);
+		return (string)$this->config->item('mercadopago_access_token', 'mercadopago');
+	}
+
+	private function boot_mp_sdk(){
+		$this->load->config('mercadopago', true);
+		$autoload = FCPATH.'includes/mercadopago/lib/mercadopago/vendor/autoload.php';
+		if(file_exists($autoload)){
+			require_once $autoload;
+		}
+		$access_token = $this->get_mp_access_token();
+		if($access_token !== ''){
+			MercadoPago\SDK::setAccessToken($access_token);
+		}
+		return $access_token;
+	}
+
 	function __construct()
 	{
 		parent::__construct();
@@ -275,7 +293,7 @@ class User extends CI_Controller {
 
 
 		  #$access_token = "TEST-685172168846807-012610-c99a2afde36d8c0ac567b2613371ec49-182756904";
-		  $access_token = "APP_USR-685172168846807-012610-649caed966c451e2c65d542a6ade4edd-182756904";
+		  $access_token = $this->get_mp_access_token();
 
 			  if(isset($_POST)){
 
@@ -319,11 +337,7 @@ class User extends CI_Controller {
 					
 
 			        #include_once 'mercadopago/lib/mercadopago/vendor/autoload.php';
-			        include_once 'includes/mercadopago/lib/mercadopago/vendor/autoload.php';
-
-			        //MercadoPago\SDK::setAccessToken($access_token);
-
-			        MercadoPago\SDK::setAccessToken($access_token);
+			        $this->boot_mp_sdk();
 			     
 		         	 $payment = new MercadoPago\Payment();
 					 $payment->transaction_amount = $valor;
@@ -430,7 +444,7 @@ class User extends CI_Controller {
 		 #return $from;
 		 $this->load->model('padrao_model');
 
-		  $access_token = "APP_USR-685172168846807-012610-649caed966c451e2c65d542a6ade4edd-182756904";
+		  $access_token = $this->get_mp_access_token();
 		  		#echo "OK NAO";
 			  if(isset($rawData)){
 			  	#print_r($_POST);
@@ -507,11 +521,7 @@ class User extends CI_Controller {
 					
 
 			        #include_once 'mercadopago/lib/mercadopago/vendor/autoload.php';
-			        include_once 'includes/mercadopago/lib/mercadopago/vendor/autoload.php';
-
-			        //MercadoPago\SDK::setAccessToken($access_token);
-
-			        MercadoPago\SDK::setAccessToken($access_token);
+			        $this->boot_mp_sdk();
 			     
 		         	 $payment = new MercadoPago\Payment();
 					 $payment->transaction_amount = $valor;
@@ -643,7 +653,7 @@ public function process_payment_card_oficial($id_cliente, $id_user = 0) {
     $this->load->model('padrao_model');
 
     // ATENÇÃO: use variável de ambiente em produção
-    $access_token = "APP_USR-685172168846807-012610-649caed966c451e2c65d542a6ade4edd-182756904";
+    $access_token = $this->get_mp_access_token();
 
     // === Descobrir $id_user (mesma lógica do PIX) ===
     if ($id_user == 0 && !empty($from)) {
@@ -686,8 +696,7 @@ public function process_payment_card_oficial($id_cliente, $id_user = 0) {
     }
 
     // === Mercado Pago: cartão de crédito ===
-    include_once 'includes/mercadopago/lib/mercadopago/vendor/autoload.php';
-    MercadoPago\SDK::setAccessToken($access_token);
+    $this->boot_mp_sdk();
 
     $payment = new MercadoPago\Payment();
     $payment->transaction_amount = $valor;
@@ -769,7 +778,7 @@ public function process_payment_card_oficial($id_cliente, $id_user = 0) {
 		 #return $from;
 		 $this->load->model('padrao_model');
 
-		  $access_token = "APP_USR-685172168846807-012610-649caed966c451e2c65d542a6ade4edd-182756904";
+		  $access_token = $this->get_mp_access_token();
 		  		#echo "OK NAO";
 			  if(isset($rawData)){
 			  	#print_r($_POST);
@@ -840,11 +849,7 @@ public function process_payment_card_oficial($id_cliente, $id_user = 0) {
 					
 
 			        #include_once 'mercadopago/lib/mercadopago/vendor/autoload.php';
-			        include_once 'includes/mercadopago/lib/mercadopago/vendor/autoload.php';
-
-			        //MercadoPago\SDK::setAccessToken($access_token);
-
-			        MercadoPago\SDK::setAccessToken($access_token);
+			        $this->boot_mp_sdk();
 			     
 		         	 $payment = new MercadoPago\Payment();
 					 $payment->transaction_amount = $valor;
@@ -950,8 +955,7 @@ public function process_payment_card_oficial($id_cliente, $id_user = 0) {
 
 	function verifica_pagamento($id_trans){
 
-		include_once 'includes/mercadopago/lib/mercadopago/vendor/autoload.php';
-        MercadoPago\SDK::setAccessToken($access_token);
+		$this->boot_mp_sdk();
      	$payment = new MercadoPago\Payment();
      	$payment = MercadoPago\Payment::find_by_id($payment_id);
 		$payment->capture = true;
@@ -961,11 +965,8 @@ public function process_payment_card_oficial($id_cliente, $id_user = 0) {
 
 	function busca_pagamento(){
 
-		$access_token = "APP_USR-685172168846807-012610-649caed966c451e2c65d542a6ade4edd-182756904";
-
-        include_once 'includes/mercadopago/lib/mercadopago/vendor/autoload.php';
-		
-        MercadoPago\SDK::setAccessToken($access_token);
+		$access_token = $this->get_mp_access_token();
+        $this->boot_mp_sdk();
      	#$payment = new MercadoPago\Payment();
 
      	$filters = array(
@@ -1024,9 +1025,8 @@ public function process_payment_card_oficial($id_cliente, $id_user = 0) {
 
 	function busca_status_pag($id_ref){
 
-		$access_token = "APP_USR-685172168846807-012610-649caed966c451e2c65d542a6ade4edd-182756904";
-        include_once 'includes/mercadopago/lib/mercadopago/vendor/autoload.php';		
-        MercadoPago\SDK::setAccessToken($access_token);
+		$access_token = $this->get_mp_access_token();
+        $this->boot_mp_sdk();
      	$filters = array(
             "external_reference" => $id_ref
         );

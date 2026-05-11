@@ -55,6 +55,9 @@ c:\htdocs\utec\
 **Usuários e Acesso**
 - `usuarios` — todos os usuários do sistema (pacientes, médicos, admins)
 - `usuarios_niveis` — tipos/níveis de acesso
+- `usuarios.tenant_id` — vínculo do usuário ao tenant SaaS
+- `usuarios.tenant_role` — papel do usuário dentro do tenant (`owner`, `admin`, `provider`, `staff`, `patient`)
+- `usuarios.onboarding_status` — situação de ativação do usuário no tenant
 
 **Saúde e Agenda**
 - `agendamentos` — consultas agendadas (liga paciente ↔ prestador)
@@ -68,15 +71,27 @@ c:\htdocs\utec\
 - `carrinho` — carrinho de compras ativo
 - `carrinho_hist` — histórico de carrinhos
 - `pedidos` — pedidos finalizados
+- `produtos.plan_code` — código comercial/técnico do plano SaaS
+- `produtos.billing_interval` / `billing_interval_count` — recorrência do plano
+- `produtos.trial_days` / `setup_fee` — trial e taxa de implantação
+- `produtos.max_profissionais` / `max_colaboradores` / `max_pacientes` — limites comerciais do plano
+- `pedidos.tenant_id` / `subscription_id` / `gateway_payment_id` — vínculo entre pedido, tenant e pagamento
 
 **Arquivos de Pacientes**
 - `pacientes_arquivos` — arquivos enviados por paciente (id_paciente, id_agendamento, arquivo, tipo, descricao)
 - Armazenados em `uploads/pacientes/` com nome encriptado
 
+**SaaS / Multi-clínica**
+- `saas_tenants` — cadastro da clínica/consultório/profissional locatário da plataforma
+- `saas_subscriptions` — assinatura principal do tenant (plano, ciclo, status, cobrança)
+- `saas_subscription_cycles` — ciclos de cobrança da assinatura
+- `saas_billing_events` — eventos financeiros e webhooks de gateway
+
 **Integrações**
 - `acessos` — analytics de pageviews (IP, navegador, página)
 - `api_conv_fb` — eventos enviados ao Facebook Pixel
 - `pi_whats_users` — usuários vinculados ao WhatsApp
+- Mercado Pago — cobrança avulsa legada + assinatura recorrente SaaS
 
 **RPG (módulo educacional)**
 - `rpg_personagens`, `rpg_personagens_atributos`
@@ -146,7 +161,7 @@ c:\htdocs\utec\
 |-----------------|--------------|-----------------------------------------------------|
 | `Home.php`      | `/`          | Landing page pública                                |
 | `Admin.php`     | `/admin`     | Login e utilitários de migração                     |
-| `User.php`      | `/user`      | Carrinho de compras e pedidos                       |
+| `User.php`      | `/user`      | Carrinho de compras, pedidos e integrações Mercado Pago legadas |
 
 ### Admin (`application/controllers/adm/`)
 
@@ -154,10 +169,12 @@ c:\htdocs\utec\
 |-------------------|-----------------------|------------------------------------------------------|
 | `Usuarios.php`    | `/adm/usuarios`       | CRUD de usuários, prontuários, upload de fotos       |
 | `Atendimento.php` | `/adm/atendimento`    | Agendamentos, prontuários, exames, status            |
-| `Atencimento.php` | `/adm/atencimento`    | **Duplicata antiga** de Atendimento (manter ou remover) |
-| `Produtos.php`    | `/adm/produtos`       | CRUD de produtos, categorias, pedidos                |
+| `Atencimento.php` | `/adm/atencimento`    | **Legado** renomeado para `.bak`                     |
+| `Produtos.php`    | `/adm/produtos`       | CRUD de planos, tipos de plano e assinaturas legadas |
+| `Saas.php`        | `/adm/saas`           | Operação SaaS: tenants, assinatura, checkout Mercado Pago e webhook |
+| `Dev.php`         | `/adm/dev`            | Migrações e utilitários de desenvolvimento           |
 
-> **Atenção:** Existem dois controllers de atendimento: `Atendimento.php` (ativo/atual) e `Atencimento.php` (legado). Avaliar remoção do legado.
+> `Atencimento.php` não é mais controller ativo; o arquivo legado foi renomeado para `.bak`.
 
 ---
 
@@ -175,7 +192,8 @@ c:\htdocs\utec\
 | Arquivo              | Uso                                                         |
 |----------------------|-------------------------------------------------------------|
 | `Usuarios_model.php` | Login (`logar`), validação de sessão (`verSession`), cadastro |
-| `Produtos_model.php` | CRUD de produtos e categorias                               |
+| `Produtos_model.php` | CRUD de planos e tipos de plano                             |
+| `Saas_model.php`     | Provisionamento de tenant, leitura de dashboard SaaS, sincronização de cobrança |
 
 ### RPG (`application/models/rpg/`)
 
@@ -210,6 +228,9 @@ application/views/
     │       ├── prontuario.php        # Prontuário do paciente
     │       ├── atendimentos.php      # Lista de atendimentos
     │       └── exames.php            # Gestão de exames
+    ├── saas/
+    │   ├── index.php                 # Dashboard operacional SaaS
+    │   └── tenant.php                # Detalhe do tenant, assinatura e equipe
     └── atendimento/
         └── atendimento.php           # Formulário de atendimento (19KB)
 ```
@@ -221,8 +242,8 @@ application/views/
 ## Frontend / CSS
 
 - **Template:** Adminto (tema admin Bootstrap 4)
-- **CSS principal:** carregado externamente de `https://rcatel.com/clicklinica/css/main.css?version=4.5.0`
-  > **Problema:** dependência externa de terceiro — migrar para local em produção
+- **CSS principal:** `css/clicklinica-main.css`
+- Dependência externa principal já foi internalizada
 - **Fonte:** Lato (Google Fonts) nas views admin; Inter na landing page
 - **Bower Components:** Bootstrap, Select2, FullCalendar, Perfect Scrollbar, Slick Carousel, Dropzone, DateRangePicker, DataTables
 
@@ -250,9 +271,13 @@ application/views/
 | 🔴 Alta     | ✅ Resolvido | Senhas em texto puro — `password_hash()` implementado com migração suave     |
 | 🔴 Alta     | ✅ Resolvido | SQL injection — cast `(int)` em IDs de URL + `$this->input->post()` em forms |
 | 🔴 Alta     | ✅ Resolvido | CSS de domínio externo — baixado para `css/clicklinica-main.css`             |
+| 🟡 Média    | ✅ Resolvido | Base SaaS inicial criada — tenants, subscriptions, cycles e billing events   |
+| 🟡 Média    | ✅ Resolvido | Mercado Pago centralizado em `application/config/mercadopago.php`            |
 | 🟡 Média    | ✅ Resolvido | `ereg_replace()` — substituído por `preg_replace()` / `str_replace()`       |
 | 🟡 Média    | ✅ Resolvido | Controller duplicado `Atencimento.php` — renomeado para `.bak`               |
 | 🟡 Média    | ✅ Resolvido | `$_POST` direto — substituído por `$this->input->post()` nos controllers     |
+| 🟡 Média    | Pendente | Webhook Mercado Pago ainda precisa ser validado em ambiente real               |
+| 🟡 Média    | Pendente | Ciclos pagos / bloqueio automático por inadimplência ainda não estão completos |
 | 🟢 Baixa   | Pendente | Muitos comentários `#` e código comentado — limpar gradualmente              |
 | 🟢 Baixa   | Pendente | Views com textos em inglês ("Start typing to search...", "Projects", etc.)  |
 
@@ -270,6 +295,7 @@ application/views/
 ```php
 $route['default_controller'] = 'home';
 $route['locations'] = 'rpgLocations/index';
+$route['webhooks/mercadopago'] = 'adm/saas/webhook_mercadopago';
 ```
 
 Todas as outras rotas seguem o padrão CI padrão: `controller/metodo/parametro`.
@@ -281,15 +307,27 @@ Todas as outras rotas seguem o padrão CI padrão: `controller/metodo/parametro`
 - Controllers admin ficam em `application/controllers/adm/`
 - Models admin ficam em `application/models/adm/`
 - Views novas ficam em `application/views/adm/[modulo]/new/` quando reformuladas
+- Views do módulo SaaS ficam em `application/views/adm/saas/`
 - `Padrao_model` deve ser carregado em todos os controllers como model utilitário
 - Sessão: `$this->session->userdata('id')`, `'nome'`, `'nivel'`, `'login'`, `'usr'`
 - Redirect pós-login é por nível (ver tabela de níveis acima)
+- Configuração do Mercado Pago fica centralizada em `application/config/mercadopago.php`
+- Para assinatura recorrente SaaS, usar `Mercadopago_saas.php` em vez de repetir token no controller
 
 ---
 
 ## Controller de Banco (Utilitário para Dev)
 
-Se precisar rodar queries, criar tabelas ou fazer migrações durante o desenvolvimento, usar o controller `Admin.php` que já existe — adicionar métodos ali ou criar um controller `Dev.php` em `application/controllers/adm/Dev.php` com verificação de ambiente.
+O controller padrão para migrações e setup local é `application/controllers/adm/Dev.php`.
+
+Rotas úteis já criadas:
+- `adm/dev/criar_tabela_arquivos_paciente`
+- `adm/dev/migrar_fase1_saas`
+
+`migrar_fase1_saas` é idempotente e:
+- cria as tabelas `saas_tenants`, `saas_subscriptions`, `saas_subscription_cycles`, `saas_billing_events`
+- adiciona campos SaaS em `usuarios`, `produtos`, `pedidos` e `carrinho_hist`
+- pode ser executado novamente com segurança para completar colunas novas
 
 ---
 
@@ -297,16 +335,97 @@ Se precisar rodar queries, criar tabelas ou fazer migrações durante o desenvol
 
 *(Atualizar conforme o projeto evolui)*
 
-- [ ] Hash de senha (password_hash / bcrypt)
-- [ ] Migrar CSS do main.css para local
-- [ ] Sanitização de inputs com `$this->input->post()`
-- [ ] Dashboard com métricas clínicas (total de pacientes, agendamentos do dia, etc.)
+- [ ] Validar webhook Mercado Pago em ambiente real com eventos de assinatura
+- [ ] Baixar evento de cobrança para ciclo local (`saas_subscription_cycles`)
+- [ ] Bloqueio / desbloqueio automático de tenant por inadimplência
+- [ ] Tela de configuração comercial com credenciais Mercado Pago e parâmetros SaaS
 - [ ] Notificações / lembretes de consulta via WhatsApp
 - [ ] Relatórios PDF de prontuário
-- [ ] Multi-clínica / multi-tenant
+- [ ] Portal simplificado para cliente/tenant acompanhar assinatura
+- [x] Multi-clínica / multi-tenant (base estrutural)
+- [x] Operação SaaS com dashboard e provisionamento manual
+- [x] Checkout recorrente Mercado Pago por assinatura
 - [x] Timeline de prontuário
 - [x] Relatórios clínicos
 - [x] Módulo comercial reposicionado para planos/assinaturas
 - [x] Agenda com filtros operacionais
 - [x] Checklist operacional de exames
 - [x] Cancelamento e remarcação direto na agenda
+
+---
+
+## Passo a Passo da Nova Área SaaS
+
+### 1. Executar a migração
+
+1. Acesse `https://utecnologia.com.br/adm/dev/migrar_fase1_saas` logado como admin nível 1.
+2. Confirme se a página retornou `OK` para criação das tabelas e colunas.
+3. Sempre que a fase 1 evoluir com novas colunas, rode a mesma rota novamente.
+
+### 2. Configurar o Mercado Pago
+
+1. Abra `application/config/mercadopago.php`.
+2. Revise:
+   - `mercadopago_access_token`
+   - `mercadopago_public_key`
+   - `mercadopago_back_url_success`
+   - `mercadopago_back_url_pending`
+   - `mercadopago_back_url_failure`
+3. No painel do Mercado Pago, configure o webhook para:
+   - `https://utecnologia.com.br/webhooks/mercadopago`
+
+### 3. Criar ou revisar os planos SaaS
+
+1. Acesse `adm/produtos`.
+2. Cadastre ou edite o plano.
+3. Preencha os novos campos:
+   - `Codigo do plano`
+   - `Ciclo`
+   - `Intervalo`
+   - `Trial`
+   - `Taxa setup`
+   - limites de `Prof.`, `Colab.` e `Pac.`
+4. Salve o plano com status ativo.
+
+### 4. Provisionar a clínica / tenant
+
+1. Acesse `adm/saas`.
+2. Na seção `Provisionar clinica`, escolha:
+   - `Responsavel base`
+   - `Nome comercial do tenant`
+   - `Tipo`
+   - `Plano`
+   - `Ciclo`, `Intervalo`, `Trial`, `Valor recorrente`
+   - `Setup`, `Gateway`, `Referencia gateway`, `Documento`, contatos
+3. Clique em `Provisionar tenant`.
+4. O sistema irá:
+   - criar o tenant
+   - criar a assinatura
+   - criar o primeiro ciclo
+   - vincular `tenant_id` e `tenant_role` ao responsável e à árvore de usuários
+
+### 5. Gerar o checkout recorrente
+
+1. Abra o tenant em `adm/saas`.
+2. Na tabela de assinaturas, clique em `Gerar checkout MP`.
+3. O sistema cria o `Preapproval` no Mercado Pago e grava:
+   - `gateway_subscription_id`
+   - `gateway_reference`
+   - `checkout_url`
+   - status inicial da assinatura
+4. O usuário será redirecionado para o checkout do Mercado Pago.
+
+### 6. Acompanhar a assinatura
+
+1. Volte em `adm/saas` para visão geral.
+2. Abra o tenant para ver:
+   - equipe vinculada
+   - assinatura ativa/pendente/cancelada
+   - ciclos de cobrança
+3. O webhook do Mercado Pago atualiza o status em `saas_subscriptions` e registra evento em `saas_billing_events`.
+
+### 7. Cuidados operacionais atuais
+
+- O webhook já existe, mas ainda precisa ser validado ponta a ponta em produção.
+- O status da assinatura já volta para o sistema, mas a lógica completa de bloqueio por inadimplência ainda não foi fechada.
+- O provisionamento manual é o fluxo correto nesta fase; onboarding 100% automático ainda é etapa futura.

@@ -27,13 +27,39 @@ class Produtos extends CI_Controller {
 	function Index(){
 		$scope = $this->get_scope_sql();
 		$id = $this->session->userdata('id');
+		$status = $this->input->get('status');
+		$id_categoria = (int)$this->input->get('id_categoria');
+		$busca = trim((string)$this->input->get('busca'));
 		$where = $scope['sql'] !== '' ? " WHERE id_user IN (".$scope['sql'].") " : "";
-		$where_produtos = $scope['sql'] !== '' ? " WHERE p.id_user IN (".$scope['sql'].") " : "";
+		$where_produtos = [];
+		if($scope['sql'] !== ''){
+			$where_produtos[] = "p.id_user IN (".$scope['sql'].")";
+		}
+		if($status !== null && $status !== ''){
+			$where_produtos[] = "p.status = ".(int)$status;
+		}
+		if($id_categoria > 0){
+			$where_produtos[] = "p.id_categoria = ".$id_categoria;
+		}
+		if($busca !== ''){
+			$busca_sql = $this->db->escape_like_str($busca);
+			$where_produtos[] = "(p.modelo LIKE '%".$busca_sql."%' OR p.codigo LIKE '%".$busca_sql."%' OR p.especificacoes LIKE '%".$busca_sql."%')";
+		}
+		$where_produtos_sql = count($where_produtos) ? " WHERE ".implode(" AND ", $where_produtos)." " : "";
 		$dados["categorias"] = $this->db->query("SELECT * FROM produtos_categorias ".$where." ORDER BY nome asc ");
-		$dados["produtos"] = $this->db->query("SELECT p.id, p.codigo,p.qtd,p.destaque, p.adicional, p.status, p.preco, p.preco_venda,p.id_fornecedor,p.atividade, p.modelo, p.img_portfolio, p.id_categoria,p.especificacoes, p.dt,pc.nome, p.id_user FROM produtos p 
+		$dados["produtos"] = $this->db->query("SELECT p.*, pc.nome, u.nome as responsavel_nome FROM produtos p 
 												INNER JOIN produtos_categorias pc ON pc.id = p.id_categoria
-												".$where_produtos."
+												LEFT JOIN usuarios u ON u.id = p.id_user
+												".$where_produtos_sql."
 												ORDER BY p.id desc");
+		$where_cards = $scope['sql'] !== '' ? " WHERE id_user IN (".$scope['sql'].") " : "";
+		$dados['resumo_planos'] = [
+			'total' => (int)$this->db->query("SELECT COUNT(id) as total FROM produtos ".($where_cards ?: ""))->row()->total,
+			'ativos' => (int)$this->db->query("SELECT COUNT(id) as total FROM produtos ".($where_cards ? $where_cards." AND status = 1" : " WHERE status = 1"))->row()->total,
+			'inativos' => (int)$this->db->query("SELECT COUNT(id) as total FROM produtos ".($where_cards ? $where_cards." AND status = 0" : " WHERE status = 0"))->row()->total,
+			'tipos' => (int)$this->db->query("SELECT COUNT(id) as total FROM produtos_categorias ".($where ?: ""))->row()->total,
+		];
+		$dados['filtros'] = ['status' => $status, 'id_categoria' => $id_categoria, 'busca' => $busca];
 
 		$dados["usuario"] = $this->db->query("SELECT * FROM usuarios WHERE id = ".$id)->row();
 		#$this->load->view('adm/produtos/lista', $dados);
@@ -180,36 +206,8 @@ class Produtos extends CI_Controller {
 	function edicao($id){
 		$scope = $this->get_scope_sql();
 		$produto = $this->db->query("SELECT 
-										p.id,
-										p.id_user, 
-										p.id_categoria,
-										p.modelo, 
-										p.preco, 
-										p.preco_venda, 
-										p.id_fornecedor,
-										p.codigo,
-										p.qtd,
-										p.destaque,
-										p.status,
-										p.ordem,
-										p.codigo_barras,
-
-										p.keywords,
-										
-										p.img_portfolio, 
-										p.img_portfolio2, 
-										p.img_portfolio3, 
-										p.img_portfolio4, 
-										p.img_portfolio5, 
-										p.link_pgt, 
-										p.pix_pgt, 
-										p.transferencia_pgt, 
-										p.especificacoes, 
-										p.adicional,
-										
-										
-										pc.nome 										
-										
+										p.*,
+										pc.nome
 										FROM produtos p 
 												INNER JOIN produtos_categorias pc ON pc.id = p.id_categoria
 												WHERE p.id = ?", $id)->row();
@@ -220,7 +218,7 @@ class Produtos extends CI_Controller {
 		$where_produtos = $scope['sql'] !== '' ? " WHERE p.id_user IN (".$scope['sql'].") " : "";
 		$dados["categorias"] = $this->db->query("SELECT * FROM produtos_categorias ".$where." ");
 
-		$dados["produtos"] = $this->db->query("SELECT p.id, p.codigo,p.qtd,p.destaque, p.preco, p.preco_venda,p.id_fornecedor,p.atividade, p.modelo, p.img_portfolio, p.id_categoria,p.especificacoes, p.dt,pc.nome, p.id_user FROM produtos p 
+		$dados["produtos"] = $this->db->query("SELECT p.*, pc.nome FROM produtos p 
 												INNER JOIN produtos_categorias pc ON pc.id = p.id_categoria
 												".$where_produtos."
 												ORDER BY p.id desc");
@@ -258,7 +256,7 @@ class Produtos extends CI_Controller {
 		$where = $scope['sql'] !== '' ? " WHERE id_user IN (".$scope['sql'].") " : "";
 		$where_produtos = $scope['sql'] !== '' ? " WHERE p.id_user IN (".$scope['sql'].") " : "";
 		$dados["categorias"] = $this->db->query("SELECT * FROM produtos_categorias ".$where." ");
-		$dados["produtos"] = $this->db->query("SELECT p.id, p.codigo,p.qtd,p.destaque, p.status, p.preco, p.preco_venda,p.id_fornecedor,p.atividade, p.modelo, p.img_portfolio, p.id_categoria,p.especificacoes, p.dt,pc.nome, p.id_user FROM produtos p 
+		$dados["produtos"] = $this->db->query("SELECT p.*, pc.nome FROM produtos p 
 												INNER JOIN produtos_categorias pc ON pc.id = p.id_categoria
 												".$where_produtos."
 												ORDER BY p.id desc");
@@ -293,7 +291,7 @@ class Produtos extends CI_Controller {
 		$where_produtos = $scope['sql'] !== '' ? " WHERE p.id_user IN (".$scope['sql'].") " : "";
 		$dados["categorias"] = $this->db->query("SELECT * FROM produtos_categorias ".$where." ");
 
-		$dados["produtos"] = $this->db->query("SELECT p.id, p.codigo,p.qtd,p.destaque, p.preco, p.preco_venda,p.id_fornecedor,p.atividade, p.modelo, p.img_portfolio, p.id_categoria,p.especificacoes, p.dt,pc.nome, p.id_user FROM produtos p 
+		$dados["produtos"] = $this->db->query("SELECT p.*, pc.nome FROM produtos p 
 												INNER JOIN produtos_categorias pc ON pc.id = p.id_categoria
 												".$where_produtos."
 												ORDER BY p.id desc");
@@ -317,8 +315,40 @@ class Produtos extends CI_Controller {
 
 	function rel_pedidos(){
 		$scope = $this->get_scope_sql();
-		$where = $scope['sql'] !== '' ? " WHERE id_cliente IN (".$scope['sql'].") " : "";
-		$dados['pedidos_finalizados'] = $this->db->query("SELECT * FROM pedidos ".$where." ORDER BY id desc LIMIT 100");
+		$status = $this->input->get('status');
+		$data_ini = trim((string)$this->input->get('data_ini'));
+		$data_fim = trim((string)$this->input->get('data_fim'));
+		$busca = trim((string)$this->input->get('busca'));
+		$where = [];
+		if($scope['sql'] !== ''){
+			$where[] = "p.id_cliente IN (".$scope['sql'].")";
+		}
+		if($status !== null && $status !== ''){
+			$where[] = "p.status = ".(int)$status;
+		}
+		if($data_ini !== ''){
+			$where[] = "DATE(p.dt) >= ".$this->db->escape($data_ini);
+		}
+		if($data_fim !== ''){
+			$where[] = "DATE(p.dt) <= ".$this->db->escape($data_fim);
+		}
+		if($busca !== ''){
+			$busca_sql = $this->db->escape_like_str($busca);
+			$where[] = "(p.id_pedido LIKE '%".$busca_sql."%' OR uc.nome LIKE '%".$busca_sql."%' OR ur.nome LIKE '%".$busca_sql."%')";
+		}
+		$where_sql = count($where) ? " WHERE ".implode(" AND ", $where)." " : "";
+		$sql_base = "FROM pedidos p
+			LEFT JOIN usuarios uc ON uc.id = p.id_user
+			LEFT JOIN usuarios ur ON ur.id = p.id_cliente";
+		$dados['pedidos_finalizados'] = $this->db->query("SELECT p.*, uc.nome as cliente_nome, ur.nome as responsavel_nome ".$sql_base." ".$where_sql." ORDER BY p.id desc LIMIT 100");
+		$dados['resumo_assinaturas'] = [
+			'total' => (int)$this->db->query("SELECT COUNT(p.id) as total ".$sql_base." ".$where_sql)->row()->total,
+			'ativas' => (int)$this->db->query("SELECT COUNT(p.id) as total ".$sql_base." ".(count($where) ? $where_sql." AND p.status = 2" : " WHERE p.status = 2"))->row()->total,
+			'analise' => (int)$this->db->query("SELECT COUNT(p.id) as total ".$sql_base." ".(count($where) ? $where_sql." AND p.status = 1" : " WHERE p.status = 1"))->row()->total,
+			'pendentes' => (int)$this->db->query("SELECT COUNT(p.id) as total ".$sql_base." ".(count($where) ? $where_sql." AND p.status = 0" : " WHERE p.status = 0"))->row()->total,
+			'total_valor' => (float)$this->db->query("SELECT COALESCE(SUM(p.total),0) as total ".$sql_base." ".$where_sql)->row()->total,
+		];
+		$dados['filtros'] = ['status' => $status, 'data_ini' => $data_ini, 'data_fim' => $data_fim, 'busca' => $busca];
 		$dados['dd_user'] = $scope['user'];
 		$this->load->view('adm/produtos/new/rel_pedidos', $dados);
 	}

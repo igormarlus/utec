@@ -48,7 +48,10 @@
                     </div>
                     <div class="col-md-1">
                       <label>Status</label>
-                      <input type="text" name="status" class="form-control" value="<?=$produto->status?>">
+                      <select name="status" class="form-control">
+                        <option value="1" <?=$produto->status == 1 ? 'selected="selected"' : ''?>>Ativo</option>
+                        <option value="0" <?=$produto->status == 0 ? 'selected="selected"' : ''?>>Inativo</option>
+                      </select>
                     </div>
                   </div>
                   <div class="row" style="margin-top:14px">
@@ -63,6 +66,52 @@
                     <div class="col-md-8">
                       <label>Descricao comercial</label>
                       <textarea name="especificacoes" class="form-control" rows="5"><?=htmlspecialchars($produto->especificacoes)?></textarea>
+                    </div>
+                  </div>
+                  <div class="row" style="margin-top:14px">
+                    <div class="col-md-2">
+                      <label>Codigo do plano</label>
+                      <input type="text" name="plan_code" class="form-control" value="<?=isset($produto->plan_code) ? htmlspecialchars($produto->plan_code) : ''?>">
+                    </div>
+                    <div class="col-md-2">
+                      <label>Ciclo</label>
+                      <select name="billing_interval" class="form-control">
+                        <option value="monthly" <?=isset($produto->billing_interval) && $produto->billing_interval === 'monthly' ? 'selected="selected"' : ''?>>Mensal</option>
+                        <option value="quarterly" <?=isset($produto->billing_interval) && $produto->billing_interval === 'quarterly' ? 'selected="selected"' : ''?>>Trimestral</option>
+                        <option value="semiannual" <?=isset($produto->billing_interval) && $produto->billing_interval === 'semiannual' ? 'selected="selected"' : ''?>>Semestral</option>
+                        <option value="yearly" <?=isset($produto->billing_interval) && $produto->billing_interval === 'yearly' ? 'selected="selected"' : ''?>>Anual</option>
+                      </select>
+                    </div>
+                    <div class="col-md-1">
+                      <label>Intervalo</label>
+                      <input type="number" min="1" name="billing_interval_count" class="form-control" value="<?=isset($produto->billing_interval_count) ? (int)$produto->billing_interval_count : 1?>">
+                    </div>
+                    <div class="col-md-1">
+                      <label>Trial</label>
+                      <input type="number" min="0" name="trial_days" class="form-control" value="<?=isset($produto->trial_days) ? (int)$produto->trial_days : 0?>">
+                    </div>
+                    <div class="col-md-2">
+                      <label>Taxa setup</label>
+                      <input type="text" name="setup_fee" class="form-control" value="<?=isset($produto->setup_fee) ? number_format((float)$produto->setup_fee, 2, ',', '.') : '0,00'?>">
+                    </div>
+                    <div class="col-md-1">
+                      <label>Prof.</label>
+                      <input type="number" min="0" name="max_profissionais" class="form-control" value="<?=isset($produto->max_profissionais) ? (int)$produto->max_profissionais : 0?>">
+                    </div>
+                    <div class="col-md-1">
+                      <label>Colab.</label>
+                      <input type="number" min="0" name="max_colaboradores" class="form-control" value="<?=isset($produto->max_colaboradores) ? (int)$produto->max_colaboradores : 0?>">
+                    </div>
+                    <div class="col-md-1">
+                      <label>Pac.</label>
+                      <input type="number" min="0" name="max_pacientes" class="form-control" value="<?=isset($produto->max_pacientes) ? (int)$produto->max_pacientes : 0?>">
+                    </div>
+                    <div class="col-md-1">
+                      <label>Publico</label>
+                      <select name="saas_publicado" class="form-control">
+                        <option value="1" <?=!isset($produto->saas_publicado) || (int)$produto->saas_publicado === 1 ? 'selected="selected"' : ''?>>Sim</option>
+                        <option value="0" <?=isset($produto->saas_publicado) && (int)$produto->saas_publicado === 0 ? 'selected="selected"' : ''?>>Nao</option>
+                      </select>
                     </div>
                   </div>
                   <div style="margin-top:16px">

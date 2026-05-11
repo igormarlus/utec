@@ -1,5 +1,12 @@
 <?
 class Produtos_model extends CI_Model{
+
+	function normalize_money($value){
+		$value = str_replace("R$ ","",(string)$value);
+		$value = str_replace(".","",$value);
+		$value = str_replace(",",".",$value);
+		return (float)$value;
+	}
 	
 		function _construct()
 	{
@@ -36,13 +43,8 @@ class Produtos_model extends CI_Model{
 			$dd['destaque'] = $_POST['destaque'];
 		}
 		
-		$valor = str_replace("R$ ","",$_POST['preco']);
-		$valor = str_replace(".","",$valor);
-		$valor = str_replace(",",".",$valor);
-		
-		$valor_venda = str_replace("R$ ","",$_POST['preco_venda']);
-		$valor_venda = str_replace(".","",$valor_venda);
-		$valor_venda = str_replace(",",".",$valor_venda);
+		$valor = $this->normalize_money($_POST['preco']);
+		$valor_venda = $this->normalize_money($_POST['preco_venda']);
 		
 		
 		
@@ -81,6 +83,18 @@ class Produtos_model extends CI_Model{
 			
 			'especificacoes' => $this->input->post('especificacoes')
 		);
+
+		if($this->db->field_exists('plan_code', 'produtos')){
+			$dd['plan_code'] = $this->input->post('plan_code');
+			$dd['billing_interval'] = $this->input->post('billing_interval') ? $this->input->post('billing_interval') : 'monthly';
+			$dd['billing_interval_count'] = max(1, (int)$this->input->post('billing_interval_count'));
+			$dd['trial_days'] = max(0, (int)$this->input->post('trial_days'));
+			$dd['setup_fee'] = $this->normalize_money($this->input->post('setup_fee'));
+			$dd['max_profissionais'] = max(0, (int)$this->input->post('max_profissionais'));
+			$dd['max_colaboradores'] = max(0, (int)$this->input->post('max_colaboradores'));
+			$dd['max_pacientes'] = max(0, (int)$this->input->post('max_pacientes'));
+			$dd['saas_publicado'] = $this->input->post('saas_publicado') !== null ? (int)$this->input->post('saas_publicado') : 1;
+		}
 
 		#print_r($dd);
 		#return false;
@@ -228,14 +242,8 @@ class Produtos_model extends CI_Model{
 		$CI =& get_instance();
 		$CI->load->model('padrao_model');
 		$dd_user = $CI->padrao_model->get_usuario_logado();
-		$valor = str_replace("R$ ","",$_POST['preco']);
-		$valor = str_replace(".","",$valor);
-		$valor = str_replace(",",".",$valor);
-		
-		
-		$valor_venda = str_replace("R$ ","",$_POST['preco_venda']);
-		$valor_venda = str_replace(".","",$valor_venda);
-		$valor_venda = str_replace(",",".",$valor_venda);
+		$valor = $this->normalize_money($_POST['preco']);
+		$valor_venda = $this->normalize_money($_POST['preco_venda']);
 		
 		$dd = array(
 			'modelo' => $this->input->post('modelo'),
@@ -248,6 +256,19 @@ class Produtos_model extends CI_Model{
 			'especificacoes' => $this->input->post('especificacoes')
 
 		);
+
+		if($this->db->field_exists('plan_code', 'produtos')){
+			$dd['plan_code'] = $this->input->post('plan_code');
+			$dd['billing_interval'] = $this->input->post('billing_interval') ? $this->input->post('billing_interval') : 'monthly';
+			$dd['billing_interval_count'] = max(1, (int)$this->input->post('billing_interval_count'));
+			$dd['trial_days'] = max(0, (int)$this->input->post('trial_days'));
+			$dd['setup_fee'] = $this->normalize_money($this->input->post('setup_fee'));
+			$dd['max_profissionais'] = max(0, (int)$this->input->post('max_profissionais'));
+			$dd['max_colaboradores'] = max(0, (int)$this->input->post('max_colaboradores'));
+			$dd['max_pacientes'] = max(0, (int)$this->input->post('max_pacientes'));
+			$dd['saas_publicado'] = $this->input->post('saas_publicado') !== null ? (int)$this->input->post('saas_publicado') : 1;
+			$dd['status'] = $this->input->post('status');
+		}
 		
 		if (isset($_POST['imagem'])) {
 			$dd['img_portfolio'] = $_POST['imagem'];
