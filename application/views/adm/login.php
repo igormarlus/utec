@@ -6,7 +6,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" type="text/css" href="<?php echo base_url();?>css/bootstrap.min.css" media="screen">
+<link href="<?=base_url()?>bower_components/perfect-scrollbar/css/perfect-scrollbar.min.css" rel="stylesheet">
+<link href="<?=base_url()?>bower_components/slick-carousel/slick/slick.css" rel="stylesheet">
+<link href="<?=base_url()?>css/clicklinica-main.css" rel="stylesheet">
 <title>UTecnologia Saude | Acesso</title>
 <style>
 body {
@@ -42,9 +44,30 @@ body {
     background: linear-gradient(160deg, #0f766e 0%, #0ea5e9 55%, #22c55e 100%);
     color: #fff;
 }
-.login-brand img {
-    width: 160px;
+.login-mark {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 68px;
+    height: 68px;
+    border-radius: 20px;
     margin-bottom: 24px;
+    background: rgba(255,255,255,0.18);
+    border: 1px solid rgba(255,255,255,0.26);
+    color: #fff;
+    font-size: 24px;
+    font-weight: 800;
+    letter-spacing: .08em;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.12);
+}
+.login-brand-label {
+    display: block;
+    margin-bottom: 10px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.82);
 }
 .login-brand h1 {
     font-size: 34px;
@@ -115,6 +138,17 @@ body {
     font-size: 12px;
     color: #64748b;
 }
+.login-help {
+    margin-top: 18px;
+    font-size: 13px;
+    color: #475569;
+    line-height: 1.6;
+}
+.login-help a {
+    color: #0ea5e9;
+    font-weight: 700;
+    text-decoration: none;
+}
 @media (max-width: 860px) {
     .login-card {
         grid-template-columns: 1fr;
@@ -130,7 +164,8 @@ body {
   <div class="login-shell">
     <div class="login-card">
       <div class="login-brand">
-        <img src="<?php echo base_url();?>img/logo-w.png" alt="UTecnologia Saude">
+        <div class="login-mark">UT</div>
+        <span class="login-brand-label">UTecnologia Saude</span>
         <h1>Gestao clinica com mais clareza e controle.</h1>
         <p>Centralize pacientes, agenda, prontuarios e operacao da clinica em um ambiente mais organizado e pronto para crescer.</p>
         <ul>
@@ -155,6 +190,9 @@ body {
         </form>
         <div class="login-note">
           Ambiente restrito para administradores, recepcao, profissionais e clinicas cadastradas.
+        </div>
+        <div class="login-help">
+          Ainda nao tem acesso? <a href="<?=base_url()?>experimentar">Comece com 30 dias</a> ou <a href="<?=base_url()?>assinar">veja os planos</a>.
         </div>
       </div>
     </div>
