@@ -454,8 +454,11 @@
                 </div>
 
                 <div class="hero-actions">
-                    <a class="btn-primary" href="<?=base_url()?>assinar">
-                        Começar assinatura
+                    <a class="btn-primary" href="<?=base_url()?>experimentar">
+                        Testar 30 dias
+                    </a>
+                    <a class="btn-secondary" href="<?=base_url()?>assinar">
+                        Comecar assinatura comercial
                     </a>
                     <button class="btn-secondary" onclick="document.getElementById('campo-login').scrollIntoView({behavior:'smooth'})">
                         <span class="icon">🔐</span>
@@ -496,7 +499,7 @@
 
                     <div class="login-extra">
                         Sua clínica ainda não tem acesso?
-                        <a href="<?=base_url()?>assinar">Criar assinatura</a>
+                        <a href="<?=base_url()?>experimentar">Comecar com 30 dias</a>
                     </div>
                 </form>
             </div>

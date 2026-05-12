@@ -9,6 +9,7 @@ class Usuarios extends CI_Controller {
 		$this->load->library('session');
 		$this->load->helper(array('form','url'));
 		$this->load->model('adm/usuarios_model');
+		$this->load->model('adm/saas_model');
 		$this->load->model('padrao_model');
 		#$this->padrao_model->indexador();
 		$this->usuarios_model->verSession();
@@ -361,8 +362,32 @@ function dash(){
 			LIMIT 8"
 		);
 
+		$dados['assinatura_operacional'] = null;
+		$dados['assinatura_operacional_url'] = '';
+		if(isset($dd_user->tenant_id) && (int)$dd_user->tenant_id > 0){
+			$subscription = $this->saas_model->get_tenant_primary_subscription((int)$dd_user->tenant_id);
+			if($subscription){
+				$dados['assinatura_operacional'] = $subscription;
+				$dados['assinatura_operacional_url'] = base_url().'adm/usuarios/assinatura';
+			}
+		}
+
 		$this->load->view('adm/dash', $dados);
 
+}
+
+function assinatura(){
+	$dd_user = $this->padrao_model->get_usuario_logado();
+	if(!$dd_user || !isset($dd_user->tenant_id) || (int)$dd_user->tenant_id <= 0){
+		redirect('adm/usuarios/dash');
+		return;
+	}
+	$subscription = $this->saas_model->get_tenant_primary_subscription((int)$dd_user->tenant_id);
+	if(!$subscription){
+		redirect('adm/usuarios/dash');
+		return;
+	}
+	redirect('adm/saas/pagamento/'.$subscription->id);
 }
 
 function relatorios_clinicos(){

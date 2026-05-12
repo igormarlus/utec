@@ -676,6 +676,189 @@ class Saas_model extends CI_Model {
 		];
 	}
 
+	function create_operational_trial_signup($data){
+		if(!$this->has_schema()){
+			return ['ok' => false, 'msg' => 'A estrutura SaaS ainda nao foi liberada neste ambiente.'];
+		}
+
+		$nome_responsavel = trim((string)$data['nome_responsavel']);
+		$tenant_nome = trim((string)$data['tenant_nome']);
+		$email = strtolower(trim((string)$data['email']));
+		$telefone = trim((string)$data['telefone']);
+		$documento = trim((string)$data['documento']);
+		$plano_id = (int)$data['plano_id'];
+		$senha = (string)$data['senha'];
+		$tenant_tipo = !empty($data['tenant_tipo']) ? trim((string)$data['tenant_tipo']) : 'clinica';
+		$observacoes = trim((string)$data['observacoes']);
+
+		if($nome_responsavel === '' || $tenant_nome === '' || $email === '' || $plano_id <= 0 || $senha === ''){
+			return ['ok' => false, 'msg' => 'Preencha nome do responsavel, nome da clinica, e-mail, senha e plano.'];
+		}
+		if(!filter_var($email, FILTER_VALIDATE_EMAIL)){
+			return ['ok' => false, 'msg' => 'Informe um e-mail valido para continuar.'];
+		}
+		if(strlen($senha) < 6){
+			return ['ok' => false, 'msg' => 'A senha precisa ter pelo menos 6 caracteres.'];
+		}
+
+		$plano_where = "id = ".$plano_id." AND status = 1";
+		if($this->db->field_exists('saas_publicado', 'produtos')){
+			$plano_where .= " AND saas_publicado = 1";
+		}
+		$plano = $this->db->query("SELECT * FROM produtos WHERE ".$plano_where." LIMIT 1")->row();
+		if(!$plano){
+			return ['ok' => false, 'msg' => 'O plano selecionado nao esta disponivel no onboarding de 30 dias.'];
+		}
+
+		$qr_email = $this->db->query("SELECT id FROM usuarios WHERE email = ".$this->db->escape($email)." OR login = ".$this->db->escape($email)." LIMIT 1");
+		if($qr_email->num_rows()){
+			return ['ok' => false, 'msg' => 'Ja existe um usuario com este e-mail. Use outro e-mail ou recupere seu acesso.'];
+		}
+
+		$agora = date('Y-m-d H:i:s');
+		$trial_days = 30;
+		$billing_cycle = isset($plano->billing_interval) && trim((string)$plano->billing_interval) !== '' ? trim((string)$plano->billing_interval) : 'monthly';
+		$interval_count = isset($plano->billing_interval_count) ? max(1, (int)$plano->billing_interval_count) : 1;
+		$trial_ends_at = date('Y-m-d H:i:s', strtotime('+'.$trial_days.' days'));
+		$period_end = $trial_ends_at;
+		$valor = isset($plano->preco_venda) ? (float)$plano->preco_venda : 0.00;
+		$setup_fee = isset($plano->setup_fee) ? (float)$plano->setup_fee : 0.00;
+		$tenant_slug = $this->build_unique_tenant_slug($tenant_nome);
+
+		$this->db->trans_begin();
+
+		$user_insert = [
+			'id_user' => 0,
+			'nome' => $nome_responsavel,
+			'nivel' => 2,
+			'telefone' => $telefone,
+			'cpf' => $documento,
+			'email' => $email,
+			'login' => $email,
+			'senha' => password_hash($senha, PASSWORD_DEFAULT),
+			'status' => 1,
+		];
+		if($this->db->field_exists('dt_cadastro', 'usuarios')){
+			$user_insert['dt_cadastro'] = $agora;
+		}
+		if($this->db->field_exists('onboarding_status', 'usuarios')){
+			$user_insert['onboarding_status'] = 'ativo';
+		}
+		$this->db->insert('usuarios', $user_insert);
+		$owner_id = (int)$this->db->insert_id();
+
+		$this->db->insert('saas_tenants', [
+			'id_responsavel' => $owner_id,
+			'id_owner_user' => $owner_id,
+			'tenant_nome' => $tenant_nome,
+			'slug' => $tenant_slug,
+			'tenant_tipo' => $tenant_tipo,
+			'documento' => $documento,
+			'contato_nome' => $nome_responsavel,
+			'contato_email' => $email,
+			'contato_telefone' => $telefone,
+			'status' => 1,
+			'trial_ends_at' => $trial_ends_at,
+			'activated_at' => $agora,
+			'expires_at' => $trial_ends_at,
+			'observacoes' => ($observacoes !== '' ? $observacoes.' | ' : '').'Onboarding operacional simplificado iniciado em '.date('d/m/Y H:i'),
+			'updated_at' => $agora,
+		]);
+		$tenant_id = (int)$this->db->insert_id();
+
+		$this->db->insert('saas_subscriptions', [
+			'tenant_id' => $tenant_id,
+			'plano_id' => $plano_id,
+			'id_cliente' => $owner_id,
+			'billing_cycle' => $billing_cycle,
+			'billing_interval_count' => $interval_count,
+			'status' => 'trial',
+			'valor' => $valor,
+			'setup_fee' => $setup_fee,
+			'trial_ends_at' => $trial_ends_at,
+			'started_at' => $agora,
+			'current_period_start' => $agora,
+			'current_period_end' => $period_end,
+			'next_billing_at' => $trial_ends_at,
+			'gateway' => 'mercadopago',
+			'observacoes' => 'Assinatura criada via onboarding operacional simplificado',
+			'updated_at' => $agora,
+		]);
+		$subscription_id = (int)$this->db->insert_id();
+
+		$this->db->insert('saas_subscription_cycles', [
+			'subscription_id' => $subscription_id,
+			'tenant_id' => $tenant_id,
+			'cycle_number' => 1,
+			'reference_label' => 'Trial 30 dias',
+			'period_start' => $agora,
+			'period_end' => $period_end,
+			'due_at' => $trial_ends_at,
+			'status' => 'trial',
+			'amount_due' => $valor + $setup_fee,
+			'amount_paid' => 0,
+			'created_at' => $agora,
+			'updated_at' => $agora,
+		]);
+
+		$this->db->insert('saas_billing_events', [
+			'subscription_id' => $subscription_id,
+			'tenant_id' => $tenant_id,
+			'event_type' => 'operational_trial_created',
+			'gateway' => 'mercadopago',
+			'gateway_reference' => '',
+			'status' => 'trial',
+			'amount' => $valor,
+			'payload_text' => 'Onboarding operacional simplificado iniciado por '.$email,
+		]);
+
+		$user_update = [];
+		if($this->db->field_exists('tenant_id', 'usuarios')){
+			$user_update['tenant_id'] = $tenant_id;
+		}
+		if($this->db->field_exists('tenant_role', 'usuarios')){
+			$user_update['tenant_role'] = 'owner';
+		}
+		if($this->db->field_exists('billing_customer_id', 'usuarios')){
+			$user_update['billing_customer_id'] = $email;
+		}
+		if(count($user_update)){
+			$this->db->where('id', $owner_id);
+			$this->db->update('usuarios', $user_update);
+		}
+
+		if($this->db->trans_status() === false){
+			$this->db->trans_rollback();
+			return ['ok' => false, 'msg' => 'Nao foi possivel iniciar seu periodo de uso agora.'];
+		}
+
+		$this->db->trans_commit();
+		return [
+			'ok' => true,
+			'tenant_id' => $tenant_id,
+			'subscription_id' => $subscription_id,
+			'user_id' => $owner_id,
+			'login' => $email,
+			'tenant_nome' => $tenant_nome,
+			'trial_ends_at' => $trial_ends_at,
+		];
+	}
+
+	function get_tenant_primary_subscription($tenant_id){
+		$tenant_id = (int)$tenant_id;
+		if($tenant_id <= 0 || !$this->has_schema()){
+			return null;
+		}
+		$qr = $this->db->query(
+			"SELECT s.*, p.modelo AS plano_nome
+			FROM saas_subscriptions s
+			LEFT JOIN produtos p ON p.id = s.plano_id
+			WHERE s.tenant_id = ".$tenant_id."
+			ORDER BY s.id DESC LIMIT 1"
+		);
+		return $qr->num_rows() ? $qr->row() : null;
+	}
+
 	function save_checkout_data($subscription_id, $payload){
 		$subscription_id = (int)$subscription_id;
 		if($subscription_id <= 0){

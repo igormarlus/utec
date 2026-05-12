@@ -50,6 +50,42 @@ class Home extends CI_Controller {
 		$this->load->view('public/assinar', $dados);
 	}
 
+	public function experimentar()
+	{
+		$dados['planos'] = $this->saas_model->get_public_plans();
+		$dados['flash_ok'] = $this->session->flashdata('operational_trial_ok');
+		$dados['flash_error'] = $this->session->flashdata('operational_trial_error');
+		$this->load->view('public/experimentar', $dados);
+	}
+
+	public function iniciar_experiencia()
+	{
+		$result = $this->saas_model->create_operational_trial_signup($this->input->post());
+		if(!$result['ok']){
+			$this->session->set_flashdata('operational_trial_error', $result['msg']);
+			redirect('experimentar');
+			return;
+		}
+
+		$this->session->set_flashdata('operational_trial_ok', 'Seu acesso de 30 dias foi criado com sucesso. Voce ja pode entrar no sistema e o pagamento do plano escolhido fica disponivel durante o periodo de trial.');
+		redirect('experimentar/sucesso?subscription='.(int)$result['subscription_id']);
+	}
+
+	public function experiencia_sucesso()
+	{
+		$subscription_id = (int)$this->input->get('subscription');
+		$detail = $this->saas_model->get_subscription_detail_system($subscription_id);
+		if(!$detail){
+			redirect('experimentar');
+			return;
+		}
+		$dados['detail'] = $detail;
+		$dados['flash_ok'] = $this->session->flashdata('operational_trial_ok');
+		$dados['flash_error'] = $this->session->flashdata('operational_trial_error');
+		$dados['payment_url'] = base_url().'assinar/pagamento?subscription='.(int)$detail['subscription']->id;
+		$this->load->view('public/experimentar-sucesso', $dados);
+	}
+
 	public function contratar()
 	{
 		$result = $this->saas_model->create_public_tenant_signup($this->input->post());

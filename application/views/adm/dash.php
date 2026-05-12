@@ -89,6 +89,42 @@
         font-size: 13px;
         color: #64748b;
       }
+      .utec-subscription-banner {
+        border: 1px solid #dbe7f3;
+        border-radius: 22px;
+        background: linear-gradient(90deg, rgba(15,118,110,.1), rgba(234,88,12,.08));
+        box-shadow: 0 10px 28px rgba(15,23,42,.05);
+        padding: 20px 22px;
+        margin-bottom: 24px;
+      }
+      .utec-subscription-banner .title {
+        font-size: 24px;
+        font-weight: 700;
+        color: #0f172a;
+        margin-bottom: 8px;
+      }
+      .utec-subscription-banner .copy {
+        font-size: 14px;
+        color: #475569;
+        line-height: 1.7;
+      }
+      .utec-subscription-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 16px;
+      }
+      .utec-subscription-chip {
+        display: inline-flex;
+        align-items: center;
+        border-radius: 999px;
+        background: rgba(255,255,255,.82);
+        border: 1px solid rgba(148,163,184,.25);
+        padding: 8px 12px;
+        font-size: 12px;
+        font-weight: 700;
+        color: #0f172a;
+      }
     </style>
   </head>
   <body class="menu-position-side menu-side-left full-screen with-content-panel">
@@ -122,6 +158,24 @@
                   Visao resumida da operacao, com foco na agenda, pacientes e acompanhamentos do dia.
                 </div>
               </div>
+
+              <? if(isset($assinatura_operacional) && $assinatura_operacional){ ?>
+                <div class="utec-subscription-banner">
+                  <div class="title">Sua operacao ja esta liberada para uso e o plano pode ser pago a qualquer momento.</div>
+                  <div class="copy">
+                    Voce nao precisa entrar na gestao SaaS para seguir com a rotina medica. Use o sistema normalmente e, durante o trial ou enquanto a assinatura estiver pendente, finalize o plano em um fluxo mais direto.
+                  </div>
+                  <div class="utec-subscription-meta">
+                    <span class="utec-subscription-chip">Plano: <?=$assinatura_operacional->plano_nome ? $assinatura_operacional->plano_nome : 'Nao definido'?></span>
+                    <span class="utec-subscription-chip">Status: <?=$assinatura_operacional->status?></span>
+                    <span class="utec-subscription-chip">Trial ate: <?=$assinatura_operacional->trial_ends_at ? date('d/m/Y', strtotime($assinatura_operacional->trial_ends_at)) : 'Nao definido'?></span>
+                    <span class="utec-subscription-chip">Valor: R$ <?=number_format((float)$assinatura_operacional->valor, 2, ',', '.')?></span>
+                  </div>
+                  <div style="margin-top:18px;">
+                    <a href="<?=$assinatura_operacional_url?>" class="btn btn-primary">Minha assinatura e pagamento</a>
+                  </div>
+                </div>
+              <? } ?>
 
               <div class="row">
                 <div class="col-sm-6 col-lg-3 mb-3">

@@ -55,6 +55,9 @@ $route['translate_uri_dashes'] = FALSE;
 
 
 $route['locations'] = 'rpgLocations/index';
+$route['experimentar'] = 'home/experimentar';
+$route['experimentar/enviar'] = 'home/iniciar_experiencia';
+$route['experimentar/sucesso'] = 'home/experiencia_sucesso';
 $route['assinar'] = 'home/assinar';
 $route['assinar/enviar'] = 'home/contratar';
 $route['assinar/pagamento'] = 'home/assinatura_pagamento';
