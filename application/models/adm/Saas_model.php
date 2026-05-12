@@ -228,6 +228,48 @@ class Saas_model extends CI_Model {
 		];
 	}
 
+	function get_latest_cycle_payment_event($cycle_id){
+		$cycle_id = (int)$cycle_id;
+		if($cycle_id <= 0 || !$this->db->table_exists('saas_billing_events')){
+			return null;
+		}
+		$qr = $this->db->query(
+			"SELECT * FROM saas_billing_events
+			WHERE cycle_id = ".$cycle_id."
+			AND gateway = 'mercadopago'
+			AND gateway_reference IS NOT NULL
+			AND gateway_reference <> ''
+			ORDER BY id DESC LIMIT 1"
+		);
+		return $qr->num_rows() ? $qr->row() : null;
+	}
+
+	function extract_payment_payload($event){
+		if(!$event || !isset($event->payload_text)){
+			return null;
+		}
+		$data = json_decode((string)$event->payload_text, true);
+		return is_array($data) ? $data : null;
+	}
+
+	function append_billing_event($payload){
+		if(!$this->db->table_exists('saas_billing_events')){
+			return false;
+		}
+		$insert = [
+			'subscription_id' => isset($payload['subscription_id']) ? (int)$payload['subscription_id'] : 0,
+			'tenant_id' => isset($payload['tenant_id']) ? (int)$payload['tenant_id'] : 0,
+			'cycle_id' => isset($payload['cycle_id']) ? (int)$payload['cycle_id'] : null,
+			'event_type' => isset($payload['event_type']) ? $payload['event_type'] : 'gateway_event',
+			'gateway' => isset($payload['gateway']) ? $payload['gateway'] : 'mercadopago',
+			'gateway_reference' => isset($payload['gateway_reference']) ? $payload['gateway_reference'] : '',
+			'status' => isset($payload['status']) ? $payload['status'] : '',
+			'amount' => isset($payload['amount']) ? (float)$payload['amount'] : 0,
+			'payload_text' => isset($payload['payload_text']) ? $payload['payload_text'] : '',
+		];
+		return $this->db->insert('saas_billing_events', $insert);
+	}
+
 	function get_tenant_onboarding_summary($tenant_id){
 		$tenant_id = (int)$tenant_id;
 		if($tenant_id <= 0 || !$this->has_schema()){
@@ -723,6 +765,9 @@ class Saas_model extends CI_Model {
 		if(!$cycle){
 			return ['ok' => false, 'msg' => 'Ciclo nao encontrado.'];
 		}
+		if($cycle->status === 'paid'){
+			return ['ok' => true, 'msg' => 'Este ciclo ja estava marcado como pago.'];
+		}
 		$subscription = $this->db->query("SELECT * FROM saas_subscriptions WHERE id = ".(int)$cycle->subscription_id." LIMIT 1")->row();
 		if(!$subscription){
 			return ['ok' => false, 'msg' => 'Assinatura nao encontrada para este ciclo.'];
@@ -878,6 +923,34 @@ class Saas_model extends CI_Model {
 			ORDER BY id ASC LIMIT 1"
 		);
 		return $qr->num_rows() ? $qr->row() : null;
+	}
+
+	function resolve_cycle_by_external_reference($external_reference){
+		$external_reference = trim((string)$external_reference);
+		if($external_reference === ''){
+			return null;
+		}
+		if(!preg_match('/saas-sub-(\d+)-cycle-(\d+)-([a-z0-9_-]+)/i', $external_reference, $matches)){
+			return null;
+		}
+		$subscription_id = (int)$matches[1];
+		$cycle_id = (int)$matches[2];
+		if($subscription_id <= 0 || $cycle_id <= 0){
+			return null;
+		}
+		$cycle = $this->db->query("SELECT * FROM saas_subscription_cycles WHERE id = ".$cycle_id." AND subscription_id = ".$subscription_id." LIMIT 1")->row();
+		if(!$cycle){
+			return null;
+		}
+		$subscription = $this->db->query("SELECT * FROM saas_subscriptions WHERE id = ".$subscription_id." LIMIT 1")->row();
+		if(!$subscription){
+			return null;
+		}
+		return [
+			'subscription' => $subscription,
+			'cycle' => $cycle,
+			'method' => isset($matches[3]) ? strtolower($matches[3]) : '',
+		];
 	}
 
 	function ensure_open_cycle($subscription_id, $tenant_id, $period_start, $period_end, $amount_due){

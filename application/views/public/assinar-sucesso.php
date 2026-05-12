@@ -252,8 +252,9 @@
             <? } ?>
 
             <div class="actions">
+                <a class="btn btn-primary" href="<?=$payment_url?>">Pagar com PIX ou cartao</a>
                 <? if(isset($detail['subscription']->checkout_url) && trim((string)$detail['subscription']->checkout_url) !== ''){ ?>
-                    <a class="btn btn-primary" href="<?=$detail['subscription']->checkout_url?>" target="_blank">Abrir checkout Mercado Pago</a>
+                    <a class="btn btn-secondary" href="<?=$detail['subscription']->checkout_url?>" target="_blank">Abrir link Mercado Pago</a>
                 <? } ?>
                 <a class="btn btn-secondary" href="<?=base_url()?>admin">Ir para o login do sistema</a>
                 <a class="btn btn-secondary" href="<?=base_url()?>assinar/sucesso?subscription=<?=(int)$detail['subscription']->id?>">Atualizar jornada</a>

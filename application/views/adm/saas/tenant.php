@@ -118,10 +118,10 @@
                                 <a href="<?=base_url()?>adm/saas/sincronizar/<?=$assinatura->id?>" class="btn btn-sm btn-outline-info">Sincronizar MP</a>
                               <? } ?>
                               <? if(isset($mercadopago_ready) && $mercadopago_ready){ ?>
-                                <a href="<?=base_url()?>adm/saas/checkout/<?=$assinatura->id?>" class="btn btn-sm btn-outline-primary">Gerar checkout MP</a>
+                                <a href="<?=base_url()?>adm/saas/pagamento/<?=$assinatura->id?>" class="btn btn-sm btn-outline-primary">Pagar via PIX ou cartao</a>
                               <? } ?>
                               <? if(isset($assinatura->checkout_url) && trim((string)$assinatura->checkout_url) !== ''){ ?>
-                                <a href="<?=$assinatura->checkout_url?>" target="_blank" class="btn btn-sm btn-outline-secondary">Abrir link</a>
+                                <a href="<?=$assinatura->checkout_url?>" target="_blank" class="btn btn-sm btn-outline-secondary">Abrir link MP</a>
                               <? } ?>
                             </td>
                           </tr>
