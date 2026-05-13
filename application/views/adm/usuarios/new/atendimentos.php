@@ -134,32 +134,43 @@
         padding: 26px 12px;
         text-align: center;
       }
-      .layout-w,
-      .content-w,
-      .content-i,
-      .content-box,
-      .agenda-panel,
-      .agenda-panel-body,
-      .table-responsive {
-        overflow: visible !important;
-      }
-      .menu-w,
-      .menu-mobile,
-      .menu-w ul,
-      .menu-w li {
-        overflow: visible !important;
-      }
-      .menu-w {
+      .menu-w .main-menu > li.has-sub-menu {
         position: relative;
-        z-index: 3000;
       }
-      .menu-w .sub-menu {
-        position: absolute;
-        z-index: 3100;
+      .menu-w .main-menu > li.has-sub-menu > .sub-menu {
+        display: none !important;
+        position: static !important;
+        transform: none !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        width: 100%;
+        margin: 8px 0 0;
+        padding: 0 0 0 18px;
+        background: transparent !important;
+        border: 0 !important;
+        box-shadow: none !important;
       }
-      .content-w {
-        position: relative;
-        z-index: 1;
+      .menu-w .main-menu > li.has-sub-menu.active > .sub-menu {
+        display: block !important;
+      }
+      .menu-w .main-menu > li.has-sub-menu > .sub-menu li {
+        display: block;
+        margin: 0 0 6px;
+      }
+      .menu-w .main-menu > li.has-sub-menu > .sub-menu li a {
+        display: block;
+        padding: 8px 12px;
+        border-radius: 12px;
+        color: #526273;
+        font-size: 13px;
+        line-height: 1.35;
+        white-space: normal;
+        background: rgba(255,255,255,.7);
+      }
+      .menu-w .main-menu > li.has-sub-menu > .sub-menu li a:hover {
+        background: #eef4ff;
+        color: #2563eb;
+        text-decoration: none;
       }
     </style>
   </head>
@@ -390,13 +401,6 @@
     <script src="<?=base_url()?>js/demo_customizer.js?version=4.5.0"></script>
     <script src="<?=base_url()?>js/main.js?version=4.5.0"></script>
     <script>
-      $(document).on('mouseenter', '.menu-w ul.main-menu > li.has-sub-menu', function(){
-        $(this).closest('ul').addClass('has-active').find('> li').removeClass('active');
-        $(this).addClass('active');
-      });
-      $(document).on('mouseleave', '.menu-w ul.main-menu > li.has-sub-menu', function(){
-        $(this).removeClass('active').closest('ul').removeClass('has-active');
-      });
       $(document).on('click', '.menu-w li.has-sub-menu > a', function(e){
         var $item = $(this).closest('li');
         if($(window).width() > 991){
