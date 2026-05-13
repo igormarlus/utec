@@ -1108,6 +1108,35 @@ class Saas_model extends CI_Model {
 		return $qr->num_rows() ? $qr->row() : null;
 	}
 
+	function ensure_checkout_cycle($subscription_id){
+		$subscription_id = (int)$subscription_id;
+		if($subscription_id <= 0){
+			return null;
+		}
+
+		$open_cycle = $this->get_open_cycle($subscription_id);
+		if($open_cycle){
+			return $open_cycle;
+		}
+
+		$subscription = $this->db->query("SELECT * FROM saas_subscriptions WHERE id = ".$subscription_id." LIMIT 1")->row();
+		if(!$subscription){
+			return null;
+		}
+
+		$period_start = $subscription->current_period_end ? $subscription->current_period_end : date('Y-m-d H:i:s');
+		$period_end = $this->calculate_period_end($period_start, $subscription->billing_cycle, $subscription->billing_interval_count);
+		$this->ensure_open_cycle(
+			(int)$subscription->id,
+			(int)$subscription->tenant_id,
+			$period_start,
+			$period_end,
+			(float)$subscription->valor
+		);
+
+		return $this->get_open_cycle($subscription_id);
+	}
+
 	function resolve_cycle_by_external_reference($external_reference){
 		$external_reference = trim((string)$external_reference);
 		if($external_reference === ''){

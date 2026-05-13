@@ -142,7 +142,7 @@ function get_scope_user_ids($usuario=null){
 		if($parent_id <= 0){
 			return $this->expand_user_tree_ids([$usuario->id]);
 		}
-		$peers = [$usuario->id];
+		$peers = [$usuario->id, $parent_id];
 		$qr_peers = $this->db->query("SELECT id FROM usuarios WHERE nivel = 4 AND id_user = ".$parent_id);
 		foreach($qr_peers->result() as $peer){
 			$peers[] = (int)$peer->id;

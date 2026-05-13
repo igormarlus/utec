@@ -109,7 +109,7 @@ class Home extends CI_Controller {
 		}
 
 		$this->load->library('mercadopago_saas');
-		$open_cycle = $this->saas_model->get_open_cycle((int)$detail['subscription']->id);
+		$open_cycle = $this->saas_model->ensure_checkout_cycle((int)$detail['subscription']->id);
 		$latest_event = $open_cycle ? $this->saas_model->get_latest_cycle_payment_event((int)$open_cycle->id) : null;
 
 		$dados['detail'] = $detail;
@@ -141,7 +141,7 @@ class Home extends CI_Controller {
 			redirect('assinar');
 			return;
 		}
-		$open_cycle = $this->saas_model->get_open_cycle((int)$detail['subscription']->id);
+		$open_cycle = $this->saas_model->ensure_checkout_cycle((int)$detail['subscription']->id);
 		if(!$open_cycle){
 			$message = 'Nao existe ciclo pendente para gerar PIX nesta assinatura.';
 			if($is_ajax){
@@ -215,7 +215,7 @@ class Home extends CI_Controller {
 			$this->output->set_content_type('application/json')->set_status_header(404)->set_output(json_encode(['ok' => false, 'message' => 'Assinatura nao encontrada.']));
 			return;
 		}
-		$open_cycle = $this->saas_model->get_open_cycle((int)$detail['subscription']->id);
+		$open_cycle = $this->saas_model->ensure_checkout_cycle((int)$detail['subscription']->id);
 		if(!$open_cycle){
 			$this->output->set_content_type('application/json')->set_output(json_encode(['ok' => true, 'message' => 'Nao existe ciclo pendente para cobrar.', 'redirect_url' => base_url().'assinar/sucesso?subscription='.(int)$detail['subscription']->id]));
 			return;

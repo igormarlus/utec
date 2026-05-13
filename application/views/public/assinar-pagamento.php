@@ -208,16 +208,21 @@
                 <h2>PIX</h2>
                 <p class="method-copy">Gere um QR Code instantaneo para este ciclo. O usuario pode pagar pelo app do banco, copiar o codigo Pix ou abrir a tela hospedada do Mercado Pago.</p>
 
-                <? if($mercadopago_ready && $open_cycle){ ?>
+                <? if($open_cycle){ ?>
                     <div class="btn-row">
                         <form method="post" action="<?=$pix_submit_url?>" style="margin:0;" id="pix-form">
-                            <button class="btn btn-primary" type="submit">Gerar PIX agora</button>
+                            <button class="btn btn-primary" type="submit" <?=$mercadopago_ready ? '' : 'disabled="disabled"'?>>Gerar PIX agora</button>
                         </form>
                         <? if(isset($latest_payment_payload['point_of_interaction']['transaction_data']['ticket_url']) && trim((string)$latest_payment_payload['point_of_interaction']['transaction_data']['ticket_url']) !== ''){ ?>
                             <a class="btn btn-secondary" target="_blank" href="<?=$latest_payment_payload['point_of_interaction']['transaction_data']['ticket_url']?>" id="pix-ticket-link">Abrir tela do Mercado Pago</a>
                         <? } ?>
                     </div>
                     <div class="pix-loading" id="pix-loading">Gerando PIX e preparando o QR Code...</div>
+                    <? if(!$mercadopago_ready){ ?>
+                        <div class="alert alert-warn" style="margin-top:14px;">O Mercado Pago nao esta configurado neste servidor para gerar PIX agora.</div>
+                    <? } ?>
+                <? } else { ?>
+                    <div class="alert alert-ok">Nao existe ciclo pendente para gerar PIX no momento.</div>
                 <? } ?>
 
                 <div id="pix-result">
@@ -258,8 +263,7 @@
         </div>
     </div>
 
-    <? if($mercadopago_public_key && $open_cycle){ ?>
-        <script src="https://sdk.mercadopago.com/js/v2"></script>
+    <? if($open_cycle){ ?>
         <script>
             (function () {
                 var pixForm = document.getElementById('pix-form');
@@ -373,7 +377,14 @@
                 }
 
                 attachPixCopyHandler();
+            })();
+        </script>
+    <? } ?>
 
+    <? if($mercadopago_public_key && $open_cycle){ ?>
+        <script src="https://sdk.mercadopago.com/js/v2"></script>
+        <script>
+            (function () {
                 var cardContainer = document.getElementById('card-brick');
                 var loader = document.getElementById('card-loader');
                 if (!cardContainer || !window.MercadoPago) {
