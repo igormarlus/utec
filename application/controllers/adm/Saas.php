@@ -13,6 +13,11 @@ class Saas extends CI_Controller {
 		$this->load->model('padrao_model');
 		if($this->router->fetch_method() !== 'webhook_mercadopago'){
 			$this->usuarios_model->verSession();
+			$viewer = $this->padrao_model->get_usuario_logado();
+			if(!$this->padrao_model->can_access_saas_module($viewer)){
+				show_error('Modulo SaaS indisponivel para este usuario.', 403);
+				exit;
+			}
 		}
 	}
 

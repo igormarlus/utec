@@ -54,6 +54,32 @@ function get_logged_tenant(){
 	return $this->get_tenant_by_id((int)$usuario->tenant_id);
 }
 
+function usuario_tem_saas($usuario=null){
+	if(!$usuario){
+		$usuario = $this->get_usuario_logado();
+	}
+	if(!$usuario){
+		return false;
+	}
+	if(!$this->db->field_exists('saas', 'usuarios')){
+		return false;
+	}
+	return isset($usuario->saas) && (int)$usuario->saas === 1;
+}
+
+function can_access_saas_module($usuario=null){
+	if(!$usuario){
+		$usuario = $this->get_usuario_logado();
+	}
+	if(!$usuario){
+		return false;
+	}
+	if(!in_array((int)$usuario->nivel, [1,2,3])){
+		return false;
+	}
+	return $this->usuario_tem_saas($usuario);
+}
+
 function tenant_allows_access($usuario=null){
 	if(!$usuario){
 		$usuario = $this->get_usuario_logado();

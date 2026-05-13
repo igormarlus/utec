@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Pagamento SaaS</title>
+    <title>Pagamento da Assinatura</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         :root {
@@ -135,10 +135,10 @@
 
         <div class="hero">
             <div class="panel">
-                <div class="eyebrow">Pagamento SaaS</div>
+                <div class="eyebrow">Pagamento da assinatura</div>
                 <h1>Finalize a assinatura com PIX ou cartao.</h1>
                 <p class="lead">
-                    Esta etapa usa a API do Mercado Pago para cobrar o ciclo em aberto da assinatura.
+                    Esta etapa usa a API do Mercado Pago para cobrar o ciclo em aberto da assinatura da sua operacao.
                     Voce pode gerar um PIX com QR Code ou concluir o pagamento com cartao de credito sem sair desta jornada.
                 </p>
 
@@ -185,7 +185,7 @@
                 </p>
                 <div class="foot-actions">
                     <a class="btn btn-secondary" href="<?=$status_refresh_url?>">Atualizar status</a>
-                    <a class="btn btn-secondary" href="<?=$back_url?>">Voltar para a assinatura</a>
+                    <a class="btn btn-secondary" href="<?=$back_url?>">Voltar</a>
                 </div>
             </div>
         </div>

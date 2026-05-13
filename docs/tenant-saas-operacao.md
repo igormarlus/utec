@@ -31,6 +31,18 @@ Isso significa que o tenant pode nascer:
 - manualmente, pelo painel administrativo
 - automaticamente, pela pagina publica de assinatura
 
+## Controle de acesso ao modulo SaaS
+
+Agora o acesso interno ao modulo SaaS depende tambem do campo `saas` na tabela `usuarios`.
+
+Regra pratica:
+
+- usuario com `saas = 1` pode visualizar opcoes comerciais/SaaS no painel
+- usuario com `saas = 0` nao visualiza menu, atalhos nem pagina interna de SaaS
+- a liberacao e manual, pensada para usuarios que querem revender ou operar o produto como SaaS
+
+Na pratica, isso isola o modulo SaaS da maioria dos usuarios e deixa a revenda habilitada apenas para perfis liberados manualmente.
+
 ## Fluxo atual do tenant
 
 Hoje existem 2 fluxos validos para criar tenant.
@@ -39,7 +51,7 @@ Hoje existem 2 fluxos validos para criar tenant.
 
 ### 1. Escolher o responsavel base
 
-O fluxo parte de um usuario existente no sistema, normalmente nivel `2` ou `3`.
+O fluxo parte de um usuario existente no sistema, normalmente nivel `2` ou `3`, e com acesso SaaS liberado quando for necessario operar a revenda.
 
 Esse usuario vira o dono operacional do tenant:
 
@@ -305,6 +317,11 @@ Na pratica ela ja faz:
 - criacao automatica da assinatura
 - tentativa de redirecionamento para checkout
 
+Importante:
+
+- esse fluxo publico continua separado da liberacao interna por `usuarios.saas`
+- o campo `saas` controla o painel comercial interno e nao impede o funcionamento da pagina publica `/assinar`
+
 Entao o sistema ja saiu da fase de provisionamento 100% manual.
 
 ## Entao como a clinica entra hoje?
@@ -368,6 +385,7 @@ Se a meta for alugar sem intervencao manual, o proximo passo comercial mais impo
 
 - `tenant` e a conta SaaS da clinica dentro da plataforma
 - hoje ele pode ser criado manualmente em `adm/saas` ou publicamente em `assinar`
+- o painel interno de SaaS so aparece para usuarios com `usuarios.saas = 1`
 - o plano e a base do contrato comercial do tenant
 - o sistema ja possui seed automatico para planos SaaS sugeridos
 - o checkout do Mercado Pago ja pode nascer no fluxo publico ou no fluxo interno

@@ -382,12 +382,32 @@ function assinatura(){
 		redirect('adm/usuarios/dash');
 		return;
 	}
+
 	$subscription = $this->saas_model->get_tenant_primary_subscription((int)$dd_user->tenant_id);
 	if(!$subscription){
 		redirect('adm/usuarios/dash');
 		return;
 	}
-	redirect('adm/saas/pagamento/'.$subscription->id);
+
+	$detail = $this->saas_model->get_subscription_detail((int)$subscription->id, $dd_user);
+	if(!$detail){
+		redirect('adm/usuarios/dash');
+		return;
+	}
+
+	$dados['dd_user'] = $dd_user;
+	$dados['detail'] = $detail;
+	$dados['tenant'] = $detail['tenant'];
+	$dados['subscription'] = $detail['subscription'];
+	$dados['plano'] = $detail['plano'];
+	$dados['owner'] = $detail['owner'];
+	$dados['open_cycle'] = $this->saas_model->get_open_cycle((int)$detail['subscription']->id);
+	$dados['onboarding'] = $this->saas_model->get_tenant_onboarding_summary((int)$detail['tenant']->id);
+	$dados['flash_ok'] = $this->session->flashdata('saas_ok');
+	$dados['flash_error'] = $this->session->flashdata('saas_error');
+	$dados['payment_url'] = base_url().'adm/saas/pagamento/'.(int)$detail['subscription']->id;
+	$dados['status_url'] = base_url().'adm/saas/sincronizar/'.(int)$detail['subscription']->id;
+	$this->load->view('adm/usuarios/minha_assinatura', $dados);
 }
 
 function relatorios_clinicos(){
