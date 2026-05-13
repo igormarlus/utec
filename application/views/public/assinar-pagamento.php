@@ -97,6 +97,19 @@
             color:var(--ink);
             background:#fff;
         }
+        .pix-actions { display:flex; flex-wrap:wrap; gap:10px; margin-top:12px; }
+        .pix-feedback { margin-top:10px; font-size:13px; color:var(--primary-strong); font-weight:700; }
+        .pix-loading {
+            display:none;
+            margin-top:14px;
+            padding:14px 16px;
+            border:1px solid #c7ddd9;
+            border-radius:16px;
+            background:#f3fbfb;
+            color:var(--primary-strong);
+            font-size:14px;
+            font-weight:700;
+        }
         .status-pill {
             display:inline-flex;
             align-items:center;
@@ -197,43 +210,50 @@
 
                 <? if($mercadopago_ready && $open_cycle){ ?>
                     <div class="btn-row">
-                        <form method="post" action="<?=$pix_submit_url?>" style="margin:0;">
+                        <form method="post" action="<?=$pix_submit_url?>" style="margin:0;" id="pix-form">
                             <button class="btn btn-primary" type="submit">Gerar PIX agora</button>
                         </form>
                         <? if(isset($latest_payment_payload['point_of_interaction']['transaction_data']['ticket_url']) && trim((string)$latest_payment_payload['point_of_interaction']['transaction_data']['ticket_url']) !== ''){ ?>
-                            <a class="btn btn-secondary" target="_blank" href="<?=$latest_payment_payload['point_of_interaction']['transaction_data']['ticket_url']?>">Abrir tela do Mercado Pago</a>
+                            <a class="btn btn-secondary" target="_blank" href="<?=$latest_payment_payload['point_of_interaction']['transaction_data']['ticket_url']?>" id="pix-ticket-link">Abrir tela do Mercado Pago</a>
                         <? } ?>
                     </div>
+                    <div class="pix-loading" id="pix-loading">Gerando PIX e preparando o QR Code...</div>
                 <? } ?>
 
+                <div id="pix-result">
                 <? if(isset($latest_payment_payload['point_of_interaction']['transaction_data'])){ ?>
                     <? $transaction = $latest_payment_payload['point_of_interaction']['transaction_data']; ?>
-                    <div class="pix-box">
+                    <div class="pix-box" id="pix-box">
                         <div class="label">Pagamento Pix gerado</div>
-                        <p class="copy">Status Mercado Pago: <?=isset($latest_payment_payload['status']) ? $latest_payment_payload['status'] : 'pending'?><?=isset($latest_payment_payload['status_detail']) && trim((string)$latest_payment_payload['status_detail']) !== '' ? ' / '.$latest_payment_payload['status_detail'] : ''?></p>
+                        <p class="copy" id="pix-status">Status Mercado Pago: <?=isset($latest_payment_payload['status']) ? $latest_payment_payload['status'] : 'pending'?><?=isset($latest_payment_payload['status_detail']) && trim((string)$latest_payment_payload['status_detail']) !== '' ? ' / '.$latest_payment_payload['status_detail'] : ''?></p>
                         <? if(isset($transaction['qr_code_base64']) && trim((string)$transaction['qr_code_base64']) !== ''){ ?>
-                            <img class="pix-qr" src="data:image/jpeg;base64,<?=$transaction['qr_code_base64']?>" alt="QR Code Pix">
+                            <img class="pix-qr" src="data:image/jpeg;base64,<?=$transaction['qr_code_base64']?>" alt="QR Code Pix" id="pix-qr-image">
                         <? } ?>
                         <? if(isset($transaction['qr_code']) && trim((string)$transaction['qr_code']) !== ''){ ?>
                             <div class="label" style="margin-bottom:8px;">Pix copia e cola</div>
-                            <textarea class="pix-code" readonly><?=$transaction['qr_code']?></textarea>
+                            <textarea class="pix-code" readonly id="pix-code"><?=$transaction['qr_code']?></textarea>
+                            <div class="pix-actions">
+                                <button class="btn btn-secondary" type="button" id="pix-copy-btn">Copiar codigo PIX</button>
+                            </div>
+                            <div class="pix-feedback" id="pix-feedback" style="display:none;"></div>
                         <? } ?>
                     </div>
                 <? } ?>
+                </div>
             </div>
 
             <div class="method-card">
                 <h2>Cartao de credito</h2>
                 <p class="method-copy">O formulario abaixo usa o Brick oficial do Mercado Pago para tokenizar o cartao no frontend e enviar o pagamento ao backend com seguranca.</p>
 
-                <? if(!$mercadopago_public_key){ ?>
+                <?php if(!$mercadopago_public_key): ?>
                     <div class="alert alert-warn">A chave publica do Mercado Pago nao foi configurada. O pagamento por cartao depende dela.</div>
-                <? elseif(!$open_cycle){ ?>
+                <?php elseif(!$open_cycle): ?>
                     <div class="alert alert-ok">Nao existe ciclo pendente para cobrar com cartao.</div>
-                <? else { ?>
+                <?php else: ?>
                     <div id="card-brick" class="card-brick-wrap"></div>
                     <div id="card-loader" class="loader">Carregando formulario de cartao...</div>
-                <? } ?>
+                <?php endif; ?>
             </div>
         </div>
     </div>
@@ -242,6 +262,118 @@
         <script src="https://sdk.mercadopago.com/js/v2"></script>
         <script>
             (function () {
+                var pixForm = document.getElementById('pix-form');
+                var pixLoading = document.getElementById('pix-loading');
+                var pixResult = document.getElementById('pix-result');
+                var pixTicketLink = document.getElementById('pix-ticket-link');
+
+                function escapeHtml(value) {
+                    return String(value || '')
+                        .replace(/&/g, '&amp;')
+                        .replace(/</g, '&lt;')
+                        .replace(/>/g, '&gt;')
+                        .replace(/"/g, '&quot;')
+                        .replace(/'/g, '&#039;');
+                }
+
+                function attachPixCopyHandler() {
+                    var copyButton = document.getElementById('pix-copy-btn');
+                    var pixCode = document.getElementById('pix-code');
+                    var feedback = document.getElementById('pix-feedback');
+                    if (!copyButton || !pixCode) {
+                        return;
+                    }
+                    copyButton.onclick = function () {
+                        var text = pixCode.value || '';
+                        if (!text) return;
+                        var done = function (message) {
+                            if (feedback) {
+                                feedback.style.display = 'block';
+                                feedback.textContent = message;
+                            }
+                        };
+                        if (navigator.clipboard && navigator.clipboard.writeText) {
+                            navigator.clipboard.writeText(text).then(function () {
+                                done('Codigo PIX copiado com sucesso.');
+                            }).catch(function () {
+                                pixCode.select();
+                                document.execCommand('copy');
+                                done('Codigo PIX copiado com sucesso.');
+                            });
+                            return;
+                        }
+                        pixCode.select();
+                        document.execCommand('copy');
+                        done('Codigo PIX copiado com sucesso.');
+                    };
+                }
+
+                function renderPixResult(payment) {
+                    if (!pixResult) return;
+                    var transaction = payment && payment.point_of_interaction ? payment.point_of_interaction.transaction_data || {} : {};
+                    var status = payment && payment.status ? payment.status : 'pending';
+                    var statusDetail = payment && payment.status_detail ? ' / ' + payment.status_detail : '';
+                    var qrImage = transaction.qr_code_base64 ? '<img class="pix-qr" id="pix-qr-image" alt="QR Code Pix" src="data:image/jpeg;base64,' + escapeHtml(transaction.qr_code_base64) + '">' : '';
+                    var codeBlock = '';
+                    if (transaction.qr_code) {
+                        codeBlock = ''
+                            + '<div class="label" style="margin-bottom:8px;">Pix copia e cola</div>'
+                            + '<textarea class="pix-code" readonly id="pix-code">' + escapeHtml(transaction.qr_code) + '</textarea>'
+                            + '<div class="pix-actions"><button class="btn btn-secondary" type="button" id="pix-copy-btn">Copiar codigo PIX</button></div>'
+                            + '<div class="pix-feedback" id="pix-feedback" style="display:none;"></div>';
+                    }
+                    pixResult.innerHTML = ''
+                        + '<div class="pix-box" id="pix-box">'
+                        + '<div class="label">Pagamento Pix gerado</div>'
+                        + '<p class="copy" id="pix-status">Status Mercado Pago: ' + escapeHtml(status + statusDetail) + '</p>'
+                        + qrImage
+                        + codeBlock
+                        + '</div>';
+                    if (transaction.ticket_url) {
+                        if (pixTicketLink) {
+                            pixTicketLink.href = transaction.ticket_url;
+                            pixTicketLink.style.display = 'inline-flex';
+                        }
+                    }
+                    attachPixCopyHandler();
+                }
+
+                if (pixForm) {
+                    pixForm.addEventListener('submit', function (event) {
+                        event.preventDefault();
+                        if (pixLoading) {
+                            pixLoading.style.display = 'block';
+                            pixLoading.textContent = 'Gerando PIX e preparando o QR Code...';
+                        }
+                        fetch(<?=json_encode($pix_submit_url)?>, {
+                            method: 'POST',
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest'
+                            }
+                        })
+                        .then(function (response) {
+                            return response.json().then(function (json) {
+                                if (!response.ok || !json.ok) {
+                                    throw new Error(json.message || 'Nao foi possivel gerar o PIX.');
+                                }
+                                renderPixResult(json.payment || {});
+                                if (pixLoading) {
+                                    pixLoading.style.display = 'block';
+                                    pixLoading.textContent = json.message || 'PIX gerado com sucesso.';
+                                }
+                            });
+                        })
+                        .catch(function (error) {
+                            if (pixLoading) {
+                                pixLoading.style.display = 'block';
+                                pixLoading.textContent = error.message || 'Falha ao gerar o PIX.';
+                            }
+                        });
+                    });
+                }
+
+                attachPixCopyHandler();
+
                 var cardContainer = document.getElementById('card-brick');
                 var loader = document.getElementById('card-loader');
                 if (!cardContainer || !window.MercadoPago) {

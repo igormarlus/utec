@@ -134,6 +134,33 @@
         padding: 26px 12px;
         text-align: center;
       }
+      .layout-w,
+      .content-w,
+      .content-i,
+      .content-box,
+      .agenda-panel,
+      .agenda-panel-body,
+      .table-responsive {
+        overflow: visible !important;
+      }
+      .menu-w,
+      .menu-mobile,
+      .menu-w ul,
+      .menu-w li {
+        overflow: visible !important;
+      }
+      .menu-w {
+        position: relative;
+        z-index: 3000;
+      }
+      .menu-w .sub-menu {
+        position: absolute;
+        z-index: 3100;
+      }
+      .content-w {
+        position: relative;
+        z-index: 1;
+      }
     </style>
   </head>
   <body class="menu-position-side menu-side-left full-screen with-content-panel">
@@ -349,6 +376,7 @@
     <script src="<?=base_url()?>bower_components/popper.js/dist/umd/popper.min.js"></script>
     <script src="<?=base_url()?>bower_components/select2/dist/js/select2.full.min.js"></script>
     <script src="<?=base_url()?>bower_components/perfect-scrollbar/js/perfect-scrollbar.jquery.min.js"></script>
+    <script src="<?=base_url()?>bower_components/tether/dist/js/tether.min.js"></script>
     <script src="<?=base_url()?>bower_components/slick-carousel/slick/slick.min.js"></script>
     <script src="<?=base_url()?>bower_components/bootstrap/js/dist/util.js"></script>
     <script src="<?=base_url()?>bower_components/bootstrap/js/dist/alert.js"></script>
@@ -362,6 +390,21 @@
     <script src="<?=base_url()?>js/demo_customizer.js?version=4.5.0"></script>
     <script src="<?=base_url()?>js/main.js?version=4.5.0"></script>
     <script>
+      $(document).on('mouseenter', '.menu-w ul.main-menu > li.has-sub-menu', function(){
+        $(this).closest('ul').addClass('has-active').find('> li').removeClass('active');
+        $(this).addClass('active');
+      });
+      $(document).on('mouseleave', '.menu-w ul.main-menu > li.has-sub-menu', function(){
+        $(this).removeClass('active').closest('ul').removeClass('has-active');
+      });
+      $(document).on('click', '.menu-w li.has-sub-menu > a', function(e){
+        var $item = $(this).closest('li');
+        if($(window).width() > 991){
+          e.preventDefault();
+          $item.closest('ul').find('> li.active').not($item).removeClass('active');
+          $item.toggleClass('active');
+        }
+      });
       $(document).on('click', '.btn-remarcar', function(){
         $('#remarcar-id-agenda').val($(this).data('id'));
         $('#remarcar-data').val($(this).data('data'));

@@ -131,14 +131,24 @@ class Home extends CI_Controller {
 	public function assinatura_pagamento_pix()
 	{
 		$subscription_id = (int)$this->input->get('subscription');
+		$is_ajax = strtolower((string)$this->input->server('HTTP_X_REQUESTED_WITH')) === 'xmlhttprequest';
 		$detail = $this->saas_model->get_subscription_detail_system($subscription_id);
 		if(!$detail){
+			if($is_ajax){
+				$this->output->set_content_type('application/json')->set_status_header(404)->set_output(json_encode(['ok' => false, 'message' => 'Assinatura nao encontrada.']));
+				return;
+			}
 			redirect('assinar');
 			return;
 		}
 		$open_cycle = $this->saas_model->get_open_cycle((int)$detail['subscription']->id);
 		if(!$open_cycle){
-			$this->session->set_flashdata('public_signup_ok', 'Nao existe ciclo pendente para gerar PIX nesta assinatura.');
+			$message = 'Nao existe ciclo pendente para gerar PIX nesta assinatura.';
+			if($is_ajax){
+				$this->output->set_content_type('application/json')->set_output(json_encode(['ok' => true, 'message' => $message]));
+				return;
+			}
+			$this->session->set_flashdata('public_signup_ok', $message);
 			redirect('assinar/pagamento?subscription='.(int)$detail['subscription']->id);
 			return;
 		}
@@ -171,9 +181,27 @@ class Home extends CI_Controller {
 				'status' => $this->mercadopago_saas->map_payment_status(isset($payment['status']) ? $payment['status'] : 'pending', isset($payment['status_detail']) ? $payment['status_detail'] : ''),
 				'gateway_status_detail' => isset($payment['status_detail']) ? $payment['status_detail'] : null,
 			]);
-			$this->session->set_flashdata('public_signup_ok', 'PIX gerado com sucesso. Use o QR Code ou copie o codigo Pix para concluir o pagamento.');
+			$message = 'PIX gerado com sucesso. Use o QR Code ou copie o codigo Pix para concluir o pagamento.';
+			if($is_ajax){
+				$this->output->set_content_type('application/json')->set_output(json_encode([
+					'ok' => true,
+					'message' => $message,
+					'payment' => $payment,
+					'transaction_data' => $transaction_data,
+				]));
+				return;
+			}
+			$this->session->set_flashdata('public_signup_ok', $message);
 		} catch (Exception $e) {
-			$this->session->set_flashdata('public_signup_error', 'Nao foi possivel gerar o PIX agora: '.$e->getMessage());
+			$message = 'Nao foi possivel gerar o PIX agora: '.$e->getMessage();
+			if($is_ajax){
+				$this->output->set_content_type('application/json')->set_status_header(400)->set_output(json_encode([
+					'ok' => false,
+					'message' => $message,
+				]));
+				return;
+			}
+			$this->session->set_flashdata('public_signup_error', $message);
 		}
 
 		redirect('assinar/pagamento?subscription='.(int)$detail['subscription']->id);
