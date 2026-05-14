@@ -133,8 +133,20 @@ function get_scope_user_ids($usuario=null){
 		return [];
 	}
 
-	if($nivel === 2 || $nivel === 3){
+	if($nivel === 2){
 		return $this->expand_user_tree_ids([$usuario->id]);
+	}
+
+	if($nivel === 3){
+		$roots = [(int)$usuario->id];
+		$parent_id = isset($usuario->id_user) ? (int)$usuario->id_user : 0;
+		if($parent_id > 0){
+			$parent = $this->db->query("SELECT id, nivel FROM usuarios WHERE id = ".$parent_id." LIMIT 1")->row();
+			if($parent && (int)$parent->nivel === 2){
+				$roots[] = $parent_id;
+			}
+		}
+		return $this->expand_user_tree_ids($roots);
 	}
 
 	if($nivel === 4){
@@ -142,12 +154,18 @@ function get_scope_user_ids($usuario=null){
 		if($parent_id <= 0){
 			return $this->expand_user_tree_ids([$usuario->id]);
 		}
-		$peers = [$usuario->id, $parent_id];
-		$qr_peers = $this->db->query("SELECT id FROM usuarios WHERE nivel = 4 AND id_user = ".$parent_id);
-		foreach($qr_peers->result() as $peer){
-			$peers[] = (int)$peer->id;
+		$roots = [$usuario->id, $parent_id];
+		$parent = $this->db->query("SELECT id, nivel, id_user FROM usuarios WHERE id = ".$parent_id." LIMIT 1")->row();
+		if($parent && (int)$parent->nivel === 3){
+			$grandparent_id = isset($parent->id_user) ? (int)$parent->id_user : 0;
+			if($grandparent_id > 0){
+				$grandparent = $this->db->query("SELECT id, nivel FROM usuarios WHERE id = ".$grandparent_id." LIMIT 1")->row();
+				if($grandparent && (int)$grandparent->nivel === 2){
+					$roots[] = $grandparent_id;
+				}
+			}
 		}
-		return $this->expand_user_tree_ids($peers);
+		return $this->expand_user_tree_ids($roots);
 	}
 
 	return [$usuario->id];
@@ -242,33 +260,11 @@ function get_visible_prestador_ids($usuario=null){
 	if($nivel === 1){
 		return [];
 	}
-	if($nivel === 3){
-		return [(int)$usuario->id];
-	}
-	if($nivel === 2){
+	if($nivel === 2 || $nivel === 3 || $nivel === 4){
 		$scope_ids = $this->get_scope_user_ids($usuario);
 		$scope_sql = $this->ids_to_sql_in($scope_ids);
 		$ids = [];
 		$qr = $this->db->query("SELECT id FROM usuarios WHERE nivel = 3 AND id IN (".$scope_sql.")");
-		foreach($qr->result() as $row){
-			$ids[] = (int)$row->id;
-		}
-		return $ids;
-	}
-	if($nivel === 4){
-		$parent_id = (int)$usuario->id_user;
-		if($parent_id <= 0){
-			return [];
-		}
-		$parent = $this->get_by_id($parent_id, 'usuarios');
-		if($parent->num_rows()){
-			$parent_row = $parent->row();
-			if((int)$parent_row->nivel === 3){
-				return [$parent_id];
-			}
-		}
-		$ids = [];
-		$qr = $this->db->query("SELECT id FROM usuarios WHERE nivel = 3 AND id_user = ".$parent_id);
 		foreach($qr->result() as $row){
 			$ids[] = (int)$row->id;
 		}

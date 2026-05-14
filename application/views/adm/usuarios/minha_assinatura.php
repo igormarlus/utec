@@ -48,6 +48,13 @@
       .alert-card { border-radius:16px; padding:14px 16px; font-size:14px; margin-bottom:16px; }
       .alert-ok { background:#ecfdf3; color:#166534; border:1px solid #bbf7d0; }
       .alert-error { background:#fef2f2; color:#991b1b; border:1px solid #fecaca; }
+      .history-table th, .history-table td { vertical-align: middle; }
+      .money { font-weight:700; color:#0f172a; }
+      .event-list { display:grid; gap:10px; }
+      .event-item { border:1px solid #e2e8f0; border-radius:14px; padding:14px 16px; background:#fff; }
+      .event-head { display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+      .event-title { font-weight:700; color:#0f172a; }
+      .event-meta { color:#64748b; font-size:12px; }
     </style>
   </head>
   <body class="menu-position-side menu-side-left full-screen with-content-panel">
@@ -75,7 +82,7 @@
                     A operacao continua pronta para agenda, pacientes, prontuarios e atendimento enquanto voce organiza a contratacao.
                   </div>
                   <div class="hero-actions">
-                    <a href="<?=$payment_url?>" class="btn btn-primary">Pagar com PIX ou cartao</a>
+                    <a href="<?=$payment_url?>" class="btn btn-primary">Abrir central de pagamento</a>
                     <a href="<?=$status_url?>" class="btn btn-outline-secondary">Atualizar status</a>
                   </div>
                 </div>
@@ -107,7 +114,7 @@
                 <div class="row">
                   <div class="col-lg-7">
                     <div class="panel-card">
-                      <div class="panel-head"><h6 class="element-header" style="margin-bottom:0;">Resumo comercial</h6></div>
+                      <div class="panel-head"><h6 class="element-header" style="margin-bottom:0;">Resumo comercial e pagamento</h6></div>
                       <div class="panel-body">
                         <div class="timeline">
                           <div class="timeline-item">
@@ -125,6 +132,9 @@
                           <div class="timeline-item">
                             <strong>Pagamento</strong>
                             Use PIX ou cartao para regularizar ou antecipar a contratacao sem sair da area da clinica.
+                            <div style="margin-top:12px;">
+                              <a href="<?=$payment_url?>" class="btn btn-primary btn-sm">Pagar agora</a>
+                            </div>
                           </div>
                           <div class="timeline-item">
                             <strong>Uso da operacao</strong>
@@ -153,6 +163,78 @@
                           </div>
                         <? } else { ?>
                           <div class="copy">Ainda nao existem indicadores de prontidao para esta operacao.</div>
+                        <? } ?>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="col-lg-7">
+                    <div class="panel-card">
+                      <div class="panel-head"><h6 class="element-header" style="margin-bottom:0;">Historico de cobrancas</h6></div>
+                      <div class="panel-body">
+                        <div class="copy" style="margin-bottom:16px;">Veja os ciclos mais recentes, o que ja foi pago e o que ainda esta em aberto.</div>
+                        <div class="table-responsive">
+                          <table class="table table-lightborder history-table">
+                            <thead>
+                              <tr>
+                                <th>Referencia</th>
+                                <th>Status</th>
+                                <th>Vencimento</th>
+                                <th>Valor</th>
+                                <th>Pago em</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <? if(isset($cycles) && $cycles->num_rows() > 0){ ?>
+                                <? foreach($cycles->result() as $cycle){ ?>
+                                  <? $cycle_status = 'status-pill status-pending'; $cycle_key = str_replace('-', '_', (string)$cycle->status); if(in_array($cycle->status, ['paid','pending','trial','past_due','canceled'])){ $cycle_status = 'status-pill status-'.$cycle_key; } ?>
+                                  <tr>
+                                    <td><strong><?=$cycle->reference_label ? $cycle->reference_label : 'Ciclo '.$cycle->cycle_number?></strong></td>
+                                    <td><span class="<?=$cycle_status?>"><?=$cycle->status?></span></td>
+                                    <td><?=$cycle->due_at ? date('d/m/Y', strtotime($cycle->due_at)) : 'Nao definido'?></td>
+                                    <td class="money">R$ <?=number_format((float)$cycle->amount_due, 2, ',', '.')?></td>
+                                    <td><?=$cycle->paid_at ? date('d/m/Y H:i', strtotime($cycle->paid_at)) : '-'?></td>
+                                  </tr>
+                                <? } ?>
+                              <? } else { ?>
+                                <tr><td colspan="5">Nenhum ciclo de cobranca encontrado.</td></tr>
+                              <? } ?>
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-lg-5">
+                    <div class="panel-card">
+                      <div class="panel-head"><h6 class="element-header" style="margin-bottom:0;">Movimentacoes de pagamento</h6></div>
+                      <div class="panel-body">
+                        <div class="copy" style="margin-bottom:16px;">Acompanhe as ultimas tentativas, sincronizacoes e confirmacoes relacionadas a assinatura.</div>
+                        <? if(isset($billing_events) && $billing_events->num_rows() > 0){ ?>
+                          <div class="event-list">
+                            <? foreach($billing_events->result() as $event){ ?>
+                              <div class="event-item">
+                                <div class="event-head">
+                                  <div>
+                                    <div class="event-title"><?=$event->event_type?></div>
+                                    <div class="event-meta">
+                                      <?=$event->created_at ? date('d/m/Y H:i', strtotime($event->created_at)) : 'Sem data'?>
+                                      <? if(trim((string)$event->gateway) !== ''){ ?> • Gateway: <?=$event->gateway?><? } ?>
+                                    </div>
+                                  </div>
+                                  <span class="status-pill status-pending"><?=$event->status ? $event->status : 'sem status'?></span>
+                                </div>
+                                <div class="copy" style="margin-top:8px;">
+                                  Valor: <strong>R$ <?=number_format((float)$event->amount, 2, ',', '.')?></strong>
+                                  <? if(trim((string)$event->gateway_reference) !== ''){ ?><br>Referencia: <?=$event->gateway_reference?><? } ?>
+                                </div>
+                              </div>
+                            <? } ?>
+                          </div>
+                        <? } else { ?>
+                          <div class="copy">Nenhuma movimentacao de pagamento registrada ainda.</div>
                         <? } ?>
                       </div>
                     </div>

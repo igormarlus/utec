@@ -401,13 +401,349 @@ function assinatura(){
 	$dados['subscription'] = $detail['subscription'];
 	$dados['plano'] = $detail['plano'];
 	$dados['owner'] = $detail['owner'];
-	$dados['open_cycle'] = $this->saas_model->get_open_cycle((int)$detail['subscription']->id);
+	$dados['open_cycle'] = $this->saas_model->ensure_checkout_cycle((int)$detail['subscription']->id);
 	$dados['onboarding'] = $this->saas_model->get_tenant_onboarding_summary((int)$detail['tenant']->id);
+	$dados['cycles'] = $this->db->query(
+		"SELECT * FROM saas_subscription_cycles
+		WHERE subscription_id = ".(int)$detail['subscription']->id."
+		ORDER BY id DESC LIMIT 12"
+	);
+	$dados['billing_events'] = $this->db->query(
+		"SELECT * FROM saas_billing_events
+		WHERE subscription_id = ".(int)$detail['subscription']->id."
+		ORDER BY id DESC LIMIT 20"
+	);
 	$dados['flash_ok'] = $this->session->flashdata('saas_ok');
 	$dados['flash_error'] = $this->session->flashdata('saas_error');
-	$dados['payment_url'] = base_url().'adm/saas/pagamento/'.(int)$detail['subscription']->id;
-	$dados['status_url'] = base_url().'adm/saas/sincronizar/'.(int)$detail['subscription']->id;
+	$dados['payment_url'] = base_url().'adm/usuarios/assinatura_pagamento/'.(int)$detail['subscription']->id;
+	$dados['status_url'] = base_url().'adm/usuarios/assinatura_pagamento_status/'.(int)$detail['subscription']->id;
 	$this->load->view('adm/usuarios/minha_assinatura', $dados);
+}
+
+function assinatura_pagamento($subscription_id=0){
+	$viewer = $this->padrao_model->get_usuario_logado();
+	$detail = $this->saas_model->get_subscription_detail((int)$subscription_id, $viewer);
+	if(!$detail){
+		redirect('adm/usuarios/dash');
+		return;
+	}
+	$this->load->library('mercadopago_saas');
+	$open_cycle = $this->saas_model->ensure_checkout_cycle((int)$detail['subscription']->id);
+	$latest_event = $open_cycle ? $this->saas_model->get_latest_cycle_payment_event((int)$open_cycle->id) : null;
+	$dados['detail'] = $detail;
+	$dados['open_cycle'] = $open_cycle;
+	$dados['latest_payment_event'] = $latest_event;
+	$dados['latest_payment_payload'] = $this->saas_model->extract_payment_payload($latest_event);
+	$dados['mercadopago_ready'] = $this->mercadopago_saas->is_available();
+	$dados['mercadopago_public_key'] = $this->mercadopago_saas->get_public_key();
+	$dados['flash_ok'] = $this->session->flashdata('saas_ok');
+	$dados['flash_error'] = $this->session->flashdata('saas_error');
+	$dados['status_refresh_url'] = base_url().'adm/usuarios/assinatura_pagamento_status/'.(int)$detail['subscription']->id;
+	$dados['pix_submit_url'] = base_url().'adm/usuarios/assinatura_pagamento_pix/'.(int)$detail['subscription']->id;
+	$dados['card_submit_url'] = base_url().'adm/usuarios/assinatura_pagamento_cartao/'.(int)$detail['subscription']->id;
+	$dados['back_url'] = base_url().'adm/usuarios/assinatura';
+	$dados['page_mode'] = 'member';
+	$this->load->view('public/assinar-pagamento', $dados);
+}
+
+function assinatura_pagamento_pix($subscription_id=0){
+	$viewer = $this->padrao_model->get_usuario_logado();
+	$detail = $this->saas_model->get_subscription_detail((int)$subscription_id, $viewer);
+	if(!$detail){
+		$this->output->set_content_type('application/json')->set_status_header(404)->set_output(json_encode(['ok' => false, 'message' => 'Assinatura nao encontrada.']));
+		return;
+	}
+	$open_cycle = $this->saas_model->ensure_checkout_cycle((int)$detail['subscription']->id);
+	if(!$open_cycle){
+		$this->output->set_content_type('application/json')->set_status_header(400)->set_output(json_encode(['ok' => false, 'message' => 'Nao existe ciclo disponivel para cobranca.']));
+		return;
+	}
+	$this->load->library('mercadopago_saas');
+	try {
+		$payment = $this->mercadopago_saas->create_pix_payment($detail['subscription'], $detail['tenant'], $detail['owner'], $open_cycle, $detail['plano']);
+		$this->saas_model->append_billing_event([
+			'subscription_id' => (int)$detail['subscription']->id,
+			'tenant_id' => (int)$detail['tenant']->id,
+			'cycle_id' => (int)$open_cycle->id,
+			'event_type' => 'mercadopago_pix_created',
+			'gateway' => 'mercadopago',
+			'gateway_reference' => isset($payment['id']) ? (string)$payment['id'] : '',
+			'status' => isset($payment['status']) ? (string)$payment['status'] : 'pending',
+			'amount' => isset($payment['transaction_amount']) ? (float)$payment['transaction_amount'] : (float)$open_cycle->amount_due,
+			'payload_text' => json_encode($payment),
+		]);
+		$transaction_data = isset($payment['point_of_interaction']['transaction_data']) ? $payment['point_of_interaction']['transaction_data'] : array();
+		$this->saas_model->save_checkout_data((int)$detail['subscription']->id, [
+			'gateway_reference' => isset($payment['external_reference']) ? $payment['external_reference'] : null,
+			'checkout_url' => isset($transaction_data['ticket_url']) ? $transaction_data['ticket_url'] : null,
+			'checkout_type' => 'pix',
+			'status' => $this->mercadopago_saas->map_payment_status(isset($payment['status']) ? $payment['status'] : 'pending', isset($payment['status_detail']) ? $payment['status_detail'] : ''),
+			'gateway_status_detail' => isset($payment['status_detail']) ? $payment['status_detail'] : null,
+		]);
+		$this->output->set_content_type('application/json')->set_output(json_encode([
+			'ok' => true,
+			'message' => 'PIX gerado com sucesso.',
+			'payment' => $payment,
+			'transaction_data' => $transaction_data,
+		]));
+	} catch (Exception $e) {
+		$this->output->set_content_type('application/json')->set_status_header(400)->set_output(json_encode([
+			'ok' => false,
+			'message' => 'Nao foi possivel gerar o PIX agora: '.$e->getMessage(),
+		]));
+	}
+}
+
+function assinatura_pagamento_cartao($subscription_id=0){
+	$viewer = $this->padrao_model->get_usuario_logado();
+	$detail = $this->saas_model->get_subscription_detail((int)$subscription_id, $viewer);
+	if(!$detail){
+		$this->output->set_content_type('application/json')->set_status_header(404)->set_output(json_encode(['ok' => false, 'message' => 'Assinatura nao encontrada.']));
+		return;
+	}
+	$open_cycle = $this->saas_model->ensure_checkout_cycle((int)$detail['subscription']->id);
+	if(!$open_cycle){
+		$this->output->set_content_type('application/json')->set_status_header(400)->set_output(json_encode(['ok' => false, 'message' => 'Nao existe ciclo disponivel para cobranca.']));
+		return;
+	}
+	$form_data = json_decode(file_get_contents('php://input'), true);
+	if(!is_array($form_data)){
+		$form_data = array();
+	}
+	$this->load->library('mercadopago_saas');
+	try {
+		$payment = $this->mercadopago_saas->create_card_payment($detail['subscription'], $detail['tenant'], $detail['owner'], $open_cycle, $detail['plano'], $form_data);
+		$this->saas_model->append_billing_event([
+			'subscription_id' => (int)$detail['subscription']->id,
+			'tenant_id' => (int)$detail['tenant']->id,
+			'cycle_id' => (int)$open_cycle->id,
+			'event_type' => 'mercadopago_card_created',
+			'gateway' => 'mercadopago',
+			'gateway_reference' => isset($payment['id']) ? (string)$payment['id'] : '',
+			'status' => isset($payment['status']) ? (string)$payment['status'] : '',
+			'amount' => isset($payment['transaction_amount']) ? (float)$payment['transaction_amount'] : (float)$open_cycle->amount_due,
+			'payload_text' => json_encode($payment),
+		]);
+		$this->saas_model->save_checkout_data((int)$detail['subscription']->id, [
+			'gateway_reference' => isset($payment['external_reference']) ? $payment['external_reference'] : null,
+			'checkout_type' => 'card',
+			'status' => $this->mercadopago_saas->map_payment_status(isset($payment['status']) ? $payment['status'] : '', isset($payment['status_detail']) ? $payment['status_detail'] : ''),
+			'gateway_status_detail' => isset($payment['status_detail']) ? $payment['status_detail'] : null,
+		]);
+		if(in_array(isset($payment['status']) ? $payment['status'] : '', ['approved', 'authorized'])){
+			$this->saas_model->register_cycle_payment((int)$open_cycle->id, 'card', isset($payment['transaction_amount']) ? (float)$payment['transaction_amount'] : null, 'Pagamento confirmado via cartao Mercado Pago ID '.(isset($payment['id']) ? $payment['id'] : ''));
+		}
+		$this->output->set_content_type('application/json')->set_output(json_encode([
+			'ok' => true,
+			'status' => isset($payment['status']) ? $payment['status'] : '',
+			'status_detail' => isset($payment['status_detail']) ? $payment['status_detail'] : '',
+			'payment_id' => isset($payment['id']) ? $payment['id'] : null,
+			'message' => in_array(isset($payment['status']) ? $payment['status'] : '', ['approved', 'authorized']) ? 'Pagamento aprovado com sucesso.' : 'Pagamento enviado ao Mercado Pago. Confira o status abaixo.',
+			'redirect_url' => in_array(isset($payment['status']) ? $payment['status'] : '', ['approved', 'authorized'])
+				? base_url().'adm/usuarios/assinatura'
+				: base_url().'adm/usuarios/assinatura_pagamento/'.(int)$detail['subscription']->id,
+		]));
+	} catch (Exception $e) {
+		$this->output->set_content_type('application/json')->set_status_header(400)->set_output(json_encode([
+			'ok' => false,
+			'message' => $e->getMessage(),
+		]));
+	}
+}
+
+function assinatura_pagamento_status($subscription_id=0){
+	$this->load->library('mercadopago_saas');
+	$viewer = $this->padrao_model->get_usuario_logado();
+	$detail = $this->saas_model->get_subscription_detail((int)$subscription_id, $viewer);
+	if(!$detail){
+		redirect('adm/usuarios/assinatura');
+		return;
+	}
+	$open_cycle = $this->saas_model->ensure_checkout_cycle((int)$detail['subscription']->id);
+	$latest_event = $open_cycle ? $this->saas_model->get_latest_cycle_payment_event((int)$open_cycle->id) : null;
+	try {
+		if($latest_event && trim((string)$latest_event->gateway_reference) !== ''){
+			$payment = $this->mercadopago_saas->get_payment($latest_event->gateway_reference);
+			$this->saas_model->append_billing_event([
+				'subscription_id' => (int)$detail['subscription']->id,
+				'tenant_id' => (int)$detail['tenant']->id,
+				'cycle_id' => (int)$open_cycle->id,
+				'event_type' => 'sync_manual',
+				'gateway' => 'mercadopago',
+				'gateway_reference' => isset($payment['id']) ? (string)$payment['id'] : '',
+				'status' => isset($payment['status']) ? (string)$payment['status'] : '',
+				'amount' => isset($payment['transaction_amount']) ? (float)$payment['transaction_amount'] : (float)$open_cycle->amount_due,
+				'payload_text' => json_encode($payment),
+			]);
+			$this->saas_model->save_checkout_data((int)$detail['subscription']->id, [
+				'gateway_reference' => isset($payment['external_reference']) ? $payment['external_reference'] : null,
+				'checkout_type' => isset($detail['subscription']->checkout_type) ? $detail['subscription']->checkout_type : null,
+				'status' => $this->mercadopago_saas->map_payment_status(isset($payment['status']) ? $payment['status'] : '', isset($payment['status_detail']) ? $payment['status_detail'] : ''),
+				'gateway_status_detail' => isset($payment['status_detail']) ? $payment['status_detail'] : null,
+			]);
+			if(in_array(isset($payment['status']) ? $payment['status'] : '', ['approved', 'authorized'])){
+				$this->saas_model->register_cycle_payment((int)$open_cycle->id, isset($payment['payment_method_id']) ? $payment['payment_method_id'] : 'mercadopago', isset($payment['transaction_amount']) ? (float)$payment['transaction_amount'] : null, 'Pagamento confirmado via sincronizacao Mercado Pago ID '.(isset($payment['id']) ? $payment['id'] : ''));
+			}
+			$this->session->set_flashdata('saas_ok', 'Status do pagamento sincronizado com o Mercado Pago.');
+		}elseif($detail['subscription']->gateway_subscription_id){
+			$preapproval = $this->mercadopago_saas->get_preapproval($detail['subscription']->gateway_subscription_id);
+			$status = isset($preapproval->status) ? $preapproval->status : 'pending';
+			$this->saas_model->sync_subscription_gateway_status((string)$detail['subscription']->gateway_subscription_id, $status, 'sync_manual', json_encode($preapproval));
+			$this->session->set_flashdata('saas_ok', 'Status da assinatura sincronizado com o Mercado Pago.');
+		}else{
+			$this->session->set_flashdata('saas_error', 'A assinatura ainda nao possui checkout ou pagamento Mercado Pago vinculado.');
+		}
+	} catch (Exception $e) {
+		$this->session->set_flashdata('saas_error', 'Falha ao sincronizar assinatura: '.$e->getMessage());
+	}
+	redirect('adm/usuarios/assinatura');
+}
+
+function manual($nivel=null){
+	$dd_user = $this->padrao_model->get_usuario_logado();
+	$manual = $this->build_manual_context($nivel, $dd_user);
+	if(!$manual){
+		redirect('adm/usuarios/dash');
+		return;
+	}
+	$dados['dd_user'] = $dd_user;
+	$dados['manual'] = $manual;
+	$this->load->view('adm/usuarios/manual_funcao', $dados);
+}
+
+function manual_pdf($nivel=null){
+	$dd_user = $this->padrao_model->get_usuario_logado();
+	$manual = $this->build_manual_context($nivel, $dd_user);
+	if(!$manual){
+		redirect('adm/usuarios/dash');
+		return;
+	}
+	$dados['manual'] = $manual;
+	$html = $this->load->view('adm/usuarios/manual_funcao_pdf', $dados, true);
+	require_once APPPATH.'third_party/mpdf/mpdf.php';
+	$mpdf = new mPDF('utf-8', 'A4', 0, '', 12, 12, 14, 14, 8, 8);
+	$mpdf->SetTitle($manual['pdf_title']);
+	$mpdf->SetAuthor('UTec Saude');
+	$mpdf->SetDisplayMode('fullpage');
+	$mpdf->WriteHTML($html);
+	$mpdf->Output($manual['pdf_slug'].'.pdf', 'I');
+}
+
+private function build_manual_context($nivel=null, $dd_user=null){
+	if(!$dd_user){
+		$dd_user = $this->padrao_model->get_usuario_logado();
+	}
+	if(!$dd_user){
+		return null;
+	}
+	$nivel = $nivel !== null ? (int)$nivel : (int)$dd_user->nivel;
+	if(!in_array($nivel, [2,3,4], true)){
+		return null;
+	}
+
+	$manual = [
+		'level' => $nivel,
+		'title' => '',
+		'subtitle' => '',
+		'pdf_title' => '',
+		'pdf_slug' => '',
+		'who' => [],
+		'access' => [],
+		'day_to_day' => [],
+		'payments' => [],
+		'good_practices' => [],
+	];
+
+	if($nivel === 2){
+		$manual['title'] = 'Manual do Estabelecimento';
+		$manual['subtitle'] = 'Guia da clinica/estabelecimento para gerir equipe, pacientes, agenda e assinatura.';
+		$manual['pdf_title'] = 'Manual do Estabelecimento - UTEC Saude';
+		$manual['pdf_slug'] = 'manual-estabelecimento-nivel-2';
+		$manual['who'] = [
+			'Perfil pensado para gestores da clinica, consultorio ou operacao principal.',
+			'Normalmente este usuario coordena prestadores, colaboradores e a configuracao geral da rotina.',
+		];
+		$manual['access'] = [
+			'Visualiza a operacao inteira da clinica vinculada ao seu cadastro.',
+			'Gerencia prestadores nivel 3, colaboradores nivel 4 e pacientes nivel 5 vinculados a sua estrutura.',
+			'Pode acompanhar agenda, pacientes, historico clinico, relatorios e assinatura da operacao.',
+		];
+		$manual['day_to_day'] = [
+			'Acessar `Agenda` para acompanhar atendimentos e a movimentacao do dia.',
+			'Usar `Pacientes` para cadastrar novos pacientes e revisar a base ativa da clinica.',
+			'Usar `Equipe` para organizar profissionais e colaboradores que participam da operacao.',
+			'Usar `Minha assinatura` para acompanhar cobrancas, historico de pagamento e liberar quitacao do plano.',
+		];
+		$manual['payments'] = [
+			'O plano da operacao pode ser pago por PIX ou cartao dentro da area administrativa.',
+			'O historico mostra ciclos de cobranca, pagamentos confirmados e tentativas recentes.',
+		];
+		$manual['good_practices'] = [
+			'Manter o cadastro da equipe atualizado para evitar perda de visibilidade na agenda e nos pacientes.',
+			'Centralizar o cadastro de colaboradores da clinica no nivel 4 para facilitar operacao compartilhada.',
+		];
+	}
+
+	if($nivel === 3){
+		$manual['title'] = 'Manual do Prestador';
+		$manual['subtitle'] = 'Guia do profissional para atender pacientes, acompanhar agenda e operar dentro da clinica.';
+		$manual['pdf_title'] = 'Manual do Prestador - UTEC Saude';
+		$manual['pdf_slug'] = 'manual-prestador-nivel-3';
+		$manual['who'] = [
+			'Perfil pensado para profissionais/prestadores que atendem pacientes e registram prontuario.',
+			'Pode atuar sozinho ou dentro de uma clinica nivel 2.',
+		];
+		$manual['access'] = [
+			'Visualiza seus pacientes, seus atendimentos e os registros compartilhados da clinica onde estiver vinculado.',
+			'Tambem enxerga o que colaboradores nivel 4 ligados a ele ou a clinica registrarem na mesma operacao.',
+			'Consegue acessar agenda, pacientes, prontuarios, exames e acompanhamento clinico.',
+		];
+		$manual['day_to_day'] = [
+			'Usar `Agenda` para iniciar, finalizar ou remarcar atendimentos.',
+			'Usar `Pacientes` para localizar pacientes ativos e abrir prontuario.',
+			'Usar `Relatorios` para acompanhar volume de atendimentos e exames da operacao visivel ao prestador.',
+		];
+		$manual['payments'] = [
+			'Quando a operacao tiver assinatura vinculada, o prestador pode acompanhar situacao comercial pela area de assinatura.',
+			'O pagamento pode ser feito sem entrar na area SaaS, usando a central de pagamento da assinatura.',
+		];
+		$manual['good_practices'] = [
+			'Registrar atendimento e status da agenda no mesmo dia para manter o historico clinico organizado.',
+			'Alinhar com a clinica e com os colaboradores o padrao de cadastro para evitar duplicidade de pacientes.',
+		];
+	}
+
+	if($nivel === 4){
+		$manual['title'] = 'Manual do Colaborador';
+		$manual['subtitle'] = 'Guia de secretaria e apoio operacional para agenda, pacientes e rotina compartilhada.';
+		$manual['pdf_title'] = 'Manual do Colaborador - UTEC Saude';
+		$manual['pdf_slug'] = 'manual-colaborador-nivel-4';
+		$manual['who'] = [
+			'Perfil pensado para secretarias, recepcao e apoio operacional.',
+			'Pode estar vinculado diretamente a uma clinica nivel 2 ou a um prestador nivel 3.',
+		];
+		$manual['access'] = [
+			'Visualiza pacientes e agendamentos da operacao a que estiver vinculado.',
+			'Quando estiver ligado a uma clinica, acompanha a base compartilhada da clinica.',
+			'Quando estiver ligado a um prestador inserido em uma clinica, tambem acompanha o contexto compartilhado dessa clinica.',
+			'Tem acesso ao que ele cadastrar e ao que a clinica ou o profissional vinculado registrarem na mesma operacao visivel.',
+		];
+		$manual['day_to_day'] = [
+			'Usar `Agenda` para confirmar, remarcar e organizar atendimentos do dia.',
+			'Usar `Pacientes` para cadastrar novos pacientes e localizar contatos rapidamente.',
+			'Usar o prontuario apenas dentro do escopo operacional liberado para a equipe vinculada.',
+		];
+		$manual['payments'] = [
+			'Se a operacao tiver assinatura vinculada, o colaborador pode consultar o status comercial quando isso fizer parte do fluxo interno da clinica.',
+			'O pagamento do plano segue pela central de assinatura, com historico e opcoes de PIX/cartao.',
+		];
+		$manual['good_practices'] = [
+			'Manter telefone e dados do paciente bem cadastrados para evitar erros de agenda e contato.',
+			'Padronizar observacoes de remarcacao e cancelamento para a equipe inteira entender o historico.',
+		];
+	}
+
+	return $manual;
 }
 
 function relatorios_clinicos(){
