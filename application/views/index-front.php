@@ -2,643 +2,841 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title> ** UTecnologia Saúde - Gestão de Pacientes e Clínicas</title>
+    <title>UTecnologia Saúde — Gestão clínica para clínicas e profissionais de saúde</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="UTecnologia Saúde - Sistema online para gestão de pacientes, prontuários, exames e agenda médica para clínicas e consultórios.">
+    <meta name="description" content="Prontuário eletrônico, agenda inteligente e gestão de pacientes. Experimente 30 dias grátis, sem cartão de crédito e sem compromisso.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
-
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
+        /* ── TOKENS ── */
         :root {
-            --azul-claro: #e0f2fe;
-            --azul-medio: #38bdf8;
-            --verde-claro: #dcfce7;
-            --verde-medio: #22c55e;
-            --texto: #0f172a;
-            --cinza-claro: #f8fafc;
-            --borda-card: #dbeafe;
+            --brand-blue:   #0ea5e9;
+            --brand-green:  #22c55e;
+            --seg-clinica:  #2563eb;
+            --seg-clinica-light: #eff6ff;
+            --seg-clinica-border: #bfdbfe;
+            --seg-prof:     #7c3aed;
+            --seg-prof-light: #f5f3ff;
+            --seg-prof-border: #ddd6fe;
+            --text:         #0f172a;
+            --muted:        #475569;
+            --subtle:       #94a3b8;
+            --surface:      #ffffff;
+            --paper:        #f8fafc;
+            --border:       #e2e8f0;
+            --radius-sm:    10px;
+            --radius-md:    16px;
+            --radius-lg:    24px;
+            --shadow-sm:    0 1px 4px rgba(15,23,42,.06);
+            --shadow-md:    0 8px 24px rgba(15,23,42,.09);
+            --shadow-lg:    0 20px 50px rgba(15,23,42,.12);
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        /* ── RESET ── */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+        body { font-family: "Inter", system-ui, sans-serif; color: var(--text); background: #fff; line-height: 1.5; }
+        a { text-decoration: none; color: inherit; }
+        img { max-width: 100%; }
+        ul { list-style: none; }
 
-        body {
-            font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-            background: linear-gradient(135deg, var(--azul-claro), var(--verde-claro));
-            color: var(--texto);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
+        /* ── LAYOUT ── */
+        .container { max-width: 1120px; margin: 0 auto; padding: 0 20px; }
 
-        a {
-            text-decoration: none;
-            color: inherit;
-        }
-
-        header {
-            width: 100%;
-            padding: 16px 24px;
-            background: rgba(255, 255, 255, 0.9);
-            box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
+        /* ── HEADER ── */
+        .site-header {
             position: sticky;
             top: 0;
-            z-index: 10;
+            z-index: 100;
+            background: rgba(255,255,255,.95);
+            backdrop-filter: blur(8px);
+            border-bottom: 1px solid var(--border);
         }
-
-        .container {
-            max-width: 1100px;
-            margin: 0 auto;
-        }
-
         .header-inner {
             display: flex;
             align-items: center;
             justify-content: space-between;
             gap: 16px;
+            height: 64px;
+        }
+        .logo { display: flex; align-items: center; gap: 10px; }
+        .logo-mark {
+            width: 38px; height: 38px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, var(--brand-blue), var(--brand-green));
+            display: flex; align-items: center; justify-content: center;
+            color: #fff; font-weight: 800; font-size: 17px; flex-shrink: 0;
+        }
+        .logo-name { font-weight: 700; font-size: 16px; line-height: 1.15; }
+        .logo-tagline { font-size: 11px; color: var(--subtle); }
+        .header-nav { display: flex; gap: 24px; font-size: 14px; }
+        .header-nav a { color: var(--muted); transition: color .15s; }
+        .header-nav a:hover { color: var(--text); }
+        .header-actions { display: flex; align-items: center; gap: 10px; }
+        .btn-ghost {
+            padding: 7px 14px; border-radius: 999px;
+            font-size: 13px; font-weight: 500;
+            border: 1px solid var(--border);
+            background: transparent; color: var(--text);
+            cursor: pointer; transition: background .15s, border-color .15s;
+        }
+        .btn-ghost:hover { background: var(--paper); border-color: #cbd5e1; }
+        .btn-wa-header {
+            display: flex; align-items: center; gap: 6px;
+            padding: 7px 14px; border-radius: 999px;
+            font-size: 13px; font-weight: 600;
+            background: #25d366; color: #fff;
+            transition: filter .15s;
+        }
+        .btn-wa-header:hover { filter: brightness(1.06); }
+        @media(max-width:760px) {
+            .header-nav { display: none; }
+            .btn-wa-header span { display: none; }
         }
 
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .logo-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 12px;
-            background: linear-gradient(135deg, var(--azul-medio), var(--verde-medio));
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: 800;
-            font-size: 20px;
-        }
-
-        .logo-text {
-            display: flex;
-            flex-direction: column;
-            line-height: 1.1;
-        }
-
-        .logo-text span:first-child {
-            font-weight: 700;
-            font-size: 18px;
-        }
-
-        .logo-text span:last-child {
-            font-weight: 400;
-            font-size: 12px;
-            color: #64748b;
-        }
-
-        nav {
-            display: flex;
-            gap: 20px;
-            font-size: 14px;
-        }
-
-        nav a {
-            padding: 6px 0;
-            position: relative;
-        }
-
-        nav a::after {
-            content: "";
-            position: absolute;
-            left: 0;
-            bottom: -2px;
-            width: 0;
-            height: 2px;
-            background: linear-gradient(90deg, var(--azul-medio), var(--verde-medio));
-            transition: width 0.2s ease-in-out;
-        }
-
-        nav a:hover::after {
-            width: 100%;
-        }
-
-        .btn-header-login {
-            padding: 8px 14px;
-            border-radius: 999px;
-            font-size: 13px;
-            border: 1px solid var(--azul-medio);
-            background: white;
-            color: #0f172a;
-            cursor: pointer;
-            transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
-        }
-
-        .btn-header-login:hover {
-            background: var(--azul-claro);
-            box-shadow: 0 1px 4px rgba(15, 23, 42, 0.12);
-            transform: translateY(-1px);
-        }
-
-        main {
-            flex: 1;
-        }
-
+        /* ── HERO ── */
         .hero {
-            padding: 40px 16px 30px;
+            padding: 72px 20px 80px;
+            background: linear-gradient(160deg, #f0f9ff 0%, #f0fdf4 55%, #faf5ff 100%);
+            text-align: center;
         }
-
-        .hero-inner {
-            display: grid;
-            grid-template-columns: minmax(0, 2fr) minmax(0, 1.5fr);
-            gap: 32px;
-            align-items: center;
+        .hero-eyebrow {
+            display: inline-flex; align-items: center; gap: 7px;
+            background: rgba(255,255,255,.8); border: 1px solid var(--border);
+            border-radius: 999px; padding: 5px 14px;
+            font-size: 12px; font-weight: 600; color: var(--muted);
+            letter-spacing: .02em; margin-bottom: 24px;
         }
-
-        @media (max-width: 900px) {
-            .hero-inner {
-                grid-template-columns: 1fr;
-            }
+        .hero-eyebrow .dot { width: 7px; height: 7px; border-radius: 50%; background: #22c55e; animation: pulse 2s infinite; }
+        @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.6;transform:scale(1.3)} }
+        .hero h1 {
+            font-size: clamp(32px, 5vw, 56px);
+            font-weight: 800; line-height: 1.1;
+            letter-spacing: -.02em; margin-bottom: 20px;
         }
+        .hero h1 .gradient {
+            background: linear-gradient(90deg, #0ea5e9 20%, #22c55e 80%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .hero-sub {
+            font-size: clamp(16px, 2.2vw, 19px);
+            color: var(--muted); max-width: 620px; margin: 0 auto 32px;
+            line-height: 1.65;
+        }
+        .trust-row {
+            display: flex; flex-wrap: wrap; justify-content: center; gap: 10px;
+            margin-bottom: 52px;
+        }
+        .trust-badge {
+            display: flex; align-items: center; gap: 6px;
+            background: rgba(255,255,255,.9); border: 1px solid var(--border);
+            border-radius: 999px; padding: 6px 13px;
+            font-size: 12px; font-weight: 500; color: var(--muted);
+        }
+        .trust-badge .check { color: #22c55e; font-weight: 700; }
 
-        .hero-text h1 {
-            font-size: 32px;
-            line-height: 1.2;
+        /* ── SEGMENT CARDS ── */
+        .segment-split {
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 20px; max-width: 860px; margin: 0 auto;
+        }
+        @media(max-width:680px) { .segment-split { grid-template-columns: 1fr; } }
+
+        .segment-card {
+            background: #fff; border-radius: var(--radius-lg);
+            padding: 32px 28px; text-align: left;
+            box-shadow: var(--shadow-md);
+            border: 2px solid transparent;
+            transition: transform .2s, box-shadow .2s, border-color .2s;
+            display: flex; flex-direction: column;
+        }
+        .segment-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+        .segment-card.clinica { border-color: var(--seg-clinica-border); }
+        .segment-card.profissional { border-color: var(--seg-prof-border); }
+
+        .seg-tag {
+            display: inline-flex; align-items: center; gap: 6px;
+            border-radius: 999px; padding: 4px 12px;
+            font-size: 11px; font-weight: 700; letter-spacing: .05em;
+            text-transform: uppercase; margin-bottom: 16px;
+        }
+        .clinica .seg-tag { background: var(--seg-clinica-light); color: var(--seg-clinica); }
+        .profissional .seg-tag { background: var(--seg-prof-light); color: var(--seg-prof); }
+
+        .segment-card h3 { font-size: 22px; font-weight: 800; margin-bottom: 8px; }
+        .segment-card .seg-desc { font-size: 14px; color: var(--muted); margin-bottom: 20px; line-height: 1.6; }
+
+        .seg-features { display: flex; flex-direction: column; gap: 9px; margin-bottom: 28px; flex: 1; }
+        .seg-feature {
+            display: flex; align-items: flex-start; gap: 10px;
+            font-size: 14px; color: #334155;
+        }
+        .seg-feature .ico { font-size: 15px; flex-shrink: 0; margin-top: 1px; }
+
+        .btn-seg {
+            display: block; text-align: center;
+            padding: 13px 20px; border-radius: 999px;
+            font-size: 15px; font-weight: 700;
+            transition: filter .15s, transform .1s, box-shadow .15s;
+        }
+        .btn-seg:hover { filter: brightness(1.07); transform: translateY(-1px); }
+        .clinica .btn-seg {
+            background: linear-gradient(90deg, #2563eb, #0ea5e9);
+            color: #fff; box-shadow: 0 6px 18px rgba(37,99,235,.3);
+        }
+        .profissional .btn-seg {
+            background: linear-gradient(90deg, #7c3aed, #a78bfa);
+            color: #fff; box-shadow: 0 6px 18px rgba(124,58,237,.3);
+        }
+        .btn-seg-note { font-size: 12px; text-align: center; color: var(--subtle); margin-top: 10px; }
+
+        /* ── DIVIDER ── */
+        .section-divider { height: 1px; background: var(--border); margin: 0 20px; }
+
+        /* ── SECTION HEADER ── */
+        .section-label {
+            font-size: 12px; font-weight: 700; letter-spacing: .1em;
+            text-transform: uppercase; color: var(--brand-blue);
+            margin-bottom: 10px;
+        }
+        .section-title {
+            font-size: clamp(26px, 3.5vw, 38px);
+            font-weight: 800; letter-spacing: -.02em; line-height: 1.15;
             margin-bottom: 14px;
         }
+        .section-sub { font-size: 16px; color: var(--muted); max-width: 560px; line-height: 1.65; }
 
-        .hero-text h1 span {
-            background: linear-gradient(90deg, #0ea5e9, #22c55e);
-            -webkit-background-clip: text;
-            color: transparent;
-        }
-
-        .hero-text p {
-            font-size: 15px;
-            color: #475569;
-            margin-bottom: 18px;
-            max-width: 520px;
-        }
-
-        .hero-badges {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-bottom: 20px;
-        }
-
-        .hero-badge {
-            background: rgba(255, 255, 255, 0.8);
-            border-radius: 999px;
-            padding: 6px 12px;
-            font-size: 11px;
-            color: #0f172a;
-            border: 1px solid rgba(148, 163, 184, 0.3);
-        }
-
-        .hero-actions {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            align-items: center;
-        }
-
-        .btn-primary {
-            background: linear-gradient(90deg, var(--azul-medio), var(--verde-medio));
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 999px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            box-shadow: 0 4px 14px rgba(56, 189, 248, 0.4);
-            transition: transform 0.1s, box-shadow 0.2s, filter 0.2s;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-1px);
-            filter: brightness(1.05);
-            box-shadow: 0 6px 18px rgba(56, 189, 248, 0.45);
-        }
-
-        .btn-secondary {
-            background: rgba(255, 255, 255, 0.7);
-            border-radius: 999px;
-            padding: 9px 18px;
-            font-size: 13px;
-            border: 1px solid rgba(148, 163, 184, 0.5);
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .btn-secondary span.icon {
-            font-size: 16px;
-        }
-
-        .login-card {
-            background: rgba(255, 255, 255, 0.96);
-            border-radius: 18px;
-            padding: 24px 20px;
-            box-shadow: 0 14px 45px rgba(15, 23, 42, 0.14);
-            border: 1px solid var(--borda-card);
-        }
-
-        .login-card h2 {
-            font-size: 18px;
-            margin-bottom: 4px;
-        }
-
-        .login-card p {
-            font-size: 12px;
-            color: #64748b;
-            margin-bottom: 16px;
-        }
-
-        .login-card form {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-
-        .form-group label {
-            font-size: 12px;
-            font-weight: 500;
-            color: #0f172a;
-        }
-
-        .form-group input {
-            border-radius: 10px;
-            border: 1px solid #cbd5f5;
-            padding: 8px 10px;
-            font-size: 13px;
-            outline: none;
-            transition: border 0.15s, box-shadow 0.15s, background 0.15s;
-        }
-
-        .form-group input:focus {
-            border-color: var(--azul-medio);
-            box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.2);
-            background: #f9fcff;
-        }
-
-        .login-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 11px;
-            margin-bottom: 4px;
-        }
-
-        .remember {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            font-size: 11px;
-            color: #64748b;
-        }
-
-        .remember input[type="checkbox"] {
-            width: 13px;
-            height: 13px;
-        }
-
-        .forgot a {
-            color: var(--azul-medio);
-            font-weight: 500;
-        }
-
-        .login-card button {
-            width: 100%;
-        }
-
-        .login-extra {
-            margin-top: 10px;
-            font-size: 11px;
-            text-align: center;
-            color: #64748b;
-        }
-
-        .login-extra a {
-            color: var(--verde-medio);
-            font-weight: 600;
-        }
-
-        .section {
-            padding: 20px 16px 26px;
-        }
-
-        .section-inner {
-            background: rgba(255, 255, 255, 0.9);
-            border-radius: 18px;
-            padding: 20px 18px;
-            box-shadow: 0 8px 22px rgba(15, 23, 42, 0.08);
-            border: 1px solid rgba(148, 163, 184, 0.25);
-        }
-
-        .section-title {
-            font-size: 18px;
-            margin-bottom: 6px;
-        }
-
-        .section-subtitle {
-            font-size: 13px;
-            color: #64748b;
-            margin-bottom: 18px;
-        }
-
-        .grid-3 {
+        /* ── FEATURES ── */
+        .features-section { padding: 88px 20px; background: #fff; }
+        .features-header { margin-bottom: 52px; }
+        .features-grid {
             display: grid;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+        }
+        @media(max-width:900px) { .features-grid { grid-template-columns: 1fr 1fr; } }
+        @media(max-width:560px) { .features-grid { grid-template-columns: 1fr; } }
+
+        .feature-card {
+            padding: 28px 24px; border-radius: var(--radius-md);
+            border: 1px solid var(--border); background: var(--paper);
+            transition: box-shadow .2s, transform .2s;
+        }
+        .feature-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+        .feature-icon {
+            width: 44px; height: 44px; border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 22px; margin-bottom: 16px;
+        }
+        .feature-card h4 { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+        .feature-card p { font-size: 14px; color: var(--muted); line-height: 1.65; }
+
+        /* ── HOW IT WORKS ── */
+        .how-section { padding: 88px 20px; background: var(--paper); }
+        .how-grid {
+            display: grid; grid-template-columns: repeat(3, 1fr);
+            gap: 32px; margin-top: 52px; position: relative;
+        }
+        @media(max-width:700px) { .how-grid { grid-template-columns: 1fr; } }
+        .how-step { text-align: center; }
+        .step-number {
+            width: 52px; height: 52px; border-radius: 50%;
+            background: linear-gradient(135deg, var(--brand-blue), var(--brand-green));
+            color: #fff; font-size: 22px; font-weight: 800;
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 20px;
+        }
+        .how-step h4 { font-size: 18px; font-weight: 700; margin-bottom: 10px; }
+        .how-step p { font-size: 14px; color: var(--muted); line-height: 1.65; max-width: 260px; margin: 0 auto; }
+
+        /* ── SPECIALTIES ── */
+        .spec-section { padding: 80px 20px; background: #fff; }
+        .spec-grid {
+            display: flex; flex-wrap: wrap; gap: 10px;
+            margin-top: 36px;
+        }
+        .spec-pill {
+            padding: 8px 16px; border-radius: 999px;
+            border: 1px solid var(--border); background: var(--paper);
+            font-size: 13px; color: var(--muted);
+            transition: background .15s, border-color .15s, color .15s;
+        }
+        .spec-pill:hover {
+            background: var(--seg-clinica-light);
+            border-color: var(--seg-clinica-border);
+            color: var(--seg-clinica);
+        }
+
+        /* ── DUAL CTA BANNER ── */
+        .cta-section {
+            padding: 80px 20px;
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #0f2a1f 100%);
+            color: #fff; text-align: center;
+        }
+        .cta-section .section-label { color: #7dd3fc; }
+        .cta-section .section-title { color: #fff; margin: 0 auto 14px; }
+        .cta-section .section-sub { color: #94a3b8; margin: 0 auto 48px; }
+        .cta-cards {
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 20px; max-width: 780px; margin: 0 auto;
+        }
+        @media(max-width:600px) { .cta-cards { grid-template-columns: 1fr; } }
+        .cta-card {
+            border-radius: var(--radius-lg); padding: 32px 24px;
+            border: 1px solid rgba(255,255,255,.1); text-align: left;
+        }
+        .cta-card.clinica-cta { background: rgba(37,99,235,.15); border-color: rgba(37,99,235,.3); }
+        .cta-card.prof-cta { background: rgba(124,58,237,.15); border-color: rgba(124,58,237,.3); }
+        .cta-card-emoji { font-size: 28px; margin-bottom: 14px; }
+        .cta-card h3 { font-size: 20px; font-weight: 800; margin-bottom: 8px; color: #fff; }
+        .cta-card p { font-size: 14px; color: #94a3b8; margin-bottom: 24px; line-height: 1.6; }
+        .btn-cta-clinica {
+            display: inline-block; padding: 12px 22px; border-radius: 999px;
+            background: linear-gradient(90deg, #2563eb, #0ea5e9);
+            color: #fff; font-size: 14px; font-weight: 700;
+            box-shadow: 0 6px 18px rgba(37,99,235,.4);
+            transition: filter .15s, transform .1s;
+        }
+        .btn-cta-prof {
+            display: inline-block; padding: 12px 22px; border-radius: 999px;
+            background: linear-gradient(90deg, #7c3aed, #a78bfa);
+            color: #fff; font-size: 14px; font-weight: 700;
+            box-shadow: 0 6px 18px rgba(124,58,237,.4);
+            transition: filter .15s, transform .1s;
+        }
+        .btn-cta-clinica:hover, .btn-cta-prof:hover { filter: brightness(1.1); transform: translateY(-1px); }
+        .cta-note { margin-top: 28px; font-size: 12px; color: #64748b; }
+
+        /* ── CONTACT ── */
+        .contact-section { padding: 80px 20px; background: var(--paper); }
+        .contact-grid {
+            display: grid; grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px; margin-top: 48px;
+        }
+        @media(max-width:780px) { .contact-grid { grid-template-columns: 1fr; } }
+        .contact-card {
+            background: #fff; border-radius: var(--radius-md);
+            padding: 28px 24px; border: 1px solid var(--border);
+        }
+        .contact-card-icon { font-size: 28px; margin-bottom: 14px; }
+        .contact-card h4 { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+        .contact-card p, .contact-card a { font-size: 14px; color: var(--muted); line-height: 1.7; }
+        .contact-card a { color: var(--brand-blue); font-weight: 600; }
+        .contact-card a:hover { text-decoration: underline; }
+        .btn-wa-contact {
+            display: inline-flex; align-items: center; gap: 8px;
+            margin-top: 14px; padding: 10px 20px; border-radius: 999px;
+            background: #25d366; color: #fff;
+            font-size: 14px; font-weight: 700;
+            transition: filter .15s;
+        }
+        .btn-wa-contact:hover { filter: brightness(1.08); }
+
+        /* ── LOGIN SECTION ── */
+        .login-section { padding: 80px 20px; background: #fff; }
+        .login-inner {
+            max-width: 480px; margin: 0 auto;
+            text-align: center;
+        }
+        .login-inner .section-title { font-size: 28px; }
+        .login-form-wrap {
+            margin-top: 32px; background: var(--paper);
+            border-radius: var(--radius-lg); padding: 32px 28px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
+            text-align: left;
+        }
+        .login-form-wrap form { display: flex; flex-direction: column; gap: 16px; }
+        .form-field { display: flex; flex-direction: column; gap: 6px; }
+        .form-field label { font-size: 12px; font-weight: 700; color: var(--muted); letter-spacing: .04em; text-transform: uppercase; }
+        .form-field input {
+            padding: 11px 14px; border-radius: var(--radius-sm);
+            border: 1px solid var(--border); font-size: 14px;
+            font-family: inherit; outline: none;
+            transition: border-color .15s, box-shadow .15s;
+        }
+        .form-field input:focus {
+            border-color: var(--brand-blue);
+            box-shadow: 0 0 0 3px rgba(14,165,233,.12);
+        }
+        .login-row { display: flex; justify-content: space-between; align-items: center; font-size: 12px; }
+        .remember { display: flex; align-items: center; gap: 6px; color: var(--muted); }
+        .forgot a { color: var(--brand-blue); font-weight: 600; }
+        .btn-login {
+            width: 100%; padding: 12px; border: none; border-radius: 999px;
+            background: linear-gradient(90deg, var(--brand-blue), var(--brand-green));
+            color: #fff; font-size: 15px; font-weight: 700;
+            cursor: pointer; box-shadow: 0 4px 14px rgba(14,165,233,.35);
+            transition: filter .15s, transform .1s;
+        }
+        .btn-login:hover { filter: brightness(1.07); transform: translateY(-1px); }
+        .login-footer-note { text-align: center; font-size: 12px; color: var(--subtle); margin-top: 4px; }
+        .login-footer-note a { color: var(--brand-green); font-weight: 600; }
+
+        /* ── FOOTER ── */
+        .site-footer {
+            background: #0f172a; color: #94a3b8;
+            padding: 40px 20px;
+        }
+        .footer-inner {
+            max-width: 1120px; margin: 0 auto;
+            display: flex; flex-wrap: wrap;
+            justify-content: space-between; align-items: center;
             gap: 16px;
         }
-
-        @media (max-width: 900px) {
-            .grid-3 {
-                grid-template-columns: 1fr;
-            }
+        .footer-brand { display: flex; align-items: center; gap: 10px; }
+        .footer-logo-mark {
+            width: 32px; height: 32px; border-radius: 8px;
+            background: linear-gradient(135deg, var(--brand-blue), var(--brand-green));
+            display: flex; align-items: center; justify-content: center;
+            color: #fff; font-weight: 800; font-size: 14px;
         }
+        .footer-name { font-size: 14px; font-weight: 700; color: #e2e8f0; }
+        .footer-links { display: flex; gap: 20px; font-size: 13px; flex-wrap: wrap; }
+        .footer-links a { color: #64748b; transition: color .15s; }
+        .footer-links a:hover { color: #94a3b8; }
+        .footer-copy { font-size: 12px; color: #334155; }
 
-        .card {
-            background: var(--cinza-claro);
-            border-radius: 14px;
-            padding: 14px 12px;
-            border: 1px solid rgba(148, 163, 184, 0.3);
+        /* ── FLOATING WHATSAPP ── */
+        .wa-float {
+            position: fixed; bottom: 24px; right: 24px; z-index: 200;
+            width: 56px; height: 56px; border-radius: 50%;
+            background: #25d366;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 4px 16px rgba(37,211,102,.45);
+            transition: transform .2s, box-shadow .2s;
         }
+        .wa-float:hover { transform: scale(1.08); box-shadow: 0 8px 24px rgba(37,211,102,.5); }
+        .wa-float svg { width: 28px; height: 28px; fill: #fff; }
 
-        .card h3 {
-            font-size: 14px;
-            margin-bottom: 6px;
+        /* ── MODAL ── */
+        .modal-overlay {
+            display: none; position: fixed; inset: 0; z-index: 300;
+            background: rgba(15,23,42,.55); backdrop-filter: blur(4px);
+            align-items: center; justify-content: center;
         }
+        .modal-overlay.open { display: flex; }
+        .modal-box {
+            background: #fff; border-radius: var(--radius-lg);
+            padding: 36px 32px; width: 100%; max-width: 420px;
+            margin: 16px; box-shadow: var(--shadow-lg);
+            position: relative;
+        }
+        .modal-close {
+            position: absolute; top: 14px; right: 16px;
+            background: none; border: none; cursor: pointer;
+            font-size: 22px; color: var(--subtle); line-height: 1;
+        }
+        .modal-close:hover { color: var(--text); }
+        .modal-box h3 { font-size: 22px; font-weight: 800; margin-bottom: 6px; }
+        .modal-box .modal-sub { font-size: 14px; color: var(--muted); margin-bottom: 24px; }
 
-        .card p {
-            font-size: 13px;
-            color: #64748b;
-        }
-
-        .footer {
-            padding: 14px 16px 18px;
-            background: rgba(15, 23, 42, 0.9);
-            color: #e5e7eb;
-            font-size: 12px;
-            margin-top: 20px;
-        }
-
-        .footer-inner {
-            max-width: 1100px;
-            margin: 0 auto;
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            justify-content: space-between;
-            gap: 10px;
-        }
-
-        .footer a {
-            color: #a5f3fc;
-        }
-
-        .footer-small {
-            color: #9ca3af;
-        }
+        /* ── UTILITY ── */
+        .text-center { text-align: center; }
+        .mt-4 { margin-top: 16px; }
     </style>
 </head>
 <body>
 
-<header>
-    <div class="container header-inner">
-        <div class="logo">
-            <div class="logo-icon">UT</div>
-            <div class="logo-text">
-                <span>UTecnologia Saúde</span>
-                <span>Gestão para clínicas e consultórios</span>
+<!-- ═══════════════════════════════════════════════════════
+     FLOATING WHATSAPP
+═══════════════════════════════════════════════════════ -->
+<a class="wa-float" href="https://wa.me/5581983276882?text=Ol%C3%A1%2C%20gostaria%20de%20conhecer%20o%20UTecnologia%20Sa%C3%BAde" target="_blank" rel="noopener" title="Fale pelo WhatsApp">
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/>
+    </svg>
+</a>
+
+<!-- ═══════════════════════════════════════════════════════
+     LOGIN MODAL
+═══════════════════════════════════════════════════════ -->
+<div id="login-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-label="Entrar no sistema">
+    <div class="modal-box">
+        <button class="modal-close" onclick="fecharModal()" aria-label="Fechar">&times;</button>
+        <h3>Entrar no sistema</h3>
+        <p class="modal-sub">Acesse sua conta para gerenciar pacientes, agenda e prontuários.</p>
+        <form action="<?=base_url()?>admin/logar" method="post" style="display:flex;flex-direction:column;gap:14px;">
+            <div class="form-field">
+                <label for="m-login">E-mail ou usuário</label>
+                <input type="text" id="m-login" name="login" placeholder="seuemail@clinica.com.br" required autocomplete="username">
             </div>
-        </div>
-        <nav>
-            <a href="#sobre">Sobre</a>
-            <a href="#servicos">Funcionalidades</a>
+            <div class="form-field">
+                <label for="m-senha">Senha</label>
+                <input type="password" id="m-senha" name="senha" placeholder="Sua senha" required autocomplete="current-password">
+            </div>
+            <div class="login-row">
+                <label class="remember">
+                    <input type="checkbox" name="lembrar" value="1" style="width:14px;height:14px;">
+                    Lembrar-me
+                </label>
+                <div class="forgot"><a href="#">Esqueci minha senha</a></div>
+            </div>
+            <button type="submit" class="btn-login">Entrar no sistema</button>
+            <p class="login-footer-note">Ainda não tem conta? <a href="<?=base_url()?>experimentar">Experimente 30 dias grátis</a></p>
+        </form>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     HEADER
+═══════════════════════════════════════════════════════ -->
+<header class="site-header">
+    <div class="container header-inner">
+        <a href="<?=base_url()?>" class="logo">
+            <div class="logo-mark">U</div>
+            <div>
+                <div class="logo-name">UTecnologia Saúde</div>
+                <div class="logo-tagline">Gestão clínica inteligente</div>
+            </div>
+        </a>
+        <nav class="header-nav">
+            <a href="#funcionalidades">Funcionalidades</a>
+            <a href="#como-funciona">Como funciona</a>
+            <a href="#especialidades">Especialidades</a>
             <a href="#contato">Contato</a>
         </nav>
-        <button class="btn-header-login" onclick="document.getElementById('campo-login').scrollIntoView({behavior:'smooth'})">
-            Acesso ao sistema
-        </button>
+        <div class="header-actions">
+            <button class="btn-ghost" onclick="abrirModal()">Já tenho conta</button>
+            <a class="btn-wa-header" href="https://wa.me/5581983276882?text=Ol%C3%A1%2C%20gostaria%20de%20conhecer%20o%20UTecnologia%20Sa%C3%BAde" target="_blank" rel="noopener">
+                <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
+                <span>WhatsApp</span>
+            </a>
+        </div>
     </div>
 </header>
 
-<main>
-    <section class="hero">
-        <div class="container hero-inner">
-            <div class="hero-text">
-                <h1>
-                    Sistema completo para <span>gestão de pacientes</span> e clínicas.
-                </h1>
-                <p>
-                    O <strong>UTecnologia Saúde</strong> é um sistema online desenvolvido para a área médica,
-                    permitindo o controle de pacientes, histórico clínico, prontuários, exames e agenda
-                    de atendimentos em um só lugar.
+<!-- ═══════════════════════════════════════════════════════
+     HERO
+═══════════════════════════════════════════════════════ -->
+<section class="hero">
+    <div class="container">
+        <div class="hero-eyebrow">
+            <span class="dot"></span>
+            30 dias grátis · Sem cartão de crédito · Acesso imediato
+        </div>
+
+        <h1>
+            Gestão clínica completa para<br>
+            <span class="gradient">clínicas e profissionais de saúde</span>
+        </h1>
+
+        <p class="hero-sub">
+            Prontuário eletrônico, agenda inteligente, controle de exames e atendimentos —
+            tudo integrado em um sistema simples e acessível de qualquer dispositivo.
+        </p>
+
+        <div class="trust-row">
+            <span class="trust-badge"><span class="check">✓</span> 30 dias grátis</span>
+            <span class="trust-badge"><span class="check">✓</span> Sem cartão de crédito</span>
+            <span class="trust-badge"><span class="check">✓</span> Acesso imediato</span>
+            <span class="trust-badge"><span class="check">✓</span> Cancele quando quiser</span>
+            <span class="trust-badge"><span class="check">✓</span> Dados seguros e privados</span>
+        </div>
+
+        <!-- ESCOLHA DE SEGMENTO -->
+        <div class="segment-split">
+
+            <!-- CLÍNICA -->
+            <div class="segment-card clinica">
+                <span class="seg-tag">🏥 Para Clínicas</span>
+                <h3>Minha clínica tem mais de um profissional</h3>
+                <p class="seg-desc">
+                    Gerencie toda a equipe em um único sistema — médicos, recepcionistas, colaboradores —
+                    com agenda compartilhada, prontuários centralizados e controle de acesso por perfil.
                 </p>
-
-                <div class="hero-badges">
-                    <div class="hero-badge">Prontuário eletrônico de pacientes (PEP)</div>
-                    <div class="hero-badge">Agenda médica e lembretes</div>
-                    <div class="hero-badge">Histórico de exames e evoluções clínicas</div>
-                </div>
-
-                <div class="hero-actions">
-                    <a class="btn-primary" href="<?=base_url()?>experimentar">
-                        Testar 30 dias
-                    </a>
-                    <a class="btn-secondary" href="<?=base_url()?>assinar">
-                        Comecar assinatura comercial
-                    </a>
-                    <button class="btn-secondary" onclick="document.getElementById('campo-login').scrollIntoView({behavior:'smooth'})">
-                        <span class="icon">🔐</span>
-                        Entrar no sistema
-                    </button>
-                </div>
+                <ul class="seg-features">
+                    <li class="seg-feature"><span class="ico">📅</span>Agenda por profissional e sala</li>
+                    <li class="seg-feature"><span class="ico">👥</span>Gestão de equipe com permissões</li>
+                    <li class="seg-feature"><span class="ico">📋</span>Prontuários e histórico centralizado</li>
+                    <li class="seg-feature"><span class="ico">📊</span>Relatórios gerenciais e clínicos</li>
+                    <li class="seg-feature"><span class="ico">🔒</span>Controle de acesso por função</li>
+                </ul>
+                <a href="<?=base_url()?>experimentar?tipo=clinica" class="btn-seg">
+                    Quero para minha clínica →
+                </a>
+                <p class="btn-seg-note">Experimente 30 dias grátis, sem compromisso</p>
             </div>
 
-            <div id="campo-login" class="login-card">
-                <h2>Login do Profissional / Clínica</h2>
-                <p>Acesse seus pacientes, agendas, prontuários e relatórios de forma segura.</p>
+            <!-- PROFISSIONAL -->
+            <div class="segment-card profissional">
+                <span class="seg-tag">👨‍⚕️ Para Profissionais</span>
+                <h3>Trabalho sozinho no meu consultório</h3>
+                <p class="seg-desc">
+                    Perfeito para fisioterapeutas, psicólogos, nutricionistas, fonoaudiólogos e qualquer
+                    profissional de saúde que atende de forma independente ou em consultório próprio.
+                </p>
+                <ul class="seg-features">
+                    <li class="seg-feature"><span class="ico">📝</span>Prontuário eletrônico pessoal</li>
+                    <li class="seg-feature"><span class="ico">📅</span>Agenda de consultas simplificada</li>
+                    <li class="seg-feature"><span class="ico">🗂️</span>Histórico completo de cada paciente</li>
+                    <li class="seg-feature"><span class="ico">📎</span>Anexo de exames e documentos</li>
+                    <li class="seg-feature"><span class="ico">📱</span>Acesso em qualquer dispositivo</li>
+                </ul>
+                <a href="<?=base_url()?>experimentar?tipo=profissional" class="btn-seg">
+                    Quero para meu consultório →
+                </a>
+                <p class="btn-seg-note">Experimente 30 dias grátis, sem compromisso</p>
+            </div>
 
-                <!-- Ajuste a action para o seu backend (PHP, Laravel, CodeIgniter, etc.) -->
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     FUNCIONALIDADES
+═══════════════════════════════════════════════════════ -->
+<section id="funcionalidades" class="features-section">
+    <div class="container">
+        <div class="features-header">
+            <p class="section-label">O que está incluído</p>
+            <h2 class="section-title">Tudo que você precisa para<br>organizar sua prática clínica</h2>
+            <p class="section-sub">Um sistema pensado para a rotina real de profissionais de saúde — sem complexidade desnecessária.</p>
+        </div>
+
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon" style="background:#eff6ff;">📋</div>
+                <h4>Prontuário Eletrônico Completo</h4>
+                <p>Registre anamnese, evolução clínica, hipóteses diagnósticas, prescrições e anotações. Histórico completo do paciente em poucos cliques.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon" style="background:#f0fdf4;">📅</div>
+                <h4>Agenda Inteligente</h4>
+                <p>Controle de consultas por profissional, com visão diária, semanal e mensal. Cancele e remarque diretamente na agenda sem retrabalho.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon" style="background:#fefce8;">🔬</div>
+                <h4>Exames e Documentos</h4>
+                <p>Organize laudos, exames laboratoriais, imagens e documentos de cada paciente. Acesse o histórico completo em qualquer atendimento.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon" style="background:#fdf4ff;">👥</div>
+                <h4>Cadastro Completo de Pacientes</h4>
+                <p>Dados cadastrais, contatos, convênios, responsáveis e observações gerais. Base de pacientes organizada e fácil de pesquisar.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon" style="background:#fff7ed;">📊</div>
+                <h4>Relatórios Clínicos</h4>
+                <p>Gere relatórios de atendimentos por profissional, período e especialidade. Exporte para PDF e tenha visão gerencial da clínica.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon" style="background:#f0f9ff;">🔒</div>
+                <h4>Segurança e Controle de Acesso</h4>
+                <p>Perfis individuais para cada membro da equipe com permissões distintas. Dados dos pacientes protegidos e acessíveis só por quem deve.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     COMO FUNCIONA
+═══════════════════════════════════════════════════════ -->
+<section id="como-funciona" class="how-section">
+    <div class="container text-center">
+        <p class="section-label">Simples e rápido</p>
+        <h2 class="section-title">Comece a atender em 3 passos</h2>
+        <p class="section-sub" style="margin:0 auto;">Do cadastro ao primeiro atendimento em menos de 10 minutos.</p>
+
+        <div class="how-grid">
+            <div class="how-step">
+                <div class="step-number">1</div>
+                <h4>Crie sua conta</h4>
+                <p>Preencha nome, e-mail e escolha seu plano. Sem cartão de crédito exigido. O acesso é liberado na hora.</p>
+            </div>
+            <div class="how-step">
+                <div class="step-number">2</div>
+                <h4>Configure seu perfil</h4>
+                <p>Informe sua especialidade, horários de atendimento e, se tiver equipe, adicione os colaboradores com suas funções.</p>
+            </div>
+            <div class="how-step">
+                <div class="step-number">3</div>
+                <h4>Comece a atender</h4>
+                <p>Cadastre seus pacientes, abra a agenda e registre os prontuários. Tudo pronto para o dia a dia clínico.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     ESPECIALIDADES
+═══════════════════════════════════════════════════════ -->
+<section id="especialidades" class="spec-section">
+    <div class="container">
+        <p class="section-label">Abrangência</p>
+        <h2 class="section-title">Para qualquer especialidade clínica</h2>
+        <p class="section-sub">O sistema atende toda especialidade que trabalha com prontuário, agenda e atendimento de pacientes.</p>
+
+        <div class="spec-grid">
+            <span class="spec-pill">Medicina Geral</span>
+            <span class="spec-pill">Psicologia</span>
+            <span class="spec-pill">Fisioterapia</span>
+            <span class="spec-pill">Nutrição</span>
+            <span class="spec-pill">Fonoaudiologia</span>
+            <span class="spec-pill">Odontologia</span>
+            <span class="spec-pill">Pediatria</span>
+            <span class="spec-pill">Ginecologia e Obstetrícia</span>
+            <span class="spec-pill">Cardiologia</span>
+            <span class="spec-pill">Dermatologia</span>
+            <span class="spec-pill">Ortopedia</span>
+            <span class="spec-pill">Neurologia</span>
+            <span class="spec-pill">Endocrinologia</span>
+            <span class="spec-pill">Oftalmologia</span>
+            <span class="spec-pill">Terapia Ocupacional</span>
+            <span class="spec-pill">Medicina do Trabalho</span>
+            <span class="spec-pill">Psiquiatria</span>
+            <span class="spec-pill">Urologia</span>
+            <span class="spec-pill">Reumatologia</span>
+            <span class="spec-pill">Acupuntura</span>
+            <span class="spec-pill">Homeopatia</span>
+            <span class="spec-pill">Medicina Integrativa</span>
+            <span class="spec-pill">E muito mais...</span>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     CTA FINAL
+═══════════════════════════════════════════════════════ -->
+<section class="cta-section">
+    <div class="container">
+        <p class="section-label">Comece hoje</p>
+        <h2 class="section-title" style="max-width:600px;margin:0 auto 14px;">
+            30 dias para descobrir que gestão clínica pode ser simples
+        </h2>
+        <p class="section-sub">
+            Sem burocracia, sem contrato. Crie sua conta agora e veja o sistema funcionando para você.
+        </p>
+
+        <div class="cta-cards">
+            <div class="cta-card clinica-cta">
+                <div class="cta-card-emoji">🏥</div>
+                <h3>Para Clínicas</h3>
+                <p>Agenda compartilhada, gestão de equipe, relatórios e prontuários centralizados para múltiplos profissionais.</p>
+                <a href="<?=base_url()?>experimentar?tipo=clinica" class="btn-cta-clinica">Experimentar para minha clínica →</a>
+            </div>
+            <div class="cta-card prof-cta">
+                <div class="cta-card-emoji">👨‍⚕️</div>
+                <h3>Para Profissionais</h3>
+                <p>Prontuário, agenda e histórico de pacientes para fisioterapeutas, psicólogos, nutricionistas e outros profissionais independentes.</p>
+                <a href="<?=base_url()?>experimentar?tipo=profissional" class="btn-cta-prof">Experimentar para meu consultório →</a>
+            </div>
+        </div>
+        <p class="cta-note">Sem cartão de crédito · Acesso imediato · Cancele quando quiser</p>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     CONTATO
+═══════════════════════════════════════════════════════ -->
+<section id="contato" class="contact-section">
+    <div class="container">
+        <p class="section-label">Estamos aqui</p>
+        <h2 class="section-title">Tem dúvidas? Fale com a gente</h2>
+        <p class="section-sub">Nossa equipe atende clínicas e profissionais de saúde em todo o Brasil.</p>
+
+        <div class="contact-grid">
+            <div class="contact-card">
+                <div class="contact-card-icon">💬</div>
+                <h4>WhatsApp</h4>
+                <p>Atendimento rápido para dúvidas sobre o sistema, planos e suporte técnico.</p>
+                <a class="btn-wa-contact" href="https://wa.me/5581983276882?text=Ol%C3%A1%2C%20gostaria%20de%20conhecer%20o%20UTecnologia%20Sa%C3%BAde" target="_blank" rel="noopener">
+                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
+                    Chamar no WhatsApp
+                </a>
+            </div>
+            <div class="contact-card">
+                <div class="contact-card-icon">✉️</div>
+                <h4>E-mail</h4>
+                <p>Para questões detalhadas, envie um e-mail e responderemos em até 1 dia útil.</p>
+                <p style="margin-top:12px;"><a href="mailto:suporte@utecnologia.com.br">suporte@utecnologia.com.br</a></p>
+            </div>
+            <div class="contact-card">
+                <div class="contact-card-icon">🌎</div>
+                <h4>100% Online</h4>
+                <p>Sistema acessível pelo navegador, de qualquer computador, tablet ou celular. Atendemos todo o Brasil.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     LOGIN SECTION (clientes existentes)
+═══════════════════════════════════════════════════════ -->
+<section id="login" class="login-section">
+    <div class="container">
+        <div class="login-inner">
+            <p class="section-label text-center">Acesso ao sistema</p>
+            <h2 class="section-title text-center">Já tem conta?</h2>
+            <p style="color:var(--muted);font-size:15px;margin-top:8px;">Entre com seu e-mail e senha para acessar sua clínica ou consultório.</p>
+
+            <div class="login-form-wrap">
                 <form action="<?=base_url()?>admin/logar" method="post">
-                    <div class="form-group">
-                        <label for="usuario">E-mail ou usuário</label>
-                        <input type="text" id="usuario" name="login" placeholder="seuemail@clinica.com.br" required>
+                    <div class="form-field">
+                        <label for="login-email">E-mail ou usuário</label>
+                        <input type="text" id="login-email" name="login" placeholder="seuemail@clinica.com.br" required autocomplete="username">
                     </div>
-
-                    <div class="form-group">
-                        <label for="senha">Senha</label>
-                        <input type="password" id="senha" name="senha" placeholder="Digite sua senha" required>
+                    <div class="form-field">
+                        <label for="login-senha">Senha</label>
+                        <input type="password" id="login-senha" name="senha" placeholder="Sua senha" required autocomplete="current-password">
                     </div>
-
                     <div class="login-row">
                         <label class="remember">
-                            <input type="checkbox" name="lembrar" value="1">
-                            <span>Lembrar-me neste dispositivo</span>
+                            <input type="checkbox" name="lembrar" value="1" style="width:14px;height:14px;">
+                            Lembrar-me
                         </label>
-                        <div class="forgot">
-                            <a href="#">Esqueci minha senha</a>
-                        </div>
+                        <div class="forgot"><a href="#">Esqueci minha senha</a></div>
                     </div>
-
-                    <button type="submit" class="btn-primary">
-                        Entrar no sistema
-                    </button>
-
-                    <div class="login-extra">
-                        Sua clínica ainda não tem acesso?
-                        <a href="<?=base_url()?>experimentar">Comecar com 30 dias</a>
-                    </div>
+                    <button type="submit" class="btn-login">Entrar no sistema</button>
+                    <p class="login-footer-note">
+                        Ainda não tem conta?
+                        <a href="<?=base_url()?>experimentar">Experimente 30 dias grátis</a>
+                    </p>
                 </form>
             </div>
         </div>
-    </section>
+    </div>
+</section>
 
-    <section id="sobre" class="section">
-        <div class="container section-inner">
-            <h2 class="section-title">Sobre o UTecnologia Saúde</h2>
-            <p class="section-subtitle">
-                Um sistema pensado para a rotina de clínicas, consultórios e profissionais da saúde.
-            </p>
-
-            <p style="font-size: 14px; color: #475569; margin-bottom: 12px;">
-                O <strong>UTecnologia Saúde</strong> nasceu com o objetivo de organizar o dia a dia
-                de profissionais da área médica, centralizando informações importantes do paciente em
-                um sistema simples, moderno e acessível de qualquer lugar.
-            </p>
-
-            <p style="font-size: 14px; color: #475569;">
-                Com ele, você acompanha o <strong>histórico completo do paciente</strong> (consultas,
-                exames, evoluções, anotações), reduz o uso de papel, melhora a segurança dos dados e
-                otimiza o atendimento, oferecendo mais tempo para cuidar de quem importa: o paciente.
-            </p>
-        </div>
-    </section>
-
-    <section id="servicos" class="section">
-        <div class="container section-inner">
-            <h2 class="section-title">Funcionalidades principais</h2>
-            <p class="section-subtitle">
-                Recursos que ajudam a organizar a gestão de pacientes, equipe e atendimentos.
-            </p>
-
-            <div class="grid-3">
-                <div class="card">
-                    <h3>Prontuário eletrônico completo</h3>
-                    <p>
-                        Registre o histórico clínico de cada paciente: queixas, diagnósticos,
-                        prescrições, evolução, anotações importantes e anexos como exames em PDF ou imagem.
-                    </p>
-                </div>
-                <div class="card">
-                    <h3>Agenda médica e lembretes</h3>
-                    <p>
-                        Controle de consultas por profissional e sala, com visão diária, semanal ou mensal.
-                        Possibilidade de integrar lembretes de consulta (ex.: e-mail, WhatsApp ou SMS)
-                        conforme o seu fluxo.
-                    </p>
-                </div>
-                <div class="card">
-                    <h3>Exames e documentos do paciente</h3>
-                    <p>
-                        Organize laudos, exames laboratoriais, imagens e documentos relevantes de cada
-                        paciente em um único lugar, facilitando o acesso ao histórico em novos atendimentos.
-                    </p>
-                </div>
-                <div class="card">
-                    <h3>Cadastro de pacientes e responsáveis</h3>
-                    <p>
-                        Dados cadastrais completos, contatos, convênios, planos, dados de responsável
-                        (quando necessário) e observações gerais sobre cada paciente.
-                    </p>
-                </div>
-                <div class="card">
-                    <h3>Relatórios e visão gerencial</h3>
-                    <p>
-                        Geração de relatórios de atendimentos, especialidades, profissionais e períodos,
-                        ajudando na tomada de decisão e na organização da gestão da clínica.
-                    </p>
-                </div>
-                <div class="card">
-                    <h3>Segurança e controle de acesso</h3>
-                    <p>
-                        Perfis de usuários (médicos, recepção, gestor), controle de permissões e acesso
-                        protegido por senha, contribuindo para a confidencialidade dos dados dos pacientes.
-                    </p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section id="contato" class="section">
-        <div class="container section-inner">
-            <h2 class="section-title">Fale com a UTecnologia</h2>
-            <p class="section-subtitle">
-                Entre em contato para conhecer melhor o sistema e solicitar uma demonstração para sua clínica.
-            </p>
-
-            <p style="font-size: 14px; color: #475569; margin-bottom: 10px;">
-                Você pode adaptar este bloco para um formulário real (PHP, Laravel, etc.).
-                Abaixo, um exemplo de como exibir as informações de contato da sua equipe comercial.
-            </p>
-
-            <div class="grid-3">
-                <div class="card">
-                    <h3>E-mail</h3>
-                    <p>
-                        comercial@utecnologia.com.br<br>
-                        suporte@utecnologia.com.br
-                    </p>
-                </div>
-
-                <div class="card">
-                    <h3>WhatsApp / Telefone</h3>
-                    <p>
-                        (00) 00000-0000<br>
-                        Atendimento para clínicas e consultórios em horário comercial.
-                    </p>
-                </div>
-
-                <div class="card">
-                    <h3>Atendimento em todo o Brasil</h3>
-                    <p>
-                        Sistema 100% online, acessível via navegador.<br>
-                        Ideal para clínicas, consultórios e pequenos centros de saúde.
-                    </p>
-                </div>
-            </div>
-        </div>
-    </section>
-</main>
-
-<footer class="footer">
+<!-- ═══════════════════════════════════════════════════════
+     FOOTER
+═══════════════════════════════════════════════════════ -->
+<footer class="site-footer">
     <div class="footer-inner">
-        <div>
-            © <span id="ano-atual"></span> UTecnologia Saúde – <span class="footer-small">utecnologia.com.br</span>. 
-            Todos os direitos reservados.
+        <div class="footer-brand">
+            <div class="footer-logo-mark">U</div>
+            <span class="footer-name">UTecnologia Saúde</span>
         </div>
-        <div class="footer-small">
-            Desenvolvido por <a href="https://utecnologia.com.br" target="_blank" rel="noopener noreferrer">UTecnologia</a>
+        <div class="footer-links">
+            <a href="#funcionalidades">Funcionalidades</a>
+            <a href="#especialidades">Especialidades</a>
+            <a href="#contato">Contato</a>
+            <a href="<?=base_url()?>experimentar">Trial grátis</a>
+            <a href="#login">Entrar</a>
+        </div>
+        <div class="footer-copy">
+            © <span id="ano"></span> UTecnologia Saúde — utecnologia.com.br
         </div>
     </div>
 </footer>
 
 <script>
-    // Só para manter o ano do rodapé sempre atualizado
-    document.getElementById('ano-atual').textContent = new Date().getFullYear();
-</script>
+    document.getElementById('ano').textContent = new Date().getFullYear();
 
+    function abrirModal() {
+        document.getElementById('login-modal').classList.add('open');
+        document.getElementById('m-login').focus();
+    }
+    function fecharModal() {
+        document.getElementById('login-modal').classList.remove('open');
+    }
+    document.getElementById('login-modal').addEventListener('click', function(e) {
+        if (e.target === this) fecharModal();
+    });
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') fecharModal();
+    });
+</script>
 </body>
 </html>

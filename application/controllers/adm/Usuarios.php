@@ -620,13 +620,19 @@ function manual_pdf($nivel=null){
 	}
 	$dados['manual'] = $manual;
 	$html = $this->load->view('adm/usuarios/manual_funcao_pdf', $dados, true);
-	require_once APPPATH.'third_party/mpdf/mpdf.php';
-	$mpdf = new mPDF('utf-8', 'A4', 0, '', 12, 12, 14, 14, 8, 8);
-	$mpdf->SetTitle($manual['pdf_title']);
-	$mpdf->SetAuthor('UTec Saude');
-	$mpdf->SetDisplayMode('fullpage');
-	$mpdf->WriteHTML($html);
-	$mpdf->Output($manual['pdf_slug'].'.pdf', 'I');
+	require_once APPPATH.'libraries/tcpdf/tcpdf.php';
+	$pdf = new TCPDF('P', 'mm', 'A4', true, 'UTF-8', false);
+	$pdf->SetCreator('UTec Saude');
+	$pdf->SetAuthor('UTec Saude');
+	$pdf->SetTitle($manual['pdf_title']);
+	$pdf->SetMargins(12, 12, 12);
+	$pdf->SetAutoPageBreak(true, 12);
+	$pdf->setPrintHeader(false);
+	$pdf->setPrintFooter(false);
+	$pdf->SetFont('helvetica', '', 10);
+	$pdf->AddPage();
+	$pdf->writeHTML($html, true, false, true, false, '');
+	$pdf->Output($manual['pdf_slug'].'.pdf', 'I');
 }
 
 private function build_manual_context($nivel=null, $dd_user=null){

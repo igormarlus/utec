@@ -52,6 +52,9 @@ class Home extends CI_Controller {
 
 	public function experimentar()
 	{
+		$tipo_raw = trim((string)$this->input->get('tipo'));
+		$tipos_validos = ['clinica', 'consultorio', 'profissional'];
+		$dados['tipo_selecionado'] = in_array($tipo_raw, $tipos_validos) ? $tipo_raw : 'clinica';
 		$dados['planos'] = $this->saas_model->get_public_plans();
 		$dados['flash_ok'] = $this->session->flashdata('operational_trial_ok');
 		$dados['flash_error'] = $this->session->flashdata('operational_trial_error');

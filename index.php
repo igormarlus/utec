@@ -89,6 +89,11 @@ switch (ENVIRONMENT)
 		exit(1); // EXIT_ERROR
 }
 
+if (function_exists('date_default_timezone_set'))
+{
+	date_default_timezone_set('America/Recife');
+}
+
 /*
  *---------------------------------------------------------------
  * SYSTEM DIRECTORY NAME

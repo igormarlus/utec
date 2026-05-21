@@ -140,9 +140,9 @@
                         <div class="field">
                             <label>Tipo da operacao</label>
                             <select name="tenant_tipo">
-                                <option value="clinica">Clinica</option>
-                                <option value="consultorio">Consultorio</option>
-                                <option value="profissional">Profissional</option>
+                                <option value="clinica"       <?=(!isset($tipo_selecionado)||$tipo_selecionado==='clinica'      ?'selected':'')?>  >Clinica</option>
+                                <option value="consultorio"  <?=($tipo_selecionado==='consultorio' ?'selected':'')?>  >Consultorio</option>
+                                <option value="profissional" <?=($tipo_selecionado==='profissional'?'selected':'')?>  >Profissional</option>
                             </select>
                         </div>
                         <div class="field">

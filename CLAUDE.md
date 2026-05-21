@@ -1,97 +1,159 @@
 # CLAUDE.md — UTecnologia Saúde
 
-Documentação técnica do projeto para uso nas sessões com Claude Code.
+Documentação técnica e de negócio do projeto para uso nas sessões com Claude Code.
 
 ---
 
-## Visão Geral
+## 1. Visão Geral do Produto
 
-**UTecnologia Saúde** é um sistema web de gestão clínica voltado para clínicas médicas e profissionais de saúde. Está em fase de desenvolvimento ativo com clientes interessados. O objetivo é ser um produto SaaS comercializável.
+**UTecnologia Saúde** é um sistema web de gestão clínica SaaS voltado para clínicas médicas, consultórios e profissionais de saúde independentes. Está em fase de desenvolvimento ativo com clientes reais interessados na aquisição.
 
 - **URL de produção:** https://utecnologia.com.br/
-- **Stack:** PHP 5/7 + CodeIgniter 3.1.10 + MySQL + Bootstrap 4 + jQuery
+- **Stack:** PHP 7 + CodeIgniter 3.1.10 + MySQL + Bootstrap 4 + jQuery
 - **Ambiente local:** `c:\htdocs\utec` (WAMP/XAMPP)
-- **Template base:** Adminto (tema admin antigo, sendo modernizado)
+- **Template base:** Adminto (tema admin Bootstrap 4, sendo modernizado gradualmente)
+- **Dono/Desenvolvedor:** Igor Marlus Lessa de Barros
 
 ---
 
-## Arquitetura CodeIgniter 3
+## 2. Modelo de Negócio SaaS
+
+### 2.1 Posicionamento
+
+UTecnologia Saúde é comercializado como **SaaS B2B** para o setor de saúde brasileiro. O produto visa reduzir o custo operacional de clínicas e consultórios ao centralizar agenda, prontuário, faturamento e comunicação em um único sistema acessível via browser.
+
+### 2.2 Público-Alvo (ICP)
+
+| Segmento | Perfil | Dor Principal |
+|----------|--------|---------------|
+| Clínica pequena (1–5 médicos) | Estabelecimento nível 2 + Prestadores nível 3 | Agenda manual, prontuário em papel/planilha |
+| Profissional autônomo | Prestador nível 3 | Controle de pacientes e agenda isolados |
+| Clínica média (5–20 profissionais) | Estabelecimento + equipe | Gestão de colaboradores e relatórios centralizados |
+
+### 2.3 Planos Comerciais
+
+Os planos são cadastrados em `produtos` com os campos SaaS e exibidos no checkout. Estrutura sugerida:
+
+| Plano | `plan_code` | Profissionais | Colaboradores | Pacientes | Ciclo | Preço Ref. |
+|-------|-------------|---------------|---------------|-----------|-------|-----------|
+| Solo | `solo` | 1 | 2 | ilimitado | mensal | R$ 79/mês |
+| Clínica | `clinica` | 5 | 10 | ilimitado | mensal | R$ 199/mês |
+| Pro | `pro` | 20 | 50 | ilimitado | mensal | R$ 399/mês |
+| Enterprise | `enterprise` | ilimitado | ilimitado | ilimitado | anual | negociado |
+
+> Os valores acima são referência — o sistema já suporta qualquer combinação via campos `max_profissionais`, `max_colaboradores`, `max_pacientes`, `billing_interval`, `billing_interval_count`, `trial_days` e `setup_fee` na tabela `produtos`.
+
+### 2.4 Fluxo Comercial
+
+```
+Lead → Landing page (/) → Interesse → Admin provisiona tenant (adm/saas)
+     → Checkout Mercado Pago (Preapproval) → Assinatura ativa
+     → Webhook MP atualiza status → Ciclos de cobrança registrados
+     → Inadimplência → Bloqueio automático (pendente)
+```
+
+### 2.5 Modelo de Receita
+
+- **Recorrência mensal/anual** via Mercado Pago (Preapproval API)
+- **Taxa de implantação (setup_fee)** opcional por plano
+- **Trial configurável** por plano (`trial_days`)
+- Fase atual: provisionamento **manual pelo admin** — onboarding self-service é etapa futura
+
+### 2.6 Diferenciais Competitivos
+
+- Multi-tenant nativo: cada clínica é isolada com seu próprio `tenant_id`
+- Árvore de acesso hierárquica (Estabelecimento → Prestador → Colaborador → Paciente)
+- Prontuário + agenda + exames integrados em um único fluxo de atendimento
+- Integração WhatsApp (chatbot externo via `db2`/`dbbot`)
+- Módulo RPG educacional embutido (diferencial de engajamento)
+
+---
+
+## 3. Arquitetura da Aplicação
+
+### 3.1 Estrutura de Diretórios
 
 ```
 c:\htdocs\utec\
 ├── application/
-│   ├── config/           # Configurações (database, routes, session, etc.)
-│   ├── controllers/      # Controllers raiz + subpastas adm/ e rpg/
-│   ├── models/           # Models raiz + subpastas adm/ e rpg/
-│   ├── views/            # Views + subpastas adm/
-│   ├── libraries/        # Wrappers de PDF (mPDF, TCPDF)
-│   └── third_party/      # mPDF library
-├── system/               # Core CodeIgniter 3.1.10 (não modificar)
-├── bower_components/     # Frontend: Bootstrap, jQuery plugins, FullCalendar
-├── imagens/              # Upload de imagens (usuarios/, produtos/)
+│   ├── config/           # database, routes, session, mercadopago
+│   ├── controllers/      # raiz (Home, Admin, User) + adm/ + rpg/
+│   ├── models/           # raiz (Padrao_model, FbApi_model) + adm/ + rpg/
+│   ├── views/            # adm/ (login, dash, usuarios/new/, saas/, atendimento/)
+│   ├── libraries/        # M_pdf (mPDF), tcpdf/, mercadopago_saas
+│   └── third_party/      # mPDF core
+├── system/               # Core CodeIgniter 3.1.10 — NÃO MODIFICAR
+├── bower_components/     # Bootstrap, Select2, FullCalendar, DataTables, etc.
+├── css/                  # clicklinica-main.css (CSS principal internalizado)
 ├── js/                   # Scripts JavaScript customizados
-└── index.php             # Entry point (mod_rewrite ativo, sem index.php na URL)
+├── imagens/              # Uploads: usuarios/, usuarios/min/, usuarios/des/, produtos/
+├── uploads/              # Arquivos de pacientes: uploads/pacientes/ (nome encriptado)
+└── index.php             # Entry point CI (mod_rewrite ativo — sem index.php na URL)
 ```
+
+### 3.2 Decisão Arquitetural — CI3
+
+O projeto usa **CodeIgniter 3.1.10** em produção. **Não migrar para CI4 ou outro framework** — produto em produção com clientes, reescrita fora de escopo. Toda adição deve respeitar APIs do CI3: `$this->db`, `$this->input->post()`, `$this->load->view()`, `$this->session->userdata()`.
 
 ---
 
-## Banco de Dados
+## 4. Banco de Dados
 
-### Conexões Configuradas (`application/config/database.php`)
+### 4.1 Conexões (`application/config/database.php`)
 
-| Chave      | Banco                  | Host                         | Uso                          |
-|------------|------------------------|------------------------------|------------------------------|
-| `default`  | `utecnologiacom_db`    | localhost                    | BD principal da aplicação    |
-| `db2`      | `chwtppbr_db`          | localhost                    | Chatbot WhatsApp (local)     |
-| `dbbot`    | `chwtppbr_db`          | chatbot-whatsapp-br.com.br   | Chatbot WhatsApp (remoto)    |
-| `dbpi`     | `produtos_pi`          | produtosinovadores.com.br    | Produtos Inovadores (externo)|
+| Chave | Banco | Host | Uso |
+|-------|-------|------|-----|
+| `default` | `utecnologiacom_db` | localhost | BD principal |
+| `db2` | `chwtppbr_db` | localhost | Chatbot WhatsApp (local) |
+| `dbbot` | `chwtppbr_db` | chatbot-whatsapp-br.com.br | Chatbot WhatsApp (remoto) |
+| `dbpi` | `produtos_pi` | produtosinovadores.com.br | Produtos Inovadores (externo) |
 
-- Driver: `mysqli`
-- Charset: `utf8mb4` (conexão default), `utf8` (demais)
-- `save_queries = TRUE` — manter em dev, desativar em produção
+- Driver: `mysqli`, Charset: `utf8mb4` (default), `utf8` (demais)
+- `save_queries = TRUE` — manter em dev, **desativar em produção**
 
-### Tabelas Principais (inferidas do código)
+### 4.2 Tabelas Principais
 
 **Usuários e Acesso**
-- `usuarios` — todos os usuários do sistema (pacientes, médicos, admins)
-- `usuarios_niveis` — tipos/níveis de acesso
-- `usuarios.tenant_id` — vínculo do usuário ao tenant SaaS
-- `usuarios.tenant_role` — papel do usuário dentro do tenant (`owner`, `admin`, `provider`, `staff`, `patient`)
-- `usuarios.onboarding_status` — situação de ativação do usuário no tenant
+- `usuarios` — todos os usuários (pacientes, médicos, admins, colaboradores)
+- `usuarios_niveis` — tipos/perfis de acesso
+- `usuarios.id_user` — vínculo operacional na árvore hierárquica
+- `usuarios.nivel` — nível de acesso (1–5, ver seção 5)
+- `usuarios.tenant_id` — vínculo ao tenant SaaS
+- `usuarios.tenant_role` — papel no tenant (`owner`, `admin`, `provider`, `staff`, `patient`)
+- `usuarios.onboarding_status` — situação de ativação no tenant
+- `usuarios.saas` — flag `1` = habilita acesso ao módulo SaaS (`adm/saas`)
 
 **Saúde e Agenda**
-- `agendamentos` — consultas agendadas (liga paciente ↔ prestador)
-- `exames` — catálogo de exames disponíveis
+- `agendamentos` — consultas (liga paciente ↔ prestador)
+- `exames` — catálogo de exames
 - `usuarios_exames` — exames solicitados por agendamento
 - `usuarios_exames_atendimento` — exames realizados por usuário
 
 **Produtos e Pedidos**
-- `produtos` — catálogo de produtos/serviços
-- `produtos_categorias` — categorias de produtos
-- `carrinho` — carrinho de compras ativo
-- `carrinho_hist` — histórico de carrinhos
+- `produtos` — catálogo de planos/serviços
+- `produtos_categorias` — categorias
+- `carrinho` / `carrinho_hist` — carrinho ativo e histórico
 - `pedidos` — pedidos finalizados
-- `produtos.plan_code` — código comercial/técnico do plano SaaS
-- `produtos.billing_interval` / `billing_interval_count` — recorrência do plano
+- `produtos.plan_code` — código comercial do plano (`solo`, `clinica`, `pro`, etc.)
+- `produtos.billing_interval` / `billing_interval_count` — recorrência
 - `produtos.trial_days` / `setup_fee` — trial e taxa de implantação
-- `produtos.max_profissionais` / `max_colaboradores` / `max_pacientes` — limites comerciais do plano
-- `pedidos.tenant_id` / `subscription_id` / `gateway_payment_id` — vínculo entre pedido, tenant e pagamento
+- `produtos.max_profissionais` / `max_colaboradores` / `max_pacientes` — limites do plano
+- `pedidos.tenant_id` / `subscription_id` / `gateway_payment_id` — vínculo pagamento
 
 **Arquivos de Pacientes**
-- `pacientes_arquivos` — arquivos enviados por paciente (id_paciente, id_agendamento, arquivo, tipo, descricao)
+- `pacientes_arquivos` — arquivos enviados (id_paciente, id_agendamento, arquivo, tipo, descricao)
 - Armazenados em `uploads/pacientes/` com nome encriptado
 
-**SaaS / Multi-clínica**
-- `saas_tenants` — cadastro da clínica/consultório/profissional locatário da plataforma
-- `saas_subscriptions` — assinatura principal do tenant (plano, ciclo, status, cobrança)
-- `saas_subscription_cycles` — ciclos de cobrança da assinatura
-- `saas_billing_events` — eventos financeiros e webhooks de gateway
+**SaaS / Multi-tenant**
+- `saas_tenants` — cadastro do tenant (clínica/consultório)
+- `saas_subscriptions` — assinatura principal do tenant
+- `saas_subscription_cycles` — ciclos de cobrança
+- `saas_billing_events` — eventos financeiros e webhooks do gateway
 
 **Integrações**
 - `acessos` — analytics de pageviews (IP, navegador, página)
-- `api_conv_fb` — eventos enviados ao Facebook Pixel
+- `api_conv_fb` — eventos para Facebook Pixel (Conversions API)
 - `pi_whats_users` — usuários vinculados ao WhatsApp
-- Mercado Pago — cobrança avulsa legada + assinatura recorrente SaaS
 
 **RPG (módulo educacional)**
 - `rpg_personagens`, `rpg_personagens_atributos`
@@ -100,128 +162,156 @@ c:\htdocs\utec\
 
 ---
 
-## Níveis de Usuário (`usuarios.nivel`)
+## 5. Níveis de Usuário
 
-| Nível | Perfil             | Comportamento pós-login                         |
-|-------|--------------------|-------------------------------------------------|
-| 1     | Administrador      | Redireciona para `adm/usuarios`                 |
-| 2     | Estabelecimento    | Redireciona para `adm/atendimento`              |
-| 3     | Prestador          | Redireciona para `adm/atendimento`              |
-| 4     | Colaborador        | Redireciona para `adm/atendimento`              |
-| 5     | Paciente           | Redireciona para `adm/usuarios` (lista pacientes)|
+### 5.1 Tabela de Perfis
 
-### Regras de Escopo por Nível
+| Nível | Perfil | Redirect pós-login |
+|-------|--------|--------------------|
+| 1 | Administrador | `adm/usuarios` |
+| 2 | Estabelecimento | `adm/atendimento` |
+| 3 | Prestador | `adm/atendimento` |
+| 4 | Colaborador | `adm/atendimento` |
+| 5 | Paciente | `adm/usuarios` (lista pacientes) |
 
-- **Nível 1 — Administrador**
-  - Vê tudo de todos.
-  - Não possui restrição de escopo clínico ou comercial.
+### 5.2 Regras de Escopo Clínico
 
-- **Nível 2 — Estabelecimento**
-  - Vê pacientes, agenda, exames e relatórios gerados por ele e por toda a árvore de usuários vinculados ao seu `id`.
-  - Na prática, o escopo inclui o próprio usuário e todos os registros criados por usuários cujo `id_user` aponta para o estabelecimento, incluindo descendentes.
+O escopo é calculado por `Padrao_model::get_scope_user_ids()` usando a árvore de `id_user`:
 
-- **Nível 3 — Prestador**
-  - Vê tudo o que cadastrou e tudo o que os colaboradores vinculados a ele registraram.
-  - O escopo inclui o próprio prestador e sua árvore de usuários descendentes.
+- **Nível 1 — Administrador:** vê tudo sem restrição.
+- **Nível 2 — Estabelecimento:** vê o próprio usuário + toda a árvore descendente (prestadores, colaboradores, pacientes vinculados).
+- **Nível 3 — Prestador:** vê o próprio usuário + colaboradores e pacientes vinculados + pode herdar escopo do estabelecimento pai.
+- **Nível 4 — Colaborador:** vê o próprio + irmãos do mesmo `id_user` + a cadeia acima até o estabelecimento.
+- **Nível 5 — Paciente:** sem portal dedicado; escopo reduzido ao próprio registro.
 
-- **Nível 4 — Colaborador**
-  - Vê o que cadastrou e também o que outros colaboradores vinculados ao mesmo `id_user` registraram.
-  - O escopo inclui os colaboradores irmãos do mesmo vínculo e os registros descendentes dessa subárvore.
+### 5.3 Regras de Cadastro (`id_user`)
 
-- **Nível 5 — Paciente**
-  - Sem portal dedicado no momento.
-  - Base preparada para futuras notificações de agendamento e evolução de relacionamento.
+| Quem cria | Pode criar | Vínculo gerado |
+|-----------|-----------|----------------|
+| Admin (1) | Qualquer nível | Manual |
+| Estabelecimento (2) | Prestador (3), Colaborador (4), Paciente (5) | `id_user` = id do estabelecimento |
+| Prestador (3) | Colaborador (4), Paciente (5) | `id_user` = id do prestador |
+| Colaborador (4) | Paciente (5) | `id_user` herdado do grupo |
 
-### Observações de Vínculo (`usuarios.id_user`)
+### 5.4 Acesso ao Módulo SaaS
 
-- `usuarios.id_user` define o vínculo operacional do usuário dentro da árvore de acesso.
-- O escopo clínico atual usa essa relação para filtrar:
-  - lista de pacientes,
-  - agenda clínica,
-  - prontuário,
-  - checklist de exames,
-  - relatórios clínicos,
-  - catálogo de planos,
-  - tipos de plano,
-  - assinaturas e detalhes das contratações.
-- Regras práticas de cadastro:
-  - `Administrador` pode definir manualmente o vínculo operacional no cadastro e na edição.
-  - `Estabelecimento` cria `Prestador`, `Colaborador` e `Paciente` vinculados ao próprio estabelecimento.
-  - `Prestador` cria `Colaborador` e `Paciente` vinculados ao próprio prestador.
-  - `Colaborador` cria `Paciente` herdando o vínculo principal do grupo (`id_user` do estabelecimento ou prestador).
-- O helper central dessas regras está em `Padrao_model.php`.
+Para acessar `adm/saas`, o usuário precisa:
+1. Ser nível 1, 2 ou 3
+2. Ter `usuarios.saas = 1`
+
+Verificado por `Padrao_model::can_access_saas_module()`. O Admin (nível 1) tem acesso irrestrito ao SaaS.
+
+### 5.5 Bloqueio por Inadimplência
+
+`Padrao_model::tenant_allows_access()` retorna `false` quando `saas_tenants.status != 1`. A lógica de bloqueio automático via webhook ainda está **pendente de implementação**.
 
 ---
 
-## Controllers
+## 6. Controllers
 
-### Raiz (`application/controllers/`)
+### 6.1 Raiz (`application/controllers/`)
 
-| Arquivo         | Rota         | Função                                              |
-|-----------------|--------------|-----------------------------------------------------|
-| `Home.php`      | `/`          | Landing page pública                                |
-| `Admin.php`     | `/admin`     | Login e utilitários de migração                     |
-| `User.php`      | `/user`      | Carrinho de compras, pedidos e integrações Mercado Pago legadas |
+| Arquivo | Rota | Função |
+|---------|------|--------|
+| `Home.php` | `/` | Landing page pública |
+| `Admin.php` | `/admin` | Login + `logar_como/{id}` (admin nível 1) |
+| `User.php` | `/user` | Carrinho, pedidos, MP legado |
 
-### Admin (`application/controllers/adm/`)
+### 6.2 Admin (`application/controllers/adm/`)
 
-| Arquivo           | Rota                  | Função                                               |
-|-------------------|-----------------------|------------------------------------------------------|
-| `Usuarios.php`    | `/adm/usuarios`       | CRUD de usuários, prontuários, upload de fotos       |
-| `Atendimento.php` | `/adm/atendimento`    | Agendamentos, prontuários, exames, status            |
-| `Atencimento.php` | `/adm/atencimento`    | **Legado** renomeado para `.bak`                     |
-| `Produtos.php`    | `/adm/produtos`       | CRUD de planos, tipos de plano e assinaturas legadas |
-| `Saas.php`        | `/adm/saas`           | Operação SaaS: tenants, assinatura, checkout Mercado Pago e webhook |
-| `Dev.php`         | `/adm/dev`            | Migrações e utilitários de desenvolvimento           |
+| Arquivo | Rota | Função |
+|---------|------|--------|
+| `Usuarios.php` | `/adm/usuarios` | CRUD usuários, prontuários, upload fotos |
+| `Atendimento.php` | `/adm/atendimento` | Agendamentos, prontuários, exames, status |
+| `Produtos.php` | `/adm/produtos` | CRUD planos, tipos de plano, assinaturas legadas |
+| `Saas.php` | `/adm/saas` | Tenants, assinaturas, checkout MP, webhook |
+| `Dev.php` | `/adm/dev` | Migrações e utilitários de desenvolvimento |
 
-> `Atencimento.php` não é mais controller ativo; o arquivo legado foi renomeado para `.bak`.
+> `Atencimento.php` (com typo) foi renomeado para `.bak` — não é controller ativo.
 
----
+### 6.3 Rotas Especiais (`application/config/routes.php`)
 
-## Models
-
-### Raiz (`application/models/`)
-
-| Arquivo           | Uso                                                             |
-|-------------------|-----------------------------------------------------------------|
-| `Padrao_model.php` | Model base com helpers: `get_by_id`, `get_qr`, `del_by_id`, `converte_data`, `indexador` |
-| `FbApi_model.php`  | Integração com Facebook Conversions API (eventos/pixels)       |
-
-### Admin (`application/models/adm/`)
-
-| Arquivo              | Uso                                                         |
-|----------------------|-------------------------------------------------------------|
-| `Usuarios_model.php` | Login (`logar`), validação de sessão (`verSession`), cadastro |
-| `Produtos_model.php` | CRUD de planos e tipos de plano                             |
-| `Saas_model.php`     | Provisionamento de tenant, leitura de dashboard SaaS, sincronização de cobrança |
-
-### RPG (`application/models/rpg/`)
-
-| Arquivo                | Uso                                             |
-|------------------------|-------------------------------------------------|
-| `Personagens_model.php`| Stats de personagem (força, HP, XP, etc.)       |
-| `Armas_model.php`      | Inventário de armas e itens de consumo          |
-| `Itens_model.php`      | Uso de itens (ex: poção de cura +20 HP)         |
-| `Dialogos_model.php`   | Sistema de diálogos por localização             |
-| `Locations_model.php`  | Mapa de localizações do mundo RPG               |
+```php
+$route['default_controller'] = 'home';
+$route['locations'] = 'rpgLocations/index';
+$route['webhooks/mercadopago'] = 'adm/saas/webhook_mercadopago';
+```
 
 ---
 
-## Views
+## 7. Models
 
-### Estrutura Principal
+### 7.1 `Padrao_model` (base de todos os controllers)
+
+Carregado obrigatoriamente em todos os controllers admin. Funções principais:
+
+| Função | Descrição |
+|--------|-----------|
+| `get_by_id($id, $tabela)` | Busca um registro por ID |
+| `get_qr($tabela, $where)` | Query genérica com condições |
+| `del_by_id($id, $tabela)` | Delete por ID |
+| `converte_data($data)` | Formata data BR ↔ MySQL |
+| `indexador()` | Registra acesso (analytics) |
+| `get_usuario_logado()` | Retorna row do usuário da sessão atual |
+| `get_scope_user_ids($usuario)` | Retorna array de IDs visíveis pelo usuário (árvore) |
+| `ids_to_sql_in($ids)` | Converte array de IDs para string SQL `IN(...)` |
+| `expand_user_tree_ids($root_ids)` | Expande recursivamente a árvore de usuários |
+| `sanitize_child_level($nivel, $usuario)` | Valida se o nível filho é permitido pelo pai |
+| `get_allowed_child_levels($usuario)` | Retorna níveis que o usuário pode criar |
+| `get_vinculo_options($nivel, $usuario)` | Opções de vínculo para o formulário de cadastro |
+| `get_vinculo_default_id($nivel, $usuario)` | ID de vínculo padrão por nível |
+| `resolve_vinculo_id($nivel, $post_id, $usuario)` | Resolve `id_user` no cadastro |
+| `can_access_saas_module($usuario)` | Verifica acesso ao módulo SaaS |
+| `tenant_allows_access($usuario)` | Verifica se o tenant está ativo (não bloqueado) |
+| `get_logged_tenant()` | Retorna o tenant do usuário logado |
+| `usuario_tem_saas($usuario)` | Verifica se `usuarios.saas = 1` |
+| `infer_tenant_role_by_level($nivel, $is_owner)` | Mapeia nível → tenant_role |
+
+### 7.2 `adm/Usuarios_model`
+
+| Função | Descrição |
+|--------|-----------|
+| `logar($login, $senha)` | Autenticação (password_verify + fallback texto puro) |
+| `verSession()` | Valida sessão ativa; redireciona para login se inválida |
+
+### 7.3 `adm/Saas_model`
+
+| Função | Descrição |
+|--------|-----------|
+| `has_schema()` | Verifica se as tabelas SaaS existem |
+| `get_dashboard_data($viewer)` | Dados para o dashboard `adm/saas` |
+| `get_tenant_detail($tenant_id, $viewer)` | Dados do tenant + equipe + assinatura |
+| `provision_tenant($post, $viewer)` | Cria tenant + assinatura + ciclo inicial |
+
+### 7.4 `FbApi_model`
+
+Integração com Facebook Conversions API (eventos de pixel).
+
+---
+
+## 8. Views
+
+### 8.1 Estrutura
 
 ```
 application/views/
-├── index-front.php                   # Landing page pública (Inter font, gradiente azul/verde)
+├── index-front.php                   # Landing page pública — hero com segmentação Clínica/Profissional
+│                                     # Seções: hero, features, como funciona, especialidades, CTA, contato, login
+│                                     # CTAs apontam para /experimentar?tipo=clinica e /experimentar?tipo=profissional
+├── public/
+│   ├── experimentar.php              # Formulário trial 30 dias (pré-seleciona tenant_tipo via ?tipo=)
+│   ├── experimentar-sucesso.php      # Confirmação após trial criado
+│   ├── assinar.php                   # Formulário de assinatura paga
+│   ├── assinar-pagamento.php         # Checkout PIX / cartão Mercado Pago
+│   └── assinar-sucesso.php           # Confirmação de pagamento
 └── adm/
-    ├── login.php                     # Tela de login (tema antigo MWS)
+    ├── login.php                     # Tela de login
     ├── dash.php                      # Dashboard principal (51KB)
     ├── index.php                     # Página inicial admin
     ├── usuarios/
-    │   ├── novo.php                  # Formulário novo usuário (legado)
-    │   ├── lista.php                 # Lista usuários (legada)
-    │   └── new/                      # Views modernizadas (USAR ESTAS)
+    │   ├── novo.php                  # LEGADO — não usar
+    │   ├── lista.php                 # LEGADO — não usar
+    │   └── new/                      # ← VIEWS ATIVAS (usar estas)
     │       ├── lista.php             # Lista de usuários
     │       ├── cadastro.php          # Cadastro por nível
     │       ├── edicao.php            # Edição de usuário
@@ -230,202 +320,196 @@ application/views/
     │       └── exames.php            # Gestão de exames
     ├── saas/
     │   ├── index.php                 # Dashboard operacional SaaS
-    │   └── tenant.php                # Detalhe do tenant, assinatura e equipe
+    │   ├── tenant.php                # Detalhe do tenant, assinatura e equipe
+    │   └── bloqueado.php             # Tela de tenant bloqueado por inadimplência
     └── atendimento/
         └── atendimento.php           # Formulário de atendimento (19KB)
 ```
 
-> As views em `adm/usuarios/new/` são as ativas. As raiz de `adm/usuarios/` são legado.
-
 ---
 
-## Frontend / CSS
+## 9. Frontend
 
-- **Template:** Adminto (tema admin Bootstrap 4)
-- **CSS principal:** `css/clicklinica-main.css`
-- Dependência externa principal já foi internalizada
-- **Fonte:** Lato (Google Fonts) nas views admin; Inter na landing page
+- **Template:** Adminto (Bootstrap 4)
+- **CSS principal:** `css/clicklinica-main.css` (dependência externa internalizada)
+- **Fontes:** Lato (Google Fonts) nas views admin; Inter na landing page
 - **Bower Components:** Bootstrap, Select2, FullCalendar, Perfect Scrollbar, Slick Carousel, Dropzone, DateRangePicker, DataTables
 
 ---
 
-## Upload de Imagens
+## 10. Integrações Externas
 
-- **Usuários:** `imagens/usuarios/` (original) + `imagens/usuarios/min/` (120×72) + `imagens/usuarios/des/` (300×210)
-- **Produtos:** `imagens/produtos/`
-- Usa biblioteca nativa CI `upload` + `image_lib` (GD2)
+### 10.1 Mercado Pago
 
----
+- **Configuração:** `application/config/mercadopago.php`
+- **Credenciais:** lidas de variáveis de ambiente (`MERCADOPAGO_ACCESS_TOKEN`, `MERCADOPAGO_PUBLIC_KEY`, `MERCADOPAGO_WEBHOOK_SECRET`) com fallback para valores hardcoded
+- **Library SaaS:** `application/libraries/Mercadopago_saas.php` — usar esta para assinaturas recorrentes (Preapproval API), nunca repetir token no controller
+- **Webhook:** `https://utecnologia.com.br/webhooks/mercadopago` → `adm/saas/webhook_mercadopago`
+- **Moeda:** BRL
+- **Back URLs:** todas apontam para `adm/saas` (sucesso, pendente, falha)
 
-## Geração de PDF
+### 10.2 Facebook Conversions API
 
-- **mPDF** (via `application/libraries/M_pdf.php`)
-- **TCPDF** (via `application/libraries/tcpdf/`)
+- Eventos enviados via `FbApi_model` + tabela `api_conv_fb`
 
----
+### 10.3 WhatsApp Chatbot
 
-## Problemas Conhecidos / Débitos Técnicos
+- Banco `chwtppbr_db` (local: `db2`, remoto: `dbbot`)
+- Usuários vinculados em `pi_whats_users`
 
-| Severidade | Status | Problema                                                                             |
-|------------|--------|--------------------------------------------------------------------------------------|
-| 🔴 Alta     | ✅ Resolvido | Senhas em texto puro — `password_hash()` implementado com migração suave     |
-| 🔴 Alta     | ✅ Resolvido | SQL injection — cast `(int)` em IDs de URL + `$this->input->post()` em forms |
-| 🔴 Alta     | ✅ Resolvido | CSS de domínio externo — baixado para `css/clicklinica-main.css`             |
-| 🟡 Média    | ✅ Resolvido | Base SaaS inicial criada — tenants, subscriptions, cycles e billing events   |
-| 🟡 Média    | ✅ Resolvido | Mercado Pago centralizado em `application/config/mercadopago.php`            |
-| 🟡 Média    | ✅ Resolvido | `ereg_replace()` — substituído por `preg_replace()` / `str_replace()`       |
-| 🟡 Média    | ✅ Resolvido | Controller duplicado `Atencimento.php` — renomeado para `.bak`               |
-| 🟡 Média    | ✅ Resolvido | `$_POST` direto — substituído por `$this->input->post()` nos controllers     |
-| 🟡 Média    | Pendente | Webhook Mercado Pago ainda precisa ser validado em ambiente real               |
-| 🟡 Média    | Pendente | Ciclos pagos / bloqueio automático por inadimplência ainda não estão completos |
-| 🟢 Baixa   | Pendente | Muitos comentários `#` e código comentado — limpar gradualmente              |
-| 🟢 Baixa   | Pendente | Views com textos em inglês ("Start typing to search...", "Projects", etc.)  |
+### 10.4 Upload de Arquivos
 
-### Notas da Migração de Senhas (importante para deploy)
-- Login: testa `password_verify()` primeiro; se falhar, compara texto puro e rehasha automaticamente
-- Cadastro e edição: geram `password_hash()` direto
-- Troca de senha (`alterar()`): valida com `password_verify()` + aceita texto puro em fallback
-- "Acessar como" na lista de usuários: substituído por `/admin/logar_como/{id}` (apenas admin nivel=1)
-- Campo senha na tela de edição: deixado em branco — se vazio, não atualiza a senha existente
+- **Imagens de usuários:** `imagens/usuarios/` (original) + `/min/` (120×72) + `/des/` (300×210)
+- **Imagens de produtos:** `imagens/produtos/`
+- **Arquivos de pacientes:** `uploads/pacientes/` (nome encriptado)
+- Biblioteca CI nativa: `upload` + `image_lib` (GD2)
+
+### 10.5 Geração de PDF
+
+- **mPDF** via `application/libraries/M_pdf.php`
+- **TCPDF** via `application/libraries/tcpdf/`
 
 ---
 
-## Rotas Definidas (`application/config/routes.php`)
+## 11. Segurança
 
-```php
-$route['default_controller'] = 'home';
-$route['locations'] = 'rpgLocations/index';
-$route['webhooks/mercadopago'] = 'adm/saas/webhook_mercadopago';
-```
+| Item | Status | Detalhe |
+|------|--------|---------|
+| Senhas | ✅ OK | `password_hash()` com migração suave (fallback texto puro no login) |
+| SQL Injection | ✅ OK | Cast `(int)` em IDs de URL; `$this->input->post()` em formulários |
+| CSS externo | ✅ OK | Internalizado em `css/clicklinica-main.css` |
+| `$_POST` direto | ✅ OK | Substituído por `$this->input->post()` |
+| `ereg_replace()` | ✅ OK | Substituído por `preg_replace()` / `str_replace()` |
+| Webhook MP | ⚠️ Pendente | Ainda não validado com assinatura HMAC em produção |
+| XSS nas views | ⚠️ Verificar | Outputs em views podem precisar de `htmlspecialchars()` |
 
-Todas as outras rotas seguem o padrão CI padrão: `controller/metodo/parametro`.
+### Notas da Migração de Senhas
+
+- **Login:** `password_verify()` primeiro; se falhar, compara texto puro e rehasha
+- **Cadastro/edição:** `password_hash()` direto
+- **Troca de senha (`alterar()`):** `password_verify()` + aceita texto puro em fallback
+- **"Acessar como":** apenas admin nível 1 via `/admin/logar_como/{id}`
+- **Campo senha na edição:** se vazio, não atualiza a senha existente
 
 ---
 
-## Convenções do Projeto
+## 12. Convenções do Projeto
 
-- Controllers admin ficam em `application/controllers/adm/`
-- Models admin ficam em `application/models/adm/`
-- Views novas ficam em `application/views/adm/[modulo]/new/` quando reformuladas
-- Views do módulo SaaS ficam em `application/views/adm/saas/`
-- `Padrao_model` deve ser carregado em todos os controllers como model utilitário
+- Controllers admin: `application/controllers/adm/`
+- Models admin: `application/models/adm/`
+- Views novas: `application/views/adm/[modulo]/new/` (ao modernizar um módulo)
+- Views SaaS: `application/views/adm/saas/`
+- `Padrao_model` carregado obrigatoriamente em todos os controllers
 - Sessão: `$this->session->userdata('id')`, `'nome'`, `'nivel'`, `'login'`, `'usr'`
-- Redirect pós-login é por nível (ver tabela de níveis acima)
-- Configuração do Mercado Pago fica centralizada em `application/config/mercadopago.php`
-- Para assinatura recorrente SaaS, usar `Mercadopago_saas.php` em vez de repetir token no controller
+- Redirect pós-login por nível (ver seção 5.1)
+- Mercado Pago: configuração centralizada em `application/config/mercadopago.php`
+- Assinaturas recorrentes SaaS: usar `Mercadopago_saas.php`
+- Não usar `$_POST` direto — sempre `$this->input->post()`
+- Não modificar `system/` (core CI3)
+- Não migrar para CI4 ou outro framework
 
 ---
 
-## Controller de Banco (Utilitário para Dev)
+## 13. Utilitário de Dev / Migrações
 
-O controller padrão para migrações e setup local é `application/controllers/adm/Dev.php`.
+Controller: `application/controllers/adm/Dev.php`
 
-Rotas úteis já criadas:
-- `adm/dev/criar_tabela_arquivos_paciente`
-- `adm/dev/migrar_fase1_saas`
+| Rota | Função |
+|------|--------|
+| `adm/dev/migrar_fase1_saas` | Cria tabelas SaaS + adiciona colunas em `usuarios`, `produtos`, `pedidos`, `carrinho_hist` (idempotente) |
+| `adm/dev/criar_tabela_arquivos_paciente` | Cria `pacientes_arquivos` |
 
-`migrar_fase1_saas` é idempotente e:
-- cria as tabelas `saas_tenants`, `saas_subscriptions`, `saas_subscription_cycles`, `saas_billing_events`
-- adiciona campos SaaS em `usuarios`, `produtos`, `pedidos` e `carrinho_hist`
-- pode ser executado novamente com segurança para completar colunas novas
+Para novas migrações: adicionar método em `Dev.php`, proteger com `nivel == 1` na sessão.
 
 ---
 
-## Próximas Features Planejadas
+## 14. Débitos Técnicos
 
-*(Atualizar conforme o projeto evolui)*
+| Severidade | Status | Item |
+|------------|--------|------|
+| 🔴 Alta | ✅ Resolvido | Senhas em texto puro |
+| 🔴 Alta | ✅ Resolvido | SQL injection em IDs de URL |
+| 🔴 Alta | ✅ Resolvido | CSS de domínio externo |
+| 🟡 Média | ✅ Resolvido | Base SaaS criada (tabelas + campos) |
+| 🟡 Média | ✅ Resolvido | Mercado Pago centralizado |
+| 🟡 Média | ✅ Resolvido | `ereg_replace()` removido |
+| 🟡 Média | ✅ Resolvido | `$_POST` direto eliminado |
+| 🟡 Média | ✅ Resolvido | Controller duplicado `Atencimento.php` removido |
+| 🟡 Média | Pendente | Webhook MP validado ponta a ponta em produção |
+| 🟡 Média | Pendente | Bloqueio automático de tenant por inadimplência |
+| 🟡 Média | Pendente | Ciclos pagos baixados automaticamente via webhook |
+| 🟢 Baixa | Pendente | Comentários `#` e código comentado — limpar gradualmente |
+| 🟢 Baixa | Pendente | Textos em inglês nas views ("Start typing to search...", etc.) |
 
-- [ ] Validar webhook Mercado Pago em ambiente real com eventos de assinatura
-- [ ] Baixar evento de cobrança para ciclo local (`saas_subscription_cycles`)
-- [ ] Bloqueio / desbloqueio automático de tenant por inadimplência
-- [ ] Tela de configuração comercial com credenciais Mercado Pago e parâmetros SaaS
-- [ ] Notificações / lembretes de consulta via WhatsApp
-- [ ] Relatórios PDF de prontuário
-- [ ] Portal simplificado para cliente/tenant acompanhar assinatura
-- [x] Multi-clínica / multi-tenant (base estrutural)
+---
+
+## 15. Roadmap de Produto
+
+### 15.1 Funcionalidades Concluídas
+
+- [x] Multi-clínica / multi-tenant (estrutura base)
 - [x] Operação SaaS com dashboard e provisionamento manual
-- [x] Checkout recorrente Mercado Pago por assinatura
+- [x] Checkout recorrente Mercado Pago (Preapproval)
 - [x] Timeline de prontuário
 - [x] Relatórios clínicos
 - [x] Módulo comercial reposicionado para planos/assinaturas
 - [x] Agenda com filtros operacionais
 - [x] Checklist operacional de exames
 - [x] Cancelamento e remarcação direto na agenda
+- [x] Árvore de escopo de acesso por nível
+- [x] Upload de arquivos de pacientes
+
+### 15.2 Próximas Entregas (Prioridade Alta)
+
+- [ ] Validar webhook Mercado Pago com assinatura HMAC em produção
+- [ ] Baixar evento de cobrança para ciclo local (`saas_subscription_cycles`)
+- [ ] Bloqueio / desbloqueio automático de tenant por inadimplência
+
+### 15.3 Backlog
+
+- [ ] Tela de configuração comercial (credenciais MP + parâmetros SaaS por tenant)
+- [ ] Portal do cliente (tenant acompanha assinatura e faturas)
+- [ ] Notificações / lembretes de consulta via WhatsApp
+- [ ] Relatórios PDF de prontuário
+- [ ] Onboarding self-service (cadastro de clínica sem intervenção admin)
+- [ ] Controle de limites do plano em tempo real (max_profissionais, etc.)
+- [ ] Dashboard de métricas para o admin (MRR, churn, tenants ativos)
 
 ---
 
-## Passo a Passo da Nova Área SaaS
+## 16. Operação SaaS — Passo a Passo
 
-### 1. Executar a migração
+### Pré-requisito: Executar migração
 
-1. Acesse `https://utecnologia.com.br/adm/dev/migrar_fase1_saas` logado como admin nível 1.
-2. Confirme se a página retornou `OK` para criação das tabelas e colunas.
-3. Sempre que a fase 1 evoluir com novas colunas, rode a mesma rota novamente.
+Acesse `https://utecnologia.com.br/adm/dev/migrar_fase1_saas` logado como admin nível 1. Rota idempotente — pode ser re-executada para aplicar novas colunas.
 
-### 2. Configurar o Mercado Pago
+### Configurar Mercado Pago
 
-1. Abra `application/config/mercadopago.php`.
-2. Revise:
-   - `mercadopago_access_token`
-   - `mercadopago_public_key`
-   - `mercadopago_back_url_success`
-   - `mercadopago_back_url_pending`
-   - `mercadopago_back_url_failure`
-3. No painel do Mercado Pago, configure o webhook para:
-   - `https://utecnologia.com.br/webhooks/mercadopago`
+1. Abra `application/config/mercadopago.php`
+2. Preferencialmente configure via variáveis de ambiente: `MERCADOPAGO_ACCESS_TOKEN`, `MERCADOPAGO_PUBLIC_KEY`, `MERCADOPAGO_WEBHOOK_SECRET`
+3. Configure o webhook no painel MP: `https://utecnologia.com.br/webhooks/mercadopago`
 
-### 3. Criar ou revisar os planos SaaS
+### Criar Plano SaaS
 
-1. Acesse `adm/produtos`.
-2. Cadastre ou edite o plano.
-3. Preencha os novos campos:
-   - `Codigo do plano`
-   - `Ciclo`
-   - `Intervalo`
-   - `Trial`
-   - `Taxa setup`
-   - limites de `Prof.`, `Colab.` e `Pac.`
-4. Salve o plano com status ativo.
+1. Acesse `adm/produtos` → Cadastre o plano
+2. Preencha: `plan_code`, ciclo, intervalo, trial, setup_fee, limites de profissionais/colaboradores/pacientes
+3. Salve com status ativo
 
-### 4. Provisionar a clínica / tenant
+### Provisionar Tenant
 
-1. Acesse `adm/saas`.
-2. Na seção `Provisionar clinica`, escolha:
-   - `Responsavel base`
-   - `Nome comercial do tenant`
-   - `Tipo`
-   - `Plano`
-   - `Ciclo`, `Intervalo`, `Trial`, `Valor recorrente`
-   - `Setup`, `Gateway`, `Referencia gateway`, `Documento`, contatos
-3. Clique em `Provisionar tenant`.
-4. O sistema irá:
-   - criar o tenant
-   - criar a assinatura
-   - criar o primeiro ciclo
-   - vincular `tenant_id` e `tenant_role` ao responsável e à árvore de usuários
+1. Acesse `adm/saas` → seção "Provisionar clínica"
+2. Escolha responsável base, nome comercial, tipo, plano, ciclo, valor
+3. Clique em "Provisionar tenant" — o sistema cria: tenant + assinatura + primeiro ciclo + vincula `tenant_id`/`tenant_role`
 
-### 5. Gerar o checkout recorrente
+### Gerar Checkout Recorrente
 
-1. Abra o tenant em `adm/saas`.
-2. Na tabela de assinaturas, clique em `Gerar checkout MP`.
-3. O sistema cria o `Preapproval` no Mercado Pago e grava:
-   - `gateway_subscription_id`
-   - `gateway_reference`
-   - `checkout_url`
-   - status inicial da assinatura
-4. O usuário será redirecionado para o checkout do Mercado Pago.
+1. Abra o tenant em `adm/saas/tenant/{id}`
+2. Clique em "Gerar checkout MP"
+3. O sistema cria o Preapproval no MP e grava `gateway_subscription_id`, `checkout_url`
+4. Redireciona para o checkout do Mercado Pago
 
-### 6. Acompanhar a assinatura
+### Acompanhar Assinatura
 
-1. Volte em `adm/saas` para visão geral.
-2. Abra o tenant para ver:
-   - equipe vinculada
-   - assinatura ativa/pendente/cancelada
-   - ciclos de cobrança
-3. O webhook do Mercado Pago atualiza o status em `saas_subscriptions` e registra evento em `saas_billing_events`.
-
-### 7. Cuidados operacionais atuais
-
-- O webhook já existe, mas ainda precisa ser validado ponta a ponta em produção.
-- O status da assinatura já volta para o sistema, mas a lógica completa de bloqueio por inadimplência ainda não foi fechada.
-- O provisionamento manual é o fluxo correto nesta fase; onboarding 100% automático ainda é etapa futura.
+- `adm/saas` — visão geral de tenants
+- `adm/saas/tenant/{id}` — equipe, assinatura, ciclos de cobrança
+- O webhook MP atualiza `saas_subscriptions` e registra em `saas_billing_events`
