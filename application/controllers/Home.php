@@ -9,6 +9,7 @@ class Home extends CI_Controller {
 		$this->load->library('session');
 		$this->load->helper(array('form', 'url'));
 		$this->load->model('adm/saas_model');
+		$this->load->model('FbApi_model', 'fbapi_model');
 	}
 
 	/**
@@ -37,6 +38,13 @@ class Home extends CI_Controller {
 		$dados['titulo'] = "";
 		$dados['public_plans'] = $this->saas_model->get_public_plans();
 
+		// CAPI PageView — event_id compartilhado com o browser Pixel para deduplicação
+		$fb = $this->fbapi_model->send_event('PageView', [
+			'source_url' => site_url(),
+		]);
+		$dados['fb_pixel_id']       = $this->fbapi_model->get_pixel_id();
+		$dados['fb_pv_event_id']    = $fb ? $fb['event_id'] : '';
+
 		$this->load->view('index-front' , $dados);
 	}
 
@@ -56,8 +64,20 @@ class Home extends CI_Controller {
 		$tipos_validos = ['clinica', 'consultorio', 'profissional'];
 		$dados['tipo_selecionado'] = in_array($tipo_raw, $tipos_validos) ? $tipo_raw : 'clinica';
 		$dados['planos'] = $this->saas_model->get_public_plans();
-		$dados['flash_ok'] = $this->session->flashdata('operational_trial_ok');
+		$dados['flash_ok']    = $this->session->flashdata('operational_trial_ok');
 		$dados['flash_error'] = $this->session->flashdata('operational_trial_error');
+
+		// CAPI Lead — usuário chegou à página do formulário de trial
+		$fb = $this->fbapi_model->send_event('Lead', [
+			'source_url'  => site_url('experimentar'),
+			'custom_data' => [
+				'content_name'     => 'Trial 30 dias',
+				'content_category' => $dados['tipo_selecionado'],
+			],
+		]);
+		$dados['fb_pixel_id']      = $this->fbapi_model->get_pixel_id();
+		$dados['fb_lead_event_id'] = $fb ? $fb['event_id'] : '';
+
 		$this->load->view('public/experimentar', $dados);
 	}
 
@@ -70,6 +90,46 @@ class Home extends CI_Controller {
 			return;
 		}
 
+		// CAPI StartTrial + CompleteRegistration — trial criado com sucesso
+		$email    = trim((string)$this->input->post('email'));
+		$nome     = trim((string)$this->input->post('nome_responsavel'));
+		$telefone = trim((string)$this->input->post('telefone'));
+		$tipo     = trim((string)$this->input->post('tenant_tipo'));
+		$valor    = isset($result['plano_valor']) ? (float)$result['plano_valor'] : 0;
+
+		$ev_id_trial = 'trial_' . time() . '_' . bin2hex(openssl_random_pseudo_bytes(3));
+		$this->fbapi_model->send_event('StartTrial', [
+			'email'      => $email,
+			'nome'       => $nome,
+			'phone'      => $telefone,
+			'event_id'   => $ev_id_trial,
+			'source_url' => site_url('experimentar'),
+			'custom_data' => [
+				'currency'      => 'BRL',
+				'value'         => 0,
+				'predicted_ltv' => $valor,
+				'content_name'  => 'Trial 30 dias',
+				'content_category' => $tipo ?: 'clinica',
+			],
+		]);
+
+		$ev_id_reg = 'reg_' . time() . '_' . bin2hex(openssl_random_pseudo_bytes(3));
+		$this->fbapi_model->send_event('CompleteRegistration', [
+			'email'      => $email,
+			'nome'       => $nome,
+			'phone'      => $telefone,
+			'event_id'   => $ev_id_reg,
+			'source_url' => site_url('experimentar'),
+			'custom_data' => [
+				'status'           => 'trial_created',
+				'content_name'     => 'Trial 30 dias',
+				'content_category' => $tipo ?: 'clinica',
+			],
+		]);
+
+		// Passa os event_ids para a view de sucesso fazer deduplicação com o browser Pixel
+		$this->session->set_flashdata('fb_trial_event_id', $ev_id_trial);
+		$this->session->set_flashdata('fb_reg_event_id', $ev_id_reg);
 		$this->session->set_flashdata('operational_trial_ok', 'Seu acesso de 30 dias foi criado com sucesso. Voce ja pode entrar no sistema e o pagamento do plano escolhido fica disponivel durante o periodo de trial.');
 		redirect('experimentar/sucesso?subscription='.(int)$result['subscription_id']);
 	}
@@ -97,6 +157,27 @@ class Home extends CI_Controller {
 			redirect('assinar');
 			return;
 		}
+
+		// CAPI Subscribe — assinatura iniciada (tenant + subscription criados)
+		$email    = trim((string)$this->input->post('email'));
+		$nome     = trim((string)$this->input->post('nome_responsavel'));
+		$telefone = trim((string)$this->input->post('telefone'));
+		$valor    = isset($result['plano_valor']) ? (float)$result['plano_valor'] : 0;
+
+		$ev_id_sub = 'sub_' . time() . '_' . bin2hex(openssl_random_pseudo_bytes(3));
+		$this->fbapi_model->send_event('Subscribe', [
+			'email'      => $email,
+			'nome'       => $nome,
+			'phone'      => $telefone,
+			'event_id'   => $ev_id_sub,
+			'source_url' => site_url('assinar'),
+			'custom_data' => [
+				'currency'     => 'BRL',
+				'value'        => $valor,
+				'content_name' => 'Assinatura UTecnologia Saude',
+			],
+		]);
+		$this->session->set_flashdata('fb_sub_event_id', $ev_id_sub);
 
 		$this->session->set_flashdata('public_signup_ok', 'Cadastro criado com sucesso. Agora escolha PIX ou cartao para concluir a contratacao.');
 		redirect('assinar/pagamento?subscription='.(int)$result['subscription_id']);

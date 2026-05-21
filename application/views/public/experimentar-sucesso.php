@@ -30,6 +30,34 @@
         .btn-secondary { background:#fff; border:1px solid var(--line); color:var(--ink); }
         @media (max-width: 720px) { h1 { font-size:34px; } .grid { grid-template-columns:1fr; } }
     </style>
+
+    <!-- Meta Pixel — StartTrial + CompleteRegistration (deduplica com CAPI via event_id) -->
+    <?php
+        $fb_pid         = '844919898162947';
+        $fb_trial_id    = $this->session->flashdata('fb_trial_event_id') ?: ('trial_fx_' . time());
+        $fb_reg_id      = $this->session->flashdata('fb_reg_event_id')   ?: ('reg_fx_'   . time());
+        $fb_plan_value  = isset($detail['subscription']->valor) ? (float)$detail['subscription']->valor : 0;
+        $fb_plan_name   = isset($detail['plano']->modelo) ? htmlspecialchars((string)$detail['plano']->modelo) : 'Trial';
+    ?>
+    <script>
+    !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+    n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+    document,'script','https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', '<?=$fb_pid?>');
+    fbq('track', 'PageView');
+    fbq('track', 'StartTrial',
+        {currency: 'BRL', value: 0, predicted_ltv: <?=json_encode($fb_plan_value)?>, content_name: '<?=$fb_plan_name?>'},
+        {eventID: '<?=htmlspecialchars((string)$fb_trial_id)?>'}
+    );
+    fbq('track', 'CompleteRegistration',
+        {status: 'trial_created', content_name: '<?=$fb_plan_name?>'},
+        {eventID: '<?=htmlspecialchars((string)$fb_reg_id)?>'}
+    );
+    </script>
+    <noscript><img height="1" width="1" style="display:none"
+    src="https://www.facebook.com/tr?id=<?=$fb_pid?>&ev=CompleteRegistration&noscript=1"/></noscript>
 </head>
 <body>
     <div class="wrap">

@@ -160,6 +160,29 @@
             .metrics-grid { grid-template-columns: 1fr 1fr; }
         }
     </style>
+
+    <!-- Meta Pixel — Subscribe (deduplica com CAPI via event_id) -->
+    <?php
+        $fb_pid        = '844919898162947';
+        $fb_sub_id     = $this->session->flashdata('fb_sub_event_id') ?: ('sub_fx_' . time());
+        $fb_sub_value  = isset($detail['subscription']->valor) ? (float)$detail['subscription']->valor : 0;
+        $fb_plan_name  = isset($detail['plano']->modelo) ? htmlspecialchars((string)$detail['plano']->modelo) : 'Plano';
+    ?>
+    <script>
+    !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+    n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+    document,'script','https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', '<?=$fb_pid?>');
+    fbq('track', 'PageView');
+    fbq('track', 'Subscribe',
+        {currency: 'BRL', value: <?=json_encode($fb_sub_value)?>, content_name: '<?=$fb_plan_name?>'},
+        {eventID: '<?=htmlspecialchars((string)$fb_sub_id)?>'}
+    );
+    </script>
+    <noscript><img height="1" width="1" style="display:none"
+    src="https://www.facebook.com/tr?id=<?=$fb_pid?>&ev=Subscribe&noscript=1"/></noscript>
 </head>
 <body>
     <div class="wrap">

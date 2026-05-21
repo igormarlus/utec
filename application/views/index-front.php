@@ -8,6 +8,22 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <?php if(!empty($fb_pixel_id)): ?>
+    <!-- Meta Pixel — base code -->
+    <script>
+    !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+    n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+    document,'script','https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', '<?=htmlspecialchars((string)$fb_pixel_id)?>');
+    fbq('track', 'PageView', {}, {eventID: '<?=htmlspecialchars((string)$fb_pv_event_id)?>'});
+    </script>
+    <noscript><img height="1" width="1" style="display:none"
+    src="https://www.facebook.com/tr?id=<?=htmlspecialchars((string)$fb_pixel_id)?>&ev=PageView&noscript=1"/></noscript>
+    <?php endif; ?>
+
     <style>
         /* ── TOKENS ── */
         :root {
@@ -553,7 +569,8 @@
                     <li class="seg-feature"><span class="ico">📊</span>Relatórios gerenciais e clínicos</li>
                     <li class="seg-feature"><span class="ico">🔒</span>Controle de acesso por função</li>
                 </ul>
-                <a href="<?=base_url()?>experimentar?tipo=clinica" class="btn-seg">
+                <a href="<?=base_url()?>experimentar?tipo=clinica" class="btn-seg"
+                   onclick="if(typeof fbq!=='undefined')fbq('track','Lead',{content_category:'clinica',content_name:'CTA Landing Clinica'})">
                     Quero para minha clínica →
                 </a>
                 <p class="btn-seg-note">Experimente 30 dias grátis, sem compromisso</p>
@@ -574,7 +591,8 @@
                     <li class="seg-feature"><span class="ico">📎</span>Anexo de exames e documentos</li>
                     <li class="seg-feature"><span class="ico">📱</span>Acesso em qualquer dispositivo</li>
                 </ul>
-                <a href="<?=base_url()?>experimentar?tipo=profissional" class="btn-seg">
+                <a href="<?=base_url()?>experimentar?tipo=profissional" class="btn-seg"
+                   onclick="if(typeof fbq!=='undefined')fbq('track','Lead',{content_category:'profissional',content_name:'CTA Landing Profissional'})">
                     Quero para meu consultório →
                 </a>
                 <p class="btn-seg-note">Experimente 30 dias grátis, sem compromisso</p>

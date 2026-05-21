@@ -84,6 +84,25 @@
         @media (max-width: 980px) { .hero,.plans { grid-template-columns:1fr; } }
         @media (max-width: 680px) { h1 { font-size:34px; } .form-grid { grid-template-columns:1fr; } }
     </style>
+
+    <?php if(!empty($fb_pixel_id)): ?>
+    <!-- Meta Pixel — Lead (deduplica com CAPI via event_id) -->
+    <script>
+    !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+    n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+    document,'script','https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', '<?=htmlspecialchars((string)$fb_pixel_id)?>');
+    fbq('track', 'PageView');
+    fbq('track', 'Lead',
+        {content_name: 'Trial 30 dias', content_category: '<?=htmlspecialchars((string)$tipo_selecionado)?>'},
+        {eventID: '<?=htmlspecialchars((string)$fb_lead_event_id)?>'}
+    );
+    </script>
+    <noscript><img height="1" width="1" style="display:none"
+    src="https://www.facebook.com/tr?id=<?=htmlspecialchars((string)$fb_pixel_id)?>&ev=Lead&noscript=1"/></noscript>
+    <?php endif; ?>
 </head>
 <body>
     <div class="wrap">

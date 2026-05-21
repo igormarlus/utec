@@ -12,6 +12,7 @@ class Atendimento extends CI_Controller {
 		$this->load->model('padrao_model');
 		#$this->padrao_model->indexador();
 		$this->usuarios_model->verSession();
+		$this->load->model('FbApi_model', 'fbapi_model');
 
    } // fecha fn USER
 
@@ -171,13 +172,27 @@ function cadastrar() {
 	);
 	
 
-	#$this->db->where('id', $_POST['id']);	
+	#$this->db->where('id', $_POST['id']);
 	if ($this->db->insert('agendamentos', $dd)) {
+		// CAPI Schedule — sinaliza que o profissional usou o sistema até o ponto de agendar
+		$user_logado = $this->padrao_model->get_usuario_logado();
+		if ($user_logado) {
+			$this->fbapi_model->send_event('Schedule', [
+				'email'      => isset($user_logado->email)    ? $user_logado->email    : '',
+				'phone'      => isset($user_logado->telefone) ? $user_logado->telefone : '',
+				'nome'       => isset($user_logado->nome)     ? $user_logado->nome     : '',
+				'source_url' => site_url('adm/atendimento'),
+				'custom_data' => [
+					'content_type' => 'appointment',
+					'content_name' => $this->input->post('tipo') ?: 'Consulta',
+				],
+			]);
+		}
 		redirect('adm/usuarios/prontuario/'.$dd['id_paciente']);
 	} else {
-		echo "Falha ao agendar paciente!";	
+		echo "Falha ao agendar paciente!";
 	}
-	
+
 }
 
 function set() {
