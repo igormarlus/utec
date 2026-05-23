@@ -685,21 +685,26 @@ class Saas_model extends CI_Model {
 		$tenant_nome = trim((string)$data['tenant_nome']);
 		$email = strtolower(trim((string)$data['email']));
 		$telefone = trim((string)$data['telefone']);
-		$documento = trim((string)$data['documento']);
+		$documento = trim((string)isset($data['documento']) ? $data['documento'] : '');
 		$plano_id = (int)$data['plano_id'];
-		$senha = (string)$data['senha'];
 		$tenant_tipo = !empty($data['tenant_tipo']) ? trim((string)$data['tenant_tipo']) : 'clinica';
-		$observacoes = trim((string)$data['observacoes']);
+		$observacoes = trim((string)isset($data['observacoes']) ? $data['observacoes'] : '');
 
-		if($nome_responsavel === '' || $tenant_nome === '' || $email === '' || $plano_id <= 0 || $senha === ''){
-			return ['ok' => false, 'msg' => 'Preencha nome do responsavel, nome da clinica, e-mail, senha e plano.'];
+		if($nome_responsavel === '' || $tenant_nome === '' || $email === '' || $plano_id <= 0){
+			return ['ok' => false, 'msg' => 'Preencha nome, nome da clínica, e-mail e plano.'];
 		}
 		if(!filter_var($email, FILTER_VALIDATE_EMAIL)){
-			return ['ok' => false, 'msg' => 'Informe um e-mail valido para continuar.'];
+			return ['ok' => false, 'msg' => 'Informe um e-mail válido para continuar.'];
 		}
-		if(strlen($senha) < 6){
-			return ['ok' => false, 'msg' => 'A senha precisa ter pelo menos 6 caracteres.'];
-		}
+
+		// Senha gerada no servidor — não exigimos que o usuário defina no cadastro
+		$chars = 'abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+		$senha = '';
+		for($i = 0; $i < 10; $i++) $senha .= $chars[random_int(0, strlen($chars)-1)];
+
+		// Token para definição de senha posterior (expira em 7 dias)
+		$token = bin2hex(random_bytes(32));
+		$token_expires = date('Y-m-d H:i:s', strtotime('+7 days'));
 
 		$plano_where = "id = ".$plano_id." AND status = 1";
 		if($this->db->field_exists('saas_publicado', 'produtos')){
@@ -743,6 +748,12 @@ class Saas_model extends CI_Model {
 		}
 		if($this->db->field_exists('onboarding_status', 'usuarios')){
 			$user_insert['onboarding_status'] = 'ativo';
+		}
+		if($this->db->field_exists('senha_token', 'usuarios')){
+			$user_insert['senha_token'] = $token;
+		}
+		if($this->db->field_exists('senha_token_expires', 'usuarios')){
+			$user_insert['senha_token_expires'] = $token_expires;
 		}
 		$this->db->insert('usuarios', $user_insert);
 		$owner_id = (int)$this->db->insert_id();
@@ -841,6 +852,9 @@ class Saas_model extends CI_Model {
 			'login' => $email,
 			'tenant_nome' => $tenant_nome,
 			'trial_ends_at' => $trial_ends_at,
+			'plano_valor' => $valor,
+			'senha_gerada' => $senha,
+			'token' => $token,
 		];
 	}
 

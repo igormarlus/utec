@@ -42,11 +42,16 @@
         .brand { font-size:14px; letter-spacing:.16em; text-transform:uppercase; color:#115e59; font-weight:700; }
         .back { color:var(--muted); text-decoration:none; font-size:14px; }
         .hero { display:grid; grid-template-columns:minmax(0,1.15fr) minmax(330px,.85fr); gap:24px; align-items:start; }
+        .hero-left { display:flex; flex-direction:column; gap:20px; }
         .panel-img { overflow:hidden; padding:0; border-radius:28px; box-shadow:0 24px 60px rgba(23,32,51,.08); }
         .panel-img img { width:100%; display:block; border-radius:28px; }
-        .hero-benefits { display:grid; gap:10px; margin-top:20px; }
-        .hero-benefit { display:flex; align-items:flex-start; gap:10px; font-size:15px; color:#334155; line-height:1.5; }
-        .hero-benefit .ico { font-size:18px; flex-shrink:0; margin-top:1px; }
+        .benefits-panel { background:rgba(255,255,255,.88); border:1px solid rgba(208,216,228,.8); border-radius:24px; padding:24px 26px; }
+        .benefits-title { font-size:18px; font-weight:700; color:#115e59; margin:0 0 16px; font-family:system-ui,sans-serif; }
+        .benefits-list { display:grid; gap:12px; }
+        .benefit-item { display:flex; align-items:flex-start; gap:12px; font-size:14px; color:#334155; line-height:1.55; font-family:system-ui,sans-serif; }
+        .benefit-item .b-ico { font-size:20px; flex-shrink:0; margin-top:1px; }
+        .benefit-item strong { display:block; font-size:14px; font-weight:700; color:#172033; margin-bottom:2px; }
+        .benefits-note { margin-top:16px; font-size:13px; color:#667085; font-family:system-ui,sans-serif; line-height:1.6; border-top:1px solid #e2e8f0; padding-top:14px; }
         .panel {
             background:rgba(255,255,255,.92);
             border:1px solid rgba(208,216,228,.9);
@@ -95,8 +100,20 @@
         .plan h3 { margin:0 0 8px; font-size:22px; }
         .plan-price { font-size:32px; line-height:1; margin:8px 0 10px; }
         .plan-copy { font-size:14px; line-height:1.7; color:#43526a; }
-        @media (max-width: 980px) { .hero,.plans { grid-template-columns:1fr; } }
-        @media (max-width: 680px) { h1 { font-size:34px; } .form-grid { grid-template-columns:1fr; } }
+        @media (max-width: 980px) {
+            .hero,.plans { grid-template-columns:1fr; }
+            .hero-left { order:2; }
+            .panel { order:1; }
+        }
+        @media (max-width: 680px) {
+            h1 { font-size:30px; }
+            .form-grid { grid-template-columns:1fr; }
+            .wrap { padding:20px 14px 40px; }
+            .card-title { font-size:22px; }
+            .btn-submit { width:100%; font-size:16px; padding:15px 20px; }
+            input, select { font-size:16px; } /* evita zoom no iOS */
+            .benefits-panel { display:none; } /* esconde na mobile para reduzir scroll */
+        }
     </style>
 
     <?php if(!empty($fb_pixel_id)): ?>
@@ -126,12 +143,60 @@
         </div>
 
         <div class="hero">
-            <div class="panel-img">
-                <img
-                    src="<?=base_url()?>imagens/utec-dash3.png"
-                    alt="UTecnologia Saúde — gestão completa da sua clínica em um só lugar"
-                    loading="eager"
-                >
+            <div class="hero-left">
+                <div class="panel-img">
+                    <img
+                        src="<?=base_url()?>imagens/utec-dash3.png"
+                        alt="UTecnologia Saúde — gestão completa da sua clínica em um só lugar"
+                        loading="eager"
+                    >
+                </div>
+
+                <div class="benefits-panel">
+                    <p class="benefits-title">Por que clínicas e profissionais escolhem a UTecnologia Saúde?</p>
+                    <div class="benefits-list">
+                        <div class="benefit-item">
+                            <span class="b-ico">📅</span>
+                            <div>
+                                <strong>Agenda inteligente</strong>
+                                Visualize e gerencie todos os atendimentos por profissional — filtre por data, status e especialidade sem retrabalho.
+                            </div>
+                        </div>
+                        <div class="benefit-item">
+                            <span class="b-ico">📋</span>
+                            <div>
+                                <strong>Prontuário eletrônico completo</strong>
+                                Anamnese, evolução clínica, hipóteses diagnósticas e prescrições em um histórico organizado e acessível a qualquer momento.
+                            </div>
+                        </div>
+                        <div class="benefit-item">
+                            <span class="b-ico">🔬</span>
+                            <div>
+                                <strong>Exames e arquivos integrados</strong>
+                                Solicite exames, registre resultados e armazene documentos diretamente no prontuário do paciente.
+                            </div>
+                        </div>
+                        <div class="benefit-item">
+                            <span class="b-ico">📊</span>
+                            <div>
+                                <strong>Relatórios e gestão</strong>
+                                Indicadores de atendimentos por profissional, período e especialidade para tomada de decisão rápida.
+                            </div>
+                        </div>
+                        <div class="benefit-item">
+                            <span class="b-ico">🔒</span>
+                            <div>
+                                <strong>Seguro e 100% online</strong>
+                                Dados dos pacientes protegidos, acesso por perfil e disponível em qualquer dispositivo com internet.
+                            </div>
+                        </div>
+                    </div>
+                    <p class="benefits-note">
+                        Utilizado por clínicas de medicina geral, psicologia, fisioterapia, nutrição, fonoaudiologia,
+                        oftalmologia e diversas outras especialidades em todo o Brasil.
+                        Sistema desenvolvido por profissionais da área de tecnologia em saúde.
+                    </p>
+                </div>
             </div>
 
             <div class="panel">
@@ -177,10 +242,7 @@
                                 <? } ?>
                             </select>
                         </div>
-                        <div class="field">
-                            <label>Crie uma senha</label>
-                            <input type="password" name="senha" placeholder="Mínimo 6 caracteres" required minlength="6">
-                        </div>
+                        <input type="hidden" name="senha" value="">
                         <input type="hidden" name="documento" value="">
                         <input type="hidden" name="observacoes" value="">
                     </div>
@@ -188,7 +250,7 @@
                     <div class="submit-row">
                         <button class="btn-submit" type="submit">Começar 30 dias grátis →</button>
                     </div>
-                    <p style="font-size:12px;color:#667085;margin-top:12px;text-align:center;">Sem cartão de crédito · Cancele quando quiser · Acesso imediato</p>
+                    <p style="font-size:12px;color:#667085;margin-top:12px;text-align:center;">Sem cartão de crédito · Acesso imediato · Você receberá as credenciais por e-mail</p>
                 </form>
             </div>
         </div>

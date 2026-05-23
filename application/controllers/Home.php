@@ -90,6 +90,22 @@ class Home extends CI_Controller {
 			return;
 		}
 
+		// Auto-login: busca o usuário criado e define sessão
+		$this->load->model('adm/Usuarios_model');
+		$user = $this->db->get_where('usuarios', ['id' => (int)$result['user_id']])->row();
+		if($user){
+			$this->session->set_userdata([
+				'id'    => $user->id,
+				'nome'  => $user->nome,
+				'nivel' => $user->nivel,
+				'login' => $user->login,
+				'usr'   => $user,
+			]);
+		}
+
+		// Envia e-mail de boas-vindas com credenciais e link de definição de senha
+		$this->_enviar_email_boas_vindas($result);
+
 		// CAPI StartTrial + CompleteRegistration — trial criado com sucesso
 		$email    = trim((string)$this->input->post('email'));
 		$nome     = trim((string)$this->input->post('nome_responsavel'));
@@ -431,6 +447,157 @@ class Home extends CI_Controller {
 		$this->load->view('public/assinar-sucesso', $dados);
 	}
 
-	
-	
+	// ── DEFINIR SENHA VIA TOKEN ──────────────────────────────────────────
+
+	public function definir_senha($token = '')
+	{
+		$token = preg_replace('/[^a-f0-9]/i', '', (string)$token);
+		if(strlen($token) !== 64){
+			$this->session->set_flashdata('operational_trial_error', 'Link de definição de senha inválido ou expirado.');
+			redirect('experimentar');
+			return;
+		}
+		$user = $this->db->query(
+			"SELECT id, nome, email FROM usuarios
+			 WHERE senha_token = ".$this->db->escape($token)."
+			 AND senha_token_expires > NOW()
+			 LIMIT 1"
+		)->row();
+		if(!$user){
+			$this->session->set_flashdata('operational_trial_error', 'Este link de definição de senha já foi usado ou expirou. Faça login normalmente.');
+			redirect('admin');
+			return;
+		}
+		$dados['token'] = $token;
+		$dados['nome']  = $user->nome;
+		$dados['email'] = $user->email;
+		$dados['flash_error'] = $this->session->flashdata('definir_senha_error');
+		$this->load->view('public/definir-senha', $dados);
+	}
+
+	public function salvar_senha()
+	{
+		$token  = preg_replace('/[^a-f0-9]/i', '', (string)$this->input->post('token'));
+		$nova   = (string)$this->input->post('nova_senha');
+		$conf   = (string)$this->input->post('confirmar_senha');
+
+		if(strlen($token) !== 64){
+			$this->session->set_flashdata('operational_trial_error', 'Token inválido.');
+			redirect('experimentar');
+			return;
+		}
+		if(strlen($nova) < 6){
+			$this->session->set_flashdata('definir_senha_error', 'A senha precisa ter pelo menos 6 caracteres.');
+			redirect('acesso/senha/'.$token);
+			return;
+		}
+		if($nova !== $conf){
+			$this->session->set_flashdata('definir_senha_error', 'As senhas não coincidem. Tente novamente.');
+			redirect('acesso/senha/'.$token);
+			return;
+		}
+
+		$user = $this->db->query(
+			"SELECT id, nome, nivel, login FROM usuarios
+			 WHERE senha_token = ".$this->db->escape($token)."
+			 AND senha_token_expires > NOW()
+			 LIMIT 1"
+		)->row();
+		if(!$user){
+			$this->session->set_flashdata('operational_trial_error', 'Link expirado. Faça login normalmente e redefina sua senha nas configurações.');
+			redirect('admin');
+			return;
+		}
+
+		$this->db->where('id', $user->id);
+		$this->db->update('usuarios', [
+			'senha'               => password_hash($nova, PASSWORD_DEFAULT),
+			'senha_token'         => null,
+			'senha_token_expires' => null,
+		]);
+
+		// Garante sessão ativa
+		if(!$this->session->userdata('id')){
+			$this->session->set_userdata([
+				'id'    => $user->id,
+				'nome'  => $user->nome,
+				'nivel' => $user->nivel,
+				'login' => $user->login,
+				'usr'   => $user,
+			]);
+		}
+
+		$this->session->set_flashdata('operational_trial_ok', 'Senha definida com sucesso! Bem-vindo(a) ao sistema.');
+		redirect('adm/atendimento');
+	}
+
+	// ── E-MAIL BOAS-VINDAS ───────────────────────────────────────────────
+
+	private function _enviar_email_boas_vindas($result)
+	{
+		try {
+			$this->config->load('email');
+			$this->load->library('email');
+			$this->email->initialize($this->config->config);
+
+			$nome_clinica  = htmlspecialchars((string)$result['tenant_nome']);
+			$login         = htmlspecialchars((string)$result['login']);
+			$senha         = htmlspecialchars((string)$result['senha_gerada']);
+			$token         = rawurlencode((string)$result['token']);
+			$link_senha    = base_url().'acesso/senha/'.$token;
+			$link_sistema  = base_url().'admin';
+			$trial_fim     = isset($result['trial_ends_at'])
+				? date('d/m/Y', strtotime($result['trial_ends_at']))
+				: date('d/m/Y', strtotime('+30 days'));
+
+			$body = '<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"></head><body style="margin:0;padding:0;background:#f6f8fb;font-family:system-ui,sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f6f8fb;padding:40px 20px;">
+<tr><td align="center">
+<table width="600" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,.08);">
+  <tr><td style="background:linear-gradient(90deg,#0f766e,#f97316);padding:32px 40px;">
+    <p style="margin:0;font-size:13px;letter-spacing:.15em;text-transform:uppercase;color:rgba(255,255,255,.8);font-weight:700;">UTecnologia Saúde</p>
+    <h1 style="margin:10px 0 0;color:#fff;font-size:26px;font-weight:800;">Seu acesso está pronto! 🎉</h1>
+  </td></tr>
+  <tr><td style="padding:36px 40px;">
+    <p style="font-size:16px;color:#334155;line-height:1.7;">Olá, <strong>'.htmlspecialchars((string)$result['login']).'</strong>!</p>
+    <p style="font-size:15px;color:#475569;line-height:1.7;">
+      O ambiente <strong>'.$nome_clinica.'</strong> foi criado com sucesso.
+      Você já pode entrar no sistema e começar a usar a agenda, prontuários e atendimentos pelos próximos 30 dias sem nenhum custo.
+    </p>
+    <table width="100%" cellpadding="0" cellspacing="0" style="background:#f1fdf9;border:1px solid #a7f3d0;border-radius:14px;padding:20px;margin:24px 0;">
+      <tr><td>
+        <p style="margin:0 0 10px;font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#0f766e;">Seus dados de acesso</p>
+        <p style="margin:4px 0;font-size:15px;color:#172033;"><strong>E-mail:</strong> '.$login.'</p>
+        <p style="margin:4px 0;font-size:15px;color:#172033;"><strong>Senha provisória:</strong> <code style="background:#e0f2fe;padding:2px 8px;border-radius:6px;font-size:15px;">'.$senha.'</code></p>
+        <p style="margin:10px 0 0;font-size:13px;color:#64748b;">Trial ativo até: <strong>'.$trial_fim.'</strong></p>
+      </td></tr>
+    </table>
+    <p style="font-size:14px;color:#475569;line-height:1.7;">Recomendamos que você defina uma senha personalizada clicando no botão abaixo:</p>
+    <p style="margin:24px 0;">
+      <a href="'.$link_senha.'" style="display:inline-block;padding:14px 28px;background:linear-gradient(90deg,#0f766e,#f97316);color:#fff;font-size:15px;font-weight:700;border-radius:999px;text-decoration:none;">Definir minha senha →</a>
+    </p>
+    <p style="margin:16px 0;">
+      <a href="'.$link_sistema.'" style="display:inline-block;padding:12px 24px;background:#fff;border:1px solid #d1d5db;color:#374151;font-size:14px;font-weight:600;border-radius:999px;text-decoration:none;">Entrar no sistema com senha provisória</a>
+    </p>
+    <p style="font-size:13px;color:#94a3b8;border-top:1px solid #e2e8f0;padding-top:20px;margin-top:28px;">
+      Dúvidas? Responda este e-mail ou acesse <a href="https://wa.me/5581983276882" style="color:#0f766e;">WhatsApp</a>.<br>
+      UTecnologia Saúde — utecnologia.com.br
+    </p>
+  </td></tr>
+</table>
+</td></tr></table>
+</body></html>';
+
+			$this->email->from('suporte@utecnologia.com.br', 'UTecnologia Saúde');
+			$this->email->to($result['login']);
+			$this->email->subject('Seu acesso UTecnologia Saúde está pronto — '.$nome_clinica);
+			$this->email->message($body);
+			$this->email->send();
+		} catch (Exception $e) {
+			log_message('error', 'Email boas-vindas falhou: '.$e->getMessage());
+		}
+	}
+
+
+
 }

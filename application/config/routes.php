@@ -65,4 +65,7 @@ $route['assinar/pagamento/pix'] = 'home/assinatura_pagamento_pix';
 $route['assinar/pagamento/cartao'] = 'home/assinatura_pagamento_cartao';
 $route['assinar/pagamento/status'] = 'home/assinatura_pagamento_status';
 $route['assinar/sucesso'] = 'home/assinatura_sucesso';
+$route['acesso/senha/(:any)'] = 'home/definir_senha/$1';
+$route['acesso/senha']        = 'home/definir_senha';
+$route['acesso/salvar']       = 'home/salvar_senha';
 $route['webhooks/mercadopago'] = 'adm/saas/webhook_mercadopago';

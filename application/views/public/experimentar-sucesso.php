@@ -71,12 +71,12 @@
 <body>
     <div class="wrap">
         <div class="panel">
-            <div class="eyebrow">Trial operacional liberado</div>
-            <h1>Sua clinica ja pode usar o sistema pelos proximos 30 dias.</h1>
+            <div class="eyebrow">✅ Acesso criado com sucesso!</div>
+            <h1>Bem-vindo(a) ao UTecnologia Saúde!</h1>
             <p>
-                O ambiente foi criado com foco em uso clinico e operacional. Voce ja pode entrar no sistema,
-                cadastrar equipe, pacientes, agenda e atendimentos, enquanto o plano escolhido fica pronto para pagamento
-                em um fluxo separado da gestao SaaS.
+                Seu ambiente está pronto. Você já está logado e pode começar a usar a agenda, cadastrar pacientes
+                e registrar atendimentos agora mesmo. Também enviamos suas credenciais e um link para definir sua
+                senha personalizada para o e-mail cadastrado.
             </p>
 
             <? if($flash_ok){ ?><div class="alert alert-ok"><?=$flash_ok?></div><? } ?>
@@ -95,8 +95,8 @@
                 </div>
                 <div class="card">
                     <div class="label">Login principal</div>
-                    <div class="value" style="font-size:20px;"><?=$detail['owner']->email?></div>
-                    <div class="copy">Use este acesso para entrar e comecar a operar.</div>
+                    <div class="value" style="font-size:18px;"><?=$detail['owner']->email?></div>
+                    <div class="copy">Credenciais e link de acesso enviados para este e-mail.</div>
                 </div>
                 <div class="card">
                     <div class="label">Fim do trial</div>
@@ -106,9 +106,8 @@
             </div>
 
             <div class="actions">
-                <a class="btn btn-primary" href="<?=base_url()?>admin">Entrar no sistema</a>
-                <a class="btn btn-secondary" href="<?=$payment_url?>">Ver pagamento do plano</a>
-                <a class="btn btn-secondary" href="<?=base_url()?>experimentar">Criar outro acesso</a>
+                <a class="btn btn-primary" href="<?=base_url()?>adm/atendimento">Entrar no sistema agora →</a>
+                <a class="btn btn-secondary" href="<?=$payment_url?>">Ver plano e pagamento</a>
             </div>
         </div>
     </div>

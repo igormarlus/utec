@@ -114,6 +114,33 @@ class Dev extends CI_Controller {
 		echo '</ul>';
 	}
 
+	function migrar_token_senha(){
+		if($this->session->userdata('nivel') != 1){
+			show_error('Acesso negado.', 403); return;
+		}
+		$logs = [];
+
+		$cols = [
+			'senha_token'         => "ALTER TABLE `usuarios` ADD COLUMN `senha_token` VARCHAR(64) DEFAULT NULL",
+			'senha_token_expires' => "ALTER TABLE `usuarios` ADD COLUMN `senha_token_expires` DATETIME DEFAULT NULL",
+		];
+		foreach($cols as $col => $sql){
+			if(!$this->db->field_exists($col, 'usuarios')){
+				if($this->db->query($sql)){
+					$logs[] = "✅ Coluna <strong>$col</strong> adicionada em <code>usuarios</code>.";
+				} else {
+					$logs[] = "❌ Erro ao adicionar <strong>$col</strong>: ".$this->db->error()['message'];
+				}
+			} else {
+				$logs[] = "⚠️ Coluna <strong>$col</strong> já existe.";
+			}
+		}
+
+		echo '<h3>Migração: token de definição de senha</h3><ul>';
+		foreach($logs as $l) echo "<li>$l</li>";
+		echo '</ul>';
+	}
+
 	function criar_tabela_arquivos_paciente(){
 		$sql = "CREATE TABLE IF NOT EXISTS `pacientes_arquivos` (
 			`id`             INT AUTO_INCREMENT PRIMARY KEY,

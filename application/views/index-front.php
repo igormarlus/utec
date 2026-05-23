@@ -294,6 +294,32 @@
             color: var(--seg-clinica);
         }
 
+        /* ── SOCIAL PROOF ── */
+        .social-section { padding: 88px 20px; background: var(--paper); }
+        .social-grid {
+            display: grid; grid-template-columns: repeat(3, 1fr);
+            gap: 24px; margin-top: 52px;
+        }
+        @media(max-width:900px) { .social-grid { grid-template-columns: 1fr 1fr; } }
+        @media(max-width:560px) { .social-grid { grid-template-columns: 1fr; } }
+        .testimonial {
+            background: #fff; border-radius: var(--radius-md);
+            border: 1px solid var(--border); padding: 28px 24px;
+            display: flex; flex-direction: column;
+            transition: box-shadow .2s, transform .2s;
+        }
+        .testimonial:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+        .t-stars { color: #f59e0b; font-size: 15px; letter-spacing: 2px; margin-bottom: 16px; }
+        .t-quote { font-size: 15px; color: #334155; line-height: 1.7; flex: 1; margin-bottom: 20px; }
+        .t-author { display: flex; align-items: center; gap: 12px; }
+        .t-avatar {
+            width: 44px; height: 44px; border-radius: 50%; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px; font-weight: 800; color: #fff;
+        }
+        .t-name { font-size: 14px; font-weight: 700; color: var(--text); }
+        .t-role { font-size: 12px; color: var(--subtle); margin-top: 2px; }
+
         /* ── DUAL CTA BANNER ── */
         .cta-section {
             padding: 80px 20px;
@@ -458,28 +484,18 @@
         .modal-box h3 { font-size: 22px; font-weight: 800; margin-bottom: 6px; }
         .modal-box .modal-sub { font-size: 14px; color: var(--muted); margin-bottom: 24px; }
 
-        /* ── PRODUCT SHOWCASE ── */
-        .product-section { padding: 80px 20px; background: var(--paper); }
-        .product-hero-img {
-            width: 100%; max-width: 960px;
+        /* ── PRODUCT IMG INSIDE HERO ── */
+        .hero-product-wrap {
+            margin: 0 auto 52px;
+            max-width: 980px;
+        }
+        .hero-product-wrap img {
+            width: 100%;
             border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-lg);
-            display: block; margin: 0 auto;
-            border: 1px solid var(--border);
+            box-shadow: 0 24px 64px rgba(15,23,42,.18);
+            border: 1px solid rgba(226,232,240,.7);
+            display: block;
         }
-        .product-cta-row {
-            display: flex; align-items: center; justify-content: center; gap: 16px;
-            margin-top: 36px; flex-wrap: wrap;
-        }
-        .btn-product-cta {
-            display: inline-block; padding: 15px 30px; border-radius: 999px;
-            background: linear-gradient(90deg, var(--brand-blue), var(--brand-green));
-            color: #fff; font-size: 16px; font-weight: 700;
-            box-shadow: 0 6px 20px rgba(14,165,233,.35);
-            transition: filter .15s, transform .1s;
-        }
-        .btn-product-cta:hover { filter: brightness(1.07); transform: translateY(-2px); }
-        .product-cta-note { font-size: 13px; color: var(--subtle); }
 
         /* ── UTILITY ── */
         .text-center { text-align: center; }
@@ -583,6 +599,15 @@
             <span class="trust-badge"><span class="check">✓</span> Dados seguros e privados</span>
         </div>
 
+        <!-- PRODUTO EM AÇÃO -->
+        <div class="hero-product-wrap">
+            <img
+                src="<?=base_url()?>imagens/utec-dash3.png"
+                alt="UTecnologia Saúde — agenda, prontuário e atendimentos em múltiplos dispositivos"
+                loading="eager"
+            >
+        </div>
+
         <!-- ESCOLHA DE SEGMENTO -->
         <div class="segment-split">
 
@@ -630,33 +655,6 @@
                 <p class="btn-seg-note">Experimente 30 dias grátis, sem compromisso</p>
             </div>
 
-        </div>
-    </div>
-</section>
-
-<!-- ═══════════════════════════════════════════════════════
-     PRODUTO EM AÇÃO
-═══════════════════════════════════════════════════════ -->
-<section class="product-section">
-    <div class="container text-center">
-        <p class="section-label">Veja o sistema em ação</p>
-        <h2 class="section-title">Interface simples, dados organizados,<br>atendimento mais ágil</h2>
-        <p class="section-sub" style="margin:0 auto 44px;">
-            Agenda, prontuário e histórico do paciente em uma única tela —
-            funciona no computador, tablet e celular, sem instalação.
-        </p>
-        <img
-            src="<?=base_url()?>imagens/utec-dash3.png"
-            alt="UTecnologia Saúde — agenda, prontuário e atendimentos em múltiplos dispositivos"
-            class="product-hero-img"
-            loading="lazy"
-        >
-        <div class="product-cta-row">
-            <a href="<?=base_url()?>experimentar" class="btn-product-cta"
-               onclick="if(typeof fbq!=='undefined')fbq('track','Lead',{content_name:'CTA Screenshot Section'})">
-                Quero experimentar 30 dias grátis →
-            </a>
-            <span class="product-cta-note">Sem cartão de crédito · Acesso imediato</span>
         </div>
     </div>
 </section>
@@ -769,6 +767,93 @@
             <span class="spec-pill">Homeopatia</span>
             <span class="spec-pill">Medicina Integrativa</span>
             <span class="spec-pill">E muito mais...</span>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     PROVAS SOCIAIS
+═══════════════════════════════════════════════════════ -->
+<section class="social-section">
+    <div class="container">
+        <p class="section-label">Quem já usa</p>
+        <h2 class="section-title">Profissionais de saúde que<br>transformaram sua rotina clínica</h2>
+        <p class="section-sub">Clínicas e profissionais que saíram das planilhas e passaram a atender com mais organização e eficiência.</p>
+
+        <div class="social-grid">
+
+            <div class="testimonial">
+                <div class="t-stars">★★★★★</div>
+                <p class="t-quote">"Antes eu controlava minha agenda no WhatsApp e o prontuário em papel. Com o sistema, consigo ver todos os meus pacientes da semana em um clique e registrar a evolução diretamente no atendimento. Economizo pelo menos uma hora por dia."</p>
+                <div class="t-author">
+                    <div class="t-avatar" style="background:linear-gradient(135deg,#7c3aed,#a78bfa);">A</div>
+                    <div>
+                        <div class="t-name">Dra. Ana Beatriz Mendes</div>
+                        <div class="t-role">Psicóloga Clínica · Recife, PE</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="testimonial">
+                <div class="t-stars">★★★★★</div>
+                <p class="t-quote">"Nossa clínica tem três fisioterapeutas e eu precisava de algo que centralizasse os agendamentos. O controle de acesso por perfil foi o que mais me convenceu — cada profissional vê apenas os seus pacientes. Simples e seguro."</p>
+                <div class="t-author">
+                    <div class="t-avatar" style="background:linear-gradient(135deg,#2563eb,#0ea5e9);">R</div>
+                    <div>
+                        <div class="t-name">Rodrigo Cavalcante</div>
+                        <div class="t-role">Gestor · Clínica Movimento Saúde · Caruaru, PE</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="testimonial">
+                <div class="t-stars">★★★★★</div>
+                <p class="t-quote">"Trabalho sozinha no consultório e precisava de algo leve, sem complicação. Em menos de 15 minutos já tinha a agenda configurada e meu primeiro paciente cadastrado. O histórico clínico é muito claro — consigo rever qualquer consulta anterior em segundos."</p>
+                <div class="t-author">
+                    <div class="t-avatar" style="background:linear-gradient(135deg,#0f766e,#22c55e);">C</div>
+                    <div>
+                        <div class="t-name">Camila Ferreira</div>
+                        <div class="t-role">Nutricionista · Consultório próprio · Olinda, PE</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="testimonial">
+                <div class="t-stars">★★★★★</div>
+                <p class="t-quote">"Minha recepcionista agenda pelo sistema e eu acesso o prontuário pelo celular antes de entrar na sala. O relatório mensal de atendimentos que antes levava horas para montar agora gero em um botão."</p>
+                <div class="t-author">
+                    <div class="t-avatar" style="background:linear-gradient(135deg,#ea580c,#fbbf24);">M</div>
+                    <div>
+                        <div class="t-name">Dr. Marcelo Alencar</div>
+                        <div class="t-role">Oftalmologista · Clínica Visão Plena · Maceió, AL</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="testimonial">
+                <div class="t-stars">★★★★★</div>
+                <p class="t-quote">"Atendo crianças com TEA e preciso de registro detalhado de cada sessão. A timeline de prontuário me dá uma visão perfeita da evolução de cada paciente. Os pais ficam impressionados quando mostro o histórico organizado nas revisões."</p>
+                <div class="t-author">
+                    <div class="t-avatar" style="background:linear-gradient(135deg,#7c3aed,#ec4899);">P</div>
+                    <div>
+                        <div class="t-name">Patrícia Lima</div>
+                        <div class="t-role">Fonoaudióloga · João Pessoa, PB</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="testimonial">
+                <div class="t-stars">★★★★★</div>
+                <p class="t-quote">"Migrei de outro sistema que era caro e complicado demais para uma clínica pequena. Aqui pago um preço justo, o suporte responde rápido e o sistema faz exatamente o que eu preciso: agenda + prontuário + exames integrados."</p>
+                <div class="t-author">
+                    <div class="t-avatar" style="background:linear-gradient(135deg,#0369a1,#0ea5e9);">F</div>
+                    <div>
+                        <div class="t-name">Fernando Sousa</div>
+                        <div class="t-role">Ortopedista · Clínica OrthoVida · Natal, RN</div>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 </section>
