@@ -1,6 +1,15 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-WSW6C4F4K8"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-WSW6C4F4K8');
+    </script>
     <meta charset="UTF-8">
     <title>UTecnologia Saúde — Gestão clínica para clínicas e profissionais de saúde</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -449,6 +458,29 @@
         .modal-box h3 { font-size: 22px; font-weight: 800; margin-bottom: 6px; }
         .modal-box .modal-sub { font-size: 14px; color: var(--muted); margin-bottom: 24px; }
 
+        /* ── PRODUCT SHOWCASE ── */
+        .product-section { padding: 80px 20px; background: var(--paper); }
+        .product-hero-img {
+            width: 100%; max-width: 960px;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            display: block; margin: 0 auto;
+            border: 1px solid var(--border);
+        }
+        .product-cta-row {
+            display: flex; align-items: center; justify-content: center; gap: 16px;
+            margin-top: 36px; flex-wrap: wrap;
+        }
+        .btn-product-cta {
+            display: inline-block; padding: 15px 30px; border-radius: 999px;
+            background: linear-gradient(90deg, var(--brand-blue), var(--brand-green));
+            color: #fff; font-size: 16px; font-weight: 700;
+            box-shadow: 0 6px 20px rgba(14,165,233,.35);
+            transition: filter .15s, transform .1s;
+        }
+        .btn-product-cta:hover { filter: brightness(1.07); transform: translateY(-2px); }
+        .product-cta-note { font-size: 13px; color: var(--subtle); }
+
         /* ── UTILITY ── */
         .text-center { text-align: center; }
         .mt-4 { margin-top: 16px; }
@@ -598,6 +630,33 @@
                 <p class="btn-seg-note">Experimente 30 dias grátis, sem compromisso</p>
             </div>
 
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     PRODUTO EM AÇÃO
+═══════════════════════════════════════════════════════ -->
+<section class="product-section">
+    <div class="container text-center">
+        <p class="section-label">Veja o sistema em ação</p>
+        <h2 class="section-title">Interface simples, dados organizados,<br>atendimento mais ágil</h2>
+        <p class="section-sub" style="margin:0 auto 44px;">
+            Agenda, prontuário e histórico do paciente em uma única tela —
+            funciona no computador, tablet e celular, sem instalação.
+        </p>
+        <img
+            src="<?=base_url()?>imagens/utec-dash3.png"
+            alt="UTecnologia Saúde — agenda, prontuário e atendimentos em múltiplos dispositivos"
+            class="product-hero-img"
+            loading="lazy"
+        >
+        <div class="product-cta-row">
+            <a href="<?=base_url()?>experimentar" class="btn-product-cta"
+               onclick="if(typeof fbq!=='undefined')fbq('track','Lead',{content_name:'CTA Screenshot Section'})">
+                Quero experimentar 30 dias grátis →
+            </a>
+            <span class="product-cta-note">Sem cartão de crédito · Acesso imediato</span>
         </div>
     </div>
 </section>

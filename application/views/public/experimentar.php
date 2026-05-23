@@ -1,8 +1,17 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-WSW6C4F4K8"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-WSW6C4F4K8');
+    </script>
     <meta charset="UTF-8">
-    <title>Comecar 30 dias</title>
+    <title>Experimente grátis por 30 dias — UTecnologia Saúde</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         :root {
@@ -33,6 +42,11 @@
         .brand { font-size:14px; letter-spacing:.16em; text-transform:uppercase; color:#115e59; font-weight:700; }
         .back { color:var(--muted); text-decoration:none; font-size:14px; }
         .hero { display:grid; grid-template-columns:minmax(0,1.15fr) minmax(330px,.85fr); gap:24px; align-items:start; }
+        .panel-img { overflow:hidden; padding:0; border-radius:28px; box-shadow:0 24px 60px rgba(23,32,51,.08); }
+        .panel-img img { width:100%; display:block; border-radius:28px; }
+        .hero-benefits { display:grid; gap:10px; margin-top:20px; }
+        .hero-benefit { display:flex; align-items:flex-start; gap:10px; font-size:15px; color:#334155; line-height:1.5; }
+        .hero-benefit .ico { font-size:18px; flex-shrink:0; margin-top:1px; }
         .panel {
             background:rgba(255,255,255,.92);
             border:1px solid rgba(208,216,228,.9);
@@ -107,29 +121,23 @@
 <body>
     <div class="wrap">
         <div class="topbar">
-            <div class="brand">UTecnologia Saude</div>
-            <a class="back" href="<?=base_url()?>">Voltar para o site</a>
+            <div class="brand">UTecnologia Saúde</div>
+            <a class="back" href="<?=base_url()?>">← Voltar ao site</a>
         </div>
 
         <div class="hero">
-            <div class="panel">
-                <div class="eyebrow">Onboarding operacional</div>
-                <h1>Comece a usar o sistema por 30 dias sem entrar na camada de gestao SaaS.</h1>
-                <p class="lead">
-                    Este fluxo foi pensado para clinicas e profissionais que querem operar logo a agenda, pacientes,
-                    prontuarios e atendimentos. O ambiente ja nasce pronto para uso medico, com o plano escolhido vinculado
-                    e o pagamento disponivel durante o periodo de trial.
-                </p>
-                <div class="points">
-                    <div class="point">Voce cria o acesso principal da operacao e ja pode entrar no sistema.</div>
-                    <div class="point">O tenant continua existindo por baixo para isolar seus dados, mas sem exigir configuracao manual de SaaS.</div>
-                    <div class="point">Durante os 30 dias, o pagamento do plano fica disponivel em uma jornada mais direta dentro do uso da ferramenta.</div>
-                </div>
+            <div class="panel-img">
+                <img
+                    src="<?=base_url()?>imagens/utec-dash3.png"
+                    alt="UTecnologia Saúde — gestão completa da sua clínica em um só lugar"
+                    loading="eager"
+                >
             </div>
 
             <div class="panel">
-                <h2 class="card-title">Ativar 30 dias</h2>
-                <p class="card-subtitle">Preencha apenas o essencial para criar a operacao e comecar a atender.</p>
+                <div class="eyebrow">30 dias grátis · Sem cartão de crédito</div>
+                <h2 class="card-title">Crie seu acesso agora</h2>
+                <p class="card-subtitle">Preencha os dados abaixo e comece a usar a agenda, os prontuários e o atendimento em minutos.</p>
 
                 <? if($flash_ok){ ?><div class="alert alert-ok"><?=$flash_ok?></div><? } ?>
                 <? if($flash_error){ ?><div class="alert alert-error"><?=$flash_error?></div><? } ?>
@@ -137,62 +145,57 @@
                 <form method="post" action="<?=base_url()?>experimentar/enviar">
                     <div class="form-grid">
                         <div class="field">
-                            <label>Nome do responsavel</label>
-                            <input type="text" name="nome_responsavel" required>
+                            <label>Seu nome</label>
+                            <input type="text" name="nome_responsavel" placeholder="Ex: Dra. Ana Silva" required>
                         </div>
                         <div class="field">
-                            <label>Clinica ou nome profissional</label>
-                            <input type="text" name="tenant_nome" required>
+                            <label>Nome da clínica ou consultório</label>
+                            <input type="text" name="tenant_nome" placeholder="Ex: Clínica Bem Estar" required>
                         </div>
                         <div class="field">
-                            <label>E-mail principal</label>
-                            <input type="email" name="email" required>
+                            <label>E-mail de acesso</label>
+                            <input type="email" name="email" placeholder="seuemail@exemplo.com" required>
                         </div>
                         <div class="field">
-                            <label>Telefone</label>
+                            <label>WhatsApp</label>
                             <input type="text" name="telefone" placeholder="(00) 00000-0000">
                         </div>
                         <div class="field">
-                            <label>Documento</label>
-                            <input type="text" name="documento" placeholder="CPF ou CNPJ">
-                        </div>
-                        <div class="field">
-                            <label>Tipo da operacao</label>
+                            <label>Tipo de operação</label>
                             <select name="tenant_tipo">
-                                <option value="clinica"       <?=(!isset($tipo_selecionado)||$tipo_selecionado==='clinica'      ?'selected':'')?>  >Clinica</option>
-                                <option value="consultorio"  <?=($tipo_selecionado==='consultorio' ?'selected':'')?>  >Consultorio</option>
-                                <option value="profissional" <?=($tipo_selecionado==='profissional'?'selected':'')?>  >Profissional</option>
+                                <option value="clinica"       <?=(!isset($tipo_selecionado)||$tipo_selecionado==='clinica'      ?'selected':'')?>  >Clínica (mais de 1 profissional)</option>
+                                <option value="consultorio"  <?=($tipo_selecionado==='consultorio' ?'selected':'')?>  >Consultório individual</option>
+                                <option value="profissional" <?=($tipo_selecionado==='profissional'?'selected':'')?>  >Profissional autônomo</option>
                             </select>
                         </div>
                         <div class="field">
-                            <label>Plano para trial</label>
+                            <label>Plano</label>
                             <select name="plano_id" required>
-                                <option value="">Selecione um plano</option>
+                                <option value="">Escolha seu plano</option>
                                 <? foreach($planos as $plano){ ?>
-                                    <option value="<?=$plano->id?>"><?=$plano->modelo?> - R$ <?=number_format((float)$plano->preco_venda, 2, ',', '.')?> / <?=$plano->billing_interval?></option>
+                                    <option value="<?=$plano->id?>"><?=$plano->modelo?> — R$ <?=number_format((float)$plano->preco_venda, 2, ',', '.')?>/<?=$plano->billing_interval?></option>
                                 <? } ?>
                             </select>
                         </div>
                         <div class="field">
-                            <label>Senha inicial</label>
-                            <input type="password" name="senha" required minlength="6">
+                            <label>Crie uma senha</label>
+                            <input type="password" name="senha" placeholder="Mínimo 6 caracteres" required minlength="6">
                         </div>
-                        <div class="field field-wide">
-                            <label>Observacoes</label>
-                            <textarea name="observacoes" placeholder="Opcional: especialidade, porte da clinica ou contexto de uso."></textarea>
-                        </div>
+                        <input type="hidden" name="documento" value="">
+                        <input type="hidden" name="observacoes" value="">
                     </div>
 
                     <div class="submit-row">
-                        <button class="btn-submit" type="submit">Criar acesso e liberar 30 dias</button>
+                        <button class="btn-submit" type="submit">Começar 30 dias grátis →</button>
                     </div>
+                    <p style="font-size:12px;color:#667085;margin-top:12px;text-align:center;">Sem cartão de crédito · Cancele quando quiser · Acesso imediato</p>
                 </form>
             </div>
         </div>
 
         <div class="panel" style="margin-top:24px;">
-            <h2 class="card-title">Planos disponiveis no trial</h2>
-            <p class="card-subtitle">Voce escolhe o plano agora, usa o sistema imediatamente e decide o pagamento dentro da operacao durante os 30 dias.</p>
+            <h2 class="card-title">Planos disponíveis no trial</h2>
+            <p class="card-subtitle">Escolha o plano que melhor se encaixa no seu perfil. Você usa o sistema por 30 dias grátis e só paga depois, se quiser continuar.</p>
             <div class="plans">
                 <? foreach($planos as $plano){ ?>
                     <div class="plan">
