@@ -91,6 +91,37 @@ function Index(){
 		if((int)$agenda_item->status === 2){ $dados["metricas_agenda"]['finalizados']++; }
 	}
 
+	// Onboarding checklist — exibido apenas para niveis 2 e 3 enquanto não completarem os 3 passos
+	$nivel_usuario = (int)$dd_user->nivel;
+	$dados['onboarding'] = ['show' => false];
+	if($nivel_usuario === 2 || $nivel_usuario === 3){
+		// Passo 1: existe ao menos um prestador visível no escopo?
+		// Para nivel=3 eles mesmos são prestador, portanto visible_prestador_ids inclui seu próprio ID
+		$has_prestador = count($visible_prestador_ids) > 0;
+
+		// Passo 2: existe ao menos um paciente no escopo?
+		$cnt_pac = (int)$this->db->query(
+			"SELECT COUNT(id) AS t FROM usuarios WHERE nivel = 5 AND id IN (".$scope_sql.")"
+		)->row()->t;
+		$has_paciente = $cnt_pac > 0;
+
+		// Passo 3: existe ao menos um agendamento no escopo? (ignora filtros ativos)
+		$cnt_ag = (int)$this->db->query(
+			"SELECT COUNT(id) AS t FROM agendamentos WHERE id_user IN (".$scope_sql.") OR id_paciente IN (".$scope_sql.") OR id_prestador IN (".$scope_sql.")"
+		)->row()->t;
+		$has_agendamento = $cnt_ag > 0;
+
+		$all_done = $has_prestador && $has_paciente && $has_agendamento;
+		$dados['onboarding'] = [
+			'show' => !$all_done,
+			'has_prestador' => $has_prestador,
+			'has_paciente' => $has_paciente,
+			'has_agendamento' => $has_agendamento,
+			'is_clinica' => $nivel_usuario === 2,
+			'steps_done' => (int)$has_prestador + (int)$has_paciente + (int)$has_agendamento,
+		];
+	}
+
 	$this->load->view('adm/usuarios/new/atendimentos', $dados);
 
 }
@@ -130,21 +161,16 @@ function novo($id_user){
 
 
 function cadastro($nivel){
-	
-	#$dados["usuario"] = $this->db->query("SELECT * FROM usuarios WHERE id = ".$id)->row();
-	#$this->load->view('adm/usuarios/edicao', $dados);	
-	$this->load->model('padrao_model');
-	#$dados["usuario"] = $this->db->query("SELECT * FROM usuarios WHERE id = ".$id)->row();
-
-	#$dados["exames"] = $this->db->query("SELECT * FROM exames ORDER BY nome asc ");
-	#$dados["consultas"] = $this->db->query("SELECT * FROM consultas ORDER BY nome asc");
-	#$dados["procedimentos"] = $this->db->query("SELECT * FROM procedimentos ORDER BY nome asc");
+	$dd_user = $this->padrao_model->get_usuario_logado();
+	$nivel = $this->padrao_model->sanitize_child_level($nivel, $dd_user);
 
 	$dados['nivel'] = $nivel;
-	
-	#$this->load->view('adm/usuarios/edicao', $dados);	
-	$this->load->view('adm/usuarios/new/cadastro', $dados);
+	$dados['niveis_permitidos'] = $this->padrao_model->get_allowed_child_levels($dd_user);
+	$dados['vinculo_options']   = $this->padrao_model->get_vinculo_options($nivel, $dd_user);
+	$dados['vinculo_default']   = $this->padrao_model->get_vinculo_default_id($nivel, $dd_user);
+	$dados['usuario_logado']    = $dd_user;
 
+	$this->load->view('adm/usuarios/new/cadastro', $dados);
 }
 
 function cadastrar() {

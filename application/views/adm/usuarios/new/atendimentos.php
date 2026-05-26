@@ -172,6 +172,26 @@
         color: #2563eb;
         text-decoration: none;
       }
+      /* Onboarding checklist */
+      .ob-card { background:#fff; border:1px solid #e2e8f0; border-radius:18px; padding:22px 24px; box-shadow:0 4px 16px rgba(15,23,42,.05); margin-bottom:24px; }
+      .ob-title { font-size:16px; font-weight:700; color:#0f172a; margin:0 0 2px; }
+      .ob-subtitle { font-size:13px; color:#64748b; margin:0 0 12px; }
+      .ob-bar-track { background:#e2e8f0; border-radius:999px; height:6px; overflow:hidden; }
+      .ob-bar-fill { background:linear-gradient(90deg,#0f766e,#f97316); border-radius:999px; height:6px; transition:width .4s; }
+      .ob-bar-label { font-size:12px; color:#64748b; margin-top:5px; }
+      .ob-steps { display:flex; flex-direction:column; gap:10px; margin-top:16px; }
+      .ob-step { display:flex; align-items:flex-start; gap:14px; padding:13px 16px; border-radius:14px; border:1px solid #e2e8f0; }
+      .ob-step.ob-done { background:#f0fdf4; border-color:#bbf7d0; }
+      .ob-step.ob-active { background:#eff6ff; border-color:#bfdbfe; }
+      .ob-step.ob-locked { background:#f8fafc; opacity:.6; }
+      .ob-num { width:30px; height:30px; border-radius:999px; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:13px; flex-shrink:0; margin-top:1px; }
+      .ob-done .ob-num { background:#16a34a; color:#fff; }
+      .ob-active .ob-num { background:#2563eb; color:#fff; }
+      .ob-locked .ob-num { background:#cbd5e1; color:#fff; }
+      .ob-step-title { font-size:13px; font-weight:700; color:#0f172a; margin:0 0 2px; }
+      .ob-step-desc { font-size:12px; color:#64748b; margin:0; }
+      .ob-cta { display:inline-block; margin-top:8px; background:linear-gradient(90deg,#0f766e,#f97316); color:#fff !important; border-radius:999px; padding:6px 15px; font-size:12px; font-weight:700; text-decoration:none !important; }
+      .ob-cta:hover { opacity:.88; }
     </style>
   </head>
   <body class="menu-position-side menu-side-left full-screen with-content-panel">
@@ -201,6 +221,64 @@
                 <h6 class="element-header">Agenda clinica</h6>
                 <p style="color:#64748b">Acompanhe os atendimentos do dia, altere status rapidamente e abra o prontuario sem sair do fluxo.</p>
               </div>
+
+              <?php if(!empty($onboarding['show'])):
+                $ob_done = (int)$onboarding['steps_done'];
+                $ob_pct  = intval($ob_done / 3 * 100);
+              ?>
+              <div class="ob-card">
+                <p class="ob-title">Primeiros passos</p>
+                <p class="ob-subtitle">Configure o essencial para começar a usar o sistema completo.</p>
+                <div class="ob-bar-track"><div class="ob-bar-fill" style="width:<?=$ob_pct?>%"></div></div>
+                <div class="ob-bar-label"><?=$ob_done?> de 3 etapas concluídas</div>
+                <div class="ob-steps">
+
+                  <div class="ob-step <?=!empty($onboarding['has_prestador'])?'ob-done':'ob-active'?>">
+                    <div class="ob-num"><?=!empty($onboarding['has_prestador'])?'✓':'1'?></div>
+                    <div>
+                      <p class="ob-step-title">Profissional cadastrado</p>
+                      <?php if(!empty($onboarding['has_prestador'])): ?>
+                      <p class="ob-step-desc">Profissional disponível — pronto para agendamentos.</p>
+                      <?php else: ?>
+                      <p class="ob-step-desc">Cadastre o profissional que vai atender os pacientes.</p>
+                      <a href="<?=base_url()?>adm/atendimento/cadastro/3" class="ob-cta">Cadastrar profissional →</a>
+                      <?php endif; ?>
+                    </div>
+                  </div>
+
+                  <div class="ob-step <?=!empty($onboarding['has_paciente'])?'ob-done':(!empty($onboarding['has_prestador'])?'ob-active':'ob-locked')?>">
+                    <div class="ob-num"><?=!empty($onboarding['has_paciente'])?'✓':'2'?></div>
+                    <div>
+                      <p class="ob-step-title">Primeiro paciente cadastrado</p>
+                      <?php if(!empty($onboarding['has_paciente'])): ?>
+                      <p class="ob-step-desc">Paciente cadastrado — pronto para agendar.</p>
+                      <?php elseif(!empty($onboarding['has_prestador'])): ?>
+                      <p class="ob-step-desc">Cadastre o primeiro paciente para criar agendamentos.</p>
+                      <a href="<?=base_url()?>adm/atendimento/cadastro/5" class="ob-cta">Cadastrar paciente →</a>
+                      <?php else: ?>
+                      <p class="ob-step-desc">Disponível após cadastrar um profissional.</p>
+                      <?php endif; ?>
+                    </div>
+                  </div>
+
+                  <div class="ob-step <?=!empty($onboarding['has_agendamento'])?'ob-done':(!empty($onboarding['has_paciente'])?'ob-active':'ob-locked')?>">
+                    <div class="ob-num"><?=!empty($onboarding['has_agendamento'])?'✓':'3'?></div>
+                    <div>
+                      <p class="ob-step-title">Criar o primeiro agendamento</p>
+                      <?php if(!empty($onboarding['has_agendamento'])): ?>
+                      <p class="ob-step-desc">Tudo pronto! Você já tem agendamentos registrados no sistema.</p>
+                      <?php elseif(!empty($onboarding['has_paciente'])): ?>
+                      <p class="ob-step-desc">Abra o prontuário de um paciente e crie o primeiro agendamento.</p>
+                      <a href="<?=base_url()?>adm/usuarios/rel/5" class="ob-cta">Ver pacientes →</a>
+                      <?php else: ?>
+                      <p class="ob-step-desc">Disponível após cadastrar o primeiro paciente.</p>
+                      <?php endif; ?>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+              <?php endif; ?>
 
               <div class="agenda-filter-card">
                 <form method="get" action="<?=base_url()?>adm/atendimento">

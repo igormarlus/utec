@@ -732,10 +732,13 @@ class Saas_model extends CI_Model {
 
 		$this->db->trans_begin();
 
+		// profissional autônomo é criado como nivel=3 (prestador) para poder ser usado em agendamentos
+		$user_nivel = ($tenant_tipo === 'profissional') ? 3 : 2;
+
 		$user_insert = [
 			'id_user' => 0,
 			'nome' => $nome_responsavel,
-			'nivel' => 2,
+			'nivel' => $user_nivel,
 			'telefone' => $telefone,
 			'cpf' => $documento,
 			'email' => $email,

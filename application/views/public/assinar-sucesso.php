@@ -11,8 +11,10 @@
       gtag('config', 'G-WSW6C4F4K8');
     </script>
     <meta charset="UTF-8">
-    <title>Assinatura iniciada</title>
+    <title>Assinatura criada — UTecnologia Saúde</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="canonical" href="https://utecnologia.com.br/assinar">
     <style>
         :root {
             --ink: #132238;

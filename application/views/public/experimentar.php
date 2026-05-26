@@ -11,8 +11,28 @@
       gtag('config', 'G-WSW6C4F4K8');
     </script>
     <meta charset="UTF-8">
-    <title>Experimente grátis por 30 dias — UTecnologia Saúde</title>
+    <title>Sistema de Gestão Clínica Grátis por 30 Dias — UTecnologia Saúde</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Experimente grátis por 30 dias sem cartão de crédito. Prontuário eletrônico, agenda inteligente e gestão completa para sua clínica ou consultório médico.">
+    <link rel="canonical" href="https://utecnologia.com.br/experimentar">
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://utecnologia.com.br/experimentar">
+    <meta property="og:title" content="Experimente o Sistema Clínico Grátis por 30 Dias — UTecnologia Saúde">
+    <meta property="og:description" content="Prontuário eletrônico, agenda inteligente e gestão de pacientes. Crie sua conta agora e comece a usar em minutos, sem cartão de crédito.">
+    <meta property="og:image" content="https://utecnologia.com.br/imagens/og-cover.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:site_name" content="UTecnologia Saúde">
+    <meta property="og:locale" content="pt_BR">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Experimente o Sistema Clínico Grátis por 30 Dias — UTecnologia Saúde">
+    <meta name="twitter:description" content="Prontuário eletrônico, agenda inteligente e gestão de pacientes. Sem cartão de crédito.">
+    <meta name="twitter:image" content="https://utecnologia.com.br/imagens/og-cover.jpg">
+
     <style>
         :root {
             --ink:#172033;
@@ -153,7 +173,7 @@
                 </div>
 
                 <div class="benefits-panel">
-                    <p class="benefits-title">Por que clínicas e profissionais escolhem a UTecnologia Saúde?</p>
+                    <h1 class="benefits-title">Por que clínicas e profissionais escolhem a UTecnologia Saúde?</h1>
                     <div class="benefits-list">
                         <div class="benefit-item">
                             <span class="b-ico">📅</span>

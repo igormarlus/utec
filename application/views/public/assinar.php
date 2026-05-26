@@ -11,8 +11,28 @@
       gtag('config', 'G-WSW6C4F4K8');
     </script>
     <meta charset="UTF-8">
-    <title>Assinar UTecnologia Saude</title>
+    <title>Assine o Sistema de Gestão Clínica — UTecnologia Saúde</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Assine o UTecnologia Saúde e gerencie sua clínica com prontuário eletrônico, agenda inteligente e controle completo de pacientes. Planos a partir de R$ 79/mês.">
+    <link rel="canonical" href="https://utecnologia.com.br/assinar">
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://utecnologia.com.br/assinar">
+    <meta property="og:title" content="Assine o Sistema de Gestão Clínica — UTecnologia Saúde">
+    <meta property="og:description" content="Prontuário eletrônico, agenda inteligente e gestão de pacientes. Planos a partir de R$ 79/mês para clínicas e consultórios.">
+    <meta property="og:image" content="https://utecnologia.com.br/imagens/og-cover.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:site_name" content="UTecnologia Saúde">
+    <meta property="og:locale" content="pt_BR">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Assine o Sistema de Gestão Clínica — UTecnologia Saúde">
+    <meta name="twitter:description" content="Prontuário eletrônico, agenda inteligente e gestão de pacientes. Planos a partir de R$ 79/mês.">
+    <meta name="twitter:image" content="https://utecnologia.com.br/imagens/og-cover.jpg">
+
     <style>
         :root {
             --ink: #172033;

@@ -14,6 +14,25 @@
     <title>UTecnologia Saúde — Gestão clínica para clínicas e profissionais de saúde</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Prontuário eletrônico, agenda inteligente e gestão de pacientes. Experimente 30 dias grátis, sem cartão de crédito e sem compromisso.">
+    <link rel="canonical" href="https://utecnologia.com.br/">
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://utecnologia.com.br/">
+    <meta property="og:title" content="UTecnologia Saúde — Gestão clínica para clínicas e profissionais de saúde">
+    <meta property="og:description" content="Prontuário eletrônico, agenda inteligente e gestão de pacientes. Experimente 30 dias grátis, sem cartão de crédito e sem compromisso.">
+    <meta property="og:image" content="https://utecnologia.com.br/imagens/og-cover.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:site_name" content="UTecnologia Saúde">
+    <meta property="og:locale" content="pt_BR">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="UTecnologia Saúde — Gestão clínica para clínicas e profissionais de saúde">
+    <meta name="twitter:description" content="Prontuário eletrônico, agenda inteligente e gestão de pacientes. Experimente 30 dias grátis.">
+    <meta name="twitter:image" content="https://utecnologia.com.br/imagens/og-cover.jpg">
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -999,6 +1018,80 @@
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') fecharModal();
     });
+</script>
+
+<!-- Schema JSON-LD — SoftwareApplication -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "UTecnologia Saúde",
+  "url": "https://utecnologia.com.br/",
+  "description": "Sistema SaaS de gestão clínica com prontuário eletrônico, agenda inteligente e gestão de pacientes para clínicas e profissionais de saúde.",
+  "applicationCategory": "HealthApplication",
+  "operatingSystem": "Web",
+  "inLanguage": "pt-BR",
+  "isAccessibleForFree": false,
+  "offers": [
+    {
+      "@type": "Offer",
+      "name": "Plano Solo",
+      "price": "79.00",
+      "priceCurrency": "BRL",
+      "description": "1 profissional, 2 colaboradores, pacientes ilimitados"
+    },
+    {
+      "@type": "Offer",
+      "name": "Plano Clínica",
+      "price": "199.00",
+      "priceCurrency": "BRL",
+      "description": "Até 5 profissionais, 10 colaboradores, pacientes ilimitados"
+    },
+    {
+      "@type": "Offer",
+      "name": "Plano Pro",
+      "price": "399.00",
+      "priceCurrency": "BRL",
+      "description": "Até 20 profissionais, 50 colaboradores, pacientes ilimitados"
+    }
+  ],
+  "featureList": [
+    "Prontuário eletrônico",
+    "Agenda inteligente",
+    "Gestão de pacientes",
+    "Exames e documentos integrados",
+    "Relatórios clínicos",
+    "Multi-tenant por clínica"
+  ]
+}
+</script>
+
+<!-- Schema JSON-LD — Organization -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "UTecnologia Saúde",
+  "url": "https://utecnologia.com.br",
+  "logo": "https://utecnologia.com.br/imagens/logo-utec.png",
+  "description": "Sistema de gestão clínica SaaS para clínicas médicas e profissionais de saúde.",
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "contactType": "customer support",
+    "availableLanguage": "Portuguese"
+  },
+  "sameAs": []
+}
+</script>
+
+<!-- Schema JSON-LD — WebSite com SearchAction -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "UTecnologia Saúde",
+  "url": "https://utecnologia.com.br"
+}
 </script>
 </body>
 </html>

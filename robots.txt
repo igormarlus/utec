@@ -1,0 +1,29 @@
+User-agent: *
+
+# Bloquear área administrativa e restrita
+Disallow: /adm/
+Disallow: /admin/
+Disallow: /user/
+Disallow: /rpg/
+Disallow: /webhooks/
+
+# Bloquear páginas de conversão (não devem ser indexadas)
+Disallow: /experimentar/sucesso
+Disallow: /assinar/sucesso
+Disallow: /assinar/pagamento
+Disallow: /acesso/
+
+# Bloquear arquivos do sistema
+Disallow: /system/
+Disallow: /application/
+Disallow: /uploads/
+Disallow: /docs/
+Disallow: /bower_components/
+
+# Liberar páginas públicas indexáveis
+Allow: /
+Allow: /experimentar
+Allow: /assinar
+Allow: /imagens/
+
+Sitemap: https://utecnologia.com.br/sitemap.xml
