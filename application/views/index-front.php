@@ -117,9 +117,49 @@
         }
         .logo-name { font-weight: 700; font-size: 16px; line-height: 1.15; }
         .logo-tagline { font-size: 11px; color: var(--subtle); }
-        .header-nav { display: flex; gap: 24px; font-size: 14px; }
-        .header-nav a { color: var(--muted); transition: color .15s; }
-        .header-nav a:hover { color: var(--text); }
+        /* Nav com dropdown */
+        .header-nav { display: flex; gap: 2px; font-size: 14px; align-items: center; }
+        .nav-item { position: relative; }
+        .nav-link {
+            display: flex; align-items: center; gap: 4px;
+            color: var(--muted); padding: 8px 12px; border-radius: 8px;
+            transition: all .15s; white-space: nowrap; text-decoration: none;
+            font-weight: 500;
+        }
+        .nav-link:hover { color: var(--text); background: var(--paper); }
+        .nav-link .chevron { transition: transform .2s; flex-shrink: 0; }
+        .nav-item:hover .chevron { transform: rotate(180deg); }
+
+        /* Dropdown panel */
+        .nav-dropdown {
+            position: absolute; top: calc(100% + 6px); left: 0;
+            background: #fff; border: 1px solid var(--border);
+            border-radius: 14px; box-shadow: 0 12px 40px rgba(15,23,42,.13);
+            min-width: 230px; padding: 8px;
+            opacity: 0; visibility: hidden;
+            transform: translateY(-6px);
+            transition: opacity .18s, transform .18s, visibility .18s;
+            z-index: 200;
+        }
+        .nav-item:hover .nav-dropdown { opacity: 1; visibility: visible; transform: translateY(0); }
+        .nav-dropdown a {
+            display: flex; align-items: flex-start; gap: 10px;
+            padding: 9px 10px; border-radius: 8px;
+            color: var(--text); font-size: 13px;
+            transition: background .12s; text-decoration: none;
+        }
+        .nav-dropdown a:hover { background: var(--paper); }
+        .nav-dropdown a:hover .dd-label { color: #0284c7; }
+        .dd-icon { font-size: 15px; flex-shrink: 0; margin-top: 1px; line-height: 1; }
+        .dd-text { display: flex; flex-direction: column; gap: 1px; }
+        .dd-label { font-weight: 600; font-size: 13px; color: var(--text); }
+        .dd-desc { font-size: 11px; color: var(--muted); line-height: 1.3; }
+        .nav-divider { height: 1px; background: var(--border); margin: 4px 2px; }
+
+        /* Dropdown com 2 colunas para especialidades */
+        .nav-dropdown.two-col { min-width: 420px; display: flex; flex-wrap: wrap; }
+        .nav-dropdown.two-col a { width: 50%; }
+
         .header-actions { display: flex; align-items: center; gap: 10px; }
         .btn-ghost {
             padding: 7px 14px; border-radius: 999px;
@@ -137,7 +177,7 @@
             transition: filter .15s;
         }
         .btn-wa-header:hover { filter: brightness(1.06); }
-        @media(max-width:760px) {
+        @media(max-width:900px) {
             .header-nav { display: none; }
             .btn-wa-header span { display: none; }
         }
@@ -591,10 +631,95 @@
             </div>
         </a>
         <nav class="header-nav">
-            <a href="#funcionalidades">Funcionalidades</a>
-            <a href="#como-funciona">Como funciona</a>
-            <a href="#especialidades">Especialidades</a>
-            <a href="#contato">Contato</a>
+
+            <!-- Sistema -->
+            <div class="nav-item">
+                <a class="nav-link" href="<?=base_url()?>sistema-para-clinicas">
+                    Sistema
+                    <svg class="chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6,9 12,15 18,9"/></svg>
+                </a>
+                <div class="nav-dropdown">
+                    <a href="<?=base_url()?>sistema-para-clinicas">
+                        <span class="dd-icon">🏥</span>
+                        <span class="dd-text"><span class="dd-label">Para clínicas</span><span class="dd-desc">Gestão completa para equipes</span></span>
+                    </a>
+                    <a href="<?=base_url()?>sistema-prontuario-eletronico">
+                        <span class="dd-icon">📋</span>
+                        <span class="dd-text"><span class="dd-label">Prontuário eletrônico</span><span class="dd-desc">Histórico clínico digital</span></span>
+                    </a>
+                    <a href="<?=base_url()?>software-para-clinicas">
+                        <span class="dd-icon">💻</span>
+                        <span class="dd-text"><span class="dd-label">Software para clínicas</span><span class="dd-desc">SaaS 100% online, sem instalação</span></span>
+                    </a>
+                    <div class="nav-divider"></div>
+                    <a href="<?=base_url()?>sistema-gratuito-para-clinicas">
+                        <span class="dd-icon">🎁</span>
+                        <span class="dd-text"><span class="dd-label">30 dias grátis</span><span class="dd-desc">Teste sem cartão de crédito</span></span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Especialidades -->
+            <div class="nav-item">
+                <a class="nav-link" href="#especialidades">
+                    Especialidades
+                    <svg class="chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6,9 12,15 18,9"/></svg>
+                </a>
+                <div class="nav-dropdown two-col">
+                    <a href="<?=base_url()?>sistema-para-clinica-medica">
+                        <span class="dd-icon">👨‍⚕️</span><span class="dd-text"><span class="dd-label">Clínica médica</span></span>
+                    </a>
+                    <a href="<?=base_url()?>sistema-para-psicologos">
+                        <span class="dd-icon">🧠</span><span class="dd-text"><span class="dd-label">Psicólogos</span></span>
+                    </a>
+                    <a href="<?=base_url()?>sistema-para-dentistas">
+                        <span class="dd-icon">🦷</span><span class="dd-text"><span class="dd-label">Dentistas</span></span>
+                    </a>
+                    <a href="<?=base_url()?>sistema-para-clinica-de-fisioterapia">
+                        <span class="dd-icon">🏃</span><span class="dd-text"><span class="dd-label">Fisioterapia</span></span>
+                    </a>
+                    <a href="<?=base_url()?>sistema-para-clinica-oftalmologica">
+                        <span class="dd-icon">👁️</span><span class="dd-text"><span class="dd-label">Oftalmologia</span></span>
+                    </a>
+                    <a href="<?=base_url()?>sistema-para-consultorio-medico">
+                        <span class="dd-icon">🩺</span><span class="dd-text"><span class="dd-label">Consultório médico</span></span>
+                    </a>
+                    <a href="<?=base_url()?>software-para-medicos">
+                        <span class="dd-icon">💊</span><span class="dd-text"><span class="dd-label">Médicos autônomos</span></span>
+                    </a>
+                    <a href="<?=base_url()?>sistema-para-clinicas">
+                        <span class="dd-icon">➕</span><span class="dd-text"><span class="dd-label">Ver todas</span></span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Blog -->
+            <div class="nav-item">
+                <a class="nav-link" href="<?=base_url()?>blog">Blog</a>
+            </div>
+
+            <!-- Empresa -->
+            <div class="nav-item">
+                <a class="nav-link" href="<?=base_url()?>sobre">
+                    Empresa
+                    <svg class="chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6,9 12,15 18,9"/></svg>
+                </a>
+                <div class="nav-dropdown">
+                    <a href="<?=base_url()?>sobre">
+                        <span class="dd-icon">🏢</span>
+                        <span class="dd-text"><span class="dd-label">Sobre nós</span><span class="dd-desc">Quem somos e nossa missão</span></span>
+                    </a>
+                    <a href="<?=base_url()?>contato">
+                        <span class="dd-icon">💬</span>
+                        <span class="dd-text"><span class="dd-label">Contato</span><span class="dd-desc">WhatsApp e e-mail</span></span>
+                    </a>
+                    <a href="<?=base_url()?>politica-de-privacidade">
+                        <span class="dd-icon">🔒</span>
+                        <span class="dd-text"><span class="dd-label">Privacidade</span><span class="dd-desc">Política LGPD</span></span>
+                    </a>
+                </div>
+            </div>
+
         </nav>
         <div class="header-actions">
             <button class="btn-ghost" onclick="abrirModal()">Já tenho conta</button>
