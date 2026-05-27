@@ -573,6 +573,31 @@ class Home extends CI_Controller {
 		$this->load->view('public/seo/alternativa-feegow');
 	}
 
+	public function seo_alternativa_odontoclinic()
+	{
+		$this->load->view('public/seo/alternativa-odontoclinic');
+	}
+
+	public function seo_sistema_gratuito()
+	{
+		$this->load->view('public/seo/sistema-gratuito-para-clinicas');
+	}
+
+	public function seo_software_para_clinicas()
+	{
+		$this->load->view('public/seo/software-para-clinicas');
+	}
+
+	public function seo_clinica_oftalmologica()
+	{
+		$this->load->view('public/seo/sistema-para-clinica-oftalmologica');
+	}
+
+	public function seo_software_para_medicos()
+	{
+		$this->load->view('public/seo/software-para-medicos');
+	}
+
 	// ── E-MAIL BOAS-VINDAS ───────────────────────────────────────────────
 
 	private function _enviar_email_boas_vindas($result)
