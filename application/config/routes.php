@@ -85,6 +85,19 @@ $route['software-para-clinicas']           = 'home/seo_software_para_clinicas';
 $route['sistema-para-clinica-oftalmologica'] = 'home/seo_clinica_oftalmologica';
 $route['software-para-medicos']            = 'home/seo_software_para_medicos';
 
+// Blog público
+$route['blog']        = 'blog/index';
+$route['blog/(:any)'] = 'blog/post/$1';
+
+// Blog admin
+$route['adm/blog']                    = 'adm/blogAdmin/index';
+$route['adm/blog/novo']               = 'adm/blogAdmin/novo';
+$route['adm/blog/salvar']             = 'adm/blogAdmin/salvar';
+$route['adm/blog/editar/(:num)']      = 'adm/blogAdmin/editar/$1';
+$route['adm/blog/atualizar/(:num)']   = 'adm/blogAdmin/atualizar/$1';
+$route['adm/blog/publicar/(:num)']    = 'adm/blogAdmin/publicar/$1';
+$route['adm/blog/excluir/(:num)']     = 'adm/blogAdmin/excluir/$1';
+
 // Páginas institucionais
 $route['sobre']                            = 'home/sobre';
 $route['contato']                          = 'home/contato';
