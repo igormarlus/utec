@@ -598,6 +598,21 @@ class Home extends CI_Controller {
 		$this->load->view('public/seo/software-para-medicos');
 	}
 
+	public function sobre()
+	{
+		$this->load->view('public/sobre');
+	}
+
+	public function contato()
+	{
+		$this->load->view('public/contato');
+	}
+
+	public function politica_privacidade()
+	{
+		$this->load->view('public/politica-de-privacidade');
+	}
+
 	// ── E-MAIL BOAS-VINDAS ───────────────────────────────────────────────
 
 	private function _enviar_email_boas_vindas($result)

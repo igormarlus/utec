@@ -450,26 +450,39 @@
         /* ── FOOTER ── */
         .site-footer {
             background: #0f172a; color: #94a3b8;
-            padding: 40px 20px;
+            padding: 56px 20px 0;
         }
-        .footer-inner {
-            max-width: 1120px; margin: 0 auto;
-            display: flex; flex-wrap: wrap;
-            justify-content: space-between; align-items: center;
-            gap: 16px;
-        }
-        .footer-brand { display: flex; align-items: center; gap: 10px; }
         .footer-logo-mark {
             width: 32px; height: 32px; border-radius: 8px;
             background: linear-gradient(135deg, var(--brand-blue), var(--brand-green));
             display: flex; align-items: center; justify-content: center;
-            color: #fff; font-weight: 800; font-size: 14px;
+            color: #fff; font-weight: 800; font-size: 14px; flex-shrink: 0;
         }
-        .footer-name { font-size: 14px; font-weight: 700; color: #e2e8f0; }
-        .footer-links { display: flex; gap: 20px; font-size: 13px; flex-wrap: wrap; }
-        .footer-links a { color: #64748b; transition: color .15s; }
-        .footer-links a:hover { color: #94a3b8; }
-        .footer-copy { font-size: 12px; color: #334155; }
+        .footer-name { font-size: 15px; font-weight: 700; color: #e2e8f0; }
+        .footer-grid {
+            max-width: 1120px; margin: 0 auto;
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+            gap: 40px;
+            padding-bottom: 40px;
+            border-bottom: 1px solid #1e293b;
+        }
+        .footer-tagline { font-size: 13px; color: #475569; margin: 10px 0 20px; line-height: 1.65; max-width: 260px; }
+        .footer-wa { display: inline-flex; align-items: center; gap: 6px; background: #25d366; color: #fff; padding: 8px 16px; border-radius: 999px; font-size: 13px; font-weight: 600; }
+        .footer-col-title { font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: #475569; margin-bottom: 14px; }
+        .footer-col a { display: block; font-size: 13px; color: #64748b; transition: color .15s; margin-bottom: 9px; }
+        .footer-col a:hover { color: #94a3b8; }
+        .footer-bottom {
+            max-width: 1120px; margin: 0 auto;
+            display: flex; justify-content: space-between; align-items: center;
+            flex-wrap: wrap; gap: 12px;
+            padding: 20px 0;
+            font-size: 12px; color: #334155;
+        }
+        .footer-bottom a { color: #475569; margin-left: 16px; }
+        .footer-bottom a:hover { color: #64748b; }
+        @media(max-width: 900px) { .footer-grid { grid-template-columns: 1fr 1fr 1fr; } }
+        @media(max-width: 560px) { .footer-grid { grid-template-columns: 1fr 1fr; } .footer-bottom { flex-direction: column; align-items: flex-start; } }
 
         /* ── FLOATING WHATSAPP ── */
         .wa-float {
@@ -986,20 +999,66 @@
      FOOTER
 ═══════════════════════════════════════════════════════ -->
 <footer class="site-footer">
-    <div class="footer-inner">
-        <div class="footer-brand">
-            <div class="footer-logo-mark">U</div>
-            <span class="footer-name">UTecnologia Saúde</span>
+    <div class="footer-grid">
+
+        <!-- Marca -->
+        <div>
+            <div style="display:flex;align-items:center;gap:10px;">
+                <div class="footer-logo-mark">U</div>
+                <span class="footer-name">UTecnologia Saúde</span>
+            </div>
+            <p class="footer-tagline">Sistema SaaS de gestão clínica para médicos, psicólogos, dentistas, fisioterapeutas e outros profissionais de saúde.</p>
+            <a class="footer-wa" href="https://wa.me/5581983276882" target="_blank" rel="noopener">
+                <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
+                WhatsApp
+            </a>
         </div>
-        <div class="footer-links">
-            <a href="#funcionalidades">Funcionalidades</a>
-            <a href="#especialidades">Especialidades</a>
-            <a href="#contato">Contato</a>
-            <a href="<?=base_url()?>experimentar">Trial grátis</a>
-            <a href="#login">Entrar</a>
+
+        <!-- Especialidades -->
+        <div class="footer-col">
+            <div class="footer-col-title">Especialidades</div>
+            <a href="<?=base_url()?>sistema-para-clinica-medica">Clínica Médica</a>
+            <a href="<?=base_url()?>sistema-para-psicologos">Psicólogos</a>
+            <a href="<?=base_url()?>sistema-para-dentistas">Dentistas</a>
+            <a href="<?=base_url()?>sistema-para-clinica-de-fisioterapia">Fisioterapia</a>
+            <a href="<?=base_url()?>sistema-para-clinica-oftalmologica">Oftalmologia</a>
+            <a href="<?=base_url()?>sistema-para-consultorio-medico">Consultório Médico</a>
         </div>
-        <div class="footer-copy">
-            © <span id="ano"></span> UTecnologia Saúde — utecnologia.com.br
+
+        <!-- Recursos -->
+        <div class="footer-col">
+            <div class="footer-col-title">Recursos</div>
+            <a href="<?=base_url()?>sistema-prontuario-eletronico">Prontuário Eletrônico</a>
+            <a href="<?=base_url()?>software-para-clinicas">Software para Clínicas</a>
+            <a href="<?=base_url()?>software-para-medicos">Software para Médicos</a>
+            <a href="<?=base_url()?>sistema-gratuito-para-clinicas">Trial Gratuito</a>
+            <a href="<?=base_url()?>assinar">Ver Planos</a>
+        </div>
+
+        <!-- Comparativos -->
+        <div class="footer-col">
+            <div class="footer-col-title">Comparativos</div>
+            <a href="<?=base_url()?>alternativa-feegow">Alternativa ao Feegow</a>
+            <a href="<?=base_url()?>alternativa-odontoclinic">Alternativa ao Odontoclinic</a>
+            <a href="<?=base_url()?>sistema-para-clinicas">Ver todos os sistemas</a>
+        </div>
+
+        <!-- Empresa -->
+        <div class="footer-col">
+            <div class="footer-col-title">Empresa</div>
+            <a href="<?=base_url()?>sobre">Sobre nós</a>
+            <a href="<?=base_url()?>contato">Contato</a>
+            <a href="<?=base_url()?>politica-de-privacidade">Política de Privacidade</a>
+            <a href="<?=base_url()?>experimentar">Experimentar grátis</a>
+        </div>
+
+    </div>
+    <div class="footer-bottom">
+        <span>© <span id="ano"></span> UTecnologia Saúde — utecnologia.com.br</span>
+        <div>
+            <a href="<?=base_url()?>sobre">Sobre</a>
+            <a href="<?=base_url()?>politica-de-privacidade">Privacidade</a>
+            <a href="<?=base_url()?>contato">Contato</a>
         </div>
     </div>
 </footer>

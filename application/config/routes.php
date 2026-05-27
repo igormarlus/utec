@@ -84,3 +84,8 @@ $route['sistema-gratuito-para-clinicas']   = 'home/seo_sistema_gratuito';
 $route['software-para-clinicas']           = 'home/seo_software_para_clinicas';
 $route['sistema-para-clinica-oftalmologica'] = 'home/seo_clinica_oftalmologica';
 $route['software-para-medicos']            = 'home/seo_software_para_medicos';
+
+// Páginas institucionais
+$route['sobre']                            = 'home/sobre';
+$route['contato']                          = 'home/contato';
+$route['politica-de-privacidade']          = 'home/politica_privacidade';
