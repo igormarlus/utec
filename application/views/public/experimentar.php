@@ -21,7 +21,7 @@
     <meta property="og:url" content="https://utecnologia.com.br/experimentar">
     <meta property="og:title" content="Experimente o Sistema Clínico Grátis por 30 Dias — UTecnologia Saúde">
     <meta property="og:description" content="Prontuário eletrônico, agenda inteligente e gestão de pacientes. Crie sua conta agora e comece a usar em minutos, sem cartão de crédito.">
-    <meta property="og:image" content="https://utecnologia.com.br/imagens/og-cover.jpg">
+    <meta property="og:image" content="https://utecnologia.com.br/imagens/og-cover.png">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta property="og:site_name" content="UTecnologia Saúde">
@@ -31,7 +31,7 @@
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Experimente o Sistema Clínico Grátis por 30 Dias — UTecnologia Saúde">
     <meta name="twitter:description" content="Prontuário eletrônico, agenda inteligente e gestão de pacientes. Sem cartão de crédito.">
-    <meta name="twitter:image" content="https://utecnologia.com.br/imagens/og-cover.jpg">
+    <meta name="twitter:image" content="https://utecnologia.com.br/imagens/og-cover.png">
 
     <style>
         :root {

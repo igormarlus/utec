@@ -69,3 +69,13 @@ $route['acesso/senha/(:any)'] = 'home/definir_senha/$1';
 $route['acesso/senha']        = 'home/definir_senha';
 $route['acesso/salvar']       = 'home/salvar_senha';
 $route['webhooks/mercadopago'] = 'adm/saas/webhook_mercadopago';
+
+// SEO landing pages
+$route['sistema-para-clinicas']            = 'home/seo_sistema_para_clinicas';
+$route['sistema-para-clinica-medica']      = 'home/seo_sistema_clinica_medica';
+$route['sistema-prontuario-eletronico']    = 'home/seo_prontuario_eletronico';
+$route['sistema-para-psicologos']          = 'home/seo_sistema_psicologos';
+$route['sistema-para-dentistas']           = 'home/seo_sistema_dentistas';
+$route['sistema-para-consultorio-medico']  = 'home/seo_consultorio_medico';
+$route['sistema-para-clinica-de-fisioterapia'] = 'home/seo_clinica_fisioterapia';
+$route['alternativa-feegow']               = 'home/seo_alternativa_feegow';

@@ -15,13 +15,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Prontuário eletrônico, agenda inteligente e gestão de pacientes. Experimente 30 dias grátis, sem cartão de crédito e sem compromisso.">
     <link rel="canonical" href="https://utecnologia.com.br/">
+    <link rel="icon" type="image/png" sizes="512x512" href="<?=base_url('favicon.png')?>">
+    <link rel="apple-touch-icon" href="<?=base_url('apple-touch-icon.png')?>">
 
     <!-- Open Graph -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://utecnologia.com.br/">
     <meta property="og:title" content="UTecnologia Saúde — Gestão clínica para clínicas e profissionais de saúde">
     <meta property="og:description" content="Prontuário eletrônico, agenda inteligente e gestão de pacientes. Experimente 30 dias grátis, sem cartão de crédito e sem compromisso.">
-    <meta property="og:image" content="https://utecnologia.com.br/imagens/og-cover.jpg">
+    <meta property="og:image" content="https://utecnologia.com.br/imagens/og-cover.png">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta property="og:site_name" content="UTecnologia Saúde">
@@ -31,7 +33,7 @@
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="UTecnologia Saúde — Gestão clínica para clínicas e profissionais de saúde">
     <meta name="twitter:description" content="Prontuário eletrônico, agenda inteligente e gestão de pacientes. Experimente 30 dias grátis.">
-    <meta name="twitter:image" content="https://utecnologia.com.br/imagens/og-cover.jpg">
+    <meta name="twitter:image" content="https://utecnologia.com.br/imagens/og-cover.png">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

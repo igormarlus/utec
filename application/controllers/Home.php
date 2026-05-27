@@ -531,6 +531,48 @@ class Home extends CI_Controller {
 		redirect('adm/atendimento');
 	}
 
+	// ── SEO LANDING PAGES ───────────────────────────────────────────────
+
+	public function seo_sistema_para_clinicas()
+	{
+		$this->load->view('public/seo/sistema-para-clinicas');
+	}
+
+	public function seo_sistema_clinica_medica()
+	{
+		$this->load->view('public/seo/sistema-para-clinica-medica');
+	}
+
+	public function seo_prontuario_eletronico()
+	{
+		$this->load->view('public/seo/sistema-prontuario-eletronico');
+	}
+
+	public function seo_sistema_psicologos()
+	{
+		$this->load->view('public/seo/sistema-para-psicologos');
+	}
+
+	public function seo_sistema_dentistas()
+	{
+		$this->load->view('public/seo/sistema-para-dentistas');
+	}
+
+	public function seo_consultorio_medico()
+	{
+		$this->load->view('public/seo/sistema-para-consultorio-medico');
+	}
+
+	public function seo_clinica_fisioterapia()
+	{
+		$this->load->view('public/seo/sistema-para-clinica-de-fisioterapia');
+	}
+
+	public function seo_alternativa_feegow()
+	{
+		$this->load->view('public/seo/alternativa-feegow');
+	}
+
 	// ── E-MAIL BOAS-VINDAS ───────────────────────────────────────────────
 
 	private function _enviar_email_boas_vindas($result)

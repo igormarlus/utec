@@ -21,7 +21,7 @@
     <meta property="og:url" content="https://utecnologia.com.br/assinar">
     <meta property="og:title" content="Assine o Sistema de Gestão Clínica — UTecnologia Saúde">
     <meta property="og:description" content="Prontuário eletrônico, agenda inteligente e gestão de pacientes. Planos a partir de R$ 79/mês para clínicas e consultórios.">
-    <meta property="og:image" content="https://utecnologia.com.br/imagens/og-cover.jpg">
+    <meta property="og:image" content="https://utecnologia.com.br/imagens/og-cover.png">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta property="og:site_name" content="UTecnologia Saúde">
@@ -31,7 +31,7 @@
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Assine o Sistema de Gestão Clínica — UTecnologia Saúde">
     <meta name="twitter:description" content="Prontuário eletrônico, agenda inteligente e gestão de pacientes. Planos a partir de R$ 79/mês.">
-    <meta name="twitter:image" content="https://utecnologia.com.br/imagens/og-cover.jpg">
+    <meta name="twitter:image" content="https://utecnologia.com.br/imagens/og-cover.png">
 
     <style>
         :root {
