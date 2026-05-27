@@ -18,7 +18,9 @@
     <meta name="twitter:description" content="Agenda, prontuário e gestão para dentistas e clínicas odontológicas. 30 dias grátis.">
     <meta name="twitter:image" content="https://utecnologia.com.br/imagens/og-cover.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"></noscript>
     <style>
         :root { --ink:#0f172a; --muted:#475569; --primary:#0ea5e9; --primary-dark:#0284c7; --accent:#22c55e; --border:#e2e8f0; --paper:#f8fafc; --panel:#ffffff; --radius:16px; --shadow:0 4px 24px rgba(15,23,42,.08); }
         * { box-sizing:border-box; margin:0; padding:0; }
