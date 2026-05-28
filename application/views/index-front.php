@@ -110,7 +110,7 @@
         .logo { display: flex; align-items: center; gap: 12px; }
         .logo-image {
             display: block;
-            height: 34px;
+            height: 44px;
             width: auto;
         }
         .logo-name { font-weight: 700; font-size: 16px; line-height: 1.15; }
@@ -493,7 +493,7 @@
         }
         .footer-logo-image {
             display: block;
-            height: 30px;
+            height: 38px;
             width: auto;
         }
         .footer-name { font-size: 15px; font-weight: 700; color: #e2e8f0; }

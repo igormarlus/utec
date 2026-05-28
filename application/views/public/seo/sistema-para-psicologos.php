@@ -83,7 +83,7 @@
 
 <nav class="topnav">
     <div class="wrap">
-        <a class="brand" href="<?=base_url()?>"><img src="<?=base_url()?>img/logo-w.png" alt="UTecnologia Saúde" style="height:34px;width:auto;display:block"></a>
+        <a class="brand" href="<?=base_url()?>"><img src="<?=base_url()?>img/logo-w.png" alt="UTecnologia Saúde" style="height:46px;width:auto;display:block"></a>
         <div class="nav-links">
             <a href="<?=base_url()?>sistema-para-clinicas">Todas as especialidades</a>
             <a href="<?=base_url()?>sistema-prontuario-eletronico">Prontuário</a>
@@ -246,3 +246,4 @@
 </script>
 </body>
 </html>
+
