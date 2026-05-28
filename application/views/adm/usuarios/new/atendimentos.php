@@ -536,6 +536,8 @@
           return p[2] + '/' + p[1] + '/' + p[0];
         }
 
+        var TODAY = new Date().toISOString().split('T')[0];
+
         function render(items) {
           if (!items.length) {
             $results.html('<div class="pac-empty">Nenhum paciente encontrado.</div>').show();
@@ -552,9 +554,9 @@
               if (p.proximo_tipo) prox += ' · ' + p.proximo_tipo;
               tags += '<span class="pac-result-tag" style="background:#dbeafe;color:#1d4ed8">📅 próx: ' + prox + '</span>';
             }
-            if (p.passado_data) {
-              var past = fmtDate(p.passado_data);
-              if (p.passado_tipo) past += ' · ' + p.passado_tipo;
+            if (p.ultima_data && p.ultima_data < TODAY) {
+              var past = fmtDate(p.ultima_data);
+              if (p.ultimo_tipo) past += ' · ' + p.ultimo_tipo;
               tags += '<span class="pac-result-tag" style="background:#f1f5f9;color:#475569">🕐 últ: ' + past + '</span>';
             }
             html += '<a href="' + BASE + 'adm/usuarios/prontuario/' + p.id + '" class="pac-result-item">'
