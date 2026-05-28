@@ -112,7 +112,125 @@ class Dev extends CI_Controller {
 		echo '<li><a href="'.base_url().'adm/dev/migrar_fase1_saas">Migrar fase 1 SaaS</a></li>';
 		echo '<li><a href="'.base_url().'adm/dev/seed_planos_saas_comerciais">Criar planos SaaS sugeridos</a></li>';
 		echo '<li><a href="'.base_url().'adm/dev/migrar_especialidades">Criar tabela usuarios_especialidades e normalizar campo</a></li>';
+		echo '<li><a href="'.base_url().'adm/dev/testar_email_boas_vindas">Testar e-mail de boas-vindas (sem cadastrar)</a></li>';
 		echo '</ul>';
+	}
+
+	function testar_email_boas_vindas(){
+		$enviado = false;
+		$erro    = '';
+		$admin   = $this->db->get_where('usuarios', ['id' => (int)$this->session->userdata('id')])->row();
+		$email_default = $admin ? $admin->email : '';
+
+		if($this->input->post('email_destino')){
+			$email_destino = trim($this->input->post('email_destino'));
+			$token         = bin2hex(random_bytes(32));
+
+			$result = [
+				'tenant_nome'   => $this->input->post('tenant_nome') ?: 'Clínica Teste Demo',
+				'login'         => $email_destino,
+				'senha_gerada'  => 'Teste@2026',
+				'token'         => $token,
+				'trial_ends_at' => date('Y-m-d', strtotime('+30 days')),
+			];
+
+			try {
+				$this->config->load('email');
+				$this->load->library('email');
+				$this->email->initialize($this->config->config);
+
+				$nome_clinica = htmlspecialchars((string)$result['tenant_nome']);
+				$login        = htmlspecialchars((string)$result['login']);
+				$senha        = htmlspecialchars((string)$result['senha_gerada']);
+				$link_senha   = base_url().'acesso/senha/'.$token;
+				$link_sistema = base_url().'admin';
+				$trial_fim    = date('d/m/Y', strtotime($result['trial_ends_at']));
+
+				$body = '<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"></head><body style="margin:0;padding:0;background:#f6f8fb;font-family:system-ui,sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f6f8fb;padding:40px 20px;">
+<tr><td align="center">
+<table width="600" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,.08);">
+  <tr><td style="background:linear-gradient(90deg,#0f766e,#f97316);padding:32px 40px;">
+    <p style="margin:0;font-size:13px;letter-spacing:.15em;text-transform:uppercase;color:rgba(255,255,255,.8);font-weight:700;">UTecnologia Saúde</p>
+    <h1 style="margin:10px 0 0;color:#fff;font-size:26px;font-weight:800;">Seu acesso está pronto! 🎉</h1>
+  </td></tr>
+  <tr><td style="padding:36px 40px;">
+    <p style="font-size:16px;color:#334155;line-height:1.7;">Olá, <strong>'.htmlspecialchars($login).'</strong>!</p>
+    <p style="font-size:15px;color:#475569;line-height:1.7;">
+      O ambiente <strong>'.$nome_clinica.'</strong> foi criado com sucesso.
+      Você já pode entrar no sistema e começar a usar a agenda, prontuários e atendimentos pelos próximos 30 dias sem nenhum custo.
+    </p>
+    <table width="100%" cellpadding="0" cellspacing="0" style="background:#f1fdf9;border:1px solid #a7f3d0;border-radius:14px;padding:20px;margin:24px 0;">
+      <tr><td>
+        <p style="margin:0 0 10px;font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#0f766e;">Seus dados de acesso</p>
+        <p style="margin:4px 0;font-size:15px;color:#172033;"><strong>E-mail:</strong> '.$login.'</p>
+        <p style="margin:4px 0;font-size:15px;color:#172033;"><strong>Senha provisória:</strong> <code style="background:#e0f2fe;padding:2px 8px;border-radius:6px;font-size:15px;">'.$senha.'</code></p>
+        <p style="margin:10px 0 0;font-size:13px;color:#64748b;">Trial ativo até: <strong>'.$trial_fim.'</strong></p>
+      </td></tr>
+    </table>
+    <p style="font-size:14px;color:#475569;line-height:1.7;">Recomendamos que você defina uma senha personalizada clicando no botão abaixo:</p>
+    <p style="margin:24px 0;">
+      <a href="'.$link_senha.'" style="display:inline-block;padding:14px 28px;background:linear-gradient(90deg,#0f766e,#f97316);color:#fff;font-size:15px;font-weight:700;border-radius:999px;text-decoration:none;">Definir minha senha →</a>
+    </p>
+    <p style="margin:16px 0;">
+      <a href="'.$link_sistema.'" style="display:inline-block;padding:12px 24px;background:#fff;border:1px solid #d1d5db;color:#374151;font-size:14px;font-weight:600;border-radius:999px;text-decoration:none;">Entrar no sistema com senha provisória</a>
+    </p>
+    <p style="font-size:13px;color:#94a3b8;border-top:1px solid #e2e8f0;padding-top:20px;margin-top:28px;">
+      Dúvidas? Responda este e-mail ou acesse <a href="https://wa.me/5581983276882" style="color:#0f766e;">WhatsApp</a>.<br>
+      UTecnologia Saúde — utecnologia.com.br
+    </p>
+  </td></tr>
+</table>
+</td></tr></table>
+</body></html>';
+
+				$this->email->from('suporte@utecnologia.com.br', 'UTecnologia Saúde');
+				$this->email->to($email_destino);
+				$this->email->bcc('igor_marlus@yahoo.com.br');
+				$this->email->subject('[TESTE] Seu acesso UTecnologia Saúde está pronto — '.$nome_clinica);
+				$this->email->message($body);
+
+				if($this->email->send()){
+					$enviado = true;
+				} else {
+					$erro = $this->email->print_debugger(['headers','subject','body']);
+				}
+			} catch(Exception $e){
+				$erro = $e->getMessage();
+			}
+		}
+
+		echo '<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8">
+		<title>Testar E-mail de Boas-vindas</title>
+		<link rel="stylesheet" href="'.base_url().'bower_components/bootstrap/dist/css/bootstrap.min.css">
+		</head><body class="p-4">';
+		echo '<h2>Testar E-mail de Boas-vindas</h2>';
+		echo '<p class="text-muted">Envia o e-mail de boas-vindas com um token real (não cadastra nenhum usuário).</p>';
+
+		if($enviado){
+			$admin_email = htmlspecialchars($this->input->post('email_destino'));
+			echo '<div class="alert alert-success">✅ E-mail enviado para <strong>'.$admin_email.'</strong>. Verifique a caixa de entrada (e spam).</div>';
+		}
+		if($erro){
+			echo '<div class="alert alert-danger"><strong>Erro ao enviar:</strong><pre style="font-size:12px;margin-top:8px;">'.htmlspecialchars($erro).'</pre></div>';
+		}
+
+		$email_val = htmlspecialchars($this->input->post('email_destino') ?: $email_default);
+		$nome_val  = htmlspecialchars($this->input->post('tenant_nome') ?: 'Clínica Teste Demo');
+
+		echo '<form method="post" class="mt-3" style="max-width:480px;">
+			<div class="form-group">
+				<label>E-mail destino</label>
+				<input type="email" name="email_destino" class="form-control" value="'.$email_val.'" required>
+			</div>
+			<div class="form-group mt-2">
+				<label>Nome da clínica (fictício)</label>
+				<input type="text" name="tenant_nome" class="form-control" value="'.$nome_val.'">
+			</div>
+			<button type="submit" class="btn btn-primary mt-3">Enviar e-mail de teste</button>
+			<a href="'.base_url().'adm/dev" class="btn btn-secondary mt-3 ml-2">Voltar</a>
+		</form>';
+		echo '</body></html>';
 	}
 
 	function migrar_token_senha(){

