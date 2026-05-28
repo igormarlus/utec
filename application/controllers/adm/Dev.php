@@ -126,6 +126,15 @@ class Dev extends CI_Controller {
 			$email_destino = trim($this->input->post('email_destino'));
 			$token         = bin2hex(random_bytes(32));
 
+			// Salva o token no próprio admin logado para o link funcionar ao testar
+			if($this->db->field_exists('senha_token', 'usuarios') && $this->db->field_exists('senha_token_expires', 'usuarios')){
+				$this->db->where('id', (int)$this->session->userdata('id'));
+				$this->db->update('usuarios', [
+					'senha_token'         => $token,
+					'senha_token_expires' => date('Y-m-d H:i:s', strtotime('+1 hour')),
+				]);
+			}
+
 			$result = [
 				'tenant_nome'   => $this->input->post('tenant_nome') ?: 'Clínica Teste Demo',
 				'login'         => $email_destino,
@@ -407,6 +416,9 @@ class Dev extends CI_Controller {
 		$this->ensure_column('saas_subscriptions', 'checkout_type', "VARCHAR(30) NULL DEFAULT NULL", $logs);
 		$this->ensure_column('saas_subscriptions', 'gateway_status_detail', "VARCHAR(120) NULL DEFAULT NULL", $logs);
 		$this->ensure_column('saas_subscriptions', 'webhook_last_event_at', "DATETIME NULL DEFAULT NULL", $logs);
+
+		$this->ensure_column('usuarios', 'senha_token', "VARCHAR(64) NULL DEFAULT NULL", $logs);
+		$this->ensure_column('usuarios', 'senha_token_expires', "DATETIME NULL DEFAULT NULL", $logs);
 
 		echo '<h2>Migracao Fase 1 SaaS</h2><ul>';
 		foreach($logs as $log){
