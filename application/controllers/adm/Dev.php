@@ -209,7 +209,8 @@ class Dev extends CI_Controller {
 
 		if($enviado){
 			$admin_email = htmlspecialchars($this->input->post('email_destino'));
-			echo '<div class="alert alert-success">✅ E-mail enviado para <strong>'.$admin_email.'</strong>. Verifique a caixa de entrada (e spam).</div>';
+			echo '<div class="alert alert-success">✅ E-mail enviado para <strong>'.$admin_email.'</strong> com BCC para <strong>igor_marlus@yahoo.com.br</strong>.<br>Verifique caixa de entrada e <strong>pasta de spam</strong> em ambas as contas.</div>';
+			echo '<details class="mt-2"><summary style="cursor:pointer;color:#555;">Ver debug SMTP</summary><pre style="font-size:11px;background:#f8f8f8;padding:10px;margin-top:6px;">'.htmlspecialchars($this->email->print_debugger()).'</pre></details>';
 		}
 		if($erro){
 			echo '<div class="alert alert-danger"><strong>Erro ao enviar:</strong><pre style="font-size:12px;margin-top:8px;">'.htmlspecialchars($erro).'</pre></div>';
