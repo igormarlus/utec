@@ -117,6 +117,23 @@
       }
       .ul-empty-icon { font-size: 40px; margin-bottom: 12px; }
       .ul-empty-txt { font-size: 14px; }
+      /* Menu colapsável lateral */
+      .menu-w .main-menu > li.has-sub-menu { position: relative; }
+      .menu-w .main-menu > li.has-sub-menu > .sub-menu {
+        display: none !important; position: static !important;
+        transform: none !important; opacity: 1 !important;
+        visibility: visible !important; width: 100%;
+        margin: 8px 0 0; padding: 0 0 0 18px;
+        background: transparent !important; border: 0 !important; box-shadow: none !important;
+      }
+      .menu-w .main-menu > li.has-sub-menu.active > .sub-menu { display: block !important; }
+      .menu-w .main-menu > li.has-sub-menu > .sub-menu li { display: block; margin: 0 0 6px; }
+      .menu-w .main-menu > li.has-sub-menu > .sub-menu li a {
+        display: block; padding: 8px 12px; border-radius: 12px;
+        color: #526273; font-size: 13px; line-height: 1.35;
+        white-space: normal; background: rgba(255,255,255,.7);
+      }
+      .menu-w .main-menu > li.has-sub-menu > .sub-menu li a:hover { background: #eef4ff; color: #2563eb; text-decoration: none; }
     </style>
   </head>
   <body class="menu-position-side menu-side-left full-screen with-content-panel">
@@ -253,11 +270,26 @@
     <script src="<?=base_url()?>bower_components/tether/dist/js/tether.min.js"></script>
     <script src="<?=base_url()?>bower_components/slick-carousel/slick/slick.min.js"></script>
     <script src="<?=base_url()?>bower_components/bootstrap/js/dist/util.js"></script>
+    <script src="<?=base_url()?>bower_components/bootstrap/js/dist/alert.js"></script>
+    <script src="<?=base_url()?>bower_components/bootstrap/js/dist/button.js"></script>
+    <script src="<?=base_url()?>bower_components/bootstrap/js/dist/collapse.js"></script>
     <script src="<?=base_url()?>bower_components/bootstrap/js/dist/dropdown.js"></script>
+    <script src="<?=base_url()?>bower_components/bootstrap/js/dist/modal.js"></script>
+    <script src="<?=base_url()?>bower_components/bootstrap/js/dist/tab.js"></script>
     <script src="<?=base_url()?>bower_components/bootstrap/js/dist/tooltip.js"></script>
+    <script src="<?=base_url()?>bower_components/bootstrap/js/dist/popover.js"></script>
     <script src="<?=base_url()?>js/demo_customizer.js?version=4.5.0"></script>
     <script src="<?=base_url()?>js/main.js?version=4.5.0"></script>
     <script>
+      $(document).on('click', '.menu-w li.has-sub-menu > a', function(e){
+        var $item = $(this).closest('li');
+        if($(window).width() > 991){
+          e.preventDefault();
+          $item.closest('ul').find('> li.active').not($item).removeClass('active');
+          $item.toggleClass('active');
+        }
+      });
+
       $('#ul-filter').on('input', function(){
         var q = $.trim($(this).val()).toLowerCase();
         $('#ul-grid .ul-card').each(function(){

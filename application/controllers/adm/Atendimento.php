@@ -769,13 +769,14 @@ function buscar_paciente() {
 	$scope_ids = $this->padrao_model->get_scope_user_ids($dd_user);
 	$scope_sql = $this->padrao_model->ids_to_sql_in($scope_ids);
 	$q_like    = $this->db->escape('%' . $this->db->escape_like_str($q) . '%');
+	$hoje = date('Y-m-d');
 	$sql = "
 		SELECT u.id, u.nome, u.telefone,
 		       (SELECT COUNT(a.id) FROM agendamentos a WHERE a.id_paciente = u.id) AS total_ag,
-		       (SELECT a2.data_agenda FROM agendamentos a2 WHERE a2.id_paciente = u.id AND a2.data_agenda < CURDATE() ORDER BY a2.data_agenda DESC, a2.id DESC LIMIT 1) AS passado_data,
-		       (SELECT a2.tipo     FROM agendamentos a2 WHERE a2.id_paciente = u.id AND a2.data_agenda < CURDATE() ORDER BY a2.data_agenda DESC, a2.id DESC LIMIT 1) AS passado_tipo,
-		       (SELECT a2.data_agenda FROM agendamentos a2 WHERE a2.id_paciente = u.id AND a2.data_agenda >= CURDATE() AND a2.status != 3 ORDER BY a2.data_agenda ASC, a2.hora_agenda ASC, a2.id ASC LIMIT 1) AS proximo_data,
-		       (SELECT a2.tipo     FROM agendamentos a2 WHERE a2.id_paciente = u.id AND a2.data_agenda >= CURDATE() AND a2.status != 3 ORDER BY a2.data_agenda ASC, a2.hora_agenda ASC, a2.id ASC LIMIT 1) AS proximo_tipo
+		       (SELECT DATE(a2.data_agenda) FROM agendamentos a2 WHERE a2.id_paciente = u.id AND DATE(a2.data_agenda) < '{$hoje}' ORDER BY a2.data_agenda DESC, a2.id DESC LIMIT 1) AS passado_data,
+		       (SELECT a2.tipo              FROM agendamentos a2 WHERE a2.id_paciente = u.id AND DATE(a2.data_agenda) < '{$hoje}' ORDER BY a2.data_agenda DESC, a2.id DESC LIMIT 1) AS passado_tipo,
+		       (SELECT DATE(a2.data_agenda) FROM agendamentos a2 WHERE a2.id_paciente = u.id AND DATE(a2.data_agenda) >= '{$hoje}' AND a2.status != 3 ORDER BY a2.data_agenda ASC, a2.hora_agenda ASC, a2.id ASC LIMIT 1) AS proximo_data,
+		       (SELECT a2.tipo              FROM agendamentos a2 WHERE a2.id_paciente = u.id AND DATE(a2.data_agenda) >= '{$hoje}' AND a2.status != 3 ORDER BY a2.data_agenda ASC, a2.hora_agenda ASC, a2.id ASC LIMIT 1) AS proximo_tipo
 		FROM usuarios u
 		WHERE u.nivel = 5
 		  AND u.id IN ({$scope_sql})
