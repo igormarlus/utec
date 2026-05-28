@@ -53,7 +53,7 @@
 </head>
 <body>
     <div class="card">
-        <div class="logo">UTecnologia Saúde</div>
+        <div class="logo"><img src="<?=base_url()?>img/logo-w.png" alt="UTecnologia Saúde" style="height:34px;width:auto;display:block"></div>
 
         <h1>Defina sua senha</h1>
         <p class="sub">Olá, <strong><?=htmlspecialchars((string)$nome)?></strong>! Crie uma senha personalizada para acessar o sistema.</p>

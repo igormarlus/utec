@@ -81,6 +81,39 @@
         padding: 24px 12px;
         text-align: center;
       }
+      @media (max-width: 991.98px) {
+        .exam-panel,
+        .exam-stat-card {
+          border-radius: 16px;
+        }
+        .exam-panel-header,
+        .exam-panel-body {
+          padding-left: 16px;
+          padding-right: 16px;
+        }
+      }
+      @media (max-width: 767.98px) {
+        .element-wrapper .element-actions {
+          float: none;
+          margin-bottom: 12px;
+        }
+        .exam-stat-card {
+          margin-bottom: 14px;
+          padding: 16px;
+        }
+        .exam-stat-value {
+          font-size: 24px;
+        }
+        .exam-option-grid {
+          grid-template-columns: 1fr;
+        }
+        .exam-option {
+          padding: 12px;
+        }
+        .exam-table {
+          min-width: 760px;
+        }
+      }
     </style>
   </head>
   <body class="menu-position-side menu-side-left full-screen with-content-panel">

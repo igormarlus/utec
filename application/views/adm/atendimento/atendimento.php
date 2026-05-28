@@ -57,6 +57,32 @@
         margin-bottom: 4px;
         text-transform: uppercase;
       }
+      @media (max-width: 991.98px) {
+        .booking-summary,
+        .booking-form-card {
+          border-radius: 16px;
+        }
+      }
+      @media (max-width: 767.98px) {
+        .booking-summary,
+        .booking-form-card {
+          padding: 18px;
+        }
+        .summary-grid {
+          grid-template-columns: 1fr;
+          gap: 12px;
+        }
+        .booking-summary .btn {
+          flex: 1 1 100%;
+          width: 100%;
+        }
+        .booking-form-card .row > div {
+          margin-bottom: 14px;
+        }
+        .booking-form-card .row > div:last-child {
+          margin-bottom: 0;
+        }
+      }
     </style>
   </head>
   <body class="menu-position-side menu-side-left full-screen with-content-panel">

@@ -107,13 +107,11 @@
             gap: 16px;
             height: 64px;
         }
-        .logo { display: flex; align-items: center; gap: 10px; }
-        .logo-mark {
-            width: 38px; height: 38px;
-            border-radius: 10px;
-            background: linear-gradient(135deg, var(--brand-blue), var(--brand-green));
-            display: flex; align-items: center; justify-content: center;
-            color: #fff; font-weight: 800; font-size: 17px; flex-shrink: 0;
+        .logo { display: flex; align-items: center; gap: 12px; }
+        .logo-image {
+            display: block;
+            height: 34px;
+            width: auto;
         }
         .logo-name { font-weight: 700; font-size: 16px; line-height: 1.15; }
         .logo-tagline { font-size: 11px; color: var(--subtle); }
@@ -493,11 +491,10 @@
             background: #0f172a; color: #94a3b8;
             padding: 56px 20px 0;
         }
-        .footer-logo-mark {
-            width: 32px; height: 32px; border-radius: 8px;
-            background: linear-gradient(135deg, var(--brand-blue), var(--brand-green));
-            display: flex; align-items: center; justify-content: center;
-            color: #fff; font-weight: 800; font-size: 14px; flex-shrink: 0;
+        .footer-logo-image {
+            display: block;
+            height: 30px;
+            width: auto;
         }
         .footer-name { font-size: 15px; font-weight: 700; color: #e2e8f0; }
         .footer-grid {
@@ -624,7 +621,7 @@
 <header class="site-header">
     <div class="container header-inner">
         <a href="<?=base_url()?>" class="logo">
-            <div class="logo-mark">U</div>
+            <img src="<?=base_url()?>img/logo-w.png" alt="UTecnologia Saúde" class="logo-image">
             <div>
                 <div class="logo-name">UTecnologia Saúde</div>
                 <div class="logo-tagline">Gestão clínica inteligente</div>
@@ -1130,7 +1127,7 @@
         <!-- Marca -->
         <div>
             <div style="display:flex;align-items:center;gap:10px;">
-                <div class="footer-logo-mark">U</div>
+                <img src="<?=base_url()?>img/logo-w.png" alt="UTecnologia Saúde" class="footer-logo-image">
                 <span class="footer-name">UTecnologia Saúde</span>
             </div>
             <p class="footer-tagline">Sistema SaaS de gestão clínica para médicos, psicólogos, dentistas, fisioterapeutas e outros profissionais de saúde.</p>

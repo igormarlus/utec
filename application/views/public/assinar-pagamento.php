@@ -155,7 +155,7 @@
 <body>
     <div class="wrap">
         <div class="topbar">
-            <div class="brand">UTecnologia Saude</div>
+            <div class="brand"><img src="<?=base_url()?>img/logo-w.png" alt="UTecnologia Saude" style="height:34px;width:auto;display:block"></div>
             <a class="back-link" href="<?=$back_url?>">Voltar</a>
         </div>
 

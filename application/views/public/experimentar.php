@@ -160,7 +160,7 @@
 <body>
     <div class="wrap">
         <div class="topbar">
-            <div class="brand">UTecnologia Saúde</div>
+            <div class="brand"><img src="<?=base_url()?>img/logo-w.png" alt="UTecnologia Saúde" style="height:34px;width:auto;display:block"></div>
             <a class="back" href="<?=base_url()?>">← Voltar ao site</a>
         </div>
 

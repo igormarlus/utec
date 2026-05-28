@@ -271,7 +271,7 @@
 <body>
     <div class="shell">
         <div class="topbar">
-            <a class="brand" href="<?=base_url()?>">UTecnologia Saude</a>
+            <a class="brand" href="<?=base_url()?>"><img src="<?=base_url()?>img/logo-w.png" alt="UTecnologia Saude" style="height:34px;width:auto;display:block"></a>
             <a class="back-link" href="<?=base_url()?>">Voltar para a pagina inicial</a>
         </div>
 

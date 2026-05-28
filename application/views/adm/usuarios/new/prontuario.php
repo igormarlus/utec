@@ -202,6 +202,109 @@
         color: #64748b;
         font-size: 13px;
       }
+      .file-card {
+        height: 100%;
+        padding: 14px;
+        position: relative;
+        text-align: center;
+      }
+      .file-card-preview {
+        border-radius: 10px;
+        margin-bottom: 8px;
+        max-height: 120px;
+        max-width: 100%;
+        object-fit: cover;
+      }
+      .file-card-name {
+        color: #555;
+        font-size: 12px;
+        margin-bottom: 4px;
+        word-break: break-all;
+      }
+      .file-card-desc {
+        color: #888;
+        font-size: 11px;
+        font-style: italic;
+        margin-bottom: 6px;
+      }
+      .file-card-date {
+        color: #aaa;
+        font-size: 10px;
+        margin-bottom: 8px;
+      }
+      @media (max-width: 991.98px) {
+        .patient-summary-card,
+        .current-appointment-card,
+        .timeline-card,
+        .element-box {
+          border-radius: 16px;
+        }
+        .timeline-actions .btn {
+          flex: 1 1 220px;
+        }
+      }
+      @media (max-width: 767.98px) {
+        .patient-summary-card,
+        .current-appointment-card {
+          padding: 18px;
+        }
+        .quick-metrics {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 12px;
+        }
+        .quick-metric-card {
+          padding: 16px;
+        }
+        .quick-metric-card strong {
+          font-size: 24px;
+        }
+        .section-heading {
+          font-size: 18px;
+        }
+        .timeline-list:before {
+          left: 15px;
+        }
+        .timeline-item {
+          padding-left: 40px;
+        }
+        .timeline-dot {
+          height: 18px;
+          left: 7px;
+          top: 22px;
+          width: 18px;
+        }
+        .timeline-card {
+          padding: 16px;
+        }
+        .timeline-topbar {
+          flex-direction: column;
+        }
+        .timeline-date {
+          font-size: 16px;
+        }
+        .timeline-actions {
+          gap: 8px;
+        }
+        .timeline-actions .btn {
+          flex: 1 1 100%;
+          width: 100%;
+        }
+        #form-upload-arquivo .row > div {
+          margin-bottom: 12px;
+        }
+        #form-upload-arquivo .row > div:last-child {
+          margin-bottom: 0;
+        }
+        .file-card {
+          padding: 12px;
+        }
+      }
+      @media (max-width: 575.98px) {
+        .patient-summary-grid,
+        .quick-metrics {
+          grid-template-columns: 1fr;
+        }
+      }
     </style>
     
   </head>
@@ -537,13 +640,13 @@
                         $is_img = in_array($arq->tipo, ['imagem','jpg','jpeg','png','gif']);
                         $icone  = $is_img ? 'os-icon-image' : ($arq->tipo == 'pdf' ? 'os-icon-file-text' : 'os-icon-database');
                       ?>
-                      <div class="col-sm-4 col-md-3" style="margin-bottom:16px" id="arq-<?=$arq->id?>">
-                        <div class="element-box" style="padding:12px;text-align:center;position:relative">
+                      <div class="col-sm-6 col-md-4 col-xl-3" style="margin-bottom:16px" id="arq-<?=$arq->id?>">
+                        <div class="element-box file-card">
 
                           <?php if($is_img): ?>
                             <a href="<?=base_url()?>uploads/pacientes/<?=$arq->arquivo?>" target="_blank">
                               <img src="<?=base_url()?>uploads/pacientes/<?=$arq->arquivo?>"
-                                   style="max-width:100%;max-height:120px;object-fit:cover;border-radius:4px;margin-bottom:6px">
+                                   class="file-card-preview">
                             </a>
                           <?php else: ?>
                             <a href="<?=base_url()?>uploads/pacientes/<?=$arq->arquivo?>" target="_blank">
@@ -551,15 +654,15 @@
                             </a>
                           <?php endif; ?>
 
-                          <div style="font-size:12px;color:#555;word-break:break-all;margin-bottom:4px">
+                          <div class="file-card-name">
                             <?=htmlspecialchars($arq->nome_original)?>
                           </div>
                           <?php if($arq->descricao): ?>
-                          <div style="font-size:11px;color:#888;margin-bottom:6px;font-style:italic">
+                          <div class="file-card-desc">
                             <?=htmlspecialchars($arq->descricao)?>
                           </div>
                           <?php endif; ?>
-                          <div style="font-size:10px;color:#aaa;margin-bottom:8px">
+                          <div class="file-card-date">
                             <?=date('d/m/Y H:i', strtotime($arq->dt_cadastro))?>
                           </div>
 
