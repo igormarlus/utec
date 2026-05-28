@@ -758,5 +758,46 @@ function del_arquivo($id){
 	redirect('adm/usuarios/prontuario/'.$id_paciente);
 }
 
+function buscar_paciente() {
+	header('Content-Type: application/json');
+	$q = trim((string)$this->input->get('q', true));
+	if (mb_strlen($q) < 2) {
+		echo json_encode([]);
+		return;
+	}
+	$dd_user   = $this->padrao_model->get_usuario_logado();
+	$scope_ids = $this->padrao_model->get_scope_user_ids($dd_user);
+	$scope_sql = $this->padrao_model->ids_to_sql_in($scope_ids);
+	$q_like    = $this->db->escape('%' . $this->db->escape_like_str($q) . '%');
+	$sql = "
+		SELECT u.id, u.nome, u.telefone,
+		       (SELECT COUNT(a.id) FROM agendamentos a WHERE a.id_paciente = u.id) AS total_ag,
+		       (SELECT a2.data_agenda FROM agendamentos a2 WHERE a2.id_paciente = u.id AND a2.data_agenda < CURDATE() ORDER BY a2.data_agenda DESC, a2.id DESC LIMIT 1) AS passado_data,
+		       (SELECT a2.tipo     FROM agendamentos a2 WHERE a2.id_paciente = u.id AND a2.data_agenda < CURDATE() ORDER BY a2.data_agenda DESC, a2.id DESC LIMIT 1) AS passado_tipo,
+		       (SELECT a2.data_agenda FROM agendamentos a2 WHERE a2.id_paciente = u.id AND a2.data_agenda >= CURDATE() AND a2.status != 3 ORDER BY a2.data_agenda ASC, a2.hora_agenda ASC, a2.id ASC LIMIT 1) AS proximo_data,
+		       (SELECT a2.tipo     FROM agendamentos a2 WHERE a2.id_paciente = u.id AND a2.data_agenda >= CURDATE() AND a2.status != 3 ORDER BY a2.data_agenda ASC, a2.hora_agenda ASC, a2.id ASC LIMIT 1) AS proximo_tipo
+		FROM usuarios u
+		WHERE u.nivel = 5
+		  AND u.id IN ({$scope_sql})
+		  AND u.nome LIKE {$q_like}
+		ORDER BY u.nome ASC
+		LIMIT 10
+	";
+	$result = [];
+	foreach ($this->db->query($sql)->result() as $row) {
+		$result[] = [
+			'id'          => (int)$row->id,
+			'nome'        => htmlspecialchars($row->nome, ENT_QUOTES, 'UTF-8'),
+			'telefone'    => htmlspecialchars((string)$row->telefone, ENT_QUOTES, 'UTF-8'),
+			'total_ag'    => (int)$row->total_ag,
+			'passado_data' => $row->passado_data ?: '',
+			'passado_tipo' => htmlspecialchars((string)$row->passado_tipo, ENT_QUOTES, 'UTF-8'),
+			'proximo_data' => $row->proximo_data ?: '',
+			'proximo_tipo' => htmlspecialchars((string)$row->proximo_tipo, ENT_QUOTES, 'UTF-8'),
+		];
+	}
+	echo json_encode($result);
+}
+
 
 }

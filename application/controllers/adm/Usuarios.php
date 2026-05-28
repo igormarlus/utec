@@ -155,7 +155,11 @@ function cadastrar() {
 	if ($this->db->insert('usuarios', $dd)) {
 		$new_id    = $this->db->insert_id();
 		$nivel_int = (int)$nivel;
-		if (in_array($nivel_int, [3, 5])) {
+		if ($nivel_int === 5) {
+			redirect('adm/usuarios/prontuario/'.$new_id);
+			return;
+		}
+		if ($nivel_int === 3) {
 			$ob = $this->padrao_model->get_onboarding_status($dd_user);
 			if ($ob['active'] && !$ob['complete']) {
 				redirect('adm/atendimento');

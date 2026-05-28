@@ -192,6 +192,22 @@
       .ob-step-desc { font-size:12px; color:#64748b; margin:0; }
       .ob-cta { display:inline-block; margin-top:8px; background:linear-gradient(90deg,#0f766e,#f97316); color:#fff !important; border-radius:999px; padding:6px 15px; font-size:12px; font-weight:700; text-decoration:none !important; }
       .ob-cta:hover { opacity:.88; }
+      /* Busca instantânea de pacientes */
+      .pac-search-card { background:#fff; border:1px solid #e2e8f0; border-radius:18px; box-shadow:0 4px 16px rgba(15,23,42,.05); padding:18px 20px; margin-bottom:24px; }
+      .pac-search-label { font-size:12px; font-weight:700; color:#64748b; letter-spacing:.07em; text-transform:uppercase; margin-bottom:8px; }
+      .pac-search-wrap { position:relative; }
+      .pac-search-icon { position:absolute; left:14px; top:50%; transform:translateY(-50%); color:#94a3b8; pointer-events:none; }
+      .pac-search-input { border-radius:999px; padding:9px 18px 9px 42px; border:1.5px solid #e2e8f0; font-size:14px; width:100%; outline:none; transition:border-color .18s,box-shadow .18s; }
+      .pac-search-input:focus { border-color:#2563eb; box-shadow:0 0 0 3px rgba(37,99,235,.08); }
+      .pac-search-results { position:absolute; z-index:1050; top:calc(100% + 6px); left:0; right:0; background:#fff; border:1px solid #e2e8f0; border-radius:16px; box-shadow:0 8px 32px rgba(15,23,42,.12); max-height:340px; overflow-y:auto; display:none; }
+      .pac-result-item { display:flex; align-items:center; gap:14px; padding:11px 16px; cursor:pointer; border-bottom:1px solid #f1f5f9; text-decoration:none !important; color:inherit; }
+      .pac-result-item:last-child { border-bottom:none; }
+      .pac-result-item:hover { background:#eff6ff; }
+      .pac-result-avatar { width:36px; height:36px; border-radius:50%; background:linear-gradient(135deg,#2563eb,#0f766e); display:flex; align-items:center; justify-content:center; color:#fff; font-weight:700; font-size:14px; flex-shrink:0; }
+      .pac-result-nome { font-size:13px; font-weight:700; color:#0f172a; }
+      .pac-result-meta { font-size:11px; color:#64748b; margin-top:2px; display:flex; flex-wrap:wrap; gap:4px; }
+      .pac-result-tag { display:inline-block; background:#f1f5f9; border-radius:999px; padding:1px 8px; font-size:11px; color:#475569; white-space:nowrap; }
+      .pac-empty,.pac-loading { padding:16px; text-align:center; color:#94a3b8; font-size:13px; }
     </style>
   </head>
   <body class="menu-position-side menu-side-left full-screen with-content-panel">
@@ -341,6 +357,15 @@
                     <div class="agenda-stat-value"><?=$metricas_agenda['finalizados']?></div>
                     <div style="color:#475569;font-size:13px;margin-top:8px">encerrados no dia</div>
                   </div>
+                </div>
+              </div>
+
+              <div class="pac-search-card">
+                <p class="pac-search-label">Buscar paciente</p>
+                <div class="pac-search-wrap">
+                  <svg class="pac-search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                  <input type="text" id="pac-search" class="pac-search-input" placeholder="Digite o nome do paciente para ver prontuário ou marcar consulta..." autocomplete="off">
+                  <div id="pac-search-results" class="pac-search-results"></div>
                 </div>
               </div>
 
@@ -497,6 +522,69 @@
       $('#cancelar-remarcacao').on('click', function(){
         $('#remarcacao-box').hide();
       });
+
+      /* Busca instantânea de pacientes */
+      (function(){
+        var $input   = $('#pac-search');
+        var $results = $('#pac-search-results');
+        var timer    = null;
+        var BASE     = '<?=base_url()?>';
+
+        function fmtDate(ymd) {
+          if (!ymd) return '';
+          var p = ymd.split('-');
+          return p[2] + '/' + p[1] + '/' + p[0];
+        }
+
+        function render(items) {
+          if (!items.length) {
+            $results.html('<div class="pac-empty">Nenhum paciente encontrado.</div>').show();
+            return;
+          }
+          var html = '';
+          $.each(items, function(_, p) {
+            var ini  = p.nome ? p.nome.trim()[0].toUpperCase() : '?';
+            var tags = '';
+            if (p.telefone) tags += '<span class="pac-result-tag">' + p.telefone + '</span>';
+            tags += '<span class="pac-result-tag">' + p.total_ag + ' consulta' + (p.total_ag !== 1 ? 's' : '') + '</span>';
+            if (p.proximo_data) {
+              var prox = fmtDate(p.proximo_data);
+              if (p.proximo_tipo) prox += ' · ' + p.proximo_tipo;
+              tags += '<span class="pac-result-tag" style="background:#dbeafe;color:#1d4ed8">📅 próx: ' + prox + '</span>';
+            }
+            if (p.passado_data) {
+              var past = fmtDate(p.passado_data);
+              if (p.passado_tipo) past += ' · ' + p.passado_tipo;
+              tags += '<span class="pac-result-tag" style="background:#f1f5f9;color:#475569">🕐 últ: ' + past + '</span>';
+            }
+            html += '<a href="' + BASE + 'adm/usuarios/prontuario/' + p.id + '" class="pac-result-item">'
+                  + '<div class="pac-result-avatar">' + ini + '</div>'
+                  + '<div><div class="pac-result-nome">' + p.nome + '</div>'
+                  + '<div class="pac-result-meta">' + tags + '</div></div>'
+                  + '</a>';
+          });
+          $results.html(html).show();
+        }
+
+        $input.on('input', function(){
+          clearTimeout(timer);
+          var q = $.trim($(this).val());
+          if (q.length < 2) { $results.hide(); return; }
+          $results.html('<div class="pac-loading">Buscando...</div>').show();
+          timer = setTimeout(function(){
+            $.get(BASE + 'adm/atendimento/buscar_paciente', { q: q })
+              .done(function(data){
+                var items = typeof data === 'string' ? JSON.parse(data) : data;
+                render(items);
+              })
+              .fail(function(){ $results.hide(); });
+          }, 280);
+        });
+
+        $(document).on('click', function(e){
+          if (!$(e.target).closest('.pac-search-card').length) $results.hide();
+        });
+      })();
     </script>
   </body>
 </html>
