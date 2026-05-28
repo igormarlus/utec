@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Política de Privacidade da UTecnologia Saúde. Saiba como coletamos, usamos e protegemos seus dados em conformidade com a LGPD.">
     <link rel="canonical" href="https://utecnologia.com.br/politica-de-privacidade">
+    <link rel="icon" type="image/png" sizes="512x512" href="<?=base_url('favicon.png')?>">
+    <link rel="apple-touch-icon" href="<?=base_url('apple-touch-icon.png')?>">
     <meta name="robots" content="index, follow">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

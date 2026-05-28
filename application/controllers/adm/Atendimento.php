@@ -194,14 +194,17 @@ function cadastrar() {
 		'hora_agenda' => $this->input->post('hora_agenda'),
 		'data_hora_agenda' => $this->input->post('data_agenda')." ".$this->input->post('hora_agenda'),
 		'status' => 0,
-		
+
 	);
-	
+
+	// Verificar onboarding antes de salvar para capturar se era o último passo pendente
+	$user_logado      = $this->padrao_model->get_usuario_logado();
+	$ob_pre_save      = $this->padrao_model->get_onboarding_status($user_logado);
+	$redirect_onboard = $ob_pre_save['active'] && !$ob_pre_save['has_agendamento'];
 
 	#$this->db->where('id', $_POST['id']);
 	if ($this->db->insert('agendamentos', $dd)) {
 		// CAPI Schedule — sinaliza que o profissional usou o sistema até o ponto de agendar
-		$user_logado = $this->padrao_model->get_usuario_logado();
 		if ($user_logado) {
 			$this->fbapi_model->send_event('Schedule', [
 				'email'      => isset($user_logado->email)    ? $user_logado->email    : '',
@@ -213,6 +216,10 @@ function cadastrar() {
 					'content_name' => $this->input->post('tipo') ?: 'Consulta',
 				],
 			]);
+		}
+		if ($redirect_onboard) {
+			redirect('adm/atendimento');
+			return;
 		}
 		redirect('adm/usuarios/prontuario/'.$dd['id_paciente']);
 	} else {

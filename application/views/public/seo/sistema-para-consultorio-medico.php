@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Sistema para consultório médico com agenda online, prontuário eletrônico e controle de pacientes. Para médicos autônomos e pequenos consultórios. Plano Solo a partir de R$ 79/mês. Teste grátis.">
     <link rel="canonical" href="https://utecnologia.com.br/sistema-para-consultorio-medico">
+    <link rel="icon" type="image/png" sizes="512x512" href="<?=base_url('favicon.png')?>">
+    <link rel="apple-touch-icon" href="<?=base_url('apple-touch-icon.png')?>">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://utecnologia.com.br/sistema-para-consultorio-medico">
     <meta property="og:title" content="Sistema para Consultório Médico — UTecnologia Saúde">

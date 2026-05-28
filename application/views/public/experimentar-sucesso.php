@@ -15,6 +15,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex, nofollow">
     <link rel="canonical" href="https://utecnologia.com.br/experimentar">
+    <link rel="icon" type="image/png" sizes="512x512" href="<?=base_url('favicon.png')?>">
+    <link rel="apple-touch-icon" href="<?=base_url('apple-touch-icon.png')?>">
     <style>
         :root {
             --ink:#132238; --muted:#5f6f86; --line:#d3dce7; --panel:#fff; --primary:#0f766e; --accent:#ea580c;

@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Procurando uma alternativa ao Feegow? Conheça o UTecnologia Saúde — sistema SaaS para clínicas com prontuário eletrônico, agenda inteligente e planos acessíveis. Teste grátis 30 dias.">
     <link rel="canonical" href="https://utecnologia.com.br/alternativa-feegow">
+    <link rel="icon" type="image/png" sizes="512x512" href="<?=base_url('favicon.png')?>">
+    <link rel="apple-touch-icon" href="<?=base_url('apple-touch-icon.png')?>">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://utecnologia.com.br/alternativa-feegow">
     <meta property="og:title" content="Alternativa ao Feegow — UTecnologia Saúde">

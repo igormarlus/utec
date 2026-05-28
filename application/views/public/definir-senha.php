@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <title>Definir minha senha — UTecnologia Saúde</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" sizes="512x512" href="<?=base_url('favicon.png')?>">
+    <link rel="apple-touch-icon" href="<?=base_url('apple-touch-icon.png')?>">
     <style>
         :root {
             --ink:#172033; --muted:#667085; --line:#d0d8e4;

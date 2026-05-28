@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Software médico para clínicas e consultórios com prontuário eletrônico, agenda por profissional e gestão completa. 100% online, sem instalação. Teste grátis 30 dias.">
     <link rel="canonical" href="https://utecnologia.com.br/software-para-clinicas">
+    <link rel="icon" type="image/png" sizes="512x512" href="<?=base_url('favicon.png')?>">
+    <link rel="apple-touch-icon" href="<?=base_url('apple-touch-icon.png')?>">
 
     <!-- Open Graph -->
     <meta property="og:type" content="website">

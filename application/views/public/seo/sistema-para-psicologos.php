@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Sistema para psicólogos com prontuário de sessões, agenda online e controle de pacientes. Para consultório e clínica de psicologia. Organizado, seguro e 100% online. Teste grátis 30 dias.">
     <link rel="canonical" href="https://utecnologia.com.br/sistema-para-psicologos">
+    <link rel="icon" type="image/png" sizes="512x512" href="<?=base_url('favicon.png')?>">
+    <link rel="apple-touch-icon" href="<?=base_url('apple-touch-icon.png')?>">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://utecnologia.com.br/sistema-para-psicologos">
     <meta property="og:title" content="Sistema para Psicólogos — UTecnologia Saúde">

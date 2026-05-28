@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Sistema para dentistas com agenda, prontuário odontológico e gestão de pacientes. Para consultório e clínica odontológica de todos os tamanhos. Experimente grátis por 30 dias.">
     <link rel="canonical" href="https://utecnologia.com.br/sistema-para-dentistas">
+    <link rel="icon" type="image/png" sizes="512x512" href="<?=base_url('favicon.png')?>">
+    <link rel="apple-touch-icon" href="<?=base_url('apple-touch-icon.png')?>">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://utecnologia.com.br/sistema-para-dentistas">
     <meta property="og:title" content="Sistema para Dentistas — UTecnologia Saúde">

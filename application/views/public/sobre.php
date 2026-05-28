@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Conheça a UTecnologia Saúde: sistema SaaS de gestão clínica para médicos, psicólogos, dentistas e fisioterapeutas. Prontuário eletrônico e agenda online.">
     <link rel="canonical" href="https://utecnologia.com.br/sobre">
+    <link rel="icon" type="image/png" sizes="512x512" href="<?=base_url('favicon.png')?>">
+    <link rel="apple-touch-icon" href="<?=base_url('apple-touch-icon.png')?>">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://utecnologia.com.br/sobre">
     <meta property="og:title" content="Sobre a UTecnologia Saúde">

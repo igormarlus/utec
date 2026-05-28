@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Procurando substituir o Odontoclinic? Conheça o UTecnologia Saúde: prontuário odontológico, agenda e gestão de clínica. Teste grátis por 30 dias, sem cartão.">
     <link rel="canonical" href="https://utecnologia.com.br/alternativa-odontoclinic">
+    <link rel="icon" type="image/png" sizes="512x512" href="<?=base_url('favicon.png')?>">
+    <link rel="apple-touch-icon" href="<?=base_url('apple-touch-icon.png')?>">
 
     <!-- Open Graph -->
     <meta property="og:type" content="website">

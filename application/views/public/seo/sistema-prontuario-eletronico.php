@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Sistema de prontuário eletrônico completo para clínicas e consultórios. Anamnese, evolução clínica, exames e histórico do paciente em um registro digital seguro e acessível. Teste 30 dias grátis.">
     <link rel="canonical" href="https://utecnologia.com.br/sistema-prontuario-eletronico">
+    <link rel="icon" type="image/png" sizes="512x512" href="<?=base_url('favicon.png')?>">
+    <link rel="apple-touch-icon" href="<?=base_url('apple-touch-icon.png')?>">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://utecnologia.com.br/sistema-prontuario-eletronico">
     <meta property="og:title" content="Sistema de Prontuário Eletrônico — UTecnologia Saúde">

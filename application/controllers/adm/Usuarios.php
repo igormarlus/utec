@@ -153,9 +153,18 @@ function cadastrar() {
 
 	
 	if ($this->db->insert('usuarios', $dd)) {
-		redirect('adm/usuarios/edicao/'.$this->db->insert_id());
+		$new_id    = $this->db->insert_id();
+		$nivel_int = (int)$nivel;
+		if (in_array($nivel_int, [3, 5])) {
+			$ob = $this->padrao_model->get_onboarding_status($dd_user);
+			if ($ob['active'] && !$ob['complete']) {
+				redirect('adm/atendimento');
+				return;
+			}
+		}
+		redirect('adm/usuarios/edicao/'.$new_id);
 	} else {
-		echo "Falha ao alterar usuario!";	
+		echo "Falha ao alterar usuario!";
 	}
 	
 }

@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Sistema para clínicas com prontuário eletrônico, agenda inteligente e gestão de pacientes. Para médicos, psicólogos, fisioterapeutas e dentistas. Teste grátis por 30 dias.">
     <link rel="canonical" href="https://utecnologia.com.br/sistema-para-clinicas">
+    <link rel="icon" type="image/png" sizes="512x512" href="<?=base_url('favicon.png')?>">
+    <link rel="apple-touch-icon" href="<?=base_url('apple-touch-icon.png')?>">
 
     <!-- Open Graph -->
     <meta property="og:type" content="website">

@@ -273,6 +273,38 @@ function get_visible_prestador_ids($usuario=null){
 	return [];
 }
 
+function get_onboarding_status($dd_user = null) {
+	if (!$dd_user) {
+		$dd_user = $this->get_usuario_logado();
+	}
+	if (!$dd_user) {
+		return ['active' => false];
+	}
+	$nivel = (int)$dd_user->nivel;
+	if ($nivel !== 2 && $nivel !== 3) {
+		return ['active' => false];
+	}
+	$scope_ids        = $this->get_scope_user_ids($dd_user);
+	$scope_sql        = $this->ids_to_sql_in($scope_ids);
+	$prestador_ids    = $this->get_visible_prestador_ids($dd_user);
+	$has_prestador    = count($prestador_ids) > 0;
+	$has_paciente     = (int)$this->db->query(
+		"SELECT COUNT(id) AS t FROM usuarios WHERE nivel = 5 AND id IN (".$scope_sql.")"
+	)->row()->t > 0;
+	$has_agendamento  = (int)$this->db->query(
+		"SELECT COUNT(id) AS t FROM agendamentos WHERE id_user IN (".$scope_sql.") OR id_paciente IN (".$scope_sql.") OR id_prestador IN (".$scope_sql.")"
+	)->row()->t > 0;
+	return [
+		'active'          => true,
+		'complete'        => $has_prestador && $has_paciente && $has_agendamento,
+		'has_prestador'   => $has_prestador,
+		'has_paciente'    => $has_paciente,
+		'has_agendamento' => $has_agendamento,
+		'is_clinica'      => $nivel === 2,
+		'steps_done'      => (int)$has_prestador + (int)$has_paciente + (int)$has_agendamento,
+	];
+}
+
 function get_nivel_nome($nivel){
 	$nivel = (int)$nivel;
 	$qr = $this->db->query("SELECT nome FROM usuarios_niveis WHERE id = ".$nivel." LIMIT 1");

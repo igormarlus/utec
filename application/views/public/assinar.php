@@ -15,6 +15,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Assine o UTecnologia Saúde e gerencie sua clínica com prontuário eletrônico, agenda inteligente e controle completo de pacientes. Planos a partir de R$ 79/mês.">
     <link rel="canonical" href="https://utecnologia.com.br/assinar">
+    <link rel="icon" type="image/png" sizes="512x512" href="<?=base_url('favicon.png')?>">
+    <link rel="apple-touch-icon" href="<?=base_url('apple-touch-icon.png')?>">
 
     <!-- Open Graph -->
     <meta property="og:type" content="website">

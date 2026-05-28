@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Sistema para clínica de fisioterapia com prontuário de evolução, agenda de sessões e controle de pacientes. Para fisioterapeutas autônomos e clínicas de fisio. Teste grátis 30 dias.">
     <link rel="canonical" href="https://utecnologia.com.br/sistema-para-clinica-de-fisioterapia">
+    <link rel="icon" type="image/png" sizes="512x512" href="<?=base_url('favicon.png')?>">
+    <link rel="apple-touch-icon" href="<?=base_url('apple-touch-icon.png')?>">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://utecnologia.com.br/sistema-para-clinica-de-fisioterapia">
     <meta property="og:title" content="Sistema para Clínica de Fisioterapia — UTecnologia Saúde">
