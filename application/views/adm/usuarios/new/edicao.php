@@ -180,23 +180,32 @@
 
 
 
-                          <?php if($usuario->nivel == 3){?>
-                         
-                                
+                          <?php if($usuario->nivel == 3){ ?>
 
                                 <div class="form-group bordered">
-                                    <label class="mws-form-label">Especialidade </label>
+                                    <label class="mws-form-label">Especialidade</label>
                                     <div class="mws-form-item">
-                                        <input type="text" name="especialidade" class="form-control" value="<?php echo $usuario->especialidade; ?>">
+                                      <?php if(!empty($especialidades)){ ?>
+                                        <select name="especialidade" id="especialidade" class="form-control">
+                                          <option value="">— Selecione —</option>
+                                          <?php foreach($especialidades as $esp){ ?>
+                                            <option value="<?=$esp->id?>" <?php if((int)$esp->id === (int)$usuario->especialidade){ echo 'selected="selected"'; } ?>>
+                                              <?=htmlspecialchars($esp->nome)?>
+                                            </option>
+                                          <?php } ?>
+                                        </select>
+                                      <?php } else { ?>
+                                        <input type="text" name="especialidade" class="form-control" value="<?=htmlspecialchars($usuario->especialidade)?>">
+                                      <?php } ?>
                                     </div>
-                                </div>    
+                                </div>
 
                                 <div class="form-group bordered">
                                     <label class="mws-form-label">Registro de Classe </label>
                                     <div class="mws-form-item">
                                         <input type="text" name="classe" class="form-control" value="<?php echo $usuario->classe; ?>">
                                     </div>
-                                </div>    
+                                </div>
 
                                 <?php } ?>
 
@@ -551,11 +560,14 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.form/4.3.0/jquery.form.min.js" integrity="sha384-qlmct0AOBiA2VPZkMY3+2WqkHtIQ9lSdAsAn5RUJD/3vA5MKDgSGcdmIv4ycVxyn" crossorigin="anonymous"></script>
       
     <script type="text/javascript">
-      $(document).ready(function() { 
-          //alert("AAA");
+      $(document).ready(function() {
+
+                if($('#especialidade').length){
+                    $('#especialidade').select2({ placeholder: '— Selecione —', allowClear: true, width: '100%' });
+                }
 
                   //upload e preview da imagem
-                $('#photoimg').on('change', function() { 
+                $('#photoimg').on('change', function() {
                     $("#preview").html('');
                     $("#preview").html('<img src="<?php echo base_url(); ?>images/ajax-loader.gif" alt="Uploading...."/>'); //
                     

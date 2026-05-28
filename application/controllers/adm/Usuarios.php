@@ -62,8 +62,11 @@ function cadastro($nivel){
 	$dados['vinculo_options'] = $this->padrao_model->get_vinculo_options($nivel, $dd_user);
 	$dados['vinculo_default'] = $this->padrao_model->get_vinculo_default_id($nivel, $dd_user);
 	$dados['usuario_logado'] = $dd_user;
-	
-	#$this->load->view('adm/usuarios/edicao', $dados);	
+	$dados['especialidades'] = $this->db->table_exists('usuarios_especialidades')
+		? $this->db->query("SELECT * FROM usuarios_especialidades WHERE status = 1 ORDER BY nome ASC")->result()
+		: [];
+
+	#$this->load->view('adm/usuarios/edicao', $dados);
 	$this->load->view('adm/usuarios/new/cadastro', $dados);
 
 }
@@ -92,7 +95,8 @@ function cadastrar() {
 		'redes_sociais' => $this->input->post('redes_sociais')
 	);
 	if($nivel == 3){
-		$dd['especialidade'] = $this->input->post('especialidade');
+		$esp_id = (int)$this->input->post('especialidade');
+		$dd['especialidade'] = $esp_id > 0 ? $esp_id : null;
 		$dd['classe'] = $this->input->post('classe');
 	}
 
@@ -108,7 +112,7 @@ function cadastrar() {
 		}
 	}
 
-	 
+
 
 #	if($_POST['id_setor'] == '3'){
 #		$dd['afiliacoes'] = $_POST['afiliacoes'];
@@ -1783,13 +1787,15 @@ function edicao($id){
 	$dados['pode_editar_regra'] = ((int)$dd_user->nivel === 1);
 	$dados['vinculo_options'] = $this->padrao_model->get_vinculo_options((int)$dados["usuario"]->nivel, $dd_user);
 	$dados['vinculo_label'] = $this->padrao_model->get_vinculo_label((int)$dados["usuario"]->id_user);
+	$dados['especialidades'] = $this->db->table_exists('usuarios_especialidades')
+		? $this->db->query("SELECT * FROM usuarios_especialidades WHERE status = 1 ORDER BY nome ASC")->result()
+		: [];
 
 	#$dados["exames"] = $this->db->query("SELECT * FROM exames ORDER BY nome asc ");
 	#$dados["consultas"] = $this->db->query("SELECT * FROM consultas ORDER BY nome asc");
 	#$dados["procedimentos"] = $this->db->query("SELECT * FROM procedimentos ORDER BY nome asc");
 
-	
-	#$this->load->view('adm/usuarios/edicao', $dados);	
+	#$this->load->view('adm/usuarios/edicao', $dados);
 	$this->load->view('adm/usuarios/new/edicao', $dados);
 
 }
@@ -1945,8 +1951,9 @@ function editar() {
 		$dd['id_user'] = $this->padrao_model->resolve_vinculo_id($nivel, $this->input->post('id_user'), $dd_user);
 	}
 
-	if($nivel == '3'){
-		$dd['especialidade'] = $this->input->post('especialidade');
+	if($nivel == 3){
+		$esp_id = (int)$this->input->post('especialidade');
+		$dd['especialidade'] = $esp_id > 0 ? $esp_id : null;
 		$dd['classe']        = $this->input->post('classe');
 	}
 

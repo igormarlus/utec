@@ -111,6 +111,7 @@ class Dev extends CI_Controller {
 		echo '<li><a href="'.base_url().'adm/dev/criar_tabela_arquivos_paciente">Criar tabela pacientes_arquivos</a></li>';
 		echo '<li><a href="'.base_url().'adm/dev/migrar_fase1_saas">Migrar fase 1 SaaS</a></li>';
 		echo '<li><a href="'.base_url().'adm/dev/seed_planos_saas_comerciais">Criar planos SaaS sugeridos</a></li>';
+		echo '<li><a href="'.base_url().'adm/dev/migrar_especialidades">Criar tabela usuarios_especialidades e normalizar campo</a></li>';
 		echo '</ul>';
 	}
 
@@ -372,5 +373,140 @@ class Dev extends CI_Controller {
 		echo '</ul>';
 		echo '<p>Base sugerida a partir de referencias publicas observadas em 11/05/2026, com entrada em faixas como R$ 99,90 (Smed), R$ 79,90-R$ 99,90 por profissional (QuarkClinic) e planos de clinica em R$ 299, R$ 599 e R$ 999 (Prontivus).</p>';
 		echo '<p><a href="'.base_url().'adm/produtos">Abrir catalogo de planos</a></p>';
+	}
+
+	function migrar_especialidades(){
+		$logs = [];
+
+		// 1. Criar tabela
+		$sql_create = "CREATE TABLE IF NOT EXISTS `usuarios_especialidades` (
+			`id`          INT AUTO_INCREMENT PRIMARY KEY,
+			`nome`        VARCHAR(150) NOT NULL,
+			`status`      TINYINT NOT NULL DEFAULT 1,
+			`ordem`       INT NOT NULL DEFAULT 0,
+			`dt_cadastro` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+		) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
+		$this->run_sql($sql_create, $logs, 'tabela `usuarios_especialidades`');
+
+		// 2. Seed (idempotente por id)
+		$especialidades = [
+			[1,  'Acupuntura',                          10],
+			[2,  'Alergologia e Imunologia',             20],
+			[3,  'Cardiologia',                          30],
+			[4,  'Cirurgia Cardiovascular',              40],
+			[5,  'Cirurgia Geral',                       50],
+			[6,  'Cirurgia Plástica',                    60],
+			[7,  'Clínica Médica',                       70],
+			[8,  'Dermatologia',                         80],
+			[9,  'Endocrinologia e Metabologia',         90],
+			[10, 'Fisioterapia',                        100],
+			[11, 'Fonoaudiologia',                      110],
+			[12, 'Gastroenterologia',                   120],
+			[13, 'Geriatria',                           130],
+			[14, 'Ginecologia e Obstetrícia',           140],
+			[15, 'Hematologia',                         150],
+			[16, 'Homeopatia',                          160],
+			[17, 'Infectologia',                        170],
+			[18, 'Medicina de Família e Comunidade',    180],
+			[19, 'Medicina do Esporte',                 190],
+			[20, 'Medicina do Trabalho',                200],
+			[21, 'Medicina Estética',                   210],
+			[22, 'Medicina Intensiva',                  220],
+			[23, 'Medicina Legal',                      230],
+			[24, 'Nefrologia',                          240],
+			[25, 'Neurologia',                          250],
+			[26, 'Neurocirurgia',                       260],
+			[27, 'Nutrição',                            270],
+			[28, 'Odontologia',                         280],
+			[29, 'Oftalmologia',                        290],
+			[30, 'Oncologia',                           300],
+			[31, 'Ortopedia e Traumatologia',           310],
+			[32, 'Otorrinolaringologia',                320],
+			[33, 'Pediatria',                           330],
+			[34, 'Pneumologia',                         340],
+			[35, 'Proctologia',                         350],
+			[36, 'Psicologia',                          360],
+			[37, 'Psiquiatria',                         370],
+			[38, 'Radiologia e Diagnóstico por Imagem', 380],
+			[39, 'Reumatologia',                        390],
+			[40, 'Terapia Ocupacional',                 400],
+			[41, 'Urologia',                            410],
+			[42, 'Vascular e Angiologia',               420],
+		];
+
+		$inserted = 0; $skipped = 0;
+		foreach($especialidades as $esp){
+			$exists = $this->db->query("SELECT id FROM usuarios_especialidades WHERE id = ".(int)$esp[0]." LIMIT 1")->num_rows();
+			if(!$exists){
+				$this->db->query(
+					"INSERT INTO usuarios_especialidades (id, nome, status, ordem) VALUES (".
+					(int)$esp[0].", ".$this->db->escape($esp[1]).", 1, ".(int)$esp[2].")"
+				);
+				$inserted++;
+			} else {
+				$skipped++;
+			}
+		}
+		$logs[] = "OK: seed — $inserted especialidades inseridas, $skipped já existiam";
+
+		// 3. Migrar valores texto conhecidos para IDs (nivel = 3)
+		$migrate_sqls = [
+			6  => "UPDATE usuarios SET especialidade = '6'  WHERE nivel = 3 AND especialidade IS NOT NULL AND LOWER(especialidade) LIKE '%cirurgia%'",
+			28 => "UPDATE usuarios SET especialidade = '28' WHERE nivel = 3 AND especialidade IS NOT NULL AND (LOWER(especialidade) LIKE '%dentista%' OR LOWER(especialidade) LIKE '%odontolog%')",
+			36 => "UPDATE usuarios SET especialidade = '36' WHERE nivel = 3 AND especialidade IS NOT NULL AND (LOWER(especialidade) LIKE '%psicolog%' OR LOWER(especialidade) LIKE '%pscicologo%')",
+			10 => "UPDATE usuarios SET especialidade = '10' WHERE nivel = 3 AND especialidade IS NOT NULL AND LOWER(especialidade) LIKE '%fisioterapia%'",
+			3  => "UPDATE usuarios SET especialidade = '3'  WHERE nivel = 3 AND especialidade IS NOT NULL AND LOWER(especialidade) LIKE '%cardiologia%'",
+			7  => "UPDATE usuarios SET especialidade = '7'  WHERE nivel = 3 AND especialidade IS NOT NULL AND (LOWER(especialidade) LIKE '%clinica medica%' OR LOWER(especialidade) LIKE '%clinica geral%')",
+			8  => "UPDATE usuarios SET especialidade = '8'  WHERE nivel = 3 AND especialidade IS NOT NULL AND LOWER(especialidade) LIKE '%dermatologia%'",
+			9  => "UPDATE usuarios SET especialidade = '9'  WHERE nivel = 3 AND especialidade IS NOT NULL AND LOWER(especialidade) LIKE '%endocrinolog%'",
+			14 => "UPDATE usuarios SET especialidade = '14' WHERE nivel = 3 AND especialidade IS NOT NULL AND (LOWER(especialidade) LIKE '%ginecolog%' OR LOWER(especialidade) LIKE '%obstetric%')",
+			25 => "UPDATE usuarios SET especialidade = '25' WHERE nivel = 3 AND especialidade IS NOT NULL AND LOWER(especialidade) LIKE '%neurologia%'",
+			27 => "UPDATE usuarios SET especialidade = '27' WHERE nivel = 3 AND especialidade IS NOT NULL AND LOWER(especialidade) LIKE '%nutri%'",
+			29 => "UPDATE usuarios SET especialidade = '29' WHERE nivel = 3 AND especialidade IS NOT NULL AND LOWER(especialidade) LIKE '%oftalmolog%'",
+			31 => "UPDATE usuarios SET especialidade = '31' WHERE nivel = 3 AND especialidade IS NOT NULL AND LOWER(especialidade) LIKE '%ortopedia%'",
+			33 => "UPDATE usuarios SET especialidade = '33' WHERE nivel = 3 AND especialidade IS NOT NULL AND LOWER(especialidade) LIKE '%pediatria%'",
+			37 => "UPDATE usuarios SET especialidade = '37' WHERE nivel = 3 AND especialidade IS NOT NULL AND LOWER(especialidade) LIKE '%psiquiatria%'",
+		];
+
+		// Só executa para valores que ainda não sejam numéricos
+		foreach($migrate_sqls as $esp_id => $base_sql){
+			$sql = $base_sql." AND especialidade NOT REGEXP '^[0-9]+$'";
+			$this->db->query($sql);
+			$affected = $this->db->affected_rows();
+			if($affected > 0){
+				$logs[] = "OK: $affected registro(s) → id $esp_id";
+			}
+		}
+
+		// 4. Anular valores texto restantes não mapeados (em qualquer nivel)
+		$this->run_sql(
+			"UPDATE usuarios SET especialidade = NULL WHERE especialidade IS NOT NULL AND especialidade != '' AND especialidade NOT REGEXP '^[0-9]+$'",
+			$logs,
+			'anular valores texto não mapeados'
+		);
+
+		// 5. Alterar tipo da coluna para INT (se ainda for texto)
+		$qr_col = $this->db->query(
+			"SELECT DATA_TYPE FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'usuarios' AND COLUMN_NAME = 'especialidade' LIMIT 1"
+		);
+		if($qr_col->num_rows() > 0){
+			$current_type = strtolower($qr_col->row()->DATA_TYPE);
+			if(strpos($current_type, 'int') === false){
+				$this->run_sql(
+					"ALTER TABLE `usuarios` MODIFY COLUMN `especialidade` INT NULL DEFAULT NULL",
+					$logs,
+					'ALTER usuarios.especialidade VARCHAR → INT'
+				);
+			} else {
+				$logs[] = "OK: usuarios.especialidade já é INT — sem ALTER necessário";
+			}
+		}
+
+		echo '<h2>Migração: Especialidades</h2><ul>';
+		foreach($logs as $log){
+			echo '<li>'.htmlspecialchars($log).'</li>';
+		}
+		echo '</ul>';
+		echo '<p><a href="'.base_url().'adm/usuarios">Abrir Usuários</a></p>';
 	}
 }
