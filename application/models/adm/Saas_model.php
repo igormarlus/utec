@@ -193,16 +193,7 @@ class Saas_model extends CI_Model {
 			}
 		}
 
-		$tenant = $this->db->query("SELECT * FROM saas_tenants WHERE id = ".(int)$subscription->tenant_id." LIMIT 1")->row();
-		$owner = $this->db->query("SELECT * FROM usuarios WHERE id = ".(int)$subscription->id_cliente." LIMIT 1")->row();
-		$plano = $this->db->query("SELECT * FROM produtos WHERE id = ".(int)$subscription->plano_id." LIMIT 1")->row();
-
-		return [
-			'subscription' => $subscription,
-			'tenant' => $tenant,
-			'owner' => $owner,
-			'plano' => $plano,
-		];
+		return $this->build_subscription_detail_payload($subscription);
 	}
 
 	function get_subscription_detail_system($subscription_id){
@@ -217,9 +208,62 @@ class Saas_model extends CI_Model {
 		if(!$subscription){
 			return null;
 		}
+		return $this->build_subscription_detail_payload($subscription);
+	}
+
+	private function build_subscription_detail_payload($subscription){
 		$tenant = $this->db->query("SELECT * FROM saas_tenants WHERE id = ".(int)$subscription->tenant_id." LIMIT 1")->row();
-		$owner = $this->db->query("SELECT * FROM usuarios WHERE id = ".(int)$subscription->id_cliente." LIMIT 1")->row();
+		$owner_id = (int)$subscription->id_cliente;
+		if($owner_id <= 0 && $tenant && isset($tenant->id_owner_user)){
+			$owner_id = (int)$tenant->id_owner_user;
+		}
+		$owner = $owner_id > 0
+			? $this->db->query("SELECT * FROM usuarios WHERE id = ".$owner_id." LIMIT 1")->row()
+			: null;
 		$plano = $this->db->query("SELECT * FROM produtos WHERE id = ".(int)$subscription->plano_id." LIMIT 1")->row();
+
+		if(!$tenant){
+			$tenant = (object)[
+				'id' => (int)$subscription->tenant_id,
+				'tenant_nome' => 'Operacao nao identificada',
+				'id_owner_user' => $owner_id,
+				'status' => 0,
+				'documento' => '',
+			];
+		}
+
+		if(!$owner){
+			$owner = (object)[
+				'id' => $owner_id,
+				'nome' => 'Responsavel nao identificado',
+				'email' => '',
+				'tenant_id' => isset($tenant->id) ? (int)$tenant->id : 0,
+				'nivel' => 0,
+			];
+		}
+
+		if(!$plano){
+			$plano = (object)[
+				'id' => (int)$subscription->plano_id,
+				'modelo' => 'Plano nao identificado',
+				'preco_venda' => 0,
+				'billing_interval' => 'mensal',
+			];
+		}
+
+		if(!isset($tenant->tenant_nome) || trim((string)$tenant->tenant_nome) === ''){
+			$tenant->tenant_nome = 'Operacao nao identificada';
+		}
+		if(!isset($owner->nome) || trim((string)$owner->nome) === ''){
+			$owner->nome = 'Responsavel nao identificado';
+		}
+		if(!isset($owner->email)){
+			$owner->email = '';
+		}
+		if(!isset($plano->modelo) || trim((string)$plano->modelo) === ''){
+			$plano->modelo = 'Plano nao identificado';
+		}
+
 		return [
 			'subscription' => $subscription,
 			'tenant' => $tenant,

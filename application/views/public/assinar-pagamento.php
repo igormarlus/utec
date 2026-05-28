@@ -153,6 +153,14 @@
     </style>
 </head>
 <body>
+    <?php
+        $tenant_nome = isset($detail['tenant']->tenant_nome) && trim((string)$detail['tenant']->tenant_nome) !== '' ? $detail['tenant']->tenant_nome : 'Operacao nao identificada';
+        $plano_modelo = isset($detail['plano']->modelo) && trim((string)$detail['plano']->modelo) !== '' ? $detail['plano']->modelo : 'Plano nao identificado';
+        $owner_email = isset($detail['owner']->email) && trim((string)$detail['owner']->email) !== '' ? $detail['owner']->email : 'E-mail nao informado';
+        $subscription_status = isset($detail['subscription']->status) && trim((string)$detail['subscription']->status) !== '' ? $detail['subscription']->status : 'pendente';
+        $checkout_type = isset($detail['subscription']->checkout_type) && trim((string)$detail['subscription']->checkout_type) !== '' ? $detail['subscription']->checkout_type : 'nao definido';
+        $tenant_documento_digits = preg_replace('/\D+/', '', isset($detail['tenant']->documento) ? (string)$detail['tenant']->documento : '');
+    ?>
     <div class="wrap">
         <div class="topbar">
             <div class="brand"><img src="<?=base_url()?>img/logo-w.png" alt="UTecnologia Saude" style="height:46px;width:auto;display:block"></div>
@@ -171,13 +179,13 @@
                 <div class="summary-grid">
                     <div class="summary-card">
                         <div class="label">Clinica</div>
-                        <div class="value"><?=$detail['tenant']->tenant_nome?></div>
-                        <div class="copy">Plano <?=$detail['plano']->modelo?></div>
+                        <div class="value"><?=$tenant_nome?></div>
+                        <div class="copy">Plano <?=$plano_modelo?></div>
                     </div>
                     <div class="summary-card">
                         <div class="label">Assinatura</div>
-                        <div class="value" style="font-size:20px;"><?=$detail['subscription']->status?></div>
-                        <div class="copy">Owner: <?=$detail['owner']->email?></div>
+                        <div class="value" style="font-size:20px;"><?=$subscription_status?></div>
+                        <div class="copy">Owner: <?=$owner_email?></div>
                     </div>
                     <div class="summary-card">
                         <div class="label">Ciclo atual</div>
@@ -193,7 +201,7 @@
                     <div class="summary-card">
                         <div class="label">Valor a cobrar</div>
                         <div class="value">R$ <?=number_format((float)($open_cycle ? $open_cycle->amount_due : 0), 2, ',', '.')?></div>
-                        <div class="copy">Metodo mais recente: <?=($detail['subscription']->checkout_type ? $detail['subscription']->checkout_type : 'nao definido')?></div>
+                        <div class="copy">Metodo mais recente: <?=$checkout_type?></div>
                     </div>
                 </div>
             </div>
@@ -204,8 +212,8 @@
                 <? if(!$mercadopago_ready){ ?><div class="alert alert-warn">O Mercado Pago nao esta configurado neste servidor.</div><? } ?>
 
                 <div class="label">Status atual</div>
-                <? $status_class = 'status-pill'; $status_key = str_replace('-', '_', (string)$detail['subscription']->status); if(in_array($detail['subscription']->status, ['active','trial','past_due','canceled','paused'])){ $status_class .= ' status-'.$status_key; } ?>
-                <div style="margin-top:10px;"><span class="<?=$status_class?>"><?=$detail['subscription']->status?></span></div>
+                <? $status_class = 'status-pill'; $status_key = str_replace('-', '_', (string)$subscription_status); if(in_array($subscription_status, ['active','trial','past_due','canceled','paused'])){ $status_class .= ' status-'.$status_key; } ?>
+                <div style="margin-top:10px;"><span class="<?=$status_class?>"><?=$subscription_status?></span></div>
                 <p class="copy" style="margin-top:14px;">
                     Use "Atualizar status" depois de pagar para conferir rapidamente o retorno do Mercado Pago.
                 </p>
@@ -409,11 +417,10 @@
                 var bricksBuilder = mp.bricks();
 
                 var payerIdentification = null;
-                <? $payer_document_digits = preg_replace('/\D+/', '', (string)$detail['tenant']->documento); ?>
-                <? if($payer_document_digits !== ''){ ?>
+                <? if($tenant_documento_digits !== ''){ ?>
                 payerIdentification = {
-                    type: <?=json_encode(strlen($payer_document_digits) === 14 ? 'CNPJ' : 'CPF')?>,
-                    number: <?=json_encode($payer_document_digits)?>
+                    type: <?=json_encode(strlen($tenant_documento_digits) === 14 ? 'CNPJ' : 'CPF')?>,
+                    number: <?=json_encode($tenant_documento_digits)?>
                 };
                 <? } ?>
 
