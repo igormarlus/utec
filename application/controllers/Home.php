@@ -88,7 +88,21 @@ class Home extends CI_Controller {
 
 	public function iniciar_experiencia()
 	{
-		$result = $this->saas_model->create_operational_trial_signup($this->input->post());
+		$tenant_tipo = trim((string)$this->input->post('tenant_tipo'));
+
+		$signup_data = [
+			'nome_responsavel' => $this->input->post('nome_responsavel'),
+			'tenant_nome'      => $this->input->post('tenant_nome'),
+			'email'            => $this->input->post('email'),
+			'telefone'         => $this->input->post('telefone'),
+			'tenant_tipo'      => $tenant_tipo,
+			'plano_id'         => $this->input->post('plano_id'),
+			'documento'        => $this->input->post('documento'),
+			'observacoes'      => $this->input->post('observacoes'),
+			'especialidade_id' => ($tenant_tipo === 'profissional') ? (int)$this->input->post('especialidade_id') : 0,
+		];
+
+		$result = $this->saas_model->create_operational_trial_signup($signup_data);
 		if(!$result['ok']){
 			$this->session->set_flashdata('operational_trial_error', $result['msg']);
 			redirect('experimentar');

@@ -1967,17 +1967,20 @@ function editar() {
 		$dd['id_user'] = $this->padrao_model->resolve_vinculo_id($nivel, $this->input->post('id_user'), $dd_user);
 	}
 
-	if($nivel == 3){
+	// Para checar quais campos salvar, admin usa o nivel destino; não-admin usa o nivel atual do DB
+	$nivel_campos = ((int)$dd_user->nivel === 1) ? $nivel : (int)$usuario_atual->nivel;
+
+	if($nivel_campos == 3){
 		$esp_id = (int)$this->input->post('especialidade');
 		$dd['especialidade'] = $esp_id > 0 ? $esp_id : null;
 		$dd['classe']        = $this->input->post('classe');
 	}
 
-	if($nivel == 5 && $this->db->field_exists('afiliacoes', 'usuarios')){
+	if($nivel_campos == 5 && $this->db->field_exists('afiliacoes', 'usuarios')){
 		$dd['afiliacoes'] = $this->input->post('afiliacoes');
 	}
 
-	if($nivel < 5){
+	if($nivel_campos < 5){
 		$dd['login'] = $this->input->post('login');
 		$senha_edit  = $this->input->post('senha');
 		if($senha_edit){

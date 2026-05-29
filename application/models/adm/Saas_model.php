@@ -794,9 +794,6 @@ class Saas_model extends CI_Model {
 			'senha' => password_hash($senha, PASSWORD_DEFAULT),
 			'status' => 1,
 		];
-		if($user_nivel === 3 && $especialidade_id > 0 && $this->db->field_exists('especialidade', 'usuarios')){
-			$user_insert['especialidade'] = $especialidade_id;
-		}
 		if($this->db->field_exists('dt_cadastro', 'usuarios')){
 			$user_insert['dt_cadastro'] = $agora;
 		}
@@ -886,6 +883,9 @@ class Saas_model extends CI_Model {
 		}
 		if($this->db->field_exists('billing_customer_id', 'usuarios')){
 			$user_update['billing_customer_id'] = $email;
+		}
+		if($user_nivel === 3 && $especialidade_id > 0){
+			$user_update['especialidade'] = $especialidade_id;
 		}
 		if(count($user_update)){
 			$this->db->where('id', $owner_id);
