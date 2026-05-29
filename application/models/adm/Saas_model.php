@@ -733,9 +733,13 @@ class Saas_model extends CI_Model {
 		$plano_id = (int)$data['plano_id'];
 		$tenant_tipo = !empty($data['tenant_tipo']) ? trim((string)$data['tenant_tipo']) : 'clinica';
 		$observacoes = trim((string)isset($data['observacoes']) ? $data['observacoes'] : '');
+		$especialidade_id = isset($data['especialidade_id']) ? (int)$data['especialidade_id'] : 0;
 
 		if($nome_responsavel === '' || $tenant_nome === '' || $email === '' || $plano_id <= 0){
 			return ['ok' => false, 'msg' => 'Preencha nome, nome da clínica, e-mail e plano.'];
+		}
+		if($tenant_tipo === 'profissional' && $especialidade_id <= 0 && $this->db->table_exists('usuarios_especialidades')){
+			return ['ok' => false, 'msg' => 'Selecione sua especialidade para continuar o cadastro.'];
 		}
 		if(!filter_var($email, FILTER_VALIDATE_EMAIL)){
 			return ['ok' => false, 'msg' => 'Informe um e-mail válido para continuar.'];
@@ -790,6 +794,9 @@ class Saas_model extends CI_Model {
 			'senha' => password_hash($senha, PASSWORD_DEFAULT),
 			'status' => 1,
 		];
+		if($user_nivel === 3 && $especialidade_id > 0 && $this->db->field_exists('especialidade', 'usuarios')){
+			$user_insert['especialidade'] = $especialidade_id;
+		}
 		if($this->db->field_exists('dt_cadastro', 'usuarios')){
 			$user_insert['dt_cadastro'] = $agora;
 		}

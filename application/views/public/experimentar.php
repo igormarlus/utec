@@ -249,12 +249,27 @@
                         </div>
                         <div class="field">
                             <label>Tipo de operação</label>
-                            <select name="tenant_tipo">
+                            <select name="tenant_tipo" id="tenant_tipo">
                                 <option value="clinica"       <?=(!isset($tipo_selecionado)||$tipo_selecionado==='clinica'      ?'selected':'')?>  >Clínica (mais de 1 profissional)</option>
                                 <option value="consultorio"  <?=($tipo_selecionado==='consultorio' ?'selected':'')?>  >Consultório individual</option>
                                 <option value="profissional" <?=($tipo_selecionado==='profissional'?'selected':'')?>  >Profissional autônomo</option>
                             </select>
                         </div>
+
+                        <div class="field field-wide" id="campo-especialidade" style="display:none">
+                            <label>Sua especialidade <span style="color:#e53e3e">*</span></label>
+                            <?php if(!empty($especialidades)){ ?>
+                                <select name="especialidade_id" id="select-especialidade">
+                                    <option value="">— Selecione sua especialidade —</option>
+                                    <?php foreach($especialidades as $esp){ ?>
+                                        <option value="<?=$esp->id?>"><?=htmlspecialchars($esp->nome)?></option>
+                                    <?php } ?>
+                                </select>
+                            <?php } else { ?>
+                                <input type="text" name="especialidade_id" id="select-especialidade" placeholder="Ex: Fisioterapia, Psicologia, Cardiologia...">
+                            <?php } ?>
+                        </div>
+
                         <div class="field">
                             <label>Plano</label>
                             <select name="plano_id" required>
@@ -293,6 +308,54 @@
             </div>
         </div>
     </div>
+<script>
+(function(){
+    var tipoSel  = document.getElementById('tenant_tipo');
+    var campoEsp = document.getElementById('campo-especialidade');
+    var inputEsp = document.getElementById('select-especialidade');
+    if(!tipoSel || !campoEsp) return;
+
+    function toggleEsp(){
+        if(tipoSel.value === 'profissional'){
+            campoEsp.style.display = 'grid';
+            if(inputEsp) inputEsp.required = true;
+        } else {
+            campoEsp.style.display = 'none';
+            if(inputEsp){ inputEsp.required = false; inputEsp.value = ''; }
+        }
+    }
+
+    tipoSel.addEventListener('change', toggleEsp);
+    toggleEsp();
+
+    // Validação extra no submit
+    var form = tipoSel.closest('form');
+    if(form){
+        form.addEventListener('submit', function(e){
+            if(tipoSel.value === 'profissional' && inputEsp && !inputEsp.value){
+                e.preventDefault();
+                inputEsp.focus();
+                inputEsp.style.borderColor = '#e53e3e';
+                var msg = document.getElementById('esp-err-msg');
+                if(!msg){
+                    msg = document.createElement('small');
+                    msg.id = 'esp-err-msg';
+                    msg.style.cssText = 'color:#e53e3e;font-size:12px;margin-top:4px;display:block';
+                    msg.textContent = 'Selecione sua especialidade antes de continuar.';
+                    campoEsp.appendChild(msg);
+                }
+            }
+        });
+        if(inputEsp){
+            inputEsp.addEventListener('change', function(){
+                inputEsp.style.borderColor = '';
+                var msg = document.getElementById('esp-err-msg');
+                if(msg) msg.remove();
+            });
+        }
+    }
+})();
+</script>
 </body>
 </html>
 

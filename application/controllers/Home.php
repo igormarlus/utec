@@ -66,6 +66,9 @@ class Home extends CI_Controller {
 		$dados['planos'] = $this->saas_model->get_public_plans();
 		$dados['flash_ok']    = $this->session->flashdata('operational_trial_ok');
 		$dados['flash_error'] = $this->session->flashdata('operational_trial_error');
+		$dados['especialidades'] = $this->db->table_exists('usuarios_especialidades')
+			? $this->db->query("SELECT * FROM usuarios_especialidades WHERE status = 1 ORDER BY nome ASC")->result()
+			: [];
 
 		// CAPI Lead — usuário chegou à página do formulário de trial
 		$fb = $this->fbapi_model->send_event('Lead', [
