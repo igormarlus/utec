@@ -79,6 +79,16 @@
                         <div class="alert alert-success">Dados validados</div>
                       <?php } ?>
 
+                      <?php if((int)$usuario->nivel === 3 && (int)$usuario->especialidade <= 0){ ?>
+                        <div class="alert alert-warning" style="display:flex;align-items:flex-start;gap:10px">
+                          <span style="font-size:18px;line-height:1.2">⚠️</span>
+                          <div>
+                            <strong>Especialidade não informada.</strong><br>
+                            <span style="font-size:13px">Preencha a especialidade deste profissional para que o prontuário de atendimento exiba os campos corretos.</span>
+                          </div>
+                        </div>
+                      <?php } ?>
+
                       <div class="element-box">
 
                         <form id="form" name="form" class="mws-form" method="post" action="<?php echo base_url() ?>index.php/adm/usuarios/editar" enctype='multipart/form-data'>

@@ -429,6 +429,94 @@
                 </div>
               </div>
 
+              <?php
+              // ── Labels dinâmicos por especialidade (Fase 1) ─────────────────
+              $lbl = [
+                'atendimento_inicial' => 'Atendimento Inicial',
+                'avaliacao'           => 'Avaliação',
+                'reavaliacao'         => 'Reavaliação',
+                'ph_inicial'  => 'Descreva a queixa principal, contexto e primeiros registros.',
+                'ph_avaliacao'=> 'Registre avaliação clínica, hipóteses e condutas adotadas.',
+                'ph_reav'     => 'Registre evolução, retorno ou observações complementares.',
+              ];
+              $esp = isset($prestador_esp_id) ? (int)$prestador_esp_id : 0;
+              switch($esp){
+                case 10: // Fisioterapia
+                  $lbl['atendimento_inicial'] = 'Queixa / Avaliação Postural';
+                  $lbl['avaliacao']           = 'Evolução da Sessão / Técnicas Aplicadas';
+                  $lbl['reavaliacao']         = 'Resposta ao Tratamento / Próxima Sessão';
+                  $lbl['ph_inicial']   = 'Queixa principal, intensidade de dor, limitações funcionais e achados posturais.';
+                  $lbl['ph_avaliacao'] = 'Técnicas aplicadas (RPG, PNF, eletroterapia, hidroterapia...), exercícios realizados.';
+                  $lbl['ph_reav']      = 'Resposta do paciente, evolução do quadro, plano e objetivos para a próxima sessão.';
+                  break;
+                case 36: // Psicologia
+                  $lbl['atendimento_inicial'] = 'Demanda Apresentada';
+                  $lbl['avaliacao']           = 'Evolução da Sessão';
+                  $lbl['reavaliacao']         = 'Observações / Encaminhamentos';
+                  $lbl['ph_inicial']   = 'Demanda e contexto trazidos pelo paciente nesta sessão.';
+                  $lbl['ph_avaliacao'] = 'Registro clínico da sessão e intervenções realizadas.';
+                  $lbl['ph_reav']      = 'Observações, encaminhamentos ou pontos para a próxima sessão.';
+                  break;
+                case 28: // Odontologia
+                  $lbl['atendimento_inicial'] = 'Queixa / Motivo da Consulta';
+                  $lbl['avaliacao']           = 'Procedimento(s) Realizado(s)';
+                  $lbl['reavaliacao']         = 'Prescrição / Retorno';
+                  $lbl['ph_inicial']   = 'Queixa principal, dente(s) envolvido(s), histórico relevante.';
+                  $lbl['ph_avaliacao'] = 'Procedimento realizado, dente(s) — numeração FDI, anestesia e material utilizado.';
+                  $lbl['ph_reav']      = 'Medicação prescrita, orientações pós-operatórias, data de retorno.';
+                  break;
+                case 37: // Psiquiatria
+                  $lbl['atendimento_inicial'] = 'Queixa Principal / Estado Mental';
+                  $lbl['avaliacao']           = 'Avaliação / Hipótese Diagnóstica';
+                  $lbl['reavaliacao']         = 'Conduta / Ajuste Terapêutico';
+                  $lbl['ph_inicial']   = 'Queixa principal, humor, sono, apetite, pensamento e comportamento.';
+                  $lbl['ph_avaliacao'] = 'Hipótese diagnóstica (CID), exame do estado mental, raciocínio clínico.';
+                  $lbl['ph_reav']      = 'Conduta adotada, ajuste de medicação, orientações, retorno.';
+                  break;
+                case 27: // Nutrição
+                  $lbl['atendimento_inicial'] = 'Queixa / Anamnese Alimentar';
+                  $lbl['avaliacao']           = 'Avaliação Nutricional / Condutas';
+                  $lbl['reavaliacao']         = 'Evolução / Plano Alimentar';
+                  $lbl['ph_inicial']   = 'Queixa principal, hábitos alimentares, intolerâncias, histórico de saúde.';
+                  $lbl['ph_avaliacao'] = 'Avaliação antropométrica, diagnóstico nutricional, condutas adotadas.';
+                  $lbl['ph_reav']      = 'Evolução do quadro, ajustes no plano alimentar, metas para o próximo retorno.';
+                  break;
+                case 33: // Pediatria
+                  $lbl['atendimento_inicial'] = 'Queixa / Dados do Responsável';
+                  $lbl['avaliacao']           = 'Exame Físico / Hipóteses';
+                  $lbl['reavaliacao']         = 'Conduta / Retorno';
+                  $lbl['ph_inicial']   = 'Queixa relatada pelo responsável, histórico de saúde e desenvolvimento da criança.';
+                  $lbl['ph_avaliacao'] = 'Exame físico, curva de crescimento, hipóteses diagnósticas.';
+                  $lbl['ph_reav']      = 'Conduta, prescrição, orientações ao responsável, data de retorno.';
+                  break;
+                case 14: // Ginecologia e Obstetrícia
+                  $lbl['atendimento_inicial'] = 'Queixa / Anamnese Ginecológica';
+                  $lbl['avaliacao']           = 'Exame Físico / Hipóteses';
+                  $lbl['reavaliacao']         = 'Conduta / Retorno';
+                  $lbl['ph_inicial']   = 'Queixa principal, ciclo menstrual, DUM, histórico obstétrico.';
+                  $lbl['ph_avaliacao'] = 'Exame físico, hipóteses diagnósticas, exames solicitados.';
+                  $lbl['ph_reav']      = 'Conduta, prescrição, orientações, retorno.';
+                  break;
+                case 11: // Fonoaudiologia
+                  $lbl['atendimento_inicial'] = 'Queixa / Avaliação Fonoaudiológica';
+                  $lbl['avaliacao']           = 'Evolução da Sessão / Técnicas';
+                  $lbl['reavaliacao']         = 'Resposta / Próxima Sessão';
+                  $lbl['ph_inicial']   = 'Queixa principal, histórico de linguagem, deglutição ou voz.';
+                  $lbl['ph_avaliacao'] = 'Técnicas aplicadas, exercícios realizados, progresso observado.';
+                  $lbl['ph_reav']      = 'Resposta do paciente, orientações, plano para próxima sessão.';
+                  break;
+                case 3: // Cardiologia
+                  $lbl['atendimento_inicial'] = 'Queixa Cardiovascular';
+                  $lbl['avaliacao']           = 'Exame Físico / Hipóteses';
+                  $lbl['reavaliacao']         = 'Conduta / Ajuste Terapêutico';
+                  $lbl['ph_inicial']   = 'Queixa principal (dor torácica, dispneia, palpitações...), PA, FC.';
+                  $lbl['ph_avaliacao'] = 'Ausculta, hipóteses, ECG, exames solicitados.';
+                  $lbl['ph_reav']      = 'Conduta, ajuste de medicação, exames de retorno.';
+                  break;
+              }
+              // ── fim labels ───────────────────────────────────────────────────
+              ?>
+
               <? if($id_agenda > 0){ ?>
               <div class="current-appointment-card">
                 <div class="d-flex flex-wrap justify-content-between align-items-start" style="gap:12px;margin-bottom:18px">
@@ -457,20 +545,20 @@
                 <form id="form" name="form" class="mws-form" method="post" action="<?php echo base_url() ?>index.php/adm/atendimento/set" enctype='multipart/form-data'>
                   <input type="hidden" name="id_agenda" value="<?=$id_agenda?>">
                   <div class="form-group">
-                    <label class="mws-form-label">Atendimento inicial</label>
-                    <textarea name="atendimento_inicial" class="form-control" placeholder="Descreva a queixa principal, contexto e primeiros registros."><?=$dd_agenda->atendimento_inicial?></textarea>
+                    <label class="mws-form-label"><?=$lbl['atendimento_inicial']?></label>
+                    <textarea name="atendimento_inicial" class="form-control" placeholder="<?=$lbl['ph_inicial']?>"><?=$dd_agenda->atendimento_inicial?></textarea>
                   </div>
                   <div class="row">
                     <div class="col-sm-12">
                       <div class="form-group bordered">
-                        <label class="mws-form-label">Avaliação</label>
-                        <textarea name="avaliacao" class="form-control" placeholder="Registre avaliação clínica, hipóteses e condutas adotadas."><?=$dd_agenda->avaliacao?></textarea>
+                        <label class="mws-form-label"><?=$lbl['avaliacao']?></label>
+                        <textarea name="avaliacao" class="form-control" placeholder="<?=$lbl['ph_avaliacao']?>"><?=$dd_agenda->avaliacao?></textarea>
                       </div>
                     </div>
                     <div class="col-sm-12">
                       <div class="form-group bordered">
-                        <label class="mws-form-label">Reavaliação</label>
-                        <textarea name="reavaliacao" class="form-control" placeholder="Registre evolução, retorno ou observações complementares."><?=$dd_agenda->reavaliacao?></textarea>
+                        <label class="mws-form-label"><?=$lbl['reavaliacao']?></label>
+                        <textarea name="reavaliacao" class="form-control" placeholder="<?=$lbl['ph_reav']?>"><?=$dd_agenda->reavaliacao?></textarea>
                       </div>
                     </div>
                   </div>
@@ -535,21 +623,21 @@
                             <div class="timeline-sections">
                               <?php if(trim((string)$agenda->atendimento_inicial) !== ''){ ?>
                               <div class="timeline-section">
-                                <h6>Atendimento inicial</h6>
+                                <h6><?=$lbl['atendimento_inicial']?></h6>
                                 <p><?=nl2br(htmlspecialchars($agenda->atendimento_inicial))?></p>
                               </div>
                               <?php } ?>
 
                               <?php if(trim((string)$agenda->avaliacao) !== ''){ ?>
                               <div class="timeline-section">
-                                <h6>Avaliação</h6>
+                                <h6><?=$lbl['avaliacao']?></h6>
                                 <p><?=nl2br(htmlspecialchars($agenda->avaliacao))?></p>
                               </div>
                               <?php } ?>
 
                               <?php if(trim((string)$agenda->reavaliacao) !== ''){ ?>
                               <div class="timeline-section">
-                                <h6>Reavaliação</h6>
+                                <h6><?=$lbl['reavaliacao']?></h6>
                                 <p><?=nl2br(htmlspecialchars($agenda->reavaliacao))?></p>
                               </div>
                               <?php } ?>

@@ -124,10 +124,11 @@ O projeto usa **CodeIgniter 3.1.10** em produção. **Não migrar para CI4 ou ou
 - `usuarios.saas` — flag `1` = habilita acesso ao módulo SaaS (`adm/saas`)
 
 **Saúde e Agenda**
-- `agendamentos` — consultas (liga paciente ↔ prestador)
+- `agendamentos` — consultas (liga paciente ↔ prestador); campos de prontuário: `atendimento_inicial`, `avaliacao`, `reavaliacao` (textareas genéricos)
 - `exames` — catálogo de exames
 - `usuarios_exames` — exames solicitados por agendamento
 - `usuarios_exames_atendimento` — exames realizados por usuário
+- `usuarios_especialidades` — catálogo de especialidades clínicas (id fixo 1–42, usado em `usuarios.especialidade` INT)
 
 **Produtos e Pedidos**
 - `produtos` — catálogo de planos/serviços
@@ -226,6 +227,7 @@ Verificado por `Padrao_model::can_access_saas_module()`. O Admin (nível 1) tem 
 | `Produtos.php` | `/adm/produtos` | CRUD planos, tipos de plano, assinaturas legadas |
 | `Saas.php` | `/adm/saas` | Tenants, assinaturas, checkout MP, webhook |
 | `Dev.php` | `/adm/dev` | Migrações e utilitários de desenvolvimento |
+| `Especialidades.php` | `/adm/especialidades` | CRUD de campos extras por especialidade (nível 1 apenas) |
 
 > `Atencimento.php` (com typo) foi renomeado para `.bak` — não é controller ativo.
 
@@ -418,6 +420,8 @@ Controller: `application/controllers/adm/Dev.php`
 |------|--------|
 | `adm/dev/migrar_fase1_saas` | Cria tabelas SaaS + adiciona colunas em `usuarios`, `produtos`, `pedidos`, `carrinho_hist` (idempotente) |
 | `adm/dev/criar_tabela_arquivos_paciente` | Cria `pacientes_arquivos` |
+| `adm/dev/migrar_especialidades` | Cria `usuarios_especialidades` (42 especialidades seed, IDs fixos 1–42), migra valores texto em `usuarios.especialidade` para IDs, altera coluna para `INT` (idempotente) |
+| `adm/dev/migrar_fase2_prontuario_especialidades` | Cria `especialidades_campos_config` + `agendamentos.campos_extras` TEXT, insere config para 9 especialidades (idempotente) |
 
 Para novas migrações: adicionar método em `Dev.php`, proteger com `nivel == 1` na sessão.
 
@@ -435,6 +439,7 @@ Para novas migrações: adicionar método em `Dev.php`, proteger com `nivel == 1
 | 🟡 Média | ✅ Resolvido | `ereg_replace()` removido |
 | 🟡 Média | ✅ Resolvido | `$_POST` direto eliminado |
 | 🟡 Média | ✅ Resolvido | Controller duplicado `Atencimento.php` removido |
+| 🟡 Média | ✅ Resolvido | `usuarios.especialidade` normalizado — campo virou INT, tabela `usuarios_especialidades` criada com 42 especialidades |
 | 🟡 Média | Pendente | Webhook MP validado ponta a ponta em produção |
 | 🟡 Média | Pendente | Bloqueio automático de tenant por inadimplência |
 | 🟡 Média | Pendente | Ciclos pagos baixados automaticamente via webhook |
@@ -474,6 +479,7 @@ Para novas migrações: adicionar método em `Dev.php`, proteger com `nivel == 1
 - [ ] Onboarding self-service (cadastro de clínica sem intervenção admin)
 - [ ] Controle de limites do plano em tempo real (max_profissionais, etc.)
 - [ ] Dashboard de métricas para o admin (MRR, churn, tenants ativos)
+- [ ] Prontuário adaptado por especialidade (labels/campos diferentes por tipo de profissional)
 
 ---
 
@@ -513,3 +519,90 @@ Acesse `https://utecnologia.com.br/adm/dev/migrar_fase1_saas` logado como admin 
 - `adm/saas` — visão geral de tenants
 - `adm/saas/tenant/{id}` — equipe, assinatura, ciclos de cobrança
 - O webhook MP atualiza `saas_subscriptions` e registra em `saas_billing_events`
+
+---
+
+## 17. Prontuário por Especialidade
+
+### 17.1 Estrutura Atual do Prontuário
+
+O prontuário de atendimento vive na tabela `agendamentos` com três campos de texto livre:
+
+| Campo DB | Label atual | Placeholder atual |
+|----------|-------------|-------------------|
+| `atendimento_inicial` | Atendimento inicial | Queixa principal, contexto e primeiros registros |
+| `avaliacao` | Avaliação | Avaliação clínica, hipóteses e condutas adotadas |
+| `reavaliacao` | Reavaliação | Evolução, retorno ou observações complementares |
+
+Esses campos são genéricos e servem bem para **Clínica Médica** e especialidades de consulta padrão.
+
+A view que renderiza o form de atendimento ativo é `application/views/adm/usuarios/new/prontuario.php` (seção "Registro do atendimento em andamento", condicional `$id_agenda > 0`).
+
+### 17.2 Mapeamento por Especialidade — Labels Propostos
+
+A estratégia de **curto prazo** é manter os 3 campos do banco e apenas adaptar labels e placeholders conforme a especialidade do prestador logado. Zero mudança de banco, impacto visual imediato.
+
+| Especialidade | `atendimento_inicial` | `avaliacao` | `reavaliacao` |
+|---------------|-----------------------|-------------|---------------|
+| **Clínica Médica** (padrão) | Queixa Principal | Avaliação Clínica / Hipóteses | Evolução / Retorno |
+| **Fisioterapia** (id 10) | Queixa / Avaliação Postural | Evolução da Sessão / Técnicas Aplicadas | Resposta ao Tratamento / Próxima Sessão |
+| **Psicologia** (id 36) | Demanda Apresentada | Evolução da Sessão | Observações / Encaminhamentos |
+| **Odontologia** (id 28) | Queixa / Motivo | Procedimento(s) Realizado(s) | Prescrição / Retorno |
+| **Psiquiatria** (id 37) | Queixa Principal / MSE | Avaliação / Hipótese Diagnóstica | Conduta / Ajuste Terapêutico |
+| **Nutrição** (id 27) | Queixa / Anamnese Alimentar | Avaliação Nutricional / Condutas | Evolução / Plano Alimentar |
+| **Pediatria** (id 33) | Queixa / Dados do Responsável | Exame Físico / Hipóteses | Conduta / Retorno |
+
+### 17.3 Campos Específicos por Especialidade — Médio Prazo
+
+Algumas especialidades precisam de campos que não cabem nos 3 textareas genéricos:
+
+**Fisioterapia:**
+- Escala de dor EVA (0–10) — campo numérico
+- Região corporal tratada — select (Coluna Cervical, Lombar, Ombro, Joelho, etc.)
+- Fase do tratamento — (Aguda / Subaguda / Crônica / Alta)
+
+**Odontologia:**
+- Dente(s) tratado(s) — numeração FDI (ex: 36, 47) — campo texto
+- Anestesia utilizada — checkbox + qual (Articaína, Lidocaína, etc.)
+- Material utilizado — texto livre (compósito, amálgama, cimento...)
+
+**Psicologia:**
+- Sessão nº — contador automático por paciente
+- Modalidade — (Individual / Casal / Grupo / Online)
+
+### 17.4 Estratégia de Implementação
+
+**Fase 1 — Imediato: Labels dinâmicos por especialidade (sem mudança de banco)**
+- Identificar o prestador vinculado ao agendamento (ou o usuário logado)
+- Carregar `usuarios_especialidades.id` via JOIN com `usuarios`
+- No controller `Atendimento::prontuario()`, passar `$especialidade_id` à view
+- Na view, usar `switch($especialidade_id)` para definir labels e placeholders dos 3 campos
+
+**Fase 2 — Campos extras JSON em `agendamentos`**
+- Adicionar coluna `campos_extras` TEXT em `agendamentos` via `Dev.php`
+- Criar tabela `especialidades_campos_config` com a definição de campos extras por `especialidade_id`: (`id`, `especialidade_id`, `campo_chave`, `campo_label`, `campo_tipo`, `campo_opcoes`, `ordem`)
+- O form de atendimento renderiza os campos extras definidos para a especialidade
+- Salvar como JSON em `agendamentos.campos_extras`
+- MariaDB 10.11 (servidor de produção) tem suporte a `JSON_VALUE` e `JSON_SET`
+
+**Fase 3 — Motor configurável (implementado)**
+- Interface admin em `adm/especialidades` (nível 1) para CRUD de `especialidades_campos_config`
+- Formulário: especialidade, chave, label, tipo (text/textarea/number/select/radio), opções (uma por linha → JSON), placeholder, ordem, obrigatório, status
+- Fase 2 e 3 dependem de `adm/dev/migrar_fase2_prontuario_especialidades` ter sido rodada
+
+### 17.5 Especialidades Cadastradas (`usuarios_especialidades`)
+
+IDs fixos inseridos por `adm/dev/migrar_especialidades`. Relevantes para o prontuário:
+
+| id | Especialidade | Prontuário tem particularidade? |
+|----|---------------|--------------------------------|
+| 6  | Cirurgia Plástica | Não (consulta padrão + campos de avaliação estética) |
+| 7  | Clínica Médica | Não — é o padrão atual |
+| 10 | Fisioterapia | **Sim** — sessões, EVA, região, técnica |
+| 11 | Fonoaudiologia | Sim — evolução por sessão |
+| 14 | Ginecologia e Obstetrícia | Sim — DUM, IG, exames específicos |
+| 27 | Nutrição | Sim — anamnese alimentar, peso, IMC |
+| 28 | Odontologia | **Sim** — dente, procedimento, anestesia |
+| 33 | Pediatria | Sim — peso/altura, dados do responsável |
+| 36 | Psicologia | **Sim** — sessão confidencial, modalidade |
+| 37 | Psiquiatria | Sim — MSE, CID, ajuste medicamentoso |

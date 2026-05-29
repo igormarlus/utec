@@ -112,6 +112,7 @@ class Dev extends CI_Controller {
 		echo '<li><a href="'.base_url().'adm/dev/migrar_fase1_saas">Migrar fase 1 SaaS</a></li>';
 		echo '<li><a href="'.base_url().'adm/dev/seed_planos_saas_comerciais">Criar planos SaaS sugeridos</a></li>';
 		echo '<li><a href="'.base_url().'adm/dev/migrar_especialidades">Criar tabela usuarios_especialidades e normalizar campo</a></li>';
+		echo '<li><a href="'.base_url().'adm/dev/migrar_fase2_prontuario_especialidades">Fase 2 — Campos extras por especialidade (tabela + inserts)</a></li>';
 		echo '<li><a href="'.base_url().'adm/dev/testar_email_boas_vindas">Testar e-mail de boas-vindas (sem cadastrar)</a></li>';
 		echo '</ul>';
 	}
@@ -639,5 +640,148 @@ class Dev extends CI_Controller {
 		}
 		echo '</ul>';
 		echo '<p><a href="'.base_url().'adm/usuarios">Abrir Usuários</a></p>';
+	}
+
+	function migrar_fase2_prontuario_especialidades(){
+		$logs = [];
+
+		// 1. Coluna campos_extras em agendamentos
+		$this->ensure_column('agendamentos', 'campos_extras', "TEXT NULL DEFAULT NULL", $logs);
+
+		// 2. Tabela de configuração de campos por especialidade
+		$sql_create = "CREATE TABLE IF NOT EXISTS `especialidades_campos_config` (
+			`id`                INT AUTO_INCREMENT PRIMARY KEY,
+			`especialidade_id`  INT NOT NULL,
+			`campo_chave`       VARCHAR(80) NOT NULL,
+			`campo_label`       VARCHAR(150) NOT NULL,
+			`campo_tipo`        VARCHAR(30) NOT NULL DEFAULT 'textarea',
+			`campo_opcoes`      TEXT DEFAULT NULL,
+			`campo_placeholder` VARCHAR(255) DEFAULT NULL,
+			`ordem`             INT NOT NULL DEFAULT 0,
+			`obrigatorio`       TINYINT NOT NULL DEFAULT 0,
+			`status`            TINYINT NOT NULL DEFAULT 1,
+			`dt_cadastro`       TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+			UNIQUE KEY `uk_esp_campo` (`especialidade_id`, `campo_chave`),
+			KEY `idx_esp_campos_esp` (`especialidade_id`)
+		) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
+		$this->run_sql($sql_create, $logs, 'tabela `especialidades_campos_config`');
+
+		// 3. Inserts por especialidade (INSERT IGNORE — idempotente)
+		$campos = [
+
+			// ── Fisioterapia (id=10) ─────────────────────────────────────────
+			[10, 'eva_dor',          'EVA — Escala de Dor (0–10)',           'number',   null,
+				'0 = sem dor, 10 = dor máxima',                                          10, 0],
+			[10, 'regiao_corporal',  'Região Corporal Tratada',              'select',
+				'["Coluna Cervical","Coluna Lombar","Coluna Torácica","Ombro Direito","Ombro Esquerdo","Cotovelo D.","Cotovelo E.","Punho/Mão D.","Punho/Mão E.","Quadril D.","Quadril E.","Joelho D.","Joelho E.","Tornozelo/Pé D.","Tornozelo/Pé E.","Bilateral","MMII","MMSS","Outro"]',
+				'Selecione a região',                                                     20, 0],
+			[10, 'fase_tratamento',  'Fase do Tratamento',                   'select',
+				'["Aguda","Subaguda","Crônica","Manutenção","Alta"]',
+				null,                                                                     30, 0],
+
+			// ── Odontologia (id=28) ──────────────────────────────────────────
+			[28, 'dentes_tratados',      'Dente(s) Tratado(s) — Numeração FDI', 'text',  null,
+				'Ex: 36, 47, 11',                                                         10, 0],
+			[28, 'procedimento_odonto',  'Procedimento Realizado',              'select',
+				'["Restauração","Extração","Endodontia (Canal)","Profilaxia/Limpeza","Prótese Parcial","Prótese Total","Ortodontia","Implante","Clareamento","Cirurgia Oral","Gengivoplastia","Outro"]',
+				null,                                                                     20, 0],
+			[28, 'anestesia_odonto',     'Anestesia Utilizada',                 'select',
+				'["Não utilizada","Articaína 4%","Lidocaína 2%","Mepivacaína","Prilocaína","Outro"]',
+				null,                                                                     30, 0],
+			[28, 'material_odonto',      'Material Utilizado',                  'text',  null,
+				'Ex: Compósito A2, Cimento de Ionômero de Vidro...',                      40, 0],
+
+			// ── Psicologia (id=36) ───────────────────────────────────────────
+			[36, 'num_sessao',        'Nº da Sessão',   'number', null,
+				'Número sequencial da sessão com este paciente',                          10, 0],
+			[36, 'modalidade_psico',  'Modalidade',     'select',
+				'["Individual","Casal","Família","Grupo","Online — Individual","Online — Casal","Online — Grupo"]',
+				null,                                                                     20, 0],
+			[36, 'cid_referencia',    'CID de Referência (opcional)', 'text', null,
+				'Ex: F41.1, F32.0',                                                       30, 0],
+
+			// ── Psiquiatria (id=37) ──────────────────────────────────────────
+			[37, 'cid_psiq',          'CID-10 / Hipótese Diagnóstica',    'text',     null,
+				'Ex: F32.1, F20.0, F41.0',                                                10, 0],
+			[37, 'mse_exame',         'Exame do Estado Mental (MSE)',     'textarea',  null,
+				'Humor, afeto, pensamento, sensopercepção, orientação, memória...',       20, 0],
+			[37, 'medicacao_ajuste',  'Medicação / Ajuste Terapêutico',   'textarea',  null,
+				'Nome, dose, via, frequência. Ex: Escitalopram 20mg 1x/dia',             30, 0],
+
+			// ── Nutrição (id=27) ─────────────────────────────────────────────
+			[27, 'peso_kg_nutri',       'Peso (kg)',    'number', null, 'Ex: 72.5', 10, 0],
+			[27, 'altura_cm_nutri',     'Altura (cm)',  'number', null, 'Ex: 170',  20, 0],
+			[27, 'objetivo_nutri',      'Objetivo',     'select',
+				'["Emagrecimento","Ganho de massa","Manutenção","Saúde geral","Tratamento patológico","Gestação/Lactação","Outro"]',
+				null,                                                                     30, 0],
+			[27, 'imc_calc',            'IMC',          'text',   null,
+				'Calculado ou informado manualmente',                                     40, 0],
+
+			// ── Pediatria (id=33) ────────────────────────────────────────────
+			[33, 'peso_ped',         'Peso (kg)',                    'number', null, 'Ex: 12.3',   10, 0],
+			[33, 'altura_ped',       'Altura/Comprimento (cm)',      'number', null, 'Ex: 95',     20, 0],
+			[33, 'responsavel_ped',  'Nome do Responsável',          'text',   null,
+				'Nome do pai, mãe ou responsável legal',                                  30, 0],
+			[33, 'parentesco_ped',   'Grau de Parentesco',           'select',
+				'["Mãe","Pai","Avó/Avô","Tio/Tia","Irmão/Irmã","Guardião","Outro"]',
+				null,                                                                     40, 0],
+
+			// ── Cardiologia (id=3) ───────────────────────────────────────────
+			[3, 'pa_sistolica',  'PA Sistólica (mmHg)',  'number', null, 'Ex: 120',  10, 0],
+			[3, 'pa_diastolica', 'PA Diastólica (mmHg)', 'number', null, 'Ex: 80',   20, 0],
+			[3, 'fc_bpm',        'FC (bpm)',              'number', null, 'Ex: 72',   30, 0],
+			[3, 'peso_card',     'Peso (kg)',             'number', null, 'Ex: 75.0', 40, 0],
+
+			// ── Ginecologia e Obstetrícia (id=14) ────────────────────────────
+			[14, 'dum_gine',            'DUM (Última Menstruação)', 'text',   null,
+				'DD/MM/AAAA',                                                             10, 0],
+			[14, 'ig_semanas',          'IG (semanas)',             'number', null,
+				'Se gestante, informe a idade gestacional',                               20, 0],
+			[14, 'tipo_consulta_gine',  'Tipo de Consulta',         'select',
+				'["Ginecológica","Pré-natal","Retorno","Urgência","Procedimento"]',
+				null,                                                                     30, 0],
+
+			// ── Fonoaudiologia (id=11) ───────────────────────────────────────
+			[11, 'area_fono',        'Área de Atuação',  'select',
+				'["Linguagem","Motricidade Orofacial","Deglutição","Voz","Audição","Outro"]',
+				null,                                                                     10, 0],
+			[11, 'num_sessao_fono',  'Nº da Sessão',     'number', null,
+				'Número sequencial da sessão',                                            20, 0],
+		];
+
+		$inserted = 0; $skipped = 0;
+		foreach($campos as $c){
+			$esp_id  = (int)$c[0];
+			$chave   = $this->db->escape($c[1]);
+			$label   = $this->db->escape($c[2]);
+			$tipo    = $this->db->escape($c[3]);
+			$opcoes  = ($c[4] !== null) ? $this->db->escape($c[4]) : 'NULL';
+			$ph      = ($c[5] !== null) ? $this->db->escape($c[5]) : 'NULL';
+			$ordem   = (int)$c[6];
+			$obrig   = (int)$c[7];
+
+			$qr = $this->db->query(
+				"SELECT id FROM especialidades_campos_config WHERE especialidade_id = $esp_id AND campo_chave = $chave LIMIT 1"
+			);
+			if($qr->num_rows() > 0){
+				$skipped++;
+				continue;
+			}
+			$this->db->query(
+				"INSERT INTO especialidades_campos_config (especialidade_id, campo_chave, campo_label, campo_tipo, campo_opcoes, campo_placeholder, ordem, obrigatorio)
+				VALUES ($esp_id, $chave, $label, $tipo, $opcoes, $ph, $ordem, $obrig)"
+			);
+			$inserted++;
+		}
+		$logs[] = "OK: campos extras — $inserted inseridos, $skipped já existiam";
+
+		echo '<h2>Migração Fase 2 — Campos Extras por Especialidade</h2><ul>';
+		foreach($logs as $log){
+			echo '<li>'.htmlspecialchars($log).'</li>';
+		}
+		echo '</ul>';
+		echo '<p>Especialidades configuradas: Fisioterapia, Odontologia, Psicologia, Psiquiatria, Nutrição, Pediatria, Cardiologia, Ginecologia, Fonoaudiologia.</p>';
+		echo '<p>Coluna <code>agendamentos.campos_extras</code> (TEXT/JSON) criada para armazenar os valores.</p>';
+		echo '<p><a href="'.base_url().'adm/dev">Voltar ao Dev</a></p>';
 	}
 }

@@ -96,7 +96,12 @@ function cadastrar() {
 	);
 	if($nivel == 3){
 		$esp_id = (int)$this->input->post('especialidade');
-		$dd['especialidade'] = $esp_id > 0 ? $esp_id : null;
+		if($esp_id <= 0){
+			$this->session->set_flashdata('cadastro_error', 'A especialidade é obrigatória para cadastro de prestadores. Selecione uma especialidade antes de continuar.');
+			redirect('adm/usuarios/cadastro/'.$nivel);
+			return;
+		}
+		$dd['especialidade'] = $esp_id;
 		$dd['classe'] = $this->input->post('classe');
 	}
 
@@ -253,6 +258,17 @@ function prontuario($id_user=1,$id_agenda=0){
 	$dados["arquivos"] = $this->db->query(
 		"SELECT * FROM pacientes_arquivos WHERE id_paciente = $id_user ORDER BY id DESC"
 	);
+
+	$dd_user_logged = $this->padrao_model->get_usuario_logado();
+	$prestador_esp_id = 0;
+	if($id_agenda > 0 && isset($dados['dd_agenda']) && (int)$dados['dd_agenda']->id_prestador > 0){
+		$qr_esp = $this->db->query("SELECT especialidade FROM usuarios WHERE id = ".(int)$dados['dd_agenda']->id_prestador." LIMIT 1");
+		if($qr_esp->num_rows() > 0){ $prestador_esp_id = (int)$qr_esp->row()->especialidade; }
+	}
+	if($prestador_esp_id === 0 && (int)$dd_user_logged->nivel === 3){
+		$prestador_esp_id = (int)$dd_user_logged->especialidade;
+	}
+	$dados['prestador_esp_id'] = $prestador_esp_id;
 
 	$this->load->view('adm/usuarios/new/prontuario', $dados);
 

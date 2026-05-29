@@ -64,16 +64,15 @@
 
 
               <!-- FORMULARIO -->
-              
-              
+
                 <div class="row">
                   <div class="col-lg-12">
                     <div class="element-wrapper">
-                      <h6 class="element-header">
-                        Novo Cadastro
-                      </h6>
+                      <h6 class="element-header">Novo Cadastro</h6>
 
-                     
+                      <?php if($this->session->flashdata('cadastro_error')){ ?>
+                        <div class="alert alert-danger"><?=htmlspecialchars($this->session->flashdata('cadastro_error'))?></div>
+                      <?php } ?>
 
                       <div class="element-box">
 
@@ -163,17 +162,20 @@
                             <div class="row">
                               <div class="col-sm-6">
                                 <div class="form-group bordered">
-                                    <label class="mws-form-label">Especialidade</label>
+                                    <label class="mws-form-label">
+                                      Especialidade <span style="color:#e53e3e">*</span>
+                                      <small style="color:#9bb1cc;font-weight:400"> — obrigatória</small>
+                                    </label>
                                     <div class="mws-form-item">
                                       <?php if(!empty($especialidades)){ ?>
-                                        <select name="especialidade" id="especialidade" class="form-control">
-                                          <option value="">— Selecione —</option>
+                                        <select name="especialidade" id="especialidade" class="form-control" required>
+                                          <option value="">— Selecione a especialidade —</option>
                                           <?php foreach($especialidades as $esp){ ?>
                                             <option value="<?=$esp->id?>"><?=htmlspecialchars($esp->nome)?></option>
                                           <?php } ?>
                                         </select>
                                       <?php } else { ?>
-                                        <input type="text" name="especialidade" class="form-control" placeholder="Ex: Cardiologia">
+                                        <input type="text" name="especialidade" class="form-control" placeholder="Ex: Cardiologia" required>
                                       <?php } ?>
                                     </div>
                                 </div>
@@ -582,7 +584,23 @@
       $(document).ready(function() {
 
                 if($('#especialidade').length){
-                    $('#especialidade').select2({ placeholder: '— Selecione —', allowClear: true, width: '100%' });
+                    $('#especialidade').select2({ placeholder: '— Selecione a especialidade —', allowClear: false, width: '100%' });
+
+                    // Select2 não dispara required nativo — validar no submit
+                    $('#form').on('submit', function(e){
+                        if($('#especialidade').val() === '' || $('#especialidade').val() === null){
+                            e.preventDefault();
+                            $('#especialidade').next('.select2-container').css('border','2px solid #e53e3e');
+                            if(!$('#esp-required-msg').length){
+                                $('#especialidade').closest('.form-group').append('<small id="esp-required-msg" style="color:#e53e3e;display:block;margin-top:4px">Selecione a especialidade antes de continuar.</small>');
+                            }
+                            $('html,body').animate({scrollTop: $('#especialidade').offset().top - 80}, 300);
+                        }
+                    });
+                    $('#especialidade').on('change', function(){
+                        $('#especialidade').next('.select2-container').css('border','');
+                        $('#esp-required-msg').remove();
+                    });
                 }
 
                   //upload e preview da imagem
