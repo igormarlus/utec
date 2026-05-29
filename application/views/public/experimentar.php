@@ -266,7 +266,10 @@
                                     <?php } ?>
                                 </select>
                             <?php } else { ?>
-                                <input type="text" name="especialidade_id" id="select-especialidade" placeholder="Ex: Fisioterapia, Psicologia, Cardiologia...">
+                                <select name="especialidade_id" id="select-especialidade" disabled>
+                                    <option value="">Especialidades indisponíveis no momento</option>
+                                </select>
+                                <small style="color:#e53e3e;margin-top:4px;display:block">Entre em contato para finalizar seu cadastro.</small>
                             <?php } ?>
                         </div>
 
@@ -312,30 +315,35 @@
 (function(){
     var tipoSel  = document.getElementById('tenant_tipo');
     var campoEsp = document.getElementById('campo-especialidade');
-    var inputEsp = document.getElementById('select-especialidade');
+    var selectEsp = document.getElementById('select-especialidade');
     if(!tipoSel || !campoEsp) return;
+
+    // só valida se o select existe, tem opções reais e não está desabilitado
+    var podeValidar = selectEsp && !selectEsp.disabled && selectEsp.options.length > 1;
 
     function toggleEsp(){
         if(tipoSel.value === 'profissional'){
             campoEsp.style.display = 'grid';
-            if(inputEsp) inputEsp.required = true;
+            if(podeValidar) selectEsp.required = true;
         } else {
             campoEsp.style.display = 'none';
-            if(inputEsp){ inputEsp.required = false; inputEsp.value = ''; }
+            if(selectEsp){ selectEsp.required = false; selectEsp.value = ''; }
+            var msg = document.getElementById('esp-err-msg');
+            if(msg) msg.remove();
+            if(selectEsp) selectEsp.style.borderColor = '';
         }
     }
 
     tipoSel.addEventListener('change', toggleEsp);
-    toggleEsp();
+    toggleEsp(); // aplica imediatamente ao carregar (ex: ?tipo=profissional)
 
-    // Validação extra no submit
     var form = tipoSel.closest('form');
-    if(form){
+    if(form && podeValidar){
         form.addEventListener('submit', function(e){
-            if(tipoSel.value === 'profissional' && inputEsp && !inputEsp.value){
+            if(tipoSel.value === 'profissional' && !selectEsp.value){
                 e.preventDefault();
-                inputEsp.focus();
-                inputEsp.style.borderColor = '#e53e3e';
+                selectEsp.focus();
+                selectEsp.style.borderColor = '#e53e3e';
                 var msg = document.getElementById('esp-err-msg');
                 if(!msg){
                     msg = document.createElement('small');
@@ -346,13 +354,11 @@
                 }
             }
         });
-        if(inputEsp){
-            inputEsp.addEventListener('change', function(){
-                inputEsp.style.borderColor = '';
-                var msg = document.getElementById('esp-err-msg');
-                if(msg) msg.remove();
-            });
-        }
+        selectEsp.addEventListener('change', function(){
+            selectEsp.style.borderColor = '';
+            var msg = document.getElementById('esp-err-msg');
+            if(msg) msg.remove();
+        });
     }
 })();
 </script>

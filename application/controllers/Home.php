@@ -69,6 +69,8 @@ class Home extends CI_Controller {
 		$dados['especialidades'] = $this->db->table_exists('usuarios_especialidades')
 			? $this->db->query("SELECT * FROM usuarios_especialidades WHERE status = 1 ORDER BY nome ASC")->result()
 			: [];
+			#print_r($dados['especialidades']);
+			#return false;
 
 		// CAPI Lead — usuário chegou à página do formulário de trial
 		$fb = $this->fbapi_model->send_event('Lead', [
