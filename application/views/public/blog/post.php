@@ -12,9 +12,9 @@
   <title><?=$seo_titulo?> — UTecnologia Saúde</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="<?=$seo_desc?>">
-  <link rel="canonical" href="<?=$post_url?>
-    <link rel="icon" type="image/png" sizes="512x512" href="<?=base_url('favicon.png')?>">
-    <link rel="apple-touch-icon" href="<?=base_url('apple-touch-icon.png')?>">">
+  <link rel="canonical" href="<?=$post_url?>">
+  <link rel="icon" type="image/png" sizes="512x512" href="<?=base_url('favicon.png')?>">
+  <link rel="apple-touch-icon" href="<?=base_url('apple-touch-icon.png')?>">
   <meta property="og:type" content="article">
   <meta property="og:url" content="<?=$post_url?>">
   <meta property="og:title" content="<?=$seo_titulo?>">
