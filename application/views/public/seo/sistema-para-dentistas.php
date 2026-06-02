@@ -99,6 +99,10 @@
                     Organize sua agenda de atendimentos, mantenha o prontuário de cada paciente atualizado
                     e gerencie sua clínica ou consultório odontológico com eficiência — 100% online.
                 </p>
+                <p class="hero-text" style="font-size:16px; margin-bottom:0;">
+                    Se sua busca é por um <a href="<?=base_url()?>software-para-clinicas-odontologicas">software para clínicas odontológicas</a>,
+                    veja também nossa página dedicada para esse perfil de operação.
+                </p>
                 <div class="hero-cta">
                     <a href="<?=base_url()?>experimentar" class="btn-primary">Testar 30 dias grátis →</a>
                     <a href="<?=base_url()?>assinar" class="btn-outline">Ver planos</a>
@@ -181,6 +185,10 @@
                 <div class="faq-a">Sim. Colaboradores (nível 4) têm acesso à agenda e ao cadastro de pacientes, mas não ao prontuário clínico — que fica restrito ao profissional de saúde responsável.</div>
             </div>
         </div>
+        <p class="section-sub" style="margin-top:32px; margin-bottom:0;">
+            Para uma visão mais comercial e focada em clínicas com equipe, acesse
+            <a href="<?=base_url()?>software-para-clinicas-odontologicas">nosso software para clínicas odontológicas</a>.
+        </p>
     </div>
 </section>
 
@@ -201,6 +209,7 @@
             <div>
                 <a href="<?=base_url()?>">Início</a>
                 <a href="<?=base_url()?>sistema-para-clinicas">Todas as especialidades</a>
+                <a href="<?=base_url()?>software-para-clinicas-odontologicas">Software para Clínicas Odontológicas</a>
                 <a href="<?=base_url()?>sistema-para-clinica-medica">Clínica Médica</a>
                 <a href="<?=base_url()?>experimentar">Trial grátis</a>
             </div>

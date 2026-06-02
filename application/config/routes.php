@@ -76,6 +76,7 @@ $route['sistema-para-clinica-medica']      = 'home/seo_sistema_clinica_medica';
 $route['sistema-prontuario-eletronico']    = 'home/seo_prontuario_eletronico';
 $route['sistema-para-psicologos']          = 'home/seo_sistema_psicologos';
 $route['sistema-para-dentistas']           = 'home/seo_sistema_dentistas';
+$route['software-para-clinicas-odontologicas'] = 'home/seo_software_clinicas_odontologicas';
 $route['sistema-para-consultorio-medico']  = 'home/seo_consultorio_medico';
 $route['sistema-para-clinica-de-fisioterapia'] = 'home/seo_clinica_fisioterapia';
 $route['alternativa-feegow']               = 'home/seo_alternativa_feegow';

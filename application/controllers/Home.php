@@ -577,6 +577,11 @@ class Home extends CI_Controller {
 		$this->load->view('public/seo/sistema-para-dentistas');
 	}
 
+	public function seo_software_clinicas_odontologicas()
+	{
+		$this->load->view('public/seo/software-para-clinicas-odontologicas');
+	}
+
 	public function seo_consultorio_medico()
 	{
 		$this->load->view('public/seo/sistema-para-consultorio-medico');

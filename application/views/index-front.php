@@ -672,6 +672,9 @@
                     <a href="<?=base_url()?>sistema-para-dentistas">
                         <span class="dd-icon">🦷</span><span class="dd-text"><span class="dd-label">Dentistas</span></span>
                     </a>
+                    <a href="<?=base_url()?>software-para-clinicas-odontologicas">
+                        <span class="dd-icon">🪥</span><span class="dd-text"><span class="dd-label">Clínicas odontológicas</span></span>
+                    </a>
                     <a href="<?=base_url()?>sistema-para-clinica-de-fisioterapia">
                         <span class="dd-icon">🏃</span><span class="dd-text"><span class="dd-label">Fisioterapia</span></span>
                     </a>
@@ -1143,6 +1146,7 @@
             <a href="<?=base_url()?>sistema-para-clinica-medica">Clínica Médica</a>
             <a href="<?=base_url()?>sistema-para-psicologos">Psicólogos</a>
             <a href="<?=base_url()?>sistema-para-dentistas">Dentistas</a>
+            <a href="<?=base_url()?>software-para-clinicas-odontologicas">Clínicas Odontológicas</a>
             <a href="<?=base_url()?>sistema-para-clinica-de-fisioterapia">Fisioterapia</a>
             <a href="<?=base_url()?>sistema-para-clinica-oftalmologica">Oftalmologia</a>
             <a href="<?=base_url()?>sistema-para-consultorio-medico">Consultório Médico</a>

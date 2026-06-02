@@ -150,7 +150,7 @@
                 </p>
                 <div class="hero-cta">
                     <a href="<?=base_url()?>experimentar" class="btn-primary">Testar 30 dias grátis →</a>
-                    <a href="<?=base_url()?>sistema-para-dentistas" class="btn-outline">Ver recursos para dentistas</a>
+                    <a href="<?=base_url()?>software-para-clinicas-odontologicas" class="btn-outline">Ver software para clínicas odontológicas</a>
                 </div>
             </div>
             <div class="hero-badge">
@@ -195,6 +195,7 @@
             </table>
         </div>
         <p class="disclaimer">Informações baseadas em pesquisa de mercado pública. O UTecnologia Saúde não possui odontograma gráfico — ideal para clínicas que precisam de prontuário, agenda e gestão. Para odontograma interativo avançado, avalie se é indispensável no seu fluxo.</p>
+        <p class="disclaimer">Se você chegou por buscas mais amplas, veja também nossa página dedicada de <a href="<?=base_url()?>software-para-clinicas-odontologicas">software para clínicas odontológicas</a>.</p>
     </div>
 </section>
 
@@ -313,6 +314,7 @@
             <div class="footer-brand">UTecnologia Saúde</div>
             <div>
                 <a href="<?=base_url()?>sistema-para-dentistas">Para Dentistas</a>
+                <a href="<?=base_url()?>software-para-clinicas-odontologicas">Clínicas Odontológicas</a>
                 <a href="<?=base_url()?>sistema-para-clinicas">Clínicas</a>
                 <a href="<?=base_url()?>alternativa-feegow">vs Feegow</a>
                 <a href="<?=base_url()?>sistema-prontuario-eletronico">Prontuário</a>
