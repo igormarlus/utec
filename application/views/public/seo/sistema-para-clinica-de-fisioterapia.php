@@ -207,18 +207,24 @@
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
-  "@type": "WebPage",
-  "name": "Sistema para Clínica de Fisioterapia — UTecnologia Saúde",
+  "@type": "SoftwareApplication",
+  "name": "UTecnologia Saúde",
+  "applicationCategory": "HealthApplication",
+  "operatingSystem": "Web",
   "url": "https://utecnologia.com.br/sistema-para-clinica-de-fisioterapia",
   "description": "Sistema para clínica de fisioterapia com prontuário de evolução, agenda de sessões e controle de pacientes.",
-  "breadcrumb": {
-    "@type": "BreadcrumbList",
-    "itemListElement": [
-      {"@type": "ListItem", "position": 1, "name": "Início", "item": "https://utecnologia.com.br/"},
-      {"@type": "ListItem", "position": 2, "name": "Sistema para Clínicas", "item": "https://utecnologia.com.br/sistema-para-clinicas"},
-      {"@type": "ListItem", "position": 3, "name": "Fisioterapia", "item": "https://utecnologia.com.br/sistema-para-clinica-de-fisioterapia"}
-    ]
-  }
+  "offers": {"@type": "Offer", "price": "79", "priceCurrency": "BRL"}
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {"@type": "ListItem", "position": 1, "name": "Início", "item": "https://utecnologia.com.br/"},
+    {"@type": "ListItem", "position": 2, "name": "Sistema para Clínicas", "item": "https://utecnologia.com.br/sistema-para-clinicas"},
+    {"@type": "ListItem", "position": 3, "name": "Fisioterapia", "item": "https://utecnologia.com.br/sistema-para-clinica-de-fisioterapia"}
+  ]
 }
 </script>
 <script type="application/ld+json">

@@ -267,18 +267,24 @@
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
-  "@type": "WebPage",
-  "name": "Sistema para Clínica Médica — UTecnologia Saúde",
+  "@type": "SoftwareApplication",
+  "name": "UTecnologia Saúde",
+  "applicationCategory": "HealthApplication",
+  "operatingSystem": "Web",
   "url": "https://utecnologia.com.br/sistema-para-clinica-medica",
   "description": "Sistema para clínica médica com prontuário eletrônico completo, agenda e controle de exames.",
-  "breadcrumb": {
-    "@type": "BreadcrumbList",
-    "itemListElement": [
-      {"@type": "ListItem", "position": 1, "name": "Início", "item": "https://utecnologia.com.br/"},
-      {"@type": "ListItem", "position": 2, "name": "Sistema para Clínicas", "item": "https://utecnologia.com.br/sistema-para-clinicas"},
-      {"@type": "ListItem", "position": 3, "name": "Sistema para Clínica Médica", "item": "https://utecnologia.com.br/sistema-para-clinica-medica"}
-    ]
-  }
+  "offers": {"@type": "Offer", "price": "79", "priceCurrency": "BRL"}
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {"@type": "ListItem", "position": 1, "name": "Início", "item": "https://utecnologia.com.br/"},
+    {"@type": "ListItem", "position": 2, "name": "Sistema para Clínicas", "item": "https://utecnologia.com.br/sistema-para-clinicas"},
+    {"@type": "ListItem", "position": 3, "name": "Sistema para Clínica Médica", "item": "https://utecnologia.com.br/sistema-para-clinica-medica"}
+  ]
 }
 </script>
 <script type="application/ld+json">

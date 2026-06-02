@@ -301,17 +301,23 @@
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
-  "@type": "WebPage",
-  "name": "Software para Clínicas — UTecnologia Saúde",
+  "@type": "SoftwareApplication",
+  "name": "UTecnologia Saúde",
+  "applicationCategory": "HealthApplication",
+  "operatingSystem": "Web",
   "url": "https://utecnologia.com.br/software-para-clinicas",
   "description": "Software médico para clínicas e consultórios com prontuário eletrônico, agenda e gestão completa 100% online.",
-  "breadcrumb": {
-    "@type": "BreadcrumbList",
-    "itemListElement": [
-      {"@type": "ListItem", "position": 1, "name": "Início", "item": "https://utecnologia.com.br/"},
-      {"@type": "ListItem", "position": 2, "name": "Software para Clínicas", "item": "https://utecnologia.com.br/software-para-clinicas"}
-    ]
-  }
+  "offers": {"@type": "Offer", "price": "79", "priceCurrency": "BRL"}
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {"@type": "ListItem", "position": 1, "name": "Início", "item": "https://utecnologia.com.br/"},
+    {"@type": "ListItem", "position": 2, "name": "Software para Clínicas", "item": "https://utecnologia.com.br/software-para-clinicas"}
+  ]
 }
 </script>
 <script type="application/ld+json">

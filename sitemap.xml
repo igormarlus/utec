@@ -127,6 +127,13 @@
     <priority>0.7</priority>
   </url>
 
+  <url>
+    <loc>https://utecnologia.com.br/sistema-para-nutricionistas</loc>
+    <lastmod>2026-06-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
   <!-- Páginas institucionais — E-A-T / Google YMYL health signals -->
   <url>
     <loc>https://utecnologia.com.br/sobre</loc>

@@ -311,21 +311,26 @@
     </div>
 </footer>
 
-<!-- Schema JSON-LD -->
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
-  "@type": "WebPage",
-  "name": "Sistema para Clínicas — UTecnologia Saúde",
+  "@type": "SoftwareApplication",
+  "name": "UTecnologia Saúde",
+  "applicationCategory": "HealthApplication",
+  "operatingSystem": "Web",
   "url": "https://utecnologia.com.br/sistema-para-clinicas",
   "description": "Sistema para clínicas com prontuário eletrônico, agenda inteligente e gestão de pacientes.",
-  "breadcrumb": {
-    "@type": "BreadcrumbList",
-    "itemListElement": [
-      {"@type": "ListItem", "position": 1, "name": "Início", "item": "https://utecnologia.com.br/"},
-      {"@type": "ListItem", "position": 2, "name": "Sistema para Clínicas", "item": "https://utecnologia.com.br/sistema-para-clinicas"}
-    ]
-  }
+  "offers": {"@type": "Offer", "price": "79", "priceCurrency": "BRL"}
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {"@type": "ListItem", "position": 1, "name": "Início", "item": "https://utecnologia.com.br/"},
+    {"@type": "ListItem", "position": 2, "name": "Sistema para Clínicas", "item": "https://utecnologia.com.br/sistema-para-clinicas"}
+  ]
 }
 </script>
 <script type="application/ld+json">

@@ -687,6 +687,9 @@
                     <a href="<?=base_url()?>software-para-medicos">
                         <span class="dd-icon">💊</span><span class="dd-text"><span class="dd-label">Médicos autônomos</span></span>
                     </a>
+                    <a href="<?=base_url()?>sistema-para-nutricionistas">
+                        <span class="dd-icon">🥗</span><span class="dd-text"><span class="dd-label">Nutricionistas</span></span>
+                    </a>
                     <a href="<?=base_url()?>sistema-para-clinicas">
                         <span class="dd-icon">➕</span><span class="dd-text"><span class="dd-label">Ver todas</span></span>
                     </a>
@@ -1149,6 +1152,7 @@
             <a href="<?=base_url()?>software-para-clinicas-odontologicas">Clínicas Odontológicas</a>
             <a href="<?=base_url()?>sistema-para-clinica-de-fisioterapia">Fisioterapia</a>
             <a href="<?=base_url()?>sistema-para-clinica-oftalmologica">Oftalmologia</a>
+            <a href="<?=base_url()?>sistema-para-nutricionistas">Nutricionistas</a>
             <a href="<?=base_url()?>sistema-para-consultorio-medico">Consultório Médico</a>
         </div>
 

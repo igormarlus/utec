@@ -622,6 +622,11 @@ class Home extends CI_Controller {
 		$this->load->view('public/seo/software-para-medicos');
 	}
 
+	public function seo_sistema_nutricionistas()
+	{
+		$this->load->view('public/seo/sistema-para-nutricionistas');
+	}
+
 	public function sobre()
 	{
 		$this->load->view('public/sobre');

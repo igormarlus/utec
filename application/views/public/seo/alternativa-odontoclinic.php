@@ -327,18 +327,24 @@
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
-  "@type": "WebPage",
-  "name": "Alternativa ao Odontoclinic — UTecnologia Saúde",
+  "@type": "SoftwareApplication",
+  "name": "UTecnologia Saúde",
+  "applicationCategory": "HealthApplication",
+  "operatingSystem": "Web",
   "url": "https://utecnologia.com.br/alternativa-odontoclinic",
   "description": "Procurando substituir o Odontoclinic? Conheça o UTecnologia Saúde: prontuário odontológico, agenda e gestão de clínica. Trial grátis 30 dias.",
-  "breadcrumb": {
-    "@type": "BreadcrumbList",
-    "itemListElement": [
-      {"@type": "ListItem", "position": 1, "name": "Início", "item": "https://utecnologia.com.br/"},
-      {"@type": "ListItem", "position": 2, "name": "Sistema para Dentistas", "item": "https://utecnologia.com.br/sistema-para-dentistas"},
-      {"@type": "ListItem", "position": 3, "name": "Alternativa ao Odontoclinic", "item": "https://utecnologia.com.br/alternativa-odontoclinic"}
-    ]
-  }
+  "offers": {"@type": "Offer", "price": "79", "priceCurrency": "BRL"}
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {"@type": "ListItem", "position": 1, "name": "Início", "item": "https://utecnologia.com.br/"},
+    {"@type": "ListItem", "position": 2, "name": "Sistema para Dentistas", "item": "https://utecnologia.com.br/sistema-para-dentistas"},
+    {"@type": "ListItem", "position": 3, "name": "Alternativa ao Odontoclinic", "item": "https://utecnologia.com.br/alternativa-odontoclinic"}
+  ]
 }
 </script>
 <script type="application/ld+json">

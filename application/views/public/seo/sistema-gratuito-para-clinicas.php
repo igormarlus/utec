@@ -314,17 +314,23 @@
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
-  "@type": "WebPage",
-  "name": "Sistema Gratuito para Clínicas — UTecnologia Saúde",
+  "@type": "SoftwareApplication",
+  "name": "UTecnologia Saúde",
+  "applicationCategory": "HealthApplication",
+  "operatingSystem": "Web",
   "url": "https://utecnologia.com.br/sistema-gratuito-para-clinicas",
   "description": "Teste o sistema de gestão clínica gratuitamente por 30 dias. Prontuário eletrônico, agenda e gestão completa. Sem cartão de crédito.",
-  "breadcrumb": {
-    "@type": "BreadcrumbList",
-    "itemListElement": [
-      {"@type": "ListItem", "position": 1, "name": "Início", "item": "https://utecnologia.com.br/"},
-      {"@type": "ListItem", "position": 2, "name": "Sistema Gratuito para Clínicas", "item": "https://utecnologia.com.br/sistema-gratuito-para-clinicas"}
-    ]
-  }
+  "offers": {"@type": "Offer", "price": "0", "priceCurrency": "BRL"}
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {"@type": "ListItem", "position": 1, "name": "Início", "item": "https://utecnologia.com.br/"},
+    {"@type": "ListItem", "position": 2, "name": "Sistema Gratuito para Clínicas", "item": "https://utecnologia.com.br/sistema-gratuito-para-clinicas"}
+  ]
 }
 </script>
 <script type="application/ld+json">

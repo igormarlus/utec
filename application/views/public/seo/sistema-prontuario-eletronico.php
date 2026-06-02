@@ -240,18 +240,24 @@
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
-  "@type": "WebPage",
-  "name": "Sistema de Prontuário Eletrônico — UTecnologia Saúde",
+  "@type": "SoftwareApplication",
+  "name": "UTecnologia Saúde",
+  "applicationCategory": "HealthApplication",
+  "operatingSystem": "Web",
   "url": "https://utecnologia.com.br/sistema-prontuario-eletronico",
   "description": "Sistema de prontuário eletrônico completo para clínicas e consultórios.",
-  "breadcrumb": {
-    "@type": "BreadcrumbList",
-    "itemListElement": [
-      {"@type": "ListItem", "position": 1, "name": "Início", "item": "https://utecnologia.com.br/"},
-      {"@type": "ListItem", "position": 2, "name": "Sistema para Clínicas", "item": "https://utecnologia.com.br/sistema-para-clinicas"},
-      {"@type": "ListItem", "position": 3, "name": "Prontuário Eletrônico", "item": "https://utecnologia.com.br/sistema-prontuario-eletronico"}
-    ]
-  }
+  "offers": {"@type": "Offer", "price": "79", "priceCurrency": "BRL"}
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {"@type": "ListItem", "position": 1, "name": "Início", "item": "https://utecnologia.com.br/"},
+    {"@type": "ListItem", "position": 2, "name": "Sistema para Clínicas", "item": "https://utecnologia.com.br/sistema-para-clinicas"},
+    {"@type": "ListItem", "position": 3, "name": "Prontuário Eletrônico", "item": "https://utecnologia.com.br/sistema-prontuario-eletronico"}
+  ]
 }
 </script>
 <script type="application/ld+json">
