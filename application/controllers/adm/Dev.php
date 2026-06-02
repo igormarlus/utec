@@ -784,4 +784,237 @@ class Dev extends CI_Controller {
 		echo '<p>Coluna <code>agendamentos.campos_extras</code> (TEXT/JSON) criada para armazenar os valores.</p>';
 		echo '<p><a href="'.base_url().'adm/dev">Voltar ao Dev</a></p>';
 	}
+
+	// -----------------------------------------------------------------
+	// Seeder: 3 artigos do Sprint 1 de SEO/GEO — inseridos como rascunhos
+	// Rota: adm/dev/semear_artigos_sprint1
+	// -----------------------------------------------------------------
+	public function semear_artigos_sprint1()
+	{
+		$usuario = $this->session->userdata('nivel');
+		if ((int)$usuario !== 1) { show_404(); return; }
+
+		$artigos = $this->_artigos_sprint1();
+		$inseridos = 0;
+		$pulados   = 0;
+		$logs      = [];
+
+		foreach ($artigos as $art) {
+			$existe = $this->db->where('slug', $art['slug'])->count_all_results('blog_posts');
+			if ($existe > 0) {
+				$logs[]  = 'PULADO: slug "' . $art['slug'] . '" já existe';
+				$pulados++;
+				continue;
+			}
+			$art['criado_em']   = date('Y-m-d H:i:s');
+			$art['publicado']   = 0;
+			$art['publicado_em'] = null;
+			$this->db->insert('blog_posts', $art);
+			$id = $this->db->insert_id();
+			$logs[] = 'OK: artigo "' . $art['titulo'] . '" inserido (id=' . $id . ', rascunho)';
+			$inseridos++;
+		}
+
+		echo '<h2>Seeder — Artigos Sprint 1 SEO</h2><ul>';
+		foreach ($logs as $log) {
+			echo '<li>' . htmlspecialchars($log) . '</li>';
+		}
+		echo '</ul>';
+		echo '<p>' . $inseridos . ' artigo(s) inserido(s) como rascunho. ' . $pulados . ' pulado(s).</p>';
+		echo '<p>Acesse <a href="' . base_url() . 'adm/blog">adm/blog</a> para revisar e publicar.</p>';
+		echo '<p><a href="' . base_url() . 'adm/dev">Voltar ao Dev</a></p>';
+	}
+
+	private function _artigos_sprint1()
+	{
+		$base = base_url();
+
+		// ------------------------------------------------------------------
+		// Artigo 1
+		// ------------------------------------------------------------------
+		$art1_conteudo = <<<HTML
+<p>Escolher o melhor software para clínicas não é uma decisão de uma só variável. Volume de pacientes, número de profissionais, especialidade, orçamento e modelo de operação do consultório afetam qual sistema vai realmente funcionar no dia a dia.</p>
+<p>Este guia traz 7 critérios práticos para avaliar qualquer software para clínicas antes de contratar — e evitar a armadilha de pagar por recursos que a clínica não usa, ou migrar para um sistema que não atende o fluxo real de atendimento.</p>
+
+<h2>1. O sistema cobre o fluxo real da sua clínica?</h2>
+<p>O primeiro filtro é simples: o software resolve o que a sua clínica faz no dia a dia? Uma clínica odontológica precisa de prontuário odontológico e controle de retornos. Uma clínica multiprofissional precisa de agenda separada por profissional. Um consultório solo precisa de algo simples, sem burocracia de onboarding corporativo.</p>
+<p>Antes de avaliar recursos avançados, verifique se o básico está coberto para o seu tipo de clínica.</p>
+
+<h2>2. Prontuário eletrônico incluso ou separado?</h2>
+<p>Muitos sistemas de agenda não incluem prontuário eletrônico — ou cobram à parte. Em uma clínica de saúde, agenda e prontuário precisam estar integrados: ao abrir o agendamento, o prontuário do paciente deve estar disponível imediatamente, com o histórico de consultas anteriores.</p>
+<p>Verifique se o software para clínicas que você está avaliando inclui o <a href="{BASE}sistema-prontuario-eletronico">prontuário eletrônico</a> no mesmo plano da agenda, sem custo adicional.</p>
+
+<h2>3. Quantos profissionais o plano suporta?</h2>
+<p>Softwares para clínicas geralmente cobram por número de profissionais. Compare o custo real por profissional, não o preço de entrada. Um sistema com plano "individual" de R$ 79/mês pode ser mais barato que um "all-in-one" de R$ 500/mês se você tem apenas 1 médico.</p>
+<p>Para consultórios solo, o <a href="{BASE}sistema-para-consultorio-medico">plano para consultório médico</a> tende a ser bem mais acessível do que planos voltados para clínicas com equipe.</p>
+
+<h2>4. O sistema é 100% online ou precisa de instalação?</h2>
+<p>Sistemas que precisam de instalação local exigem manutenção técnica, atualizações manuais e backup próprio. Sistemas online (SaaS) funcionam pelo navegador, atualizam automaticamente e mantêm os dados na nuvem com backup automático.</p>
+<p>Para clínicas pequenas e consultórios que não têm equipe de TI, um software para clínicas online elimina esse problema inteiramente.</p>
+
+<h2>5. A recepcionista pode usar sem acessar os prontuários?</h2>
+<p>Controle de acesso por perfil é fundamental. A recepcionista precisa gerenciar a agenda e o cadastro de pacientes — mas não deve ter acesso aos prontuários clínicos. Verifique se o sistema permite essa separação de permissões de forma simples e clara.</p>
+
+<h2>6. Quanto tempo leva para migrar da planilha?</h2>
+<p>Um bom software para clínicas deve ter onboarding rápido. Se o sistema exige semanas de implantação e treinamento para uma clínica pequena, isso é um sinal de que ele foi projetado para hospitais ou grandes redes — não para o seu perfil.</p>
+<p>Teste grátis com trial real (não apenas demo) é o padrão mínimo aceitável para avaliar isso.</p>
+
+<h2>7. O suporte é acessível quando você precisa?</h2>
+<p>Em um consultório ou clínica pequena, o sistema para de funcionar e você não tem TI interno para resolver. Verifique se o suporte responde de forma humana, em quanto tempo e por quais canais.</p>
+
+<h2>Resumo: como escolher o melhor software para clínicas</h2>
+<ul>
+<li>Verifique se cobre o fluxo real da sua especialidade</li>
+<li>Confirme que prontuário e agenda estão integrados no mesmo plano</li>
+<li>Compare o custo real por profissional, não o preço de entrada</li>
+<li>Prefira sistema online a software instalado em servidor local</li>
+<li>Exija separação de permissões entre médico e recepcionista</li>
+<li>Teste com trial real antes de assinar qualquer contrato</li>
+<li>Avalie o suporte antes de contratar — não depois</li>
+</ul>
+
+<p>Para explorar opções por especialidade, veja o <a href="{BASE}sistema-para-clinicas">comparativo de sistemas por tipo de clínica</a>.</p>
+HTML;
+
+		// ------------------------------------------------------------------
+		// Artigo 2
+		// ------------------------------------------------------------------
+		$art2_conteudo = <<<HTML
+<p>Escolher um software para clínica odontológica envolve critérios diferentes dos de uma clínica médica geral. A rotina de um consultório odontológico tem especificidades que nem todo sistema de gestão clínica resolve bem: retornos frequentes, histórico de procedimentos por dente, múltiplas sessões para o mesmo tratamento e agenda densa.</p>
+<p>Este guia traz os critérios práticos para avaliar um software odontológico antes de contratar — e o que evitar para não errar na escolha.</p>
+
+<h2>O que um software para clínica odontológica precisa ter</h2>
+
+<h3>1. Agenda com controle de retornos</h3>
+<p>A agenda de uma clínica odontológica é mais densa que a de outras especialidades. Retornos pós-procedimento, avaliações de rotina e tratamentos em múltiplas sessões precisam ser organizados sem conflito de horário. Verifique se o sistema permite remarcar e cancelar com visibilidade do histórico do paciente.</p>
+
+<h3>2. Prontuário odontológico com histórico de procedimentos</h3>
+<p>O prontuário para dentistas precisa registrar o que foi feito em cada sessão: procedimento realizado, dente(s) tratado(s), material utilizado, anestesia e orientações ao paciente. Um software odontológico que usa apenas campos de texto livre pode funcionar no início, mas se torna difícil de consultar à medida que o volume de pacientes cresce.</p>
+
+<h3>3. Controle de pacientes com histórico de atendimentos</h3>
+<p>Em odontologia, o histórico completo do paciente é consultado com frequência. Você precisa ver rapidamente quantas sessões foram realizadas, quais procedimentos foram concluídos e o que está pendente. O software para consultório odontológico deve tornar esse acesso imediato.</p>
+
+<h3>4. Recepcionista pode agendar sem ver o prontuário</h3>
+<p>Em uma clínica odontológica com recepcionista, a separação de acesso é importante: ela gerencia a agenda, você acessa o prontuário clínico. Confirme se o sistema permite essa divisão de permissões sem complicação.</p>
+
+<h3>5. Acesso online, sem instalar no computador da clínica</h3>
+<p>Um programa para clínica odontológica que requer instalação local cria dependência de manutenção técnica. Um sistema online permite acesso de qualquer computador ou celular — útil quando você atende em mais de um local ou quer acessar o prontuário fora do consultório.</p>
+
+<h3>6. Preço justo para o porte da clínica</h3>
+<p>Softwares odontológicos variam muito em preço. Para uma clínica com 1 dentista, planos entre R$ 79 e R$ 150/mês costumam cobrir bem a operação. Para clínicas com 2 a 5 dentistas, planos de R$ 199 a R$ 400/mês são mais adequados. Não pague por recursos de rede hospitalar se você tem um consultório.</p>
+
+<h2>Quando vale migrar da planilha para um software odontológico?</h2>
+<p>A migração faz sentido quando:</p>
+<ul>
+<li>Você tem mais de 40–50 pacientes ativos e o histórico está ficando difícil de consultar</li>
+<li>A recepcionista gerencia a agenda separada do seu prontuário</li>
+<li>Você quer controle de procedimentos por sessão sem depender de memória ou anotação em papel</li>
+<li>Você tem mais de um dentista na clínica e precisa de agendas separadas</li>
+</ul>
+
+<h2>Perguntas frequentes sobre software para odontologia</h2>
+
+<p><strong>Qual a diferença entre software para dentista autônomo e software para clínica odontológica?</strong><br>
+Para dentista solo, um plano individual com 1 profissional e 1–2 colaboradores é suficiente. Para uma clínica com 2 a 5 dentistas, o plano precisa suportar múltiplos profissionais com agendas separadas e permissões por perfil.</p>
+
+<p><strong>Sistema odontológico precisa ser específico para odontologia?</strong><br>
+Não necessariamente. Um <a href="{BASE}software-para-clinicas-odontologicas">software para clínicas odontológicas</a> de uso geral pode atender bem desde que tenha prontuário flexível, controle de procedimentos por sessão e agenda com histórico de retornos.</p>
+
+<p>Para mais opções comparativas, veja também o <a href="{BASE}sistema-para-dentistas">sistema para dentistas autônomos</a>.</p>
+HTML;
+
+		// ------------------------------------------------------------------
+		// Artigo 3
+		// ------------------------------------------------------------------
+		$art3_conteudo = <<<HTML
+<p>A busca por "software médico" reúne dois perfis muito diferentes: o médico autônomo que quer organizar seu consultório, e a clínica com múltiplos profissionais que precisa de gestão de equipe. Escolher o programa errado para o seu perfil significa pagar por recursos que não usa — ou não ter os recursos que precisa.</p>
+<p>Este guia ajuda a identificar qual software médico faz sentido para o seu caso.</p>
+
+<h2>Software médico para consultório: o perfil do médico autônomo</h2>
+<p>O médico autônomo que atende no consultório precisa de um programa para consultório médico com foco em três coisas:</p>
+<ul>
+<li><strong>Agenda organizada</strong> — para ele e sua recepcionista agendarem consultas sem conflito</li>
+<li><strong>Prontuário eletrônico</strong> — para registrar anamnese, evolução e conduta de cada consulta</li>
+<li><strong>Controle de exames</strong> — para solicitar, receber resultados e manter o histórico do paciente</li>
+</ul>
+<p>Para esse perfil, um <a href="{BASE}sistema-para-consultorio-medico">sistema para consultório médico</a> com 1 profissional e 2 colaboradores (recepcionista) é suficiente. Plano a partir de R$ 79/mês, sem necessidade de recursos de gestão corporativa.</p>
+
+<h2>Software médico para clínica: o perfil da clínica com equipe</h2>
+<p>Uma clínica com 2 ou mais médicos tem necessidades adicionais que um plano de consultório não cobre:</p>
+<ul>
+<li>Agenda separada por médico, sem conflito de visualização</li>
+<li>Controle hierárquico de equipe (médico, recepcionista, administrador)</li>
+<li>Relatórios de produção por profissional</li>
+<li>Escalabilidade: adicionar médicos sem migrar de sistema</li>
+</ul>
+<p>Para esse perfil, o <a href="{BASE}sistema-para-clinica-medica">sistema para clínica médica</a> com planos Clínica (até 5 médicos) ou Pro (até 20 médicos) é o caminho certo.</p>
+
+<h2>Comparativo rápido: consultório vs clínica médica</h2>
+<table>
+<thead><tr><th>Característica</th><th>Consultório (1 médico)</th><th>Clínica médica (2+ médicos)</th></tr></thead>
+<tbody>
+<tr><td>Número de médicos</td><td>1</td><td>2 a 20</td></tr>
+<tr><td>Colaboradores</td><td>Até 2</td><td>Até 50</td></tr>
+<tr><td>Agenda por profissional</td><td>Não (agenda única)</td><td>Sim</td></tr>
+<tr><td>Prontuário eletrônico</td><td>Sim</td><td>Sim</td></tr>
+<tr><td>Relatórios de produção</td><td>Não</td><td>Sim</td></tr>
+<tr><td>Preço mensal</td><td>R$ 79</td><td>R$ 199 a R$ 399</td></tr>
+</tbody>
+</table>
+
+<h2>O que avaliar em qualquer software médico antes de contratar</h2>
+<ol>
+<li><strong>É online ou precisa de instalação?</strong> Prefira software médico online — sem manutenção técnica, backup automático e acesso de qualquer dispositivo.</li>
+<li><strong>Prontuário e agenda estão integrados?</strong> Sem integração, você perde o histórico do paciente ao abrir o agendamento.</li>
+<li><strong>A separação de acesso entre médico e recepcionista funciona?</strong> A recepcionista não deve ver prontuários clínicos.</li>
+<li><strong>Tem trial real para testar?</strong> Demo com dados fictícios não representa como o sistema vai funcionar na sua rotina.</li>
+<li><strong>O suporte resolve problemas de verdade?</strong> Avalie antes de contratar, não depois.</li>
+</ol>
+
+<h2>Qual o melhor software médico para consultório pequeno?</h2>
+<p>Para médico autônomo com consultório pequeno (até 50 pacientes ativos, 1 recepcionista), as prioridades são: facilidade de uso, prontuário eletrônico incluso no plano, acesso online sem instalação e suporte acessível. Sistemas hospitalares ou plataformas voltadas para grandes redes são excessivos e caros para esse perfil.</p>
+<p>Veja também: <a href="{BASE}software-para-medicos">software para médicos</a> — comparativo de funcionalidades por porte de consultório.</p>
+HTML;
+
+		// Substitui placeholder de base_url nos conteúdos
+		$art1_conteudo = str_replace('{BASE}', $base, $art1_conteudo);
+		$art2_conteudo = str_replace('{BASE}', $base, $art2_conteudo);
+		$art3_conteudo = str_replace('{BASE}', $base, $art3_conteudo);
+
+		return [
+			[
+				'titulo'         => 'Melhor software para clínicas: como avaliar em 2026',
+				'slug'           => 'melhor-software-para-clinicas-como-avaliar',
+				'resumo'         => '7 critérios práticos para escolher o melhor software para clínicas em 2026 — prontuário, agenda, custo por profissional e o que realmente importa antes de contratar.',
+				'conteudo'       => $art1_conteudo,
+				'meta_titulo'    => 'Melhor Software para Clínicas: 7 Critérios para Avaliar em 2026 | UTecnologia Saúde',
+				'meta_descricao' => 'Como escolher o melhor software para clínicas em 2026: 7 critérios práticos — prontuário integrado, custo por profissional, acesso online e o que evitar na hora de contratar.',
+				'autor'          => 'UTecnologia Saúde',
+				'tempo_leitura'  => 7,
+				'id_categoria'   => null,
+			],
+			[
+				'titulo'         => 'Software para clínica odontológica: como escolher sem errar',
+				'slug'           => 'software-para-clinica-odontologica-como-escolher',
+				'resumo'         => 'Guia prático para escolher um software para clínica odontológica: agenda com retornos, prontuário odontológico, gestão de consultório e quando vale migrar da planilha.',
+				'conteudo'       => $art2_conteudo,
+				'meta_titulo'    => 'Software para Clínica Odontológica: Como Escolher Sem Errar | UTecnologia Saúde',
+				'meta_descricao' => 'Como escolher um software para clínica odontológica: critérios práticos para agenda com retornos, prontuário de procedimentos, gestão de equipe e preço por porte de consultório.',
+				'autor'          => 'UTecnologia Saúde',
+				'tempo_leitura'  => 6,
+				'id_categoria'   => null,
+			],
+			[
+				'titulo'         => 'Software médico: como escolher para consultório ou clínica',
+				'slug'           => 'software-medico-como-escolher-para-consultorio-ou-clinica',
+				'resumo'         => 'Software médico para consultório ou clínica: o que avaliar, quais recursos importam e como escolher entre programa para consultório médico e sistema para clínica com equipe.',
+				'conteudo'       => $art3_conteudo,
+				'meta_titulo'    => 'Software Médico: Como Escolher para Consultório ou Clínica | UTecnologia Saúde',
+				'meta_descricao' => 'Como escolher o software médico certo: diferenças entre programa para consultório médico e sistema para clínica médica com equipe, critérios de avaliação e comparativo de planos.',
+				'autor'          => 'UTecnologia Saúde',
+				'tempo_leitura'  => 6,
+				'id_categoria'   => null,
+			],
+		];
+	}
 }
