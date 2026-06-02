@@ -26,4 +26,10 @@ Allow: /experimentar
 Allow: /assinar
 Allow: /imagens/
 
+Sitemap: https://utecnologia.com.br/sitemap-index.xml
 Sitemap: https://utecnologia.com.br/sitemap.xml
+Sitemap: https://utecnologia.com.br/sitemap-blog.xml
+
+# Crawler de busca do ChatGPT / OpenAI
+User-agent: OAI-SearchBot
+Allow: /

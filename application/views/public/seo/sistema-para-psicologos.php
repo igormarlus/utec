@@ -2,22 +2,22 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Sistema para Psicólogos — Prontuário de Sessões e Agenda Online | UTecnologia Saúde</title>
+    <title>Prontuário Psicológico Online | Sistema para Psicólogos e Clínicas de Psicologia | UTecnologia Saúde</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Sistema para psicólogos com prontuário de sessões, agenda online e controle de pacientes. Para consultório e clínica de psicologia. Organizado, seguro e 100% online. Teste grátis 30 dias.">
+    <meta name="description" content="Prontuário psicológico online para registrar sessões, evolução terapêutica e histórico do paciente. Sistema para psicólogos e clínicas de psicologia. Sigilo garantido. Teste 30 dias grátis.">
     <link rel="canonical" href="https://utecnologia.com.br/sistema-para-psicologos">
     <link rel="icon" type="image/png" sizes="512x512" href="<?=base_url('favicon.png')?>">
     <link rel="apple-touch-icon" href="<?=base_url('apple-touch-icon.png')?>">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://utecnologia.com.br/sistema-para-psicologos">
-    <meta property="og:title" content="Sistema para Psicólogos — UTecnologia Saúde">
-    <meta property="og:description" content="Prontuário de sessões, agenda e gestão de pacientes para psicólogos. 30 dias grátis.">
+    <meta property="og:title" content="Prontuário Psicológico Online | Sistema para Psicólogos — UTecnologia Saúde">
+    <meta property="og:description" content="Prontuário psicológico para registrar sessões, evolução terapêutica e histórico do paciente. Agenda e gestão para psicólogos. 30 dias grátis.">
     <meta property="og:image" content="https://utecnologia.com.br/imagens/og-cover.png">
     <meta property="og:site_name" content="UTecnologia Saúde">
     <meta property="og:locale" content="pt_BR">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Sistema para Psicólogos — UTecnologia Saúde">
-    <meta name="twitter:description" content="Prontuário, agenda e gestão para psicólogos. 30 dias grátis.">
+    <meta name="twitter:title" content="Prontuário Psicológico Online | Sistema para Psicólogos — UTecnologia Saúde">
+    <meta name="twitter:description" content="Prontuário psicológico para sessões, evolução terapêutica e histórico do paciente. Sistema para psicólogos. 30 dias grátis.">
     <meta name="twitter:image" content="https://utecnologia.com.br/imagens/og-cover.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -97,7 +97,7 @@
         <div class="hero-inner">
             <div>
                 <div class="eyebrow">Software para Psicologia</div>
-                <h1><em>Sistema para psicólogos</em> com prontuário de sessões e agenda organizada</h1>
+                <h1><em>Prontuário psicológico</em> online e sistema de gestão para psicólogos e clínicas de psicologia</h1>
                 <p class="hero-text">
                     Registre evoluções de sessão, gerencie sua agenda de atendimentos e mantenha o histórico completo
                     de cada paciente — de forma segura, sigilosa e acessível de qualquer lugar.
@@ -166,10 +166,41 @@
     </div>
 </section>
 
+<section class="section" style="background:#fff;">
+    <div class="wrap">
+        <div class="section-label">Prontuário Psicológico</div>
+        <h2>O que um prontuário psicológico precisa registrar</h2>
+        <p class="section-sub">O CFP determina que cada psicólogo mantenha prontuário atualizado de seus atendimentos. O UTecnologia Saúde oferece um prontuário psicológico online, seguro e acessível de qualquer dispositivo.</p>
+        <div style="max-width:800px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+            <div style="background:#f5f3ff;border:1px solid #ddd6fe;border-radius:12px;padding:24px;">
+                <strong style="display:block;margin-bottom:10px;color:#4c1d95;font-size:15px;">Por sessão</strong>
+                <ul style="list-style:none;display:flex;flex-direction:column;gap:8px;font-size:14px;color:#475569;">
+                    <li>• Demanda apresentada pelo paciente</li>
+                    <li>• Evolução e observações clínicas</li>
+                    <li>• Técnicas e abordagens utilizadas</li>
+                    <li>• Encaminhamentos e próximos passos</li>
+                </ul>
+            </div>
+            <div style="background:#f5f3ff;border:1px solid #ddd6fe;border-radius:12px;padding:24px;">
+                <strong style="display:block;margin-bottom:10px;color:#4c1d95;font-size:15px;">Por paciente</strong>
+                <ul style="list-style:none;display:flex;flex-direction:column;gap:8px;font-size:14px;color:#475569;">
+                    <li>• Histórico clínico e anamnese inicial</li>
+                    <li>• Documentos, laudos e avaliações psicológicas</li>
+                    <li>• Linha do tempo do processo terapêutico</li>
+                    <li>• Dados de contato e responsáveis</li>
+                </ul>
+            </div>
+        </div>
+        <p style="text-align:center;margin-top:28px;font-size:14px;">
+            <a href="<?=base_url()?>blog/prontuario-eletronico-para-psicologos" style="color:#6d28d9;font-weight:600;">→ Leia também: Prontuário eletrônico para psicólogos — o que saber antes de escolher um sistema</a>
+        </p>
+    </div>
+</section>
+
 <section class="section" style="background:#f5f3ff;">
     <div class="wrap">
         <div class="section-label">Perguntas frequentes</div>
-        <h2>Dúvidas sobre o sistema para psicólogos</h2>
+        <h2>Dúvidas sobre prontuário psicológico e o sistema para psicólogos</h2>
         <p class="section-sub" style="margin-bottom:40px;"></p>
         <div class="faq-list">
             <div class="faq-item">
@@ -187,6 +218,14 @@
             <div class="faq-item">
                 <div class="faq-q">O sistema atende psicólogos que trabalham online?</div>
                 <div class="faq-a">Sim. Por ser 100% online, o sistema é acessível de qualquer dispositivo — ideal para quem atende de forma remota ou em múltiplos locais. Você acessa prontuários, agenda e histórico de qualquer lugar com internet.</div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-q">O que é um prontuário psicológico?</div>
+                <div class="faq-a">O prontuário psicológico é o documento clínico que registra o histórico de atendimentos de um paciente em psicologia — incluindo anamnese inicial, evolução de cada sessão, técnicas utilizadas, encaminhamentos e conclusões do processo terapêutico. O Conselho Federal de Psicologia (CFP) determina que todo psicólogo deve manter prontuário atualizado dos seus atendimentos. O UTecnologia Saúde oferece um sistema de prontuário psicológico online, protegido por login, com dados isolados por profissional e clínica.</div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-q">O prontuário psicológico fica protegido no sistema?</div>
+                <div class="faq-a">Sim. O acesso é protegido por login e senha individual. Os dados de cada clínica são armazenados em ambiente isolado (multi-tenant) — nenhuma informação de um psicólogo ou clínica é visível para outros usuários da plataforma. Cada profissional acessa apenas os prontuários dos seus próprios pacientes.</div>
             </div>
         </div>
     </div>
@@ -219,18 +258,28 @@
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
-  "@type": "WebPage",
-  "name": "Sistema para Psicólogos — UTecnologia Saúde",
+  "@type": "SoftwareApplication",
+  "name": "UTecnologia Saúde",
+  "applicationCategory": "HealthApplication",
+  "operatingSystem": "Web",
   "url": "https://utecnologia.com.br/sistema-para-psicologos",
-  "description": "Sistema para psicólogos com prontuário de sessões, agenda online e controle de pacientes.",
-  "breadcrumb": {
-    "@type": "BreadcrumbList",
-    "itemListElement": [
-      {"@type": "ListItem", "position": 1, "name": "Início", "item": "https://utecnologia.com.br/"},
-      {"@type": "ListItem", "position": 2, "name": "Sistema para Clínicas", "item": "https://utecnologia.com.br/sistema-para-clinicas"},
-      {"@type": "ListItem", "position": 3, "name": "Sistema para Psicólogos", "item": "https://utecnologia.com.br/sistema-para-psicologos"}
-    ]
+  "description": "Prontuário psicológico online para registrar sessões, evolução terapêutica e histórico do paciente. Sistema para psicólogos e clínicas de psicologia.",
+  "offers": {
+    "@type": "Offer",
+    "price": "79",
+    "priceCurrency": "BRL"
   }
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {"@type": "ListItem", "position": 1, "name": "Início", "item": "https://utecnologia.com.br/"},
+    {"@type": "ListItem", "position": 2, "name": "Sistema para Clínicas", "item": "https://utecnologia.com.br/sistema-para-clinicas"},
+    {"@type": "ListItem", "position": 3, "name": "Sistema para Psicólogos", "item": "https://utecnologia.com.br/sistema-para-psicologos"}
+  ]
 }
 </script>
 <script type="application/ld+json">
@@ -238,9 +287,11 @@
   "@context": "https://schema.org",
   "@type": "FAQPage",
   "mainEntity": [
-    {"@type": "Question", "name": "O sistema é adequado para psicólogos autônomos?", "acceptedAnswer": {"@type": "Answer", "text": "Sim. O plano Solo foi criado para profissionais autônomos: 1 profissional, 2 colaboradores e pacientes ilimitados por R$ 79/mês."}},
-    {"@type": "Question", "name": "Os registros das sessões ficam protegidos?", "acceptedAnswer": {"@type": "Answer", "text": "Sim. O acesso é protegido por login e senha, com dados isolados por clínica. Apenas profissionais autorizados têm acesso."}},
-    {"@type": "Question", "name": "O sistema atende psicólogos que trabalham online?", "acceptedAnswer": {"@type": "Answer", "text": "Sim. Por ser 100% online, é acessível de qualquer dispositivo — ideal para atendimentos remotos ou em múltiplos locais."}}
+    {"@type": "Question", "name": "O que é um prontuário psicológico?", "acceptedAnswer": {"@type": "Answer", "text": "O prontuário psicológico é o documento clínico que registra o histórico de atendimentos em psicologia — anamnese inicial, evolução de cada sessão, técnicas utilizadas, encaminhamentos e conclusões do processo terapêutico. O CFP determina que todo psicólogo deve manter prontuário atualizado dos seus atendimentos."}},
+    {"@type": "Question", "name": "O sistema é adequado para psicólogos autônomos?", "acceptedAnswer": {"@type": "Answer", "text": "Sim. O plano Solo foi criado para profissionais autônomos: 1 profissional, 2 colaboradores e pacientes ilimitados por R$ 79/mês. Você gerencia agenda e prontuário psicológico de forma simples, sem infraestrutura de clínica."}},
+    {"@type": "Question", "name": "Os registros do prontuário psicológico ficam protegidos?", "acceptedAnswer": {"@type": "Answer", "text": "Sim. O acesso é protegido por login e senha individual. Os dados são isolados por clínica em ambiente multi-tenant — nenhuma informação de um psicólogo é visível para outros usuários da plataforma."}},
+    {"@type": "Question", "name": "Posso usar para clínica de psicologia com vários terapeutas?", "acceptedAnswer": {"@type": "Answer", "text": "Sim. O plano Clínica suporta até 5 psicólogos e o plano Pro até 20. Cada profissional tem sua própria agenda e acessa apenas os prontuários dos seus pacientes, mantendo o sigilo entre profissionais da mesma clínica."}},
+    {"@type": "Question", "name": "O sistema atende psicólogos que trabalham online?", "acceptedAnswer": {"@type": "Answer", "text": "Sim. Por ser 100% online, o sistema é acessível de qualquer dispositivo — ideal para atendimentos remotos ou em múltiplos locais. Você acessa prontuários, agenda e histórico de qualquer lugar com internet."}}
   ]
 }
 </script>

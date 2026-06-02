@@ -2,9 +2,9 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Sistema para Clínica Oftalmológica — Prontuário e Agenda | UTecnologia Saúde</title>
+    <title>Prontuário para Oftalmologista | Sistema para Clínica Oftalmológica | UTecnologia Saúde</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Sistema para clínica oftalmológica com prontuário eletrônico, agenda por médico e gestão de pacientes. 100% online, sem instalação. Teste grátis por 30 dias.">
+    <meta name="description" content="Prontuário para oftalmologista com acuidade visual, refração, biomicroscopia, pressão intraocular e laudos de exames. Sistema online para clínica oftalmológica. Teste 30 dias grátis.">
     <link rel="canonical" href="https://utecnologia.com.br/sistema-para-clinica-oftalmologica">
     <link rel="icon" type="image/png" sizes="512x512" href="<?=base_url('favicon.png')?>">
     <link rel="apple-touch-icon" href="<?=base_url('apple-touch-icon.png')?>">
@@ -12,14 +12,14 @@
     <!-- Open Graph -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://utecnologia.com.br/sistema-para-clinica-oftalmologica">
-    <meta property="og:title" content="Sistema para Clínica Oftalmológica — UTecnologia Saúde">
-    <meta property="og:description" content="Prontuário oftalmológico, agenda e gestão de clínica. 100% online. Teste grátis 30 dias.">
+    <meta property="og:title" content="Prontuário para Oftalmologista | Sistema para Clínica Oftalmológica — UTecnologia Saúde">
+    <meta property="og:description" content="Prontuário para oftalmologista: acuidade visual, refração, biomicroscopia, pressão intraocular e laudos. Sistema online. Teste grátis 30 dias.">
     <meta property="og:image" content="https://utecnologia.com.br/imagens/og-cover.png">
     <meta property="og:site_name" content="UTecnologia Saúde">
     <meta property="og:locale" content="pt_BR">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Sistema para Clínica Oftalmológica — UTecnologia Saúde">
-    <meta name="twitter:description" content="Prontuário, agenda e gestão para clínicas de oftalmologia. Trial grátis 30 dias.">
+    <meta name="twitter:title" content="Prontuário para Oftalmologista | UTecnologia Saúde">
+    <meta name="twitter:description" content="Prontuário para oftalmologista com acuidade visual, refração, biomicroscopia e laudos. Sistema online para clínica. Trial grátis 30 dias.">
     <meta name="twitter:image" content="https://utecnologia.com.br/imagens/og-cover.png">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -160,9 +160,9 @@
 
 <section class="section" style="background:#fff;">
     <div class="wrap">
-        <div class="section-label">Prontuário Oftalmológico</div>
-        <h2>Registre tudo que o atendimento oftalmológico exige</h2>
-        <p class="section-sub">Um prontuário eletrônico estruturado para capturar as informações clínicas relevantes à oftalmologia.</p>
+        <div class="section-label">Prontuário para Oftalmologista</div>
+        <h2>O que registrar no prontuário para oftalmologista</h2>
+        <p class="section-sub">Um prontuário para oftalmologista precisa ir além de texto livre — cada campo deve refletir o exame clínico real da consulta oftalmológica.</p>
         <div style="max-width: 800px; margin: 0 auto;">
             <div class="prontuario-fields">
                 <div class="fields-title">Campos disponíveis no prontuário oftalmológico:</div>
@@ -309,18 +309,28 @@
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
-  "@type": "WebPage",
-  "name": "Sistema para Clínica Oftalmológica — UTecnologia Saúde",
+  "@type": "SoftwareApplication",
+  "name": "UTecnologia Saúde",
+  "applicationCategory": "HealthApplication",
+  "operatingSystem": "Web",
   "url": "https://utecnologia.com.br/sistema-para-clinica-oftalmologica",
-  "description": "Sistema para clínica oftalmológica com prontuário eletrônico, agenda por médico e gestão de pacientes. 100% online.",
-  "breadcrumb": {
-    "@type": "BreadcrumbList",
-    "itemListElement": [
-      {"@type": "ListItem", "position": 1, "name": "Início", "item": "https://utecnologia.com.br/"},
-      {"@type": "ListItem", "position": 2, "name": "Sistema para Clínicas", "item": "https://utecnologia.com.br/sistema-para-clinicas"},
-      {"@type": "ListItem", "position": 3, "name": "Sistema para Clínica Oftalmológica", "item": "https://utecnologia.com.br/sistema-para-clinica-oftalmologica"}
-    ]
+  "description": "Prontuário para oftalmologista com acuidade visual, refração, biomicroscopia, pressão intraocular e laudos. Sistema online para clínica oftalmológica.",
+  "offers": {
+    "@type": "Offer",
+    "price": "79",
+    "priceCurrency": "BRL"
   }
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {"@type": "ListItem", "position": 1, "name": "Início", "item": "https://utecnologia.com.br/"},
+    {"@type": "ListItem", "position": 2, "name": "Sistema para Clínicas", "item": "https://utecnologia.com.br/sistema-para-clinicas"},
+    {"@type": "ListItem", "position": 3, "name": "Sistema para Clínica Oftalmológica", "item": "https://utecnologia.com.br/sistema-para-clinica-oftalmologica"}
+  ]
 }
 </script>
 <script type="application/ld+json">
@@ -331,17 +341,32 @@
     {
       "@type": "Question",
       "name": "O sistema tem campos específicos para oftalmologia?",
-      "acceptedAnswer": {"@type": "Answer", "text": "Sim. O prontuário pode ser configurado com campos para acuidade visual, refração, biomicroscopia, fundo de olho, pressão intraocular e prescrição óptica. Laudos e exames de imagem também podem ser anexados."}
+      "acceptedAnswer": {"@type": "Answer", "text": "Sim. O prontuário para oftalmologista inclui campos para acuidade visual, refração, biomicroscopia, fundo de olho, pressão intraocular e prescrição óptica. Laudos e exames de imagem também podem ser anexados diretamente ao prontuário."}
     },
     {
       "@type": "Question",
       "name": "É possível gerenciar a agenda de vários oftalmologistas?",
-      "acceptedAnswer": {"@type": "Answer", "text": "Sim. O sistema suporta múltiplos profissionais. O Plano Clínica comporta até 5 médicos + colaboradores por R$ 199/mês."}
+      "acceptedAnswer": {"@type": "Answer", "text": "Sim. O sistema suporta múltiplos profissionais. O Plano Clínica comporta até 5 médicos + colaboradores por R$ 199/mês. O Plano Pro suporta até 20 profissionais."}
     },
     {
       "@type": "Question",
       "name": "Posso armazenar tomografias e campos visuais no sistema?",
-      "acceptedAnswer": {"@type": "Answer", "text": "Sim. O sistema permite anexar arquivos de qualquer tipo — imagens, PDFs, laudos de OCT, campos visuais, retinografias — diretamente ao prontuário do paciente."}
+      "acceptedAnswer": {"@type": "Answer", "text": "Sim. O sistema permite anexar arquivos de qualquer tipo — imagens, PDFs, laudos de OCT, campos visuais, retinografias — diretamente ao prontuário do paciente, vinculados ao atendimento correspondente."}
+    },
+    {
+      "@type": "Question",
+      "name": "O sistema funciona em computadores e tablets da clínica?",
+      "acceptedAnswer": {"@type": "Answer", "text": "Sim. O UTecnologia Saúde é 100% online e responsivo. Funciona em qualquer computador com navegador, tablet ou celular. Não há instalação nem dependência de sistema operacional específico."}
+    },
+    {
+      "@type": "Question",
+      "name": "Qual o custo para uma clínica com 2 ou 3 oftalmologistas?",
+      "acceptedAnswer": {"@type": "Answer", "text": "O Plano Clínica, por R$ 199/mês, suporta até 5 profissionais de saúde + 10 colaboradores. Para 1 oftalmologista com consultório próprio, o Plano Solo sai por R$ 79/mês. Você pode testar gratuitamente por 30 dias antes de escolher o plano."}
+    },
+    {
+      "@type": "Question",
+      "name": "O histórico de pacientes fica disponível entre consultas?",
+      "acceptedAnswer": {"@type": "Answer", "text": "Sim. Todo o histórico clínico — prontuários, exames, arquivos e evolução — fica armazenado e acessível a qualquer momento. O médico consulta o histórico completo do paciente antes de cada atendimento, de qualquer dispositivo."}
     }
   ]
 }
