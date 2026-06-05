@@ -220,6 +220,14 @@
       .agenda-table .action-group .btn {
         font-family: var(--ut-font);
       }
+      @media (max-width: 767.98px) {
+        .agenda-panel { display: none; }
+        .pac-search-card { display: none; }
+        .ob-card { display: none; }
+        .ut-stats-desktop { display: none; }
+        .agenda-filter-card { display: none; }
+        .agenda-filter-card.ut-filter-open { display: block !important; }
+      }
     </style>
   </head>
   <body class="menu-position-side menu-side-left full-screen with-content-panel">
@@ -237,6 +245,32 @@
               <span>Agenda clinica</span>
             </li>
           </ul>
+          <!-- MOBILE HEADER — oculto no desktop via .ut-mobile-only -->
+          <div class="ut-agenda-header ut-mobile-only">
+            <div class="ut-agenda-header-top">
+              <div class="ut-agenda-brand">
+                <div class="ut-agenda-brand-badge">
+                  <img src="<?=base_url()?>img/logo-w.png" alt="UT">
+                </div>
+                <div class="ut-agenda-brand-text">
+                  <small><?=date('D, d M', strtotime($filtros['data_agenda'] ?: 'today'))?></small>
+                  <strong>Agenda clínica</strong>
+                </div>
+              </div>
+              <button type="button" id="ut-mobile-menu-btn"
+                      style="width:36px;height:36px;background:rgba(255,255,255,.1);border:0;border-radius:9px;color:#a7f3d0;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;">☰</button>
+            </div>
+            <div class="ut-agenda-stats">
+              <div class="ut-stat-chip total"><span class="stat-value"><?=$metricas_agenda['total']?></span><span class="stat-label">Total</span></div>
+              <div class="ut-stat-chip pendentes"><span class="stat-value"><?=$metricas_agenda['pendentes']?></span><span class="stat-label">Pendentes</span></div>
+              <div class="ut-stat-chip em-curso"><span class="stat-value"><?=$metricas_agenda['em_atendimento']?></span><span class="stat-label">Em curso</span></div>
+              <div class="ut-stat-chip feitos"><span class="stat-value"><?=$metricas_agenda['finalizados']?></span><span class="stat-label">Feitos</span></div>
+            </div>
+            <button type="button" id="ut-filter-toggle"
+                    style="width:100%;margin-top:10px;background:rgba(255,255,255,.1);border:1px solid rgba(110,231,183,.2);border-radius:var(--ut-radius-sm);color:#a7f3d0;font-family:var(--ut-font);font-size:12px;font-weight:700;padding:9px;cursor:pointer;">
+              ⚙ Filtrar por data / profissional
+            </button>
+          </div>
           <div class="content-panel-toggler">
             <i class="os-icon os-icon-grid-squares-22"></i><span>Menu</span>
           </div>
@@ -413,7 +447,8 @@
                         </tr>
                       </thead>
                       <tbody>
-                        <? if($qr_agendamentos->num_rows() > 0){ foreach($qr_agendamentos->result() as $agenda){ ?>
+                        <?php $agenda_items = $qr_agendamentos->result(); ?>
+                        <? if(count($agenda_items) > 0){ foreach($agenda_items as $agenda){ ?>
                           <? $status_class = 'status-pendente'; $status_nome = 'Pendente'; ?>
                           <? if((int)$agenda->status === 1){ $status_class = 'status-atendimento'; $status_nome = 'Em atendimento'; } ?>
                           <? if((int)$agenda->status === 2){ $status_class = 'status-finalizado'; $status_nome = 'Finalizado'; } ?>
@@ -486,6 +521,143 @@
                   </div>
                 </div>
               </div>
+
+<!-- ══ MOBILE AGENDA C+B ══ oculto no desktop ══════════════ -->
+<div class="ut-mobile-only" style="padding:16px 14px 100px;">
+
+  <?php
+    $tem_ativo = false;
+    foreach($agenda_items as $ag_check) {
+      if((int)$ag_check->status === 1) { $tem_ativo = true; break; }
+    }
+  ?>
+
+  <?php if($tem_ativo): ?>
+  <div class="ut-section-label active">
+    <span class="ut-section-label-dot"></span>
+    Em atendimento agora
+  </div>
+  <?php foreach($agenda_items as $agenda):
+    if((int)$agenda->status !== 1) continue;
+    $ini_ativo = strtoupper(mb_substr(trim($agenda->paciente_nome),0,1,'UTF-8'));
+  ?>
+  <div class="ut-active-card">
+    <div class="ut-active-card-header">
+      <div class="ut-active-card-avatar"><?=$ini_ativo?></div>
+      <div style="flex:1">
+        <p class="ut-active-card-name"><?=htmlspecialchars($agenda->paciente_nome)?></p>
+        <p class="ut-active-card-meta"><?=substr($agenda->hora_agenda,0,5)?> · <?=ucfirst($agenda->tipo)?><?=$agenda->prestador_nome ? ' · '.$agenda->prestador_nome : ''?></p>
+      </div>
+      <span class="ut-status-pill atendimento">Em atend.</span>
+    </div>
+    <div class="ut-active-card-actions">
+      <a href="<?=base_url()?>adm/usuarios/prontuario/<?=$agenda->id_paciente?>/<?=$agenda->id?>" class="ut-sheet-btn ut-sheet-btn-prontuario">📋 Prontuário</a>
+      <a href="<?=base_url()?>adm/atendimento/set_status_agenda/<?=$agenda->id?>/<?=$agenda->status?>" class="ut-sheet-btn ut-sheet-btn-finalizar">✓ Finalizar</a>
+    </div>
+  </div>
+  <?php endforeach; ?>
+  <?php endif; ?>
+
+  <?php
+    $tem_pendentes = false;
+    foreach($agenda_items as $ag_check) {
+      if((int)$ag_check->status === 0) { $tem_pendentes = true; break; }
+    }
+  ?>
+  <?php if($tem_pendentes): ?>
+  <div class="ut-section-label">Fila de espera</div>
+  <div class="ut-queue-list">
+    <?php foreach($agenda_items as $agenda):
+      if((int)$agenda->status !== 0) continue;
+      $ini = strtoupper(mb_substr(trim($agenda->paciente_nome),0,1,'UTF-8'));
+      $tel = str_replace(['-',' ','+','(',')'], '', $agenda->paciente_telefone);
+    ?>
+    <div class="ut-queue-item"
+         data-id="<?=$agenda->id?>"
+         data-nome="<?=htmlspecialchars($agenda->paciente_nome, ENT_QUOTES)?>"
+         data-ini="<?=$ini?>"
+         data-hora="<?=substr($agenda->hora_agenda,0,5)?>"
+         data-tipo="<?=htmlspecialchars($agenda->tipo, ENT_QUOTES)?>"
+         data-status="<?=$agenda->status?>"
+         data-prestador="<?=htmlspecialchars((string)$agenda->prestador_nome, ENT_QUOTES)?>"
+         data-data="<?=$agenda->data_agenda?>"
+         data-paciente-id="<?=$agenda->id_paciente?>"
+         data-telefone="<?=$tel?>"
+         onclick="utOpenSheet(this)">
+      <div class="ut-queue-avatar" style="background:var(--ut-green-900);"><?=$ini?></div>
+      <div style="flex:1;min-width:0;">
+        <p class="ut-queue-name"><?=htmlspecialchars($agenda->paciente_nome)?></p>
+        <p class="ut-queue-meta"><?=substr($agenda->hora_agenda,0,5)?> · <?=ucfirst($agenda->tipo)?></p>
+      </div>
+      <span class="ut-status-pill pendente" style="flex-shrink:0;">Pendente</span>
+      <span class="ut-queue-chevron">›</span>
+    </div>
+    <?php endforeach; ?>
+  </div>
+  <?php endif; ?>
+
+  <?php
+    $finalizados_mobile = [];
+    foreach($agenda_items as $ag) {
+      if((int)$ag->status === 2) $finalizados_mobile[] = $ag;
+    }
+    if(count($finalizados_mobile)): ?>
+  <div style="background:#fff;border-radius:var(--ut-radius-md);padding:13px 16px;display:flex;justify-content:space-between;align-items:center;box-shadow:var(--ut-shadow-sm);border:1px dashed #e2e8f0;cursor:pointer;"
+       onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none';this.querySelector('.ut-fin-count').style.display='none';">
+    <span style="font-size:12px;color:#94a3b8;font-family:var(--ut-font);"><?=count($finalizados_mobile)?> finalizados<span class="ut-fin-count"> · toque para ver</span></span>
+    <span style="font-size:11px;color:var(--ut-green-600);font-weight:700;font-family:var(--ut-font);">Ver todos ›</span>
+  </div>
+  <div style="display:none;margin-top:8px;">
+    <div class="ut-queue-list">
+      <?php foreach($finalizados_mobile as $agenda):
+        $ini = strtoupper(mb_substr(trim($agenda->paciente_nome),0,1,'UTF-8'));
+      ?>
+      <div class="ut-queue-item"
+           data-id="<?=$agenda->id?>"
+           data-nome="<?=htmlspecialchars($agenda->paciente_nome, ENT_QUOTES)?>"
+           data-ini="<?=$ini?>"
+           data-hora="<?=substr($agenda->hora_agenda,0,5)?>"
+           data-tipo="<?=htmlspecialchars($agenda->tipo, ENT_QUOTES)?>"
+           data-status="<?=$agenda->status?>"
+           data-prestador="<?=htmlspecialchars((string)$agenda->prestador_nome, ENT_QUOTES)?>"
+           data-data="<?=$agenda->data_agenda?>"
+           data-paciente-id="<?=$agenda->id_paciente?>"
+           onclick="utOpenSheet(this)">
+        <div class="ut-queue-avatar" style="background:#6b7280;"><?=$ini?></div>
+        <div style="flex:1;min-width:0;">
+          <p class="ut-queue-name"><?=htmlspecialchars($agenda->paciente_nome)?></p>
+          <p class="ut-queue-meta"><?=substr($agenda->hora_agenda,0,5)?> · <?=ucfirst($agenda->tipo)?></p>
+        </div>
+        <span class="ut-status-pill finalizado" style="flex-shrink:0;">Finalizado</span>
+        <span class="ut-queue-chevron">›</span>
+      </div>
+      <?php endforeach; ?>
+    </div>
+  </div>
+  <?php endif; ?>
+</div>
+<!-- ══ FIM MOBILE AGENDA ════════════════════════════════════ -->
+
+<!-- ══ BOTTOM SHEET ════════════════════════════════════════ -->
+<div class="ut-bottom-sheet-backdrop" id="ut-sheet-backdrop"></div>
+<div class="ut-bottom-sheet" id="ut-bottom-sheet">
+  <div class="ut-bottom-sheet-handle"></div>
+  <div class="ut-bottom-sheet-patient">
+    <div class="ut-bottom-sheet-avatar" id="ut-sheet-avatar" style="background:var(--ut-green-900);">?</div>
+    <div>
+      <span class="ut-bottom-sheet-name" id="ut-sheet-nome">Paciente</span>
+      <span class="ut-bottom-sheet-meta" id="ut-sheet-meta">–</span>
+    </div>
+  </div>
+  <div class="ut-bottom-sheet-actions">
+    <a href="#" class="ut-sheet-btn ut-sheet-btn-prontuario" id="ut-sheet-prontuario">📋 Prontuário</a>
+    <a href="#" class="ut-sheet-btn ut-sheet-btn-iniciar" id="ut-sheet-status">▶ Iniciar</a>
+    <button class="ut-sheet-btn ut-sheet-btn-remarcar" id="ut-sheet-remarcar-btn" type="button">📅 Remarcar</button>
+    <a href="#" class="ut-sheet-btn ut-sheet-btn-cancelar" id="ut-sheet-cancelar" onclick="return confirm('Cancelar este agendamento?')">✕ Cancelar</a>
+  </div>
+</div>
+<!-- ══ FIM BOTTOM SHEET ══════════════════════════════════════ -->
+
             </div>
           </div>
         </div>
@@ -594,5 +766,108 @@
         });
       })();
     </script>
+    <script>
+/* ── UTec Bottom Sheet ─────────────────────────────────────── */
+(function () {
+  var sheet    = document.getElementById('ut-bottom-sheet');
+  var backdrop = document.getElementById('ut-sheet-backdrop');
+  if (!sheet || !backdrop) return;
+
+  var BASE = '<?=base_url()?>';
+
+  function openSheet(el) {
+    var nome      = el.getAttribute('data-nome') || 'Paciente';
+    var ini       = el.getAttribute('data-ini')  || nome.charAt(0).toUpperCase();
+    var hora      = el.getAttribute('data-hora') || '';
+    var tipo      = el.getAttribute('data-tipo') || '';
+    var prestador = el.getAttribute('data-prestador') || '';
+    var status    = parseInt(el.getAttribute('data-status') || '0', 10);
+    var id        = el.getAttribute('data-id') || '';
+    var pacId     = el.getAttribute('data-paciente-id') || '';
+    var dataAg    = el.getAttribute('data-data') || '';
+
+    document.getElementById('ut-sheet-avatar').textContent = ini;
+    document.getElementById('ut-sheet-nome').textContent   = nome;
+    document.getElementById('ut-sheet-meta').textContent   = hora + ' · ' + tipo + (prestador ? ' · ' + prestador : '');
+
+    var prontuarioBtn = document.getElementById('ut-sheet-prontuario');
+    prontuarioBtn.href = BASE + 'adm/usuarios/prontuario/' + pacId + '/' + id;
+
+    var statusBtn = document.getElementById('ut-sheet-status');
+    statusBtn.href = BASE + 'adm/atendimento/set_status_agenda/' + id + '/' + status;
+    if (status === 0) {
+      statusBtn.textContent = '▶ Iniciar';
+      statusBtn.className   = 'ut-sheet-btn ut-sheet-btn-iniciar';
+    } else if (status === 1) {
+      statusBtn.textContent = '✓ Finalizar';
+      statusBtn.className   = 'ut-sheet-btn ut-sheet-btn-finalizar';
+    } else {
+      statusBtn.textContent = '↺ Reabrir';
+      statusBtn.className   = 'ut-sheet-btn ut-sheet-btn-reabrir';
+    }
+
+    var cancelarBtn = document.getElementById('ut-sheet-cancelar');
+    if (cancelarBtn && status !== 3) {
+      cancelarBtn.href  = BASE + 'adm/atendimento/cancelar_agenda/' + id;
+      cancelarBtn.style.display = '';
+    } else if (cancelarBtn) {
+      cancelarBtn.style.display = 'none';
+    }
+
+    var remarcarBtn = document.getElementById('ut-sheet-remarcar-btn');
+    if (remarcarBtn) {
+      remarcarBtn.onclick = function () {
+        closeSheet();
+        var idField   = document.getElementById('remarcar-id-agenda');
+        var dataField = document.getElementById('remarcar-data');
+        var horaField = document.getElementById('remarcar-hora');
+        if (idField)   idField.value   = id;
+        if (dataField) dataField.value = dataAg;
+        if (horaField) horaField.value = hora;
+        var box = document.getElementById('remarcacao-box');
+        if (box) {
+          box.style.display = 'block';
+          box.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      };
+    }
+
+    sheet.classList.add('is-open');
+    backdrop.classList.add('is-visible');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeSheet() {
+    sheet.classList.remove('is-open');
+    backdrop.classList.remove('is-visible');
+    document.body.style.overflow = '';
+  }
+
+  window.utOpenSheet = openSheet;
+  backdrop.addEventListener('click', closeSheet);
+})();
+
+/* ── Filter toggle ─────────────────────────────────────────── */
+var filterToggle = document.getElementById('ut-filter-toggle');
+if (filterToggle) {
+  filterToggle.addEventListener('click', function () {
+    var fc = document.querySelector('.agenda-filter-card');
+    if (fc) { fc.classList.toggle('ut-filter-open'); }
+  });
+}
+
+/* ── Mobile menu trigger ───────────────────────────────────── */
+var mobileMenuBtn = document.getElementById('ut-mobile-menu-btn');
+if (mobileMenuBtn) {
+  mobileMenuBtn.addEventListener('click', function () {
+    var toggler = document.querySelector('.mobile-menu-button a, .menu-mobile-toggler');
+    if (toggler) { toggler.click(); }
+    else {
+      var mm = document.querySelector('.menu-mobile');
+      if (mm) mm.classList.toggle('menu-open');
+    }
+  });
+}
+</script>
   </body>
 </html>
