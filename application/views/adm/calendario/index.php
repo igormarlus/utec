@@ -366,6 +366,10 @@ $(function(){
       }).fail(function(){ callback([]); });
     },
     eventRender: function(event, element){
+      // Força cor do texto — FullCalendar default CSS usa color:#fff que sobrepõe textColor
+      if (event.textColor) {
+        element[0].style.setProperty('color', event.textColor, 'important');
+      }
       var status = event.extendedProps ? event.extendedProps.status : 0;
       var cor = STATUS_COR[status] || '#94a3b8';
       element.find('.fc-title').after(
