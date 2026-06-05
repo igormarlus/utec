@@ -1074,12 +1074,13 @@
                 'pro'     => 'Para clínicas em expansão',
             ];
             foreach($public_plans as $plano):
-                $desc = isset($plan_descs[$plano->plan_code]) ? $plan_descs[$plano->plan_code] : htmlspecialchars(trim(strip_tags((string)$plano->especificacoes)));
+                $pc   = isset($plano->plan_code) ? $plano->plan_code : '';
+                $desc = isset($plan_descs[$pc]) ? $plan_descs[$pc] : htmlspecialchars(trim(strip_tags((string)$plano->especificacoes)));
             ?>
             <div class="plan-card">
                 <h3 class="plan-name"><?=htmlspecialchars($plano->modelo)?></h3>
                 <p class="plan-desc"><?=htmlspecialchars($desc)?></p>
-                <p class="plan-price">a partir de R$ <?=number_format((float)$plano->preco_venda, 2, ',', '.')?>/<?=htmlspecialchars($plano->billing_interval)?></p>
+                <p class="plan-price">a partir de R$ <?=number_format((float)$plano->preco_venda, 2, ',', '.')?>/<?=htmlspecialchars(isset($plano->billing_interval) ? $plano->billing_interval : 'mês')?></p>
                 <a href="<?=base_url()?>experimentar" class="btn-plan">Experimentar grátis →</a>
             </div>
             <?php endforeach; ?>
