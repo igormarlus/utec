@@ -127,4 +127,75 @@ class Calendario extends CI_Controller {
 		header('Content-Type: application/json');
 		echo json_encode($eventos);
 	}
+
+	function salvar_agendamento()
+	{
+		$dd_user = $this->padrao_model->get_usuario_logado();
+
+		// Apenas níveis 1–4 podem criar agendamentos
+		if ((int)$dd_user->nivel === 5) {
+			header('Content-Type: application/json');
+			echo json_encode(['success' => false, 'error' => 'Acesso negado.']); return;
+		}
+
+		$id_paciente  = (int)$this->input->post('id_paciente');
+		$id_prestador = (int)$this->input->post('id_prestador');
+		$data_agenda  = $this->input->post('data_agenda',  true);
+		$hora_agenda  = $this->input->post('hora_agenda',  true);
+		$tipo         = $this->input->post('tipo',         true);
+
+		// Validações
+		if (!$id_paciente) {
+			header('Content-Type: application/json');
+			echo json_encode(['success' => false, 'error' => 'Selecione um paciente.']); return;
+		}
+		if (!$id_prestador) {
+			header('Content-Type: application/json');
+			echo json_encode(['success' => false, 'error' => 'Selecione um profissional.']); return;
+		}
+		if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', (string)$data_agenda)) {
+			header('Content-Type: application/json');
+			echo json_encode(['success' => false, 'error' => 'Data inválida.']); return;
+		}
+		if (!preg_match('/^\d{2}:\d{2}$/', (string)$hora_agenda)) {
+			header('Content-Type: application/json');
+			echo json_encode(['success' => false, 'error' => 'Horário inválido.']); return;
+		}
+		$tipos_validos = ['Consulta', 'Retorno', 'Avaliacao', 'Exame'];
+		if (!in_array($tipo, $tipos_validos)) {
+			header('Content-Type: application/json');
+			echo json_encode(['success' => false, 'error' => 'Tipo inválido.']); return;
+		}
+
+		// Verificar acesso ao paciente
+		if (!$this->padrao_model->can_access_usuario($id_paciente)) {
+			header('Content-Type: application/json');
+			echo json_encode(['success' => false, 'error' => 'Acesso negado ao paciente.']); return;
+		}
+
+		// Verificar acesso ao prestador (nivel 1 pode usar qualquer prestador)
+		$visible_prestador_ids = $this->padrao_model->get_visible_prestador_ids($dd_user);
+		if ((int)$dd_user->nivel !== 1 && !in_array($id_prestador, $visible_prestador_ids)) {
+			header('Content-Type: application/json');
+			echo json_encode(['success' => false, 'error' => 'Acesso negado ao profissional.']); return;
+		}
+
+		$dados = [
+			'id_user'          => (int)$this->session->userdata('id'),
+			'id_paciente'      => $id_paciente,
+			'id_prestador'     => $id_prestador,
+			'tipo'             => $tipo,
+			'data_agenda'      => $data_agenda,
+			'hora_agenda'      => $hora_agenda,
+			'data_hora_agenda' => $data_agenda . ' ' . $hora_agenda,
+			'status'           => 0,
+		];
+
+		header('Content-Type: application/json');
+		if ($this->db->insert('agendamentos', $dados)) {
+			echo json_encode(['success' => true, 'id' => (int)$this->db->insert_id()]);
+		} else {
+			echo json_encode(['success' => false, 'error' => 'Falha ao salvar agendamento.']);
+		}
+	}
 }
