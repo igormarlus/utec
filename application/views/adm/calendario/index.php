@@ -366,14 +366,19 @@ $(function(){
       }).fail(function(){ callback([]); });
     },
     eventRender: function(event, element){
-      // Força cor do texto — FullCalendar default CSS usa color:#fff que sobrepõe textColor
-      if (event.textColor) {
-        element[0].style.setProperty('color', event.textColor, 'important');
-      }
-      var status = event.extendedProps ? event.extendedProps.status : 0;
-      var cor = STATUS_COR[status] || '#94a3b8';
+      // clicklinica-main.css tem .fc-content{color:#fff} e .fc-event{color:#fff}
+      // É preciso forçar a cor em cada elemento filho explicitamente
+      var ep = event.extendedProps || {};
+      var palCor = profCor(ep.prestador_id || 0);
+      var txtColor = palCor.text;
+      element[0].style.setProperty('color', txtColor, 'important');
+      element.find('.fc-content, .fc-title, .fc-time').each(function(){
+        this.style.setProperty('color', txtColor, 'important');
+      });
+      var status = typeof ep.status !== 'undefined' ? ep.status : 0;
+      var dotCor = STATUS_COR[status] || '#94a3b8';
       element.find('.fc-title').after(
-        '<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:'+cor+';margin-left:4px;vertical-align:middle;flex-shrink:0;"></span>'
+        '<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:'+dotCor+';margin-left:4px;vertical-align:middle;flex-shrink:0;"></span>'
       );
     },
     dayClick: function(date){
