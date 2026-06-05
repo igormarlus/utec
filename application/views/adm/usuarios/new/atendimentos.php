@@ -224,9 +224,13 @@
         .agenda-panel { display: none; }
         .pac-search-card { display: none; }
         .ob-card { display: none; }
-        .ut-stats-desktop { display: none; }
+        .ut-stats-desktop { display: none !important; } /* !important: div tem style inline display:flex */
         .agenda-filter-card { display: none; }
         .agenda-filter-card.ut-filter-open { display: block !important; }
+        /* element-wrapper (título + "ver pacientes") substituído pelo ut-agenda-header */
+        .element-wrapper { display: none; }
+        /* breadcrumb desnecessário: ut-agenda-header já contextualiza */
+        ul.breadcrumb { display: none; }
         /* ut-agenda-header substitui a top bar nesta página */
         .top-bar { display: none !important; }
         .content-w { padding-top: 0 !important; }
