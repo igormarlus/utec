@@ -81,105 +81,43 @@ if($top_level === 5){
 	$top_shortcuts[] = ['label' => 'Meu cadastro', 'url' => base_url().'adm/usuarios/edicao/'.$top_user_id];
 }
 ?>
+<link href="<?=base_url()?>css/utec-redesign.css" rel="stylesheet">
 <style>
   .utec-top-brand {
     align-items: center;
-    background: rgba(255, 255, 255, 0.92);
-    border: 1px solid rgba(148, 163, 184, 0.24);
-    border-radius: 14px;
-    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
-    color: #0f172a;
+    color: #f0fdf4;
     display: inline-flex;
-    gap: 12px;
+    gap: 10px;
     margin-left: 10px;
-    padding: 8px 14px 8px 10px;
+    padding: 6px 12px 6px 8px;
     text-decoration: none;
+    border-radius: 12px;
+    transition: background .15s;
   }
   .utec-top-brand:hover,
-  .utec-top-brand:focus {
-    color: #0f172a;
-    text-decoration: none;
-  }
-  .utec-top-brand-mark {
-    background: linear-gradient(135deg, #0a7cf8 0%, #1d4ed8 100%);
-    border-radius: 12px;
-    color: #fff;
-    display: inline-flex;
-    font-size: 11px;
-    font-weight: 700;
-    justify-content: center;
-    letter-spacing: .08em;
-    min-width: 38px;
-    padding: 11px 8px;
-    text-transform: uppercase;
-  }
-  .utec-top-brand-copy {
-    display: flex;
-    flex-direction: column;
-    line-height: 1.1;
-  }
+  .utec-top-brand:focus { color: #fff; text-decoration: none; background: rgba(34,197,94,.12); }
   .utec-top-brand-copy small {
-    color: #64748b;
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: .08em;
-    margin-bottom: 3px;
-    text-transform: uppercase;
+    color: #6ee7b7; font-size: 10px; font-weight: 700;
+    letter-spacing: .08em; text-transform: uppercase; display: block; margin-bottom: 1px;
   }
   .utec-top-brand-copy strong {
-    color: #0f172a;
-    font-size: 15px;
-    font-weight: 700;
-  }
-  .utec-top-brand-image {
-    display: block;
-    height: 44px;
-    max-width: 210px;
-    object-fit: contain;
-    width: auto;
-  }
-  @media (max-width: 991.98px) {
-    .utec-top-brand {
-      margin-left: 0;
-      padding-right: 12px;
-    }
-    .utec-top-brand-image {
-      height: 40px;
-      max-width: 190px;
-    }
-    .utec-top-brand-copy strong {
-      font-size: 14px;
-    }
-  }
-  @media (max-width: 767.98px) {
-    .utec-top-brand {
-      border-radius: 12px;
-      gap: 10px;
-      padding: 7px 10px 7px 8px;
-    }
-    .utec-top-brand-mark {
-      border-radius: 10px;
-      min-width: 34px;
-      padding: 10px 7px;
-    }
-    .utec-top-brand-image {
-      height: 34px;
-      max-width: 160px;
-    }
-    .utec-top-brand-copy small {
-      font-size: 9px;
-    }
-    .utec-top-brand-copy strong {
-      font-size: 13px;
-    }
+    color: #f0fdf4; font-family: var(--ut-font); font-size: 15px; font-weight: 800; display: block;
   }
 </style>
 <div class="top-bar color-scheme-transparent">
   <a href="<?=base_url()?>adm/usuarios/dash" class="utec-top-brand" aria-label="UTecnologia Saude">
     <? if($top_logo_available){ ?>
-      <img src="<?=base_url()?>img/logo-w.png" class="utec-top-brand-image" alt="UTecnologia Saude">
+      <span class="ut-agenda-brand-badge">
+        <img src="<?=base_url()?>img/logo-w.png" alt="UTecnologia Saude">
+      </span>
+      <span class="utec-top-brand-copy">
+        <small>UTecnologia</small>
+        <strong>Saude</strong>
+      </span>
     <? } else { ?>
-      <span class="utec-top-brand-mark">UT</span>
+      <span class="ut-agenda-brand-badge" style="background:var(--ut-green-900);">
+        <span style="color:#fff;font-family:var(--ut-font);font-size:12px;font-weight:900;">UT</span>
+      </span>
       <span class="utec-top-brand-copy">
         <small>UTecnologia</small>
         <strong>Saude</strong>
