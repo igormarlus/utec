@@ -281,19 +281,15 @@ $menu_sections[] = [
 </div>
 <div class="menu-w color-scheme-light color-style-transparent menu-position-side menu-side-left menu-layout-compact sub-menu-style-over sub-menu-color-bright selected-menu-color-light menu-activated-on-hover menu-has-selected-link">
   <div class="logo-w">
-    <a class="logo" href="<?=$menu_dashboard_url?>">
-      <? if($menu_logo_available){ ?>
-        <span class="adm-menu-brand">
-          <img src="<?=base_url()?>img/logo-w.png" class="adm-menu-brand-image" alt="UTecnologia Saude">
-        </span>
-      <? } else { ?>
-        <span class="adm-menu-brand-fallback">
-          <div class="logo-element"></div>
-          <div class="logo-label">
-            UTec Saude
-          </div>
-        </span>
-      <? } ?>
+    <a class="logo" href="<?=$menu_dashboard_url?>" style="display:flex;align-items:center;gap:12px;padding:6px 0;text-decoration:none;">
+      <div class="ut-agenda-brand-badge" style="flex-shrink:0;">
+        <img src="<?=base_url()?>img/logo-w.png" alt="UT"
+             onerror="this.parentNode.innerHTML='<span style=&quot;color:#fff;font-family:var(--ut-font);font-size:13px;font-weight:900;&quot;>UT</span>'">
+      </div>
+      <div>
+        <div style="color:#6ee7b7;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;font-family:var(--ut-font);">UTecnologia</div>
+        <div style="color:#f0fdf4;font-size:16px;font-weight:800;line-height:1.1;font-family:var(--ut-font);">Saude</div>
+      </div>
     </a>
   </div>
   <div class="logged-user-w avatar-inline">

@@ -72,13 +72,17 @@
   font-family: var(--ut-font) !important;
   font-weight: 800 !important;
 }
-.menu-w .sub-menu a {
+.menu-w .sub-menu a,
+.menu-w .main-menu > li.has-sub-menu > .sub-menu li a {
   color: #a7f3d0 !important;
   font-family: var(--ut-font) !important;
+  background: rgba(255,255,255,.06) !important;
+  border-radius: 10px !important;
 }
-.menu-w .sub-menu a:hover {
+.menu-w .sub-menu a:hover,
+.menu-w .main-menu > li.has-sub-menu > .sub-menu li a:hover {
   color: #fff !important;
-  background: rgba(34,197,94,.12) !important;
+  background: rgba(34,197,94,.15) !important;
 }
 
 /* Mobile menu esmeralda */
