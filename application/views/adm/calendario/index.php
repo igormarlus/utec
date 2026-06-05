@@ -50,6 +50,7 @@ function cal_prof_cor($id) {
     .cal-panel .fc-day-number { font-size: 12px; font-weight: 700; color: #334155; }
     .cal-panel td.fc-today { background: #f0fdf4 !important; }
     .cal-panel .fc-event { border-radius: 4px; font-size: 10px; font-weight: 700; padding: 2px 5px; cursor: pointer; border: none; }
+    .cal-panel .fc-event .fc-title { font-size: 10px; font-weight: 700; }
     .cal-panel .fc-more { font-size: 10px; color: #2563eb; font-weight: 700; }
     .cal-legend { padding: 10px 20px; border-top: 1px solid #f1f5f9; display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
     .legend-label { font-size: 10px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: .06em; }
@@ -324,6 +325,11 @@ var PRESTADORES = <?php
 
 var hiddenPrestadores = {};
 
+function escHtml(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
 (function buildLegend(){
   var legend = document.getElementById('cal-legend');
   if (!legend || !PRESTADORES.length) return;
@@ -332,7 +338,11 @@ var hiddenPrestadores = {};
     var cor = profCor(p.id);
     var el = document.createElement('div');
     el.className = 'legend-item';
-    el.innerHTML = '<div class="legend-chip" style="background:'+cor.bg+';border:1.5px solid '+cor.border+';"></div> '+p.nome;
+    var chip = document.createElement('div');
+    chip.className = 'legend-chip';
+    chip.style.cssText = 'background:'+cor.bg+';border:1.5px solid '+cor.border+';';
+    el.appendChild(chip);
+    el.appendChild(document.createTextNode(' '+p.nome));
     legend.insertBefore(el, sep);
   });
 })();
@@ -454,8 +464,8 @@ function calLoadDia(dateYmd, dateFmt){
           +'<div class="side-ag-time">'+hora+'</div>'
           +'<div class="side-ag-avatar" style="background:'+cor.dot+';">'+ini+'</div>'
           +'<div class="side-ag-info">'
-          +'<div class="side-ag-name">'+ep.paciente_nome+'</div>'
-          +'<div class="side-ag-meta">'+(ep.prestador_nome||'')+(ep.tipo?' · '+ep.tipo:'')+'</div>'
+          +'<div class="side-ag-name">'+escHtml(ep.paciente_nome)+'</div>'
+          +'<div class="side-ag-meta">'+escHtml(ep.prestador_nome||'')+(ep.tipo?' · '+escHtml(ep.tipo):'')+'</div>'
           +'</div>'
           +'<div class="side-ag-status" style="background:'+STATUS_COR[ep.status]+';"></div>'
           +'</div>';
