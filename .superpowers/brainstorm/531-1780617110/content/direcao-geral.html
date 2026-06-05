@@ -1,0 +1,236 @@
+<style>
+  .dir-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 20px; }
+  .dir-card { border: 2px solid #e2e8f0; border-radius: 14px; overflow: hidden; cursor: pointer; transition: all .2s; }
+  .dir-card:hover { border-color: #6366f1; transform: translateY(-3px); box-shadow: 0 12px 32px rgba(99,102,241,.15); }
+  .dir-card.selected { border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99,102,241,.2); }
+  .dir-header { padding: 14px 16px; font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+  .dir-preview { background: #f8fafc; padding: 14px; border-top: 1px solid #e2e8f0; }
+
+  /* Mini wireframe elements */
+  .mw-nav { background: #fff; border: 1px solid #e2e8f0; border-radius: 6px; height: 28px; display: flex; align-items: center; padding: 0 10px; gap: 8px; margin-bottom: 8px; }
+  .mw-logo { background: #6366f1; border-radius: 4px; width: 60px; height: 12px; }
+  .mw-links { display: flex; gap: 6px; margin-left: auto; }
+  .mw-link { background: #e2e8f0; border-radius: 3px; width: 28px; height: 8px; }
+  .mw-btn-sm { background: #6366f1; border-radius: 99px; width: 44px; height: 14px; }
+
+  .mw-hero { border-radius: 8px; padding: 14px; margin-bottom: 8px; text-align: center; }
+  .mw-h1 { height: 10px; border-radius: 4px; margin: 0 auto 6px; }
+  .mw-sub { height: 7px; border-radius: 3px; margin: 0 auto 10px; }
+  .mw-img { border-radius: 6px; height: 48px; width: 100%; margin-bottom: 8px; }
+  .mw-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .mw-card { border-radius: 6px; height: 50px; }
+  .mw-section { border-radius: 8px; padding: 10px; margin-bottom: 8px; }
+  .mw-3col { display: grid; grid-template-columns: repeat(3,1fr); gap: 5px; }
+  .mw-feat { border: 1px solid #e2e8f0; border-radius: 5px; height: 44px; background: #fff; }
+  .mw-pricing { display: grid; grid-template-columns: repeat(3,1fr); gap: 5px; }
+  .mw-plan { border-radius: 5px; height: 70px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; }
+  .mw-price { height: 12px; border-radius: 3px; width: 40px; }
+  .mw-plan-btn { height: 8px; border-radius: 99px; width: 50px; }
+  .mw-steps { display: grid; grid-template-columns: repeat(3,1fr); gap: 5px; align-items: center; }
+  .mw-step { text-align: center; }
+  .mw-circle { width: 24px; height: 24px; border-radius: 50%; margin: 0 auto 4px; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 800; color: #fff; }
+  .mw-step-line { height: 2px; border-radius: 1px; margin-top: -14px; }
+  .mw-arrow { text-align: center; font-size: 10px; color: #94a3b8; }
+  .new-badge { display: inline-block; background: #dcfce7; color: #16a34a; font-size: 9px; font-weight: 700; padding: 1px 6px; border-radius: 99px; margin-left: 4px; }
+  .tag-badge { display: inline-block; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 99px; }
+  .dir-desc { font-size: 12px; color: #64748b; padding: 12px 16px 14px; line-height: 1.6; }
+  .dir-label { font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; padding: 6px 14px; border-radius: 0 0 12px 12px; text-align: center; }
+
+  /* Direction color themes */
+  .dir-a .dir-header { color: #2563eb; }
+  .dir-b .dir-header { color: #0f766e; }
+  .dir-c .dir-header { color: #7c3aed; }
+  .dir-a .dir-label { background: #eff6ff; color: #2563eb; }
+  .dir-b .dir-label { background: #f0fdfa; color: #0f766e; }
+  .dir-c .dir-label { background: #f5f3ff; color: #7c3aed; }
+</style>
+
+<h2>Qual direção de melhoria faz mais sentido?</h2>
+<p class="subtitle">Avalie os três caminhos para a landing page. Você pode selecionar mais de um.</p>
+
+<div class="dir-grid options" data-multiselect>
+
+  <!-- A: Melhorias cirúrgicas -->
+  <div class="dir-card dir-a option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="dir-header">
+      🔧 Melhorias cirúrgicas
+      <span class="tag-badge" style="background:#eff6ff;color:#2563eb;">Baixo risco</span>
+    </div>
+    <div class="dir-preview">
+      <!-- Wireframe A -->
+      <div class="mw-nav">
+        <div class="mw-logo"></div>
+        <div class="mw-links"><div class="mw-link"></div><div class="mw-link"></div></div>
+        <div class="mw-btn-sm"></div>
+      </div>
+      <!-- Hero: igual mas com CTA mais forte -->
+      <div class="mw-hero" style="background:linear-gradient(135deg,#eff6ff,#f0fdf4);">
+        <div class="mw-h1" style="background:#1e40af;width:80%;"></div>
+        <div class="mw-sub" style="background:#94a3b8;width:60%;"></div>
+        <div class="mw-img" style="background:linear-gradient(135deg,#bfdbfe,#bbf7d0);"></div>
+        <div class="mw-cards">
+          <div class="mw-card" style="background:linear-gradient(135deg,#dbeafe,#eff6ff);border:2px solid #93c5fd;"></div>
+          <div class="mw-card" style="background:linear-gradient(135deg,#ede9fe,#f5f3ff);border:2px solid #c4b5fd;"></div>
+        </div>
+      </div>
+      <!-- Steps com setas -->
+      <div class="mw-section" style="background:#f8fafc;">
+        <div class="mw-steps">
+          <div class="mw-step"><div class="mw-circle" style="background:#2563eb;">1</div><div style="height:6px;background:#cbd5e1;border-radius:3px;margin-top:2px;"></div></div>
+          <div class="mw-arrow">→</div>
+          <div class="mw-step"><div class="mw-circle" style="background:#2563eb;">2</div><div style="height:6px;background:#cbd5e1;border-radius:3px;margin-top:2px;"></div></div>
+          <div class="mw-arrow">→</div>
+          <div class="mw-step"><div class="mw-circle" style="background:#2563eb;">3</div><div style="height:6px;background:#cbd5e1;border-radius:3px;margin-top:2px;"></div></div>
+        </div>
+      </div>
+      <!-- Pricing NEW -->
+      <div class="mw-section" style="background:#fff;border:1px solid #e2e8f0;">
+        <div style="height:7px;background:#2563eb;border-radius:3px;width:40%;margin-bottom:8px;"></div>
+        <div class="mw-pricing">
+          <div class="mw-plan" style="background:#f8fafc;border:1px solid #e2e8f0;">
+            <div class="mw-price" style="background:#94a3b8;"></div>
+            <div class="mw-plan-btn" style="background:#93c5fd;"></div>
+          </div>
+          <div class="mw-plan" style="background:#eff6ff;border:2px solid #3b82f6;">
+            <div class="mw-price" style="background:#2563eb;"></div>
+            <div class="mw-plan-btn" style="background:#2563eb;"></div>
+          </div>
+          <div class="mw-plan" style="background:#f8fafc;border:1px solid #e2e8f0;">
+            <div class="mw-price" style="background:#94a3b8;"></div>
+            <div class="mw-plan-btn" style="background:#93c5fd;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="dir-desc">
+      Mantém a paleta atual (azul/verde/roxo). Adiciona seção de preços, corrige setas do "Como funciona", remove o formulário de login redundante no rodapé e reforça a hierarquia dos CTAs. <strong>Menor impacto visual, mais rápido de implementar.</strong>
+    </div>
+    <div class="dir-label">Ajustes pontuais · Mantém identidade atual</div>
+  </div>
+
+  <!-- B: Unificação de identidade -->
+  <div class="dir-card dir-b option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="dir-header">
+      🎨 Unificar identidade visual
+      <span class="tag-badge" style="background:#f0fdfa;color:#0f766e;">Médio esforço</span>
+    </div>
+    <div class="dir-preview">
+      <div class="mw-nav">
+        <div class="mw-logo" style="background:#0f766e;"></div>
+        <div class="mw-links"><div class="mw-link"></div><div class="mw-link"></div></div>
+        <div class="mw-btn-sm" style="background:#0f766e;"></div>
+      </div>
+      <!-- Hero teal unificado -->
+      <div class="mw-hero" style="background:linear-gradient(135deg,#f0fdfa,#fef9f3);">
+        <div class="mw-h1" style="background:#0f766e;width:80%;"></div>
+        <div class="mw-sub" style="background:#94a3b8;width:60%;"></div>
+        <div class="mw-img" style="background:linear-gradient(135deg,#99f6e4,#fed7aa);"></div>
+        <div class="mw-cards">
+          <div class="mw-card" style="background:linear-gradient(135deg,#ccfbf1,#f0fdfa);border:2px solid #5eead4;"></div>
+          <div class="mw-card" style="background:linear-gradient(135deg,#fed7aa,#fff7ed);border:2px solid #fdba74;"></div>
+        </div>
+      </div>
+      <!-- Features teal -->
+      <div class="mw-section" style="background:#fff;">
+        <div class="mw-3col">
+          <div class="mw-feat" style="border-color:#99f6e4;"></div>
+          <div class="mw-feat" style="border-color:#99f6e4;"></div>
+          <div class="mw-feat" style="border-color:#99f6e4;"></div>
+        </div>
+      </div>
+      <!-- Pricing teal -->
+      <div class="mw-section" style="background:#f0fdfa;border:1px solid #99f6e4;">
+        <div style="height:7px;background:#0f766e;border-radius:3px;width:40%;margin-bottom:8px;"></div>
+        <div class="mw-pricing">
+          <div class="mw-plan" style="background:#fff;border:1px solid #99f6e4;">
+            <div class="mw-price" style="background:#94a3b8;"></div>
+            <div class="mw-plan-btn" style="background:#5eead4;"></div>
+          </div>
+          <div class="mw-plan" style="background:#fff;border:2px solid #0f766e;">
+            <div class="mw-price" style="background:#0f766e;"></div>
+            <div class="mw-plan-btn" style="background:#0f766e;"></div>
+          </div>
+          <div class="mw-plan" style="background:#fff;border:1px solid #99f6e4;">
+            <div class="mw-price" style="background:#94a3b8;"></div>
+            <div class="mw-plan-btn" style="background:#5eead4;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="dir-desc">
+      Adota o teal (#0f766e) como cor primária na landing page — a mesma cor já usada em <code>experimentar.php</code>. Landing page e formulário de cadastro ficam visualmente coerentes. Adiciona pricing, corrige steps e reorganiza CTAs. <strong>Cria identidade de marca unificada.</strong>
+    </div>
+    <div class="dir-label">Unifica brand · Teal como primário em ambas as páginas</div>
+  </div>
+
+  <!-- C: Hero repaginado -->
+  <div class="dir-card dir-c option" data-choice="c" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="dir-header">
+      ⚡ Hero repaginado + pricing
+      <span class="tag-badge" style="background:#f5f3ff;color:#7c3aed;">Alto impacto</span>
+    </div>
+    <div class="dir-preview">
+      <div class="mw-nav">
+        <div class="mw-logo" style="background:#7c3aed;"></div>
+        <div class="mw-links"><div class="mw-link"></div><div class="mw-link"></div></div>
+        <div class="mw-btn-sm" style="background:#7c3aed;"></div>
+      </div>
+      <!-- Hero split layout: texto + mockup lado a lado -->
+      <div class="mw-hero" style="background:#0f172a;padding:14px;border-radius:8px;display:grid;grid-template-columns:1fr 1fr;gap:8px;align-items:center;margin-bottom:8px;">
+        <div style="text-align:left;">
+          <div style="height:7px;background:#a78bfa;border-radius:3px;width:70%;margin-bottom:5px;"></div>
+          <div style="height:10px;background:#fff;border-radius:4px;width:90%;margin-bottom:4px;"></div>
+          <div style="height:10px;background:#fff;border-radius:4px;width:80%;margin-bottom:8px;"></div>
+          <div style="height:7px;background:#94a3b8;border-radius:3px;width:75%;margin-bottom:10px;"></div>
+          <div style="height:20px;background:linear-gradient(90deg,#7c3aed,#a78bfa);border-radius:99px;width:80%;"></div>
+        </div>
+        <div style="background:linear-gradient(135deg,#1e1b4b,#312e81);border-radius:6px;height:70px;border:1px solid rgba(167,139,250,.3);"></div>
+      </div>
+      <!-- Segment cards -->
+      <div class="mw-cards" style="margin-bottom:8px;">
+        <div class="mw-card" style="background:linear-gradient(135deg,#312e81,#1e1b4b);border:1px solid rgba(167,139,250,.4);height:40px;"></div>
+        <div class="mw-card" style="background:linear-gradient(135deg,#1a1f3a,#1e2a3a);border:1px solid rgba(99,102,241,.4);height:40px;"></div>
+      </div>
+      <!-- Steps com conectores -->
+      <div class="mw-section" style="background:#f8fafc;">
+        <div class="mw-steps">
+          <div class="mw-step"><div class="mw-circle" style="background:linear-gradient(135deg,#7c3aed,#a78bfa);">1</div></div>
+          <div style="height:3px;background:linear-gradient(90deg,#7c3aed,#a78bfa);border-radius:1px;margin-top:-14px;"></div>
+          <div class="mw-step"><div class="mw-circle" style="background:linear-gradient(135deg,#7c3aed,#a78bfa);">2</div></div>
+          <div style="height:3px;background:linear-gradient(90deg,#7c3aed,#a78bfa);border-radius:1px;margin-top:-14px;"></div>
+          <div class="mw-step"><div class="mw-circle" style="background:linear-gradient(135deg,#7c3aed,#a78bfa);">3</div></div>
+        </div>
+      </div>
+      <!-- Pricing cards -->
+      <div class="mw-section" style="background:#f5f3ff;border:1px solid #ddd6fe;">
+        <div class="mw-pricing">
+          <div class="mw-plan" style="background:#fff;border:1px solid #ddd6fe;">
+            <div class="mw-price" style="background:#94a3b8;"></div>
+            <div class="mw-plan-btn" style="background:#c4b5fd;"></div>
+          </div>
+          <div class="mw-plan" style="background:#fff;border:2px solid #7c3aed;box-shadow:0 4px 12px rgba(124,58,237,.2);">
+            <div style="height:8px;background:#7c3aed;border-radius:2px;width:60%;"></div>
+            <div class="mw-price" style="background:#7c3aed;width:48px;"></div>
+            <div class="mw-plan-btn" style="background:#7c3aed;"></div>
+          </div>
+          <div class="mw-plan" style="background:#fff;border:1px solid #ddd6fe;">
+            <div class="mw-price" style="background:#94a3b8;"></div>
+            <div class="mw-plan-btn" style="background:#c4b5fd;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="dir-desc">
+      Hero dividido (texto esquerda + screenshot direita), sem precisar scrollar para ver o produto. Seção de preços com destaque no plano recomendado. Steps com linha conectora gradiente. Remoção da section de login no rodapé. <strong>Maior impacto visual, mais trabalho.</strong>
+    </div>
+    <div class="dir-label">Reestrutura hero · Maior impacto visual</div>
+  </div>
+
+</div>
+
+<div style="margin-top:24px;padding:14px 18px;background:#f8fafc;border-radius:10px;border:1px solid #e2e8f0;font-size:13px;color:#475569;">
+  <strong>Nota:</strong> As opções não são exclusivas. Você pode combinar A+B (melhorias cirúrgicas com unificação de cor) ou B+C (identidade teal + hero novo), por exemplo. Clique em uma ou mais para sinalizar preferência.
+</div>

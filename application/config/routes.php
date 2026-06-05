@@ -70,6 +70,10 @@ $route['acesso/senha']        = 'home/definir_senha';
 $route['acesso/salvar']       = 'home/salvar_senha';
 $route['webhooks/mercadopago'] = 'adm/saas/webhook_mercadopago';
 
+// Leads
+$route['adm/leads']                        = 'adm/leads/index';
+$route['adm/leads/atualizar_status']       = 'adm/leads/atualizar_status';
+
 // SEO landing pages
 $route['sistema-para-clinicas']            = 'home/seo_sistema_para_clinicas';
 $route['sistema-para-clinica-medica']      = 'home/seo_sistema_clinica_medica';

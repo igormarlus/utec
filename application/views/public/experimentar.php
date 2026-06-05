@@ -43,100 +43,227 @@
             --panel:#ffffff;
             --paper:#f6f8fb;
             --primary:#0f766e;
+            --primary-dark:#0d5f58;
+            --primary-light:#e6f7f5;
             --accent:#f97316;
             --ok-bg:#ecfdf3;
             --ok-text:#166534;
             --error-bg:#fef2f2;
             --error-text:#991b1b;
+            --radius-sm:10px;
+            --radius-md:14px;
+            --radius-lg:22px;
+            --radius-xl:28px;
+            --shadow-sm:0 2px 8px rgba(23,32,51,.06);
+            --shadow-md:0 8px 24px rgba(23,32,51,.08);
+            --shadow-lg:0 24px 60px rgba(23,32,51,.10);
+            --transition:all .18s ease;
         }
         * { box-sizing:border-box; }
         body {
             margin:0;
-            font-family: Georgia, "Times New Roman", serif;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
             color:var(--ink);
             background:
-                radial-gradient(circle at top left, rgba(15,118,110,.12), transparent 26%),
-                radial-gradient(circle at top right, rgba(249,115,22,.12), transparent 22%),
+                radial-gradient(circle at top left, rgba(15,118,110,.10), transparent 30%),
+                radial-gradient(circle at top right, rgba(249,115,22,.08), transparent 26%),
                 linear-gradient(180deg,#f8fafc 0%,#eef4f7 100%);
+            min-height:100vh;
         }
-        .wrap { max-width:1120px; margin:0 auto; padding:30px 18px 54px; }
-        .topbar { display:flex; justify-content:space-between; align-items:center; gap:16px; margin-bottom:26px; flex-wrap:wrap; }
+        .wrap { max-width:1120px; margin:0 auto; padding:32px 20px 64px; }
+
+        /* Topbar */
+        .topbar { display:flex; justify-content:space-between; align-items:center; gap:16px; margin-bottom:32px; flex-wrap:wrap; }
         .brand { font-size:14px; letter-spacing:.16em; text-transform:uppercase; color:#115e59; font-weight:700; }
-        .back { color:var(--muted); text-decoration:none; font-size:14px; }
-        .hero { display:grid; grid-template-columns:minmax(0,1.15fr) minmax(330px,.85fr); gap:24px; align-items:start; }
-        .hero-left { display:flex; flex-direction:column; gap:20px; }
-        .panel-img { overflow:hidden; padding:0; border-radius:28px; box-shadow:0 24px 60px rgba(23,32,51,.08); }
-        .panel-img img { width:100%; display:block; border-radius:28px; }
-        .benefits-panel { background:rgba(255,255,255,.88); border:1px solid rgba(208,216,228,.8); border-radius:24px; padding:24px 26px; }
-        .benefits-title { font-size:18px; font-weight:700; color:#115e59; margin:0 0 16px; font-family:system-ui,sans-serif; }
-        .benefits-list { display:grid; gap:12px; }
-        .benefit-item { display:flex; align-items:flex-start; gap:12px; font-size:14px; color:#334155; line-height:1.55; font-family:system-ui,sans-serif; }
-        .benefit-item .b-ico { font-size:20px; flex-shrink:0; margin-top:1px; }
-        .benefit-item strong { display:block; font-size:14px; font-weight:700; color:#172033; margin-bottom:2px; }
-        .benefits-note { margin-top:16px; font-size:13px; color:#667085; font-family:system-ui,sans-serif; line-height:1.6; border-top:1px solid #e2e8f0; padding-top:14px; }
-        .panel {
-            background:rgba(255,255,255,.92);
-            border:1px solid rgba(208,216,228,.9);
-            border-radius:28px;
-            padding:28px;
-            box-shadow:0 24px 60px rgba(23,32,51,.08);
+        .back {
+            display:inline-flex; align-items:center; gap:6px;
+            color:var(--muted); text-decoration:none; font-size:14px; font-weight:500;
+            padding:6px 14px; border-radius:999px; border:1px solid var(--line);
+            background:#fff; transition:var(--transition);
         }
-        .eyebrow { font-size:12px; letter-spacing:.18em; text-transform:uppercase; color:var(--accent); font-weight:700; }
+        .back:hover { color:var(--primary); border-color:var(--primary); background:var(--primary-light); }
+
+        /* Hero layout */
+        .hero { display:grid; grid-template-columns:minmax(0,1.15fr) minmax(340px,.85fr); gap:28px; align-items:start; }
+        .hero-left { display:flex; flex-direction:column; gap:22px; }
+        .panel-img { overflow:hidden; padding:0; border-radius:var(--radius-xl); box-shadow:var(--shadow-lg); }
+        .panel-img img { width:100%; display:block; border-radius:var(--radius-xl); }
+
+        /* Benefits panel */
+        .benefits-panel {
+            background:rgba(255,255,255,.90);
+            backdrop-filter:blur(8px);
+            border:1px solid rgba(208,216,228,.7);
+            border-radius:var(--radius-xl);
+            padding:26px 28px;
+            box-shadow:var(--shadow-md);
+        }
+        .benefits-title { font-size:17px; font-weight:700; color:#115e59; margin:0 0 18px; line-height:1.4; }
+        .benefits-list { display:grid; gap:14px; }
+        .benefit-item { display:flex; align-items:flex-start; gap:13px; font-size:14px; color:#334155; line-height:1.6; }
+        .benefit-item .b-ico {
+            font-size:18px; flex-shrink:0; margin-top:1px;
+            width:36px; height:36px; border-radius:10px;
+            background:var(--primary-light); display:flex; align-items:center; justify-content:center;
+        }
+        .benefit-item strong { display:block; font-size:13.5px; font-weight:700; color:#172033; margin-bottom:2px; }
+        .benefits-note { margin-top:18px; font-size:13px; color:#667085; line-height:1.65; border-top:1px solid #e8edf3; padding-top:16px; }
+
+        /* Form panel */
+        .panel {
+            background:rgba(255,255,255,.96);
+            backdrop-filter:blur(12px);
+            border:1px solid rgba(208,216,228,.8);
+            border-radius:var(--radius-xl);
+            padding:30px 28px;
+            box-shadow:var(--shadow-lg);
+        }
+        .eyebrow {
+            display:inline-flex; align-items:center; gap:6px;
+            font-size:11.5px; letter-spacing:.16em; text-transform:uppercase;
+            color:var(--accent); font-weight:700;
+            background:rgba(249,115,22,.08); border-radius:999px;
+            padding:4px 12px; margin-bottom:2px;
+        }
         h1 { font-size:46px; line-height:1.04; margin:14px 0 14px; }
         .lead { font-size:17px; line-height:1.75; color:#46566e; }
         .points { display:grid; gap:10px; margin-top:22px; }
         .point { border:1px solid rgba(15,118,110,.14); background:linear-gradient(90deg, rgba(15,118,110,.08), rgba(249,115,22,.06)); border-radius:16px; padding:14px 16px; font-size:15px; }
-        .alert { border-radius:16px; padding:14px 16px; font-size:14px; margin-bottom:16px; }
+
+        /* Alerts */
+        .alert { border-radius:var(--radius-md); padding:14px 16px; font-size:14px; margin-bottom:18px; display:flex; align-items:flex-start; gap:10px; }
         .alert-ok { background:var(--ok-bg); color:var(--ok-text); border:1px solid #bbf7d0; }
         .alert-error { background:var(--error-bg); color:var(--error-text); border:1px solid #fecaca; }
-        .card-title { font-size:28px; margin:0 0 6px; }
-        .card-subtitle { color:var(--muted); font-size:15px; line-height:1.6; margin:0 0 18px; }
-        .form-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; }
+
+        /* Card header */
+        .card-title { font-size:26px; font-weight:800; margin:0 0 6px; letter-spacing:-.02em; }
+        .card-subtitle { color:var(--muted); font-size:14.5px; line-height:1.65; margin:0 0 22px; }
+
+        /* Form fields */
+        .form-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; }
         .field { display:grid; gap:6px; }
         .field-wide { grid-column:1 / -1; }
-        label { font-size:12px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); }
+        label {
+            font-size:11.5px; font-weight:700; letter-spacing:.07em; text-transform:uppercase;
+            color:#55677d; display:flex; align-items:center; gap:4px;
+        }
+        .field-hint { font-size:12px; color:var(--muted); margin-top:2px; }
+
         input, select, textarea {
             width:100%;
-            border:1px solid #c9d3df;
-            border-radius:14px;
-            padding:12px 13px;
+            border:1.5px solid #d1dae5;
+            border-radius:var(--radius-md);
+            padding:11px 14px;
             font:inherit;
+            font-size:14.5px;
             color:var(--ink);
             background:#fff;
+            transition:var(--transition);
+            outline:none;
+            -webkit-appearance:none;
+            appearance:none;
+        }
+        input::placeholder, textarea::placeholder { color:#9aabb8; }
+        input:hover, select:hover, textarea:hover { border-color:#a8bcc9; }
+        input:focus, select:focus, textarea:focus {
+            border-color:var(--primary);
+            box-shadow:0 0 0 3px rgba(15,118,110,.12);
+            background:#fafffe;
+        }
+        select {
+            background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23667085' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+            background-repeat:no-repeat;
+            background-position:right 14px center;
+            padding-right:36px;
         }
         textarea { min-height:96px; resize:vertical; }
-        .submit-row { display:flex; flex-wrap:wrap; gap:12px; margin-top:18px; align-items:center; }
-        .btn-submit {
-            border:0;
-            border-radius:999px;
-            background:linear-gradient(90deg,var(--primary),var(--accent));
-            color:#fff;
-            padding:13px 22px;
-            font-size:15px;
-            font-weight:700;
-            cursor:pointer;
-            box-shadow:0 18px 36px rgba(15,118,110,.18);
+
+        /* Tipo cards (radio-like) */
+        .tipo-cards { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; }
+        .tipo-card { position:relative; }
+        .tipo-card input[type="radio"] { position:absolute; opacity:0; width:0; height:0; }
+        .tipo-card-label {
+            display:flex; flex-direction:column; align-items:center; gap:6px;
+            border:1.5px solid #d1dae5; border-radius:var(--radius-lg);
+            padding:14px 10px 12px; cursor:pointer; text-align:center;
+            background:#fff; transition:var(--transition); user-select:none;
         }
+        .tipo-card-label:hover { border-color:var(--primary); background:var(--primary-light); }
+        .tipo-card input[type="radio"]:checked + .tipo-card-label {
+            border-color:var(--primary); background:var(--primary-light);
+            box-shadow:0 0 0 3px rgba(15,118,110,.10);
+        }
+        .tipo-card-ico { font-size:22px; line-height:1; }
+        .tipo-card-title { font-size:12.5px; font-weight:700; color:var(--ink); line-height:1.3; }
+        .tipo-card-desc { font-size:11px; color:var(--muted); line-height:1.4; }
+
+        /* Especialidade animated reveal */
+        .field-esp-wrap {
+            overflow:hidden;
+            max-height:0;
+            opacity:0;
+            transition:max-height .28s ease, opacity .22s ease, margin-top .22s ease;
+            margin-top:0;
+        }
+        .field-esp-wrap.visible {
+            max-height:120px;
+            opacity:1;
+            margin-top:0;
+        }
+
+        /* Submit row */
+        .submit-row { display:flex; flex-wrap:wrap; gap:12px; margin-top:20px; align-items:center; }
+        .btn-submit {
+            border:0; border-radius:999px;
+            background:linear-gradient(90deg,var(--primary) 0%,#1a9e94 50%,var(--accent) 100%);
+            background-size:200% 100%;
+            color:#fff;
+            padding:14px 28px;
+            font-size:15px; font-weight:700;
+            cursor:pointer;
+            box-shadow:0 12px 32px rgba(15,118,110,.22);
+            transition:background-position .3s ease, box-shadow .2s ease, transform .15s ease;
+            letter-spacing:.01em;
+        }
+        .btn-submit:hover {
+            background-position:100% 0;
+            box-shadow:0 16px 40px rgba(15,118,110,.30);
+            transform:translateY(-1px);
+        }
+        .btn-submit:active { transform:translateY(0); box-shadow:0 8px 20px rgba(15,118,110,.20); }
+
+        /* Plans section */
         .plans { margin-top:24px; display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px; }
-        .plan { border:1px solid #dbe2ea; border-radius:22px; padding:18px; background:linear-gradient(180deg,#fff 0%,#f9fbfd 100%); }
-        .plan h3 { margin:0 0 8px; font-size:22px; }
-        .plan-price { font-size:32px; line-height:1; margin:8px 0 10px; }
-        .plan-copy { font-size:14px; line-height:1.7; color:#43526a; }
+        .plan {
+            border:1.5px solid #dbe2ea; border-radius:var(--radius-lg);
+            padding:20px 18px; background:linear-gradient(180deg,#fff 0%,#f9fbfd 100%);
+            transition:var(--transition);
+        }
+        .plan:hover { border-color:var(--primary); box-shadow:var(--shadow-md); transform:translateY(-2px); }
+        .plan h3 { margin:0 0 8px; font-size:20px; font-weight:800; }
+        .plan-price { font-size:30px; line-height:1; margin:8px 0 10px; font-weight:800; color:var(--primary); }
+        .plan-copy { font-size:13.5px; line-height:1.75; color:#43526a; }
+
         @media (max-width: 980px) {
-            .hero,.plans { grid-template-columns:1fr; }
+            .hero, .plans { grid-template-columns:1fr; }
             .hero-left { order:2; }
             .panel { order:1; }
         }
         @media (max-width: 680px) {
             h1 { font-size:30px; }
             .form-grid { grid-template-columns:1fr; }
-            .wrap { padding:20px 14px 40px; }
+            .wrap { padding:20px 14px 44px; }
             .card-title { font-size:22px; }
-            .btn-submit { width:100%; font-size:16px; padding:15px 20px; }
-            input, select { font-size:16px; } /* evita zoom no iOS */
-            .benefits-panel { display:none; } /* esconde na mobile para reduzir scroll */
+            .btn-submit { width:100%; font-size:16px; padding:15px 20px; justify-content:center; }
+            input, select { font-size:16px; }
+            .benefits-panel { display:none; }
+            .tipo-cards { grid-template-columns:1fr; gap:8px; }
+            .tipo-card-label { flex-direction:row; text-align:left; gap:12px; padding:12px 14px; }
         }
     </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     <?php if(!empty($fb_pixel_id)): ?>
     <!-- Meta Pixel — Lead (deduplica com CAPI via event_id) -->
@@ -161,7 +288,10 @@
     <div class="wrap">
         <div class="topbar">
             <div class="brand"><img src="<?=base_url()?>img/logo-w.png" alt="UTecnologia Saúde" style="height:46px;width:auto;display:block"></div>
-            <a class="back" href="<?=base_url()?>">← Voltar ao site</a>
+            <a class="back" href="<?=base_url()?>">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M9 11L5 7l4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                Voltar ao site
+            </a>
         </div>
 
         <div class="hero">
@@ -247,30 +377,56 @@
                             <label>WhatsApp</label>
                             <input type="text" name="telefone" placeholder="(00) 00000-0000">
                         </div>
-                        <div class="field">
+                        <div class="field field-wide">
                             <label>Tipo de operação</label>
-                            <select name="tenant_tipo" id="tenant_tipo">
-                                <option value="clinica"       <?=(!isset($tipo_selecionado)||$tipo_selecionado==='clinica'      ?'selected':'')?>  >Clínica (mais de 1 profissional)</option>
-                                <option value="consultorio"  <?=($tipo_selecionado==='consultorio' ?'selected':'')?>  >Consultório individual</option>
-                                <option value="profissional" <?=($tipo_selecionado==='profissional'?'selected':'')?>  >Profissional autônomo</option>
-                            </select>
+                            <div class="tipo-cards">
+                                <div class="tipo-card">
+                                    <input type="radio" name="tenant_tipo" id="tipo_clinica" value="clinica"
+                                        <?=(!isset($tipo_selecionado)||$tipo_selecionado==='clinica'?'checked':'')?>>
+                                    <label class="tipo-card-label" for="tipo_clinica">
+                                        <span class="tipo-card-ico">🏥</span>
+                                        <span class="tipo-card-title">Clínica</span>
+                                        <span class="tipo-card-desc">Mais de 1 profissional</span>
+                                    </label>
+                                </div>
+                                <div class="tipo-card">
+                                    <input type="radio" name="tenant_tipo" id="tipo_consultorio" value="consultorio"
+                                        <?=($tipo_selecionado==='consultorio'?'checked':'')?>>
+                                    <label class="tipo-card-label" for="tipo_consultorio">
+                                        <span class="tipo-card-ico">🩺</span>
+                                        <span class="tipo-card-title">Consultório</span>
+                                        <span class="tipo-card-desc">Consultório individual</span>
+                                    </label>
+                                </div>
+                                <div class="tipo-card">
+                                    <input type="radio" name="tenant_tipo" id="tipo_profissional" value="profissional"
+                                        <?=($tipo_selecionado==='profissional'?'checked':'')?>>
+                                    <label class="tipo-card-label" for="tipo_profissional">
+                                        <span class="tipo-card-ico">👤</span>
+                                        <span class="tipo-card-title">Profissional</span>
+                                        <span class="tipo-card-desc">Autônomo independente</span>
+                                    </label>
+                                </div>
+                            </div>
                         </div>
 
-                        <div class="field field-wide" id="campo-especialidade" style="display:none">
-                            <label>Sua especialidade <span style="color:#e53e3e">*</span></label>
-                            <?php if(!empty($especialidades)){ ?>
-                                <select name="especialidade_id" id="select-especialidade">
-                                    <option value="">— Selecione sua especialidade —</option>
-                                    <?php foreach($especialidades as $esp){ ?>
-                                        <option value="<?=$esp->id?>"><?=htmlspecialchars($esp->nome)?></option>
-                                    <?php } ?>
-                                </select>
-                            <?php } else { ?>
-                                <select name="especialidade_id" id="select-especialidade" disabled>
-                                    <option value="">Especialidades indisponíveis no momento</option>
-                                </select>
-                                <small style="color:#e53e3e;margin-top:4px;display:block">Entre em contato para finalizar seu cadastro.</small>
-                            <?php } ?>
+                        <div class="field field-wide">
+                            <div class="field-esp-wrap" id="campo-especialidade">
+                                <label>Sua especialidade <span style="color:#e53e3e">*</span></label>
+                                <?php if(!empty($especialidades)){ ?>
+                                    <select name="especialidade_id" id="select-especialidade">
+                                        <option value="">— Selecione sua especialidade —</option>
+                                        <?php foreach($especialidades as $esp){ ?>
+                                            <option value="<?=$esp->id?>"><?=htmlspecialchars($esp->nome)?></option>
+                                        <?php } ?>
+                                    </select>
+                                <?php } else { ?>
+                                    <select name="especialidade_id" id="select-especialidade" disabled>
+                                        <option value="">Especialidades indisponíveis no momento</option>
+                                    </select>
+                                    <small style="color:#e53e3e;margin-top:4px;display:block">Entre em contato para finalizar seu cadastro.</small>
+                                <?php } ?>
+                            </div>
                         </div>
 
                         <div class="field">
@@ -313,20 +469,28 @@
     </div>
 <script>
 (function(){
-    var tipoSel  = document.getElementById('tenant_tipo');
-    var campoEsp = document.getElementById('campo-especialidade');
+    var campoEsp  = document.getElementById('campo-especialidade');
     var selectEsp = document.getElementById('select-especialidade');
-    if(!tipoSel || !campoEsp) return;
+    var tipoInputs = document.querySelectorAll('input[name="tenant_tipo"]');
+    if(!campoEsp || !tipoInputs.length) return;
 
-    // só valida se o select existe, tem opções reais e não está desabilitado
     var podeValidar = selectEsp && !selectEsp.disabled && selectEsp.options.length > 1;
 
+    function getTipoSelecionado(){
+        for(var i=0; i<tipoInputs.length; i++){
+            if(tipoInputs[i].checked) return tipoInputs[i].value;
+        }
+        return '';
+    }
+
     function toggleEsp(){
-        if(tipoSel.value === 'profissional'){
-            campoEsp.style.display = 'grid';
+        var tipo = getTipoSelecionado();
+        var mostrar = (tipo === 'profissional' || tipo === 'consultorio');
+        if(mostrar){
+            campoEsp.classList.add('visible');
             if(podeValidar) selectEsp.required = true;
         } else {
-            campoEsp.style.display = 'none';
+            campoEsp.classList.remove('visible');
             if(selectEsp){ selectEsp.required = false; selectEsp.value = ''; }
             var msg = document.getElementById('esp-err-msg');
             if(msg) msg.remove();
@@ -334,13 +498,14 @@
         }
     }
 
-    tipoSel.addEventListener('change', toggleEsp);
-    toggleEsp(); // aplica imediatamente ao carregar (ex: ?tipo=profissional)
+    tipoInputs.forEach(function(inp){ inp.addEventListener('change', toggleEsp); });
+    toggleEsp();
 
-    var form = tipoSel.closest('form');
+    var form = campoEsp.closest('form');
     if(form && podeValidar){
         form.addEventListener('submit', function(e){
-            if(tipoSel.value === 'profissional' && !selectEsp.value){
+            var tipo = getTipoSelecionado();
+            if((tipo === 'profissional' || tipo === 'consultorio') && !selectEsp.value){
                 e.preventDefault();
                 selectEsp.focus();
                 selectEsp.style.borderColor = '#e53e3e';
@@ -348,7 +513,7 @@
                 if(!msg){
                     msg = document.createElement('small');
                     msg.id = 'esp-err-msg';
-                    msg.style.cssText = 'color:#e53e3e;font-size:12px;margin-top:4px;display:block';
+                    msg.style.cssText = 'color:#e53e3e;font-size:12px;margin-top:6px;display:block';
                     msg.textContent = 'Selecione sua especialidade antes de continuar.';
                     campoEsp.appendChild(msg);
                 }
