@@ -39,4 +39,92 @@ class Calendario extends CI_Controller {
 
 		$this->load->view('adm/calendario/index', $dados);
 	}
+
+	function eventos()
+	{
+		$dd_user = $this->padrao_model->get_usuario_logado();
+		if ((int)$dd_user->nivel === 5) {
+			header('Content-Type: application/json');
+			echo json_encode([]); return;
+		}
+
+		$start = $this->input->get('start', true);
+		$end   = $this->input->get('end',   true);
+
+		if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', (string)$start)) {
+			header('Content-Type: application/json');
+			echo json_encode([]); return;
+		}
+		if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', (string)$end)) {
+			header('Content-Type: application/json');
+			echo json_encode([]); return;
+		}
+
+		$scope_ids             = $this->padrao_model->get_scope_user_ids($dd_user);
+		$scope_sql             = $this->padrao_model->ids_to_sql_in($scope_ids);
+		$visible_prestador_ids = $this->padrao_model->get_visible_prestador_ids($dd_user);
+
+		$where = ["a.data_agenda BETWEEN '" . $this->db->escape_str($start) . "' AND '" . $this->db->escape_str($end) . "'"];
+
+		if ((int)$dd_user->nivel !== 1) {
+			$where[] = "(a.id_user IN (" . $scope_sql . ") OR a.id_paciente IN (" . $scope_sql . ") OR a.id_prestador IN (" . $scope_sql . "))";
+		}
+
+		$id_prestador = (int)$this->input->get('id_prestador');
+		if ($id_prestador > 0 && ((int)$dd_user->nivel === 1 || in_array($id_prestador, $visible_prestador_ids))) {
+			$where[] = "a.id_prestador = " . $id_prestador;
+		}
+
+		$where_sql = 'WHERE ' . implode(' AND ', $where);
+
+		$qr = $this->db->query(
+			"SELECT a.id, a.id_paciente, a.id_prestador, a.data_agenda, a.hora_agenda, a.tipo, a.status,
+			        p.nome  AS paciente_nome,
+			        pr.nome AS prestador_nome
+			 FROM agendamentos a
+			 LEFT JOIN usuarios p  ON p.id  = a.id_paciente
+			 LEFT JOIN usuarios pr ON pr.id = a.id_prestador
+			 " . $where_sql . "
+			 ORDER BY a.data_agenda ASC, a.hora_agenda ASC"
+		);
+
+		$paleta = [
+			['bg'=>'#dbeafe','border'=>'#93c5fd','text'=>'#1e40af'],
+			['bg'=>'#fce7f3','border'=>'#f9a8d4','text'=>'#9d174d'],
+			['bg'=>'#fef3c7','border'=>'#fde68a','text'=>'#92400e'],
+			['bg'=>'#ede9fe','border'=>'#c4b5fd','text'=>'#5b21b6'],
+			['bg'=>'#dcfce7','border'=>'#86efac','text'=>'#166534'],
+			['bg'=>'#ffedd5','border'=>'#fdba74','text'=>'#9a3412'],
+			['bg'=>'#cffafe','border'=>'#67e8f9','text'=>'#164e63'],
+			['bg'=>'#f1f5f9','border'=>'#cbd5e1','text'=>'#334155'],
+		];
+
+		$eventos = [];
+		foreach ($qr->result() as $ag) {
+			$cor  = $paleta[(int)$ag->id_prestador % 8];
+			$hora = substr($ag->hora_agenda, 0, 5);
+			$eventos[] = [
+				'id'              => (int)$ag->id,
+				'title'           => $ag->paciente_nome ?: 'Paciente',
+				'start'           => $ag->data_agenda . 'T' . $hora . ':00',
+				'end'             => $ag->data_agenda . 'T' . $hora . ':00',
+				'backgroundColor' => $cor['bg'],
+				'borderColor'     => $cor['border'],
+				'textColor'       => $cor['text'],
+				'extendedProps'   => [
+					'paciente_id'    => (int)$ag->id_paciente,
+					'paciente_nome'  => (string)$ag->paciente_nome,
+					'prestador_id'   => (int)$ag->id_prestador,
+					'prestador_nome' => (string)$ag->prestador_nome,
+					'tipo'           => (string)$ag->tipo,
+					'status'         => (int)$ag->status,
+					'hora'           => $hora,
+					'data'           => (string)$ag->data_agenda,
+				],
+			];
+		}
+
+		header('Content-Type: application/json');
+		echo json_encode($eventos);
+	}
 }
