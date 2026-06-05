@@ -5,7 +5,7 @@
 
 application/cache/*
 application/logs/*
-includes
+includes/lib/
 includes/lib/mercadopago/
 includes/lib/mercadopago/lib/
 includes/lib/mercadopago/vendor/
@@ -29,3 +29,4 @@ utec-ci.zip
 python
 .agents
 .idea
+.superpowers
