@@ -286,8 +286,7 @@
                 <div class="element-actions">
                   <a href="<?=base_url()?>adm/usuarios/rel/5" class="btn btn-outline-primary btn-sm">Ver pacientes</a>
                 </div>
-                <h6 class="element-header">Agenda clinica</h6>
-                <p style="color:#64748b">Acompanhe os atendimentos do dia, altere status rapidamente e abra o prontuario sem sair do fluxo.</p>
+                <h6 class="element-header">Agenda clinica</h6>                
               </div>
 
               <?php if(!empty($onboarding['show'])):

@@ -19,76 +19,120 @@
     <meta name="twitter:title" content="Alternativa ao Feegow — UTecnologia Saúde">
     <meta name="twitter:description" content="Alternativa ao Feegow com prontuário, agenda e gestão clínica. Teste grátis 30 dias.">
     <meta name="twitter:image" content="https://utecnologia.com.br/imagens/og-cover.png">
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" media="print" onload="this.media='all'">
-    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"></noscript>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,600;9..144,700&family=Outfit:wght@400;500;600;700;800&display=swap" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,600;9..144,700&family=Outfit:wght@400;500;600;700;800&display=swap"></noscript>
     <style>
-        :root { --ink:#0f172a; --muted:#475569; --primary:#0ea5e9; --primary-dark:#0284c7; --accent:#22c55e; --border:#e2e8f0; --paper:#f8fafc; --radius:16px; --shadow:0 4px 24px rgba(15,23,42,.08); }
-        * { box-sizing:border-box; margin:0; padding:0; }
-        body { font-family:'Inter',sans-serif; color:var(--ink); background:var(--paper); line-height:1.6; }
-        a { color:var(--primary-dark); }
-        .wrap { max-width:1100px; margin:0 auto; padding:0 20px; }
-        .topnav { background:#fff; border-bottom:1px solid var(--border); padding:14px 0; }
-        .topnav .wrap { display:flex; justify-content:space-between; align-items:center; }
-        .brand { font-size:17px; font-weight:800; color:var(--ink); text-decoration:none; }
-        .brand span { color:var(--primary); }
-        .nav-links { display:flex; gap:24px; align-items:center; }
-        .nav-links a { font-size:14px; font-weight:500; color:var(--muted); text-decoration:none; }
-        .btn-nav { background:var(--primary); color:#fff !important; padding:8px 18px; border-radius:999px; font-weight:700 !important; font-size:13px !important; }
-        .hero { padding:80px 0 60px; background:linear-gradient(160deg,#f0f9ff 0%,#f8fafc 60%); }
-        .eyebrow { font-size:12px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--primary); margin-bottom:12px; }
-        h1 { font-size:42px; font-weight:800; line-height:1.12; margin-bottom:20px; max-width:720px; }
-        h1 em { font-style:normal; color:var(--primary); }
-        .hero-text { font-size:18px; color:var(--muted); line-height:1.7; margin-bottom:32px; max-width:620px; }
-        .hero-cta { display:flex; gap:12px; flex-wrap:wrap; }
-        .btn-primary { display:inline-block; background:var(--primary); color:#fff; padding:14px 28px; border-radius:999px; font-weight:700; font-size:15px; text-decoration:none; }
-        .btn-primary:hover { background:var(--primary-dark); }
-        .btn-outline { display:inline-block; border:1.5px solid var(--border); color:var(--muted); padding:13px 24px; border-radius:999px; font-weight:600; font-size:14px; text-decoration:none; }
-        .section { padding:72px 0; }
-        .section-label { font-size:12px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--primary); text-align:center; margin-bottom:12px; }
-        h2 { font-size:32px; font-weight:800; text-align:center; margin-bottom:16px; }
-        .section-sub { font-size:17px; color:var(--muted); text-align:center; max-width:580px; margin:0 auto 48px; }
-
-        /* COMPARISON TABLE */
-        .compare-wrap { overflow-x:auto; }
-        .compare-table { width:100%; border-collapse:collapse; background:#fff; border-radius:20px; overflow:hidden; border:1px solid var(--border); }
-        .compare-table th { padding:16px 20px; font-size:13px; font-weight:700; text-align:left; background:#f8fafc; }
-        .compare-table th.col-utec { background:#eff6ff; color:var(--primary); }
-        .compare-table td { padding:14px 20px; font-size:14px; border-top:1px solid var(--border); }
-        .compare-table tr:nth-child(even) td { background:#fafbfc; }
-        .check { color:var(--accent); font-weight:700; }
-        .cross { color:#ef4444; font-weight:700; }
-        .partial { color:#f59e0b; font-weight:700; }
-        .badge-utec { display:inline-block; background:#eff6ff; color:var(--primary); font-size:11px; font-weight:700; padding:3px 8px; border-radius:999px; }
-
-        .reasons-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:24px; }
-        .reason-card { background:#fff; border:1px solid var(--border); border-radius:var(--radius); padding:24px; }
-        .reason-icon { font-size:28px; margin-bottom:12px; }
-        .reason-card h3 { font-size:16px; font-weight:700; margin-bottom:8px; }
-        .reason-card p { font-size:14px; color:var(--muted); line-height:1.6; }
-        .faq-list { max-width:720px; margin:0 auto; display:flex; flex-direction:column; gap:12px; }
-        .faq-item { background:#fff; border:1px solid var(--border); border-radius:var(--radius); padding:20px 24px; }
-        .faq-q { font-size:15px; font-weight:700; margin-bottom:8px; }
-        .faq-a { font-size:14px; color:var(--muted); line-height:1.7; }
-        .cta-box { background:var(--primary); border-radius:24px; padding:56px 40px; text-align:center; }
-        .cta-box h2 { color:#fff; font-size:30px; margin-bottom:12px; }
-        .cta-box p { color:rgba(255,255,255,.85); font-size:16px; margin-bottom:28px; }
-        .btn-white { display:inline-block; background:#fff; color:var(--primary-dark); padding:14px 32px; border-radius:999px; font-weight:800; font-size:15px; text-decoration:none; }
-        .footer { background:#0f172a; color:rgba(255,255,255,.6); padding:32px 0; }
-        .footer-inner { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px; }
-        .footer-links a { color:rgba(255,255,255,.6); text-decoration:none; font-size:13px; margin-left:20px; }
-        .footer-brand { font-size:14px; font-weight:700; color:#fff; }
-        .disclaimer { font-size:11px; color:var(--muted); text-align:center; margin-top:16px; }
-        @media(max-width:900px) { .reasons-grid { grid-template-columns:1fr 1fr; } h1 { font-size:30px; } }
-        @media(max-width:600px) { .reasons-grid { grid-template-columns:1fr; } .nav-links { display:none; } }
+    :root{
+      --navy:#0a2540;--teal:#007fa3;--teal-lt:#e0f4f8;--teal-md:#b3dfe9;
+      --accent:#00b4d8;--green:#10b981;
+      --ink:#0a2540;--muted:#4a6080;--subtle:#8fa3b8;
+      --border:#dce7ef;--paper:#f5f8fb;--white:#ffffff;
+      --radius:14px;--shadow:0 4px 32px rgba(10,37,64,.10);
+      --shadow-lg:0 12px 48px rgba(10,37,64,.16);
+      --ff-display:'Fraunces',Georgia,serif;--ff-body:'Outfit',sans-serif;
+    }
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:var(--ff-body);color:var(--ink);background:var(--paper);line-height:1.6;}
+    a{color:var(--teal);text-decoration:none;}
+    .wrap{max-width:1100px;margin:0 auto;padding:0 20px;}
+    .topnav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:14px 0;}
+    .topnav .wrap{display:flex;justify-content:space-between;align-items:center;}
+    .nav-links{display:flex;gap:24px;align-items:center;}
+    .nav-links a{font-size:14px;font-weight:500;color:var(--muted);}
+    .nav-links a:hover{color:var(--teal);}
+    .btn-nav{background:var(--teal);color:var(--white)!important;padding:8px 20px;border-radius:999px;font-weight:700!important;font-size:13px!important;}
+    /* single-column hero */
+    .hero{padding:80px 0 72px;background:linear-gradient(145deg,var(--teal-lt) 0%,var(--paper) 55%);text-align:center;}
+    .eyebrow{font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--teal);margin-bottom:14px;}
+    h1{font-family:var(--ff-display);font-size:48px;font-weight:700;line-height:1.1;color:var(--ink);margin-bottom:20px;max-width:760px;margin-left:auto;margin-right:auto;}
+    h1 em{font-style:italic;color:var(--teal);}
+    .hero-text{font-size:18px;color:var(--muted);line-height:1.75;margin-bottom:32px;max-width:640px;margin-left:auto;margin-right:auto;}
+    .hero-cta{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-bottom:16px;}
+    .btn-primary{display:inline-block;background:var(--teal);color:var(--white);padding:14px 28px;border-radius:999px;font-weight:700;font-size:15px;}
+    .btn-primary:hover{background:#006d8c;color:var(--white);}
+    .btn-outline{display:inline-block;border:2px solid var(--border);color:var(--muted);padding:13px 24px;border-radius:999px;font-weight:600;font-size:14px;}
+    .trust-line{font-size:12px;color:var(--subtle);display:flex;gap:16px;flex-wrap:wrap;justify-content:center;}
+    .trust-line span::before{content:'✓ ';color:var(--green);font-weight:700;}
+    .prontuario-section{padding:80px 0;background:var(--navy);position:relative;overflow:hidden;}
+    .prontuario-section::before{content:'';position:absolute;top:-80px;right:-80px;width:400px;height:400px;background:radial-gradient(circle,rgba(0,127,163,.3) 0%,transparent 70%);pointer-events:none;}
+    .pront-header{text-align:center;margin-bottom:44px;}
+    .pront-label{font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--teal-md);margin-bottom:12px;}
+    .pront-header h2{font-family:var(--ff-display);font-size:32px;font-weight:700;color:var(--white);margin-bottom:12px;}
+    .pront-header p{font-size:15px;color:rgba(255,255,255,.65);max-width:540px;margin:0 auto;}
+    .prontuario-stage{position:relative;max-width:820px;margin:0 auto;}
+    .prontuario-stage::before{content:'Prontuário Eletrônico — UTecnologia Saúde';position:absolute;top:-12px;left:24px;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--teal-md);background:var(--navy);padding:0 8px;z-index:10;}
+    .prontuario-mock{background:#0e2d4a;border:1px solid rgba(0,127,163,.4);border-radius:16px;overflow:hidden;box-shadow:var(--shadow-lg);}
+    .pmock-topbar{background:var(--navy);padding:10px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(255,255,255,.08);}
+    .pmock-dots{display:flex;gap:5px;}
+    .pmock-dots span{width:10px;height:10px;border-radius:50%;}
+    .pmock-dots span:nth-child(1){background:#ff5f57;}
+    .pmock-dots span:nth-child(2){background:#ffbd44;}
+    .pmock-dots span:nth-child(3){background:#28c940;}
+    .pmock-title{font-size:12px;font-weight:600;color:rgba(255,255,255,.7);}
+    .pmock-body{padding:20px;display:flex;flex-direction:column;gap:14px;}
+    .pmock-group{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:14px 16px;}
+    .pmock-group-label{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--teal-md);margin-bottom:8px;}
+    .pmock-row{display:flex;gap:10px;}
+    .pmock-row.col2>*,.pmock-row.col3>*{flex:1;}
+    .pmock-field-input{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:6px;padding:8px 10px;font-size:12px;color:rgba(255,255,255,.75);width:100%;}
+    .pmock-act{display:flex;gap:10px;justify-content:flex-end;padding-top:4px;}
+    .pmock-act button{padding:8px 18px;border-radius:8px;font-size:12px;font-weight:700;border:none;cursor:default;font-family:var(--ff-body);}
+    .pmock-act .btn-save{background:rgba(0,127,163,.3);color:var(--teal-md);}
+    .pmock-act .btn-finish{background:var(--teal);color:var(--white);}
+    .section{padding:72px 0;}
+    .section-label{font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--teal);text-align:center;margin-bottom:12px;}
+    h2{font-family:var(--ff-display);font-size:36px;font-weight:700;text-align:center;color:var(--ink);margin-bottom:14px;}
+    .section-sub{font-size:17px;color:var(--muted);text-align:center;max-width:560px;margin:0 auto 48px;line-height:1.65;}
+    /* compare table preserved */
+    .compare-wrap{overflow-x:auto;}
+    .compare-table{width:100%;border-collapse:collapse;background:var(--white);border-radius:20px;overflow:hidden;border:1px solid var(--border);}
+    .compare-table th{padding:16px 20px;font-size:13px;font-weight:700;text-align:left;background:var(--paper);}
+    .compare-table th.col-utec{background:var(--teal);color:var(--white);}
+    .compare-table td{padding:14px 20px;font-size:14px;border-top:1px solid var(--border);}
+    .compare-table tr:nth-child(even) td{background:var(--paper);}
+    .check{color:var(--green);font-weight:700;}
+    .cross{color:#ef4444;font-weight:700;}
+    .partial{color:#f59e0b;font-weight:700;}
+    .badge-utec{display:inline-block;background:var(--teal-lt);color:var(--teal);font-size:11px;font-weight:700;padding:3px 8px;border-radius:999px;}
+    .disclaimer{font-size:11px;color:var(--subtle);text-align:center;margin-top:16px;}
+    /* reasons grid preserved */
+    .reasons-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;}
+    .reason-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:24px;transition:transform .2s;}
+    .reason-card:hover{transform:translateY(-3px);}
+    .reason-icon{font-size:28px;margin-bottom:12px;}
+    .reason-card h3{font-family:var(--ff-display);font-size:16px;font-weight:600;margin-bottom:8px;color:var(--ink);}
+    .reason-card p{font-size:14px;color:var(--muted);line-height:1.6;}
+    .faq-list{max-width:720px;margin:0 auto;display:flex;flex-direction:column;gap:10px;}
+    .faq-item{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;}
+    .faq-q{font-size:15px;font-weight:600;color:var(--ink);padding:18px 24px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;user-select:none;}
+    .faq-q:hover{color:var(--teal);}
+    .faq-chevron{color:var(--subtle);font-size:18px;transition:transform .25s;flex-shrink:0;}
+    .faq-item.open .faq-chevron{transform:rotate(180deg);}
+    .faq-a{font-size:14px;color:var(--muted);line-height:1.7;padding:0 24px;max-height:0;overflow:hidden;transition:max-height .35s ease,padding .25s;}
+    .faq-item.open .faq-a{max-height:400px;padding:0 24px 18px;}
+    .cta-wrap{background:var(--navy);border-radius:24px;padding:64px 48px;text-align:center;position:relative;overflow:hidden;}
+    .cta-wrap::before{content:'';position:absolute;top:-50%;left:-10%;width:60%;height:200%;background:radial-gradient(ellipse,rgba(0,180,216,.2) 0%,transparent 70%);pointer-events:none;}
+    .cta-wrap h2{font-family:var(--ff-display);font-size:34px;font-weight:700;color:var(--white);margin-bottom:14px;position:relative;}
+    .cta-sub{font-size:16px;color:rgba(255,255,255,.7);margin-bottom:32px;position:relative;}
+    .btn-white{display:inline-block;background:var(--white);color:var(--navy);padding:15px 36px;border-radius:999px;font-weight:800;font-size:15px;position:relative;}
+    .btn-white:hover{background:var(--teal-lt);color:var(--navy);}
+    .footer{background:#06172b;padding:36px 0;}
+    .footer-inner{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;}
+    .footer-brand{font-family:var(--ff-display);font-size:15px;font-weight:700;color:rgba(255,255,255,.9);}
+    .footer-links a{color:rgba(255,255,255,.5);font-size:13px;margin-left:20px;}
+    .footer-links a:hover{color:rgba(255,255,255,.85);}
+    @media(max-width:900px){.reasons-grid{grid-template-columns:1fr 1fr;}h1{font-size:34px;}h2{font-size:28px;}}
+    @media(max-width:600px){.reasons-grid{grid-template-columns:1fr;}.nav-links{display:none;}h1{font-size:28px;}.cta-wrap{padding:40px 24px;}}
     </style>
 </head>
 <body>
 
 <nav class="topnav">
     <div class="wrap">
-        <a class="brand" href="<?=base_url()?>"><img src="<?=base_url()?>img/logo-w.png" alt="UTecnologia Saúde" style="height:46px;width:auto;display:block"></a>
+        <a class="brand" href="<?=base_url()?>"><img src="<?=base_url()?>img/logo-w.png" alt="UTecnologia Saúde" style="height:44px;width:auto;display:block"></a>
         <div class="nav-links">
             <a href="<?=base_url()?>sistema-para-clinicas">Sistema para Clínicas</a>
             <a href="<?=base_url()?>assinar">Ver planos</a>
@@ -109,10 +153,68 @@
             <a href="<?=base_url()?>experimentar" class="btn-primary">Testar 30 dias grátis →</a>
             <a href="<?=base_url()?>sistema-para-clinicas" class="btn-outline">Ver funcionalidades</a>
         </div>
+        <div class="trust-line">
+            <span>Sem cartão de crédito</span>
+            <span>Planos a partir de R$ 79/mês</span>
+            <span>Prontuário + agenda + exames</span>
+        </div>
     </div>
 </section>
 
-<section class="section" style="background:#fff;">
+<section class="prontuario-section">
+    <div class="wrap">
+        <div class="pront-header">
+            <div class="pront-label">Veja como é o sistema</div>
+            <h2>Prontuário eletrônico integrado à agenda</h2>
+            <p>Anamnese, evolução clínica, hipóteses diagnósticas e conduta — registradas por consulta na timeline do paciente.</p>
+        </div>
+        <div class="prontuario-stage">
+            <div class="prontuario-mock">
+                <div class="pmock-topbar">
+                    <div class="pmock-dots"><span></span><span></span><span></span></div>
+                    <span class="pmock-title">Prontuário Eletrônico · Maria Costa · Clínica Médica</span>
+                </div>
+                <div class="pmock-body">
+                    <div class="pmock-group">
+                        <div class="pmock-group-label">Queixa Principal</div>
+                        <div class="pmock-row">
+                            <div class="pmock-field-input">Cefaleia recorrente há 2 semanas, tontura ao levantar. HAS em uso de Losartana 50mg.</div>
+                        </div>
+                    </div>
+                    <div class="pmock-group">
+                        <div class="pmock-group-label">Avaliação Clínica</div>
+                        <div class="pmock-row col3">
+                            <div>
+                                <div style="font-size:10px;color:rgba(255,255,255,.4);margin-bottom:4px;">PA (mmHg)</div>
+                                <div class="pmock-field-input">158/96</div>
+                            </div>
+                            <div>
+                                <div style="font-size:10px;color:rgba(255,255,255,.4);margin-bottom:4px;">FC (bpm)</div>
+                                <div class="pmock-field-input">84</div>
+                            </div>
+                            <div>
+                                <div style="font-size:10px;color:rgba(255,255,255,.4);margin-bottom:4px;">HDA / CID</div>
+                                <div class="pmock-field-input">HAS — I10</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="pmock-group">
+                        <div class="pmock-group-label">Conduta</div>
+                        <div class="pmock-row">
+                            <div class="pmock-field-input">Ajuste Losartana 50mg → 100mg/dia. Solicitar perfil lipídico e ECG. Orientações de estilo de vida. Retorno em 30 dias.</div>
+                        </div>
+                    </div>
+                    <div class="pmock-act">
+                        <button class="btn-save">Salvar rascunho</button>
+                        <button class="btn-finish">Finalizar consulta</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section" style="background:var(--white);">
     <div class="wrap">
         <div class="section-label">Comparativo</div>
         <h2>UTecnologia Saúde vs outros sistemas</h2>
@@ -182,26 +284,38 @@
     </div>
 </section>
 
-<section class="section" style="background:#f0f9ff;">
+<section class="section" style="background:var(--teal-lt);">
     <div class="wrap">
         <div class="section-label">Perguntas frequentes</div>
         <h2>Dúvidas sobre a migração de sistema</h2>
         <p class="section-sub" style="margin-bottom:40px;"></p>
         <div class="faq-list">
-            <div class="faq-item">
-                <div class="faq-q">É difícil migrar de outro sistema para o UTecnologia Saúde?</div>
+            <div class="faq-item open">
+                <div class="faq-q" onclick="this.closest('.faq-item').classList.toggle('open')">
+                    É difícil migrar de outro sistema para o UTecnologia Saúde?
+                    <span class="faq-chevron">▾</span>
+                </div>
                 <div class="faq-a">Não. O processo começa com a criação da sua conta gratuita. Você pode ir cadastrando os pacientes ao longo do tempo, começando pelos ativos, e reconstruindo o histórico de forma gradual conforme a necessidade clínica.</div>
             </div>
             <div class="faq-item">
-                <div class="faq-q">O trial de 30 dias dá acesso a todas as funcionalidades?</div>
+                <div class="faq-q" onclick="this.closest('.faq-item').classList.toggle('open')">
+                    O trial de 30 dias dá acesso a todas as funcionalidades?
+                    <span class="faq-chevron">▾</span>
+                </div>
                 <div class="faq-a">Sim. Durante o trial, você tem acesso completo ao sistema — prontuário, agenda, exames, gestão de equipe e relatórios — sem precisar de cartão de crédito ou assinatura.</div>
             </div>
             <div class="faq-item">
-                <div class="faq-q">Posso usar o UTecnologia Saúde com minha recepcionista?</div>
+                <div class="faq-q" onclick="this.closest('.faq-item').classList.toggle('open')">
+                    Posso usar o UTecnologia Saúde com minha recepcionista?
+                    <span class="faq-chevron">▾</span>
+                </div>
                 <div class="faq-a">Sim. Todos os planos incluem colaboradores. A recepcionista acessa a agenda e o cadastro de pacientes, enquanto os profissionais de saúde gerenciam os prontuários. Cada perfil vê apenas o que é relevante para sua função.</div>
             </div>
             <div class="faq-item">
-                <div class="faq-q">O sistema funciona para clínicas com vários profissionais?</div>
+                <div class="faq-q" onclick="this.closest('.faq-item').classList.toggle('open')">
+                    O sistema funciona para clínicas com vários profissionais?
+                    <span class="faq-chevron">▾</span>
+                </div>
                 <div class="faq-a">Sim. O plano Clínica suporta até 5 profissionais de saúde e o plano Pro até 20, todos com suas próprias agendas e prontuários dentro da mesma clínica.</div>
             </div>
         </div>
@@ -210,9 +324,9 @@
 
 <section class="section">
     <div class="wrap">
-        <div class="cta-box">
+        <div class="cta-wrap">
             <h2>Experimente o UTecnologia Saúde gratuitamente</h2>
-            <p>30 dias para testar todos os recursos. Sem cartão de crédito.<br>Se não gostar, não cobra nada.</p>
+            <p class="cta-sub">30 dias para testar todos os recursos. Sem cartão de crédito.<br>Se não gostar, não cobra nada.</p>
             <a href="<?=base_url()?>experimentar" class="btn-white">Criar conta grátis →</a>
         </div>
     </div>
@@ -222,7 +336,7 @@
     <div class="wrap">
         <div class="footer-inner">
             <div class="footer-brand">UTecnologia Saúde</div>
-            <div>
+            <div class="footer-links">
                 <a href="<?=base_url()?>">Início</a>
                 <a href="<?=base_url()?>sistema-para-clinicas">Funcionalidades</a>
                 <a href="<?=base_url()?>assinar">Planos</a>
@@ -267,4 +381,3 @@
 </script>
 </body>
 </html>
-
