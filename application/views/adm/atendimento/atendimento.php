@@ -20,6 +20,7 @@
     <link href="<?=base_url()?>bower_components/perfect-scrollbar/css/perfect-scrollbar.min.css" rel="stylesheet">
     <link href="<?=base_url()?>bower_components/slick-carousel/slick/slick.css" rel="stylesheet">
     <link href="<?=base_url()?>css/clicklinica-main.css" rel="stylesheet">
+    <link href="<?=base_url()?>css/utec-redesign.css" rel="stylesheet">
     <style>
       .booking-summary {
         background: linear-gradient(135deg, #f4f8ff 0%, #ffffff 100%);
@@ -81,6 +82,35 @@
         }
         .booking-form-card .row > div:last-child {
           margin-bottom: 0;
+        }
+      }
+      .booking-summary {
+        background: linear-gradient(135deg, var(--ut-green-50) 0%, #ffffff 100%);
+        border-color: var(--ut-green-border);
+      }
+      .booking-summary h6,
+      .booking-form-card h6,
+      .booking-form-card label {
+        font-family: var(--ut-font);
+      }
+      .booking-form-card .btn-primary {
+        background: var(--ut-green-900);
+        border-color: var(--ut-green-900);
+        font-family: var(--ut-font);
+        font-weight: 700;
+      }
+      .booking-form-card .btn-primary:hover {
+        background: var(--ut-green-800);
+        border-color: var(--ut-green-800);
+      }
+      @media (max-width: 767.98px) {
+        .booking-form-card .row > div {
+          margin-bottom: 14px;
+        }
+        .booking-form-card .btn-primary {
+          width: 100%;
+          padding: 13px;
+          font-size: 15px;
         }
       }
     </style>
