@@ -5,7 +5,9 @@
 
 application/cache/*
 application/logs/*
-includes/lib/
+includes/
+!includes/adm/menu.php
+!includes/adm/top.php
 includes/lib/mercadopago/
 includes/lib/mercadopago/lib/
 includes/lib/mercadopago/vendor/
