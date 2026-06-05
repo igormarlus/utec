@@ -56,6 +56,7 @@ if($top_level === 1){
 }
 if($top_level === 2){
 	$top_shortcuts[] = ['label' => 'Agenda', 'url' => base_url().'adm/atendimento'];
+	$top_shortcuts[] = ['label' => 'Calendário', 'url' => base_url().'adm/calendario'];
 	$top_shortcuts[] = ['label' => 'Pacientes', 'url' => base_url().'adm/usuarios/rel/5'];
 	$top_shortcuts[] = ['label' => 'Equipe', 'url' => base_url().'adm/usuarios/rel/3'];
 	if($top_tenant && $top_user_has_saas){ $top_shortcuts[] = ['label' => 'Minha assinatura', 'url' => base_url().'adm/usuarios/assinatura']; }
@@ -64,6 +65,7 @@ if($top_level === 2){
 }
 if($top_level === 3){
 	$top_shortcuts[] = ['label' => 'Agenda', 'url' => base_url().'adm/atendimento'];
+	$top_shortcuts[] = ['label' => 'Calendário', 'url' => base_url().'adm/calendario'];
 	$top_shortcuts[] = ['label' => 'Pacientes', 'url' => base_url().'adm/usuarios/rel/5'];
 	$top_shortcuts[] = ['label' => 'Colaboradores', 'url' => base_url().'adm/usuarios/rel/4'];
 	if($top_tenant && $top_user_has_saas){ $top_shortcuts[] = ['label' => 'Minha assinatura', 'url' => base_url().'adm/usuarios/assinatura']; }
@@ -72,6 +74,7 @@ if($top_level === 3){
 }
 if($top_level === 4){
 	$top_shortcuts[] = ['label' => 'Agenda', 'url' => base_url().'adm/atendimento'];
+	$top_shortcuts[] = ['label' => 'Calendário', 'url' => base_url().'adm/calendario'];
 	$top_shortcuts[] = ['label' => 'Pacientes', 'url' => base_url().'adm/usuarios/rel/5'];
 	if($top_tenant && $top_user_has_saas){ $top_shortcuts[] = ['label' => 'Minha assinatura', 'url' => base_url().'adm/usuarios/assinatura']; }
 	if($top_manual_url){ $top_shortcuts[] = ['label' => 'Ajuda', 'url' => $top_manual_url]; }

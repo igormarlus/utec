@@ -77,6 +77,15 @@ if(!$menu_is_patient){
 	];
 
 	$menu_operacao_items[] = [
+		'label' => 'Calendário',
+		'icon' => 'os-icon-calendar',
+		'url' => base_url().'adm/calendario',
+		'children' => [
+			['label' => 'Calendário de agendamentos', 'url' => base_url().'adm/calendario'],
+		],
+	];
+
+	$menu_operacao_items[] = [
 		'label' => 'Pacientes',
 		'icon' => 'os-icon-user-male-circle2',
 		'url' => base_url().'adm/usuarios/rel/5',
