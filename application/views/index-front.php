@@ -324,7 +324,7 @@
             display: grid; grid-template-columns: repeat(3, 1fr);
             gap: 32px; margin-top: 52px; position: relative;
         }
-        @media(max-width:700px) { .how-grid { grid-template-columns: 1fr; } }
+        @media(max-width:700px) { .how-grid { grid-template-columns: 1fr; } .how-grid::before { display: none; } }
         .how-step { text-align: center; }
         .step-number {
             width: 52px; height: 52px; border-radius: 50%;
@@ -332,9 +332,17 @@
             color: #fff; font-size: 22px; font-weight: 800;
             display: flex; align-items: center; justify-content: center;
             margin: 0 auto 20px;
+            position: relative; z-index: 1;
         }
         .how-step h4 { font-size: 18px; font-weight: 700; margin-bottom: 10px; }
         .how-step p { font-size: 14px; color: var(--muted); line-height: 1.65; max-width: 260px; margin: 0 auto; }
+        .how-grid::before {
+            content: ''; position: absolute;
+            top: 26px; left: calc(100% / 6); right: calc(100% / 6);
+            height: 2px;
+            background: linear-gradient(90deg, var(--brand-blue), var(--brand-green));
+            z-index: 0;
+        }
 
         /* ── SPECIALTIES ── */
         .spec-section { padding: 80px 20px; background: #fff; }
