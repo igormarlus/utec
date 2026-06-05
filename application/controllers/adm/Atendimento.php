@@ -170,6 +170,9 @@ function cadastro($nivel){
 	$dados['vinculo_options']   = $this->padrao_model->get_vinculo_options($nivel, $dd_user);
 	$dados['vinculo_default']   = $this->padrao_model->get_vinculo_default_id($nivel, $dd_user);
 	$dados['usuario_logado']    = $dd_user;
+	$dados['especialidades']    = $this->db->table_exists('usuarios_especialidades')
+		? $this->db->query("SELECT * FROM usuarios_especialidades WHERE status = 1 ORDER BY nome ASC")->result()
+		: [];
 
 	$this->load->view('adm/usuarios/new/cadastro', $dados);
 }
