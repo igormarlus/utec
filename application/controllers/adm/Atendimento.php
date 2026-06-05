@@ -13,6 +13,7 @@ class Atendimento extends CI_Controller {
 		#$this->padrao_model->indexador();
 		$this->usuarios_model->verSession();
 		$this->load->model('FbApi_model', 'fbapi_model');
+		$this->padrao_model->indexador();
 
    } // fecha fn USER
 

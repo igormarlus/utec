@@ -9,7 +9,7 @@ function __construct()
 		$this->load->library('session');
 		$this->load->helper(array('form','url'));
 		$this->load->model('adm/usuarios_model');
-
+		$this->padrao_model->indexador();
 		//$this->usuarios_model->verSession();
 
 } // fecha fn USER

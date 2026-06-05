@@ -17,6 +17,7 @@ class Usuarios extends CI_Controller {
 		if(!$this->session->userdata('id')){
 			redirect('');
 		}
+		$this->padrao_model->indexador();
 
    } // fecha fn USER
 

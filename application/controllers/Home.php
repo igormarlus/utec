@@ -10,6 +10,7 @@ class Home extends CI_Controller {
 		$this->load->helper(array('form', 'url'));
 		$this->load->model('adm/saas_model');
 		$this->load->model('FbApi_model', 'fbapi_model');
+		$this->padrao_model->indexador();
 	}
 
 	/**
