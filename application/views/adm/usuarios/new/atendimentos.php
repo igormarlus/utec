@@ -255,17 +255,16 @@
           <!-- MOBILE HEADER — oculto no desktop via .ut-mobile-only -->
           <div class="ut-agenda-header ut-mobile-only">
             <div class="ut-agenda-header-top">
-              <div class="ut-agenda-brand">
-                <div class="ut-agenda-brand-badge">
-                  <img src="<?=base_url()?>img/logo-w.png" alt="UT">
-                </div>
-                <div class="ut-agenda-brand-text">
-                  <small><?=date('D, d M', strtotime($filtros['data_agenda'] ?: 'today'))?></small>
-                  <strong>Agenda clínica</strong>
-                </div>
+              <div class="ut-agenda-brand-text">
+                <?php
+                  $dias_ptbr = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+                  $meses_ptbr = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+                  $ts_agenda = strtotime($filtros['data_agenda'] ?: 'today');
+                  $data_ptbr = $dias_ptbr[(int)date('w',$ts_agenda)].', '.date('d',$ts_agenda).' '.$meses_ptbr[(int)date('n',$ts_agenda)-1];
+                ?>
+                <small><?=$data_ptbr?></small>
+                <strong>Agenda clínica</strong>
               </div>
-              <button type="button" id="ut-mobile-menu-btn"
-                      style="width:36px;height:36px;background:rgba(255,255,255,.1);border:0;border-radius:9px;color:#a7f3d0;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;">☰</button>
             </div>
             <div class="ut-agenda-stats">
               <div class="ut-stat-chip total"><span class="stat-value"><?=$metricas_agenda['total']?></span><span class="stat-label">Total</span></div>
@@ -863,18 +862,10 @@ if (filterToggle) {
   });
 }
 
-/* ── Mobile menu trigger ───────────────────────────────────── */
-var mobileMenuBtn = document.getElementById('ut-mobile-menu-btn');
-if (mobileMenuBtn) {
-  mobileMenuBtn.addEventListener('click', function () {
-    var toggler = document.querySelector('.mobile-menu-button a, .menu-mobile-toggler');
-    if (toggler) { toggler.click(); }
-    else {
-      var mm = document.querySelector('.menu-mobile');
-      if (mm) mm.classList.toggle('menu-open');
-    }
-  });
-}
+/* ── Trigger do hamburger do mm-logo-buttons-w via jQuery (igual ao main.js) */
+$(document).on('click', '.mobile-menu-trigger', function () {
+  $('.menu-mobile .menu-and-user').slideToggle(200, 'swing');
+});
 </script>
   </body>
 </html>
