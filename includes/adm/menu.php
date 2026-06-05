@@ -386,3 +386,15 @@ $menu_sections[] = [
     <? } ?>
   </ul>
 </div>
+<script>
+/* Menu mobile toggle — ativo em todas as views que incluem menu.php */
+(function utMenuBind() {
+  if (typeof $ !== 'undefined') {
+    $(document).off('click.utmenu').on('click.utmenu', '.mobile-menu-trigger', function () {
+      $('.menu-mobile .menu-and-user').slideToggle(200, 'swing');
+    });
+  } else {
+    setTimeout(utMenuBind, 80);
+  }
+})();
+</script>

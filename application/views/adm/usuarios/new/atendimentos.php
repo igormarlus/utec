@@ -862,10 +862,7 @@ if (filterToggle) {
   });
 }
 
-/* ── Trigger do hamburger do mm-logo-buttons-w via jQuery (igual ao main.js) */
-$(document).on('click', '.mobile-menu-trigger', function () {
-  $('.menu-mobile .menu-and-user').slideToggle(200, 'swing');
-});
+/* menu toggle já está em menu.php (utMenuBind) — não duplicar aqui */
 </script>
   </body>
 </html>
