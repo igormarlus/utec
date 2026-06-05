@@ -12,6 +12,7 @@
     <link href="<?=base_url()?>bower_components/perfect-scrollbar/css/perfect-scrollbar.min.css" rel="stylesheet">
     <link href="<?=base_url()?>bower_components/slick-carousel/slick/slick.css" rel="stylesheet">
     <link href="<?=base_url()?>css/clicklinica-main.css" rel="stylesheet">
+    <link href="<?=base_url()?>css/utec-redesign.css" rel="stylesheet">
     <style>
       .ul-header-card {
         background: #fff;
@@ -70,9 +71,9 @@
       .ul-card-top { display: flex; align-items: center; gap: 14px; }
       .ul-avatar {
         width: 46px; height: 46px; border-radius: 50%;
-        background: linear-gradient(135deg, #2563eb, #0f766e);
+        background: linear-gradient(135deg, var(--ut-green-900), var(--ut-green-600));
         display: flex; align-items: center; justify-content: center;
-        color: #fff; font-weight: 700; font-size: 18px; flex-shrink: 0;
+        color: #fff; font-family: var(--ut-font); font-weight: 700; font-size: 18px; flex-shrink: 0;
         overflow: hidden;
       }
       .ul-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
@@ -102,8 +103,15 @@
         transition: background .15s, border-color .15s;
         line-height: 1.4;
       }
-      .ul-btn-prontuario { background: #eff6ff; color: #2563eb; border-color: #bfdbfe; }
-      .ul-btn-prontuario:hover { background: #dbeafe; color: #1d4ed8; }
+      .ul-btn-prontuario {
+        background: var(--ut-green-50);
+        color: var(--ut-green-900);
+        border-color: var(--ut-green-border);
+      }
+      .ul-btn-prontuario:hover {
+        background: #dcfce7;
+        color: var(--ut-green-800);
+      }
       .ul-btn-edit { background: #fff7ed; color: #c2410c; border-color: #fed7aa; }
       .ul-btn-edit:hover { background: #ffedd5; color: #9a3412; }
       .ul-btn-remove { background: #fef2f2; color: #b91c1c; border-color: #fecaca; }
@@ -134,6 +142,11 @@
         white-space: normal; background: rgba(255,255,255,.7);
       }
       .menu-w .main-menu > li.has-sub-menu > .sub-menu li a:hover { background: #eef4ff; color: #2563eb; text-decoration: none; }
+      .ul-header-title,
+      .ul-card-name,
+      .ul-search-input {
+        font-family: var(--ut-font) !important;
+      }
     </style>
   </head>
   <body class="menu-position-side menu-side-left full-screen with-content-panel">
