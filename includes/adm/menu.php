@@ -257,6 +257,22 @@ $menu_sections[] = [
   }
 </style>
 <div class="menu-mobile menu-activated-on-click color-scheme-dark">
+  <div class="mm-logo-buttons-w">
+    <div class="mm-logo">
+      <a href="<?=$menu_dashboard_url?>" style="display:flex;align-items:center;gap:10px;text-decoration:none;">
+        <div style="width:34px;height:34px;background:#fff;border-radius:8px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.25);flex-shrink:0;">
+          <img src="<?=base_url()?>img/logo-w.png" alt="UT" style="width:26px;height:26px;object-fit:contain;"
+               onerror="this.parentNode.innerHTML='<span style=&quot;color:#052e16;font-weight:900;font-size:12px;&quot;>UT</span>'">
+        </div>
+        <span style="color:#f0fdf4;font-weight:800;font-size:15px;font-family:var(--ut-font);">UTec Saúde</span>
+      </a>
+    </div>
+    <div class="mm-buttons">
+      <span class="mobile-menu-trigger" style="color:#a7f3d0;font-size:20px;cursor:pointer;">
+        <i class="os-icon os-icon-grid-squares-22"></i>
+      </span>
+    </div>
+  </div>
   <div class="menu-and-user">
     <ul class="main-menu">
       <? foreach($menu_sections as $menu_section){ ?>
@@ -277,6 +293,18 @@ $menu_sections[] = [
         <? } ?>
       <? } ?>
     </ul>
+    <div style="padding:14px 16px;border-top:1px solid rgba(110,231,183,.15);margin-top:8px;">
+      <a href="<?=base_url()?>adm/usuarios/edicao/<?=$menu_user_id?>"
+         style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;color:#a7f3d0;text-decoration:none;font-family:var(--ut-font);font-size:13px;background:rgba(255,255,255,.04);margin-bottom:6px;">
+        <i class="os-icon os-icon-user-male-circle2" style="font-size:18px;"></i>
+        <span><?=$menu_user_name?> — Meus dados</span>
+      </a>
+      <a href="<?=base_url()?>adm/usuarios/logout"
+         style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;color:#fca5a5;text-decoration:none;font-family:var(--ut-font);font-size:13px;background:rgba(239,68,68,.08);">
+        <i class="os-icon os-icon-signs-11" style="font-size:18px;"></i>
+        <span>Sair</span>
+      </a>
+    </div>
   </div>
 </div>
 <div class="menu-w color-scheme-light color-style-transparent menu-position-side menu-side-left menu-layout-compact sub-menu-style-over sub-menu-color-bright selected-menu-color-light menu-activated-on-hover menu-has-selected-link">

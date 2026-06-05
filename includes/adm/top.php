@@ -130,7 +130,7 @@ if($top_level === 5){
     </div>
 
     <? if(count($top_shortcuts)){ ?>
-      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-right:12px;">
+      <div class="ut-top-shortcuts" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-right:12px;">
         <? foreach($top_shortcuts as $top_shortcut){ ?>
           <a href="<?=$top_shortcut['url']?>" class="btn btn-white btn-sm" style="border:1px solid #dbe2ea;"><?=$top_shortcut['label']?></a>
         <? } ?>

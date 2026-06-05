@@ -227,6 +227,9 @@
         .ut-stats-desktop { display: none; }
         .agenda-filter-card { display: none; }
         .agenda-filter-card.ut-filter-open { display: block !important; }
+        /* ut-agenda-header substitui a top bar nesta página */
+        .top-bar { display: none !important; }
+        .content-w { padding-top: 0 !important; }
       }
     </style>
   </head>

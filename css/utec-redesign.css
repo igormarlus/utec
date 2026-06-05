@@ -510,3 +510,23 @@
 @media (min-width: 768px) {
   .ut-mobile-only { display: none !important; }
 }
+
+/* ── Top bar mobile: compacto ──────────────────────────────── */
+@media (max-width: 767.98px) {
+  /* Esconder busca e atalhos — menu mobile substitui a navegação */
+  .top-bar .element-search  { display: none !important; }
+  .ut-top-shortcuts         { display: none !important; }
+}
+
+/* ── Menu mobile: mm-logo-buttons-w esmeralda ─────────────── */
+.menu-mobile .mm-logo-buttons-w {
+  background: linear-gradient(135deg, var(--ut-green-900) 0%, var(--ut-green-800) 100%) !important;
+  border-bottom: 1px solid rgba(110,231,183,.15) !important;
+}
+.menu-mobile.color-scheme-dark .mm-logo-buttons-w {
+  background: linear-gradient(135deg, var(--ut-green-900) 0%, var(--ut-green-800) 100%) !important;
+}
+.menu-mobile .mm-logo-buttons-w .mobile-menu-trigger,
+.menu-mobile.color-scheme-dark .mm-logo-buttons-w .mobile-menu-trigger {
+  color: #a7f3d0 !important;
+}
