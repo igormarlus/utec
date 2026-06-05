@@ -115,7 +115,7 @@ function cal_prof_cor($id) {
             <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
               <div>
                 <span class="sub">Operação Clínica</span>
-                <h1>📅 Calendário</h1>
+                <h1>Calendário</h1>
               </div>
               <div class="cal-view-tabs" id="cal-view-tabs">
                 <button class="cal-view-tab active" data-view="month">Mês</button>
@@ -549,13 +549,6 @@ function calToggleProf(chip){
   $('#calendario').fullCalendar('refetchEvents');
 }
 
-(function utMenuBind(){
-  if (typeof $ !== 'undefined') {
-    $(document).off('click.utmenu').on('click.utmenu', '.mobile-menu-trigger', function(){
-      $('.menu-mobile .menu-and-user').slideToggle(200,'swing');
-    });
-  } else { setTimeout(utMenuBind, 80); }
-})();
 </script>
 </body>
 </html>
