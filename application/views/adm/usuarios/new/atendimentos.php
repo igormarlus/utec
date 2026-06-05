@@ -12,6 +12,7 @@
     <link href="<?=base_url()?>bower_components/perfect-scrollbar/css/perfect-scrollbar.min.css" rel="stylesheet">
     <link href="<?=base_url()?>bower_components/slick-carousel/slick/slick.css" rel="stylesheet">
     <link href="<?=base_url()?>css/clicklinica-main.css" rel="stylesheet">
+    <link href="<?=base_url()?>css/utec-redesign.css" rel="stylesheet">
     <style>
       .agenda-stat-card {
         background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
@@ -208,6 +209,17 @@
       .pac-result-meta { font-size:11px; color:#64748b; margin-top:2px; display:flex; flex-wrap:wrap; gap:4px; }
       .pac-result-tag { display:inline-block; background:#f1f5f9; border-radius:999px; padding:1px 8px; font-size:11px; color:#475569; white-space:nowrap; }
       .pac-empty,.pac-loading { padding:16px; text-align:center; color:#94a3b8; font-size:13px; }
+      .agenda-table tbody tr:hover {
+        background: var(--ut-green-50) !important;
+        transition: background .14s;
+      }
+      .agenda-table .patient-name,
+      .agenda-table .patient-subtitle {
+        font-family: var(--ut-font);
+      }
+      .agenda-table .action-group .btn {
+        font-family: var(--ut-font);
+      }
     </style>
   </head>
   <body class="menu-position-side menu-side-left full-screen with-content-panel">
@@ -329,34 +341,22 @@
                 </form>
               </div>
 
-              <div class="row">
-                <div class="col-lg-3 col-md-6">
-                  <div class="agenda-stat-card">
-                    <div class="agenda-stat-label">Atendimentos</div>
-                    <div class="agenda-stat-value"><?=$metricas_agenda['total']?></div>
-                    <div style="color:#475569;font-size:13px;margin-top:8px">para a selecao atual</div>
-                  </div>
+              <div class="ut-stats-desktop" style="display:flex;gap:10px;margin-bottom:24px;padding:14px 20px;background:linear-gradient(135deg,var(--ut-green-900) 0%,var(--ut-green-800) 100%);border-radius:18px;">
+                <div class="ut-stat-chip total" style="flex:1;">
+                  <span class="stat-value"><?=$metricas_agenda['total']?></span>
+                  <span class="stat-label">Total</span>
                 </div>
-                <div class="col-lg-3 col-md-6">
-                  <div class="agenda-stat-card">
-                    <div class="agenda-stat-label">Pendentes</div>
-                    <div class="agenda-stat-value"><?=$metricas_agenda['pendentes']?></div>
-                    <div style="color:#475569;font-size:13px;margin-top:8px">aguardando inicio</div>
-                  </div>
+                <div class="ut-stat-chip pendentes" style="flex:1;">
+                  <span class="stat-value"><?=$metricas_agenda['pendentes']?></span>
+                  <span class="stat-label">Pendentes</span>
                 </div>
-                <div class="col-lg-3 col-md-6">
-                  <div class="agenda-stat-card">
-                    <div class="agenda-stat-label">Em atendimento</div>
-                    <div class="agenda-stat-value"><?=$metricas_agenda['em_atendimento']?></div>
-                    <div style="color:#475569;font-size:13px;margin-top:8px">atendimentos ativos</div>
-                  </div>
+                <div class="ut-stat-chip em-curso" style="flex:1;">
+                  <span class="stat-value"><?=$metricas_agenda['em_atendimento']?></span>
+                  <span class="stat-label">Em curso</span>
                 </div>
-                <div class="col-lg-3 col-md-6">
-                  <div class="agenda-stat-card">
-                    <div class="agenda-stat-label">Finalizados</div>
-                    <div class="agenda-stat-value"><?=$metricas_agenda['finalizados']?></div>
-                    <div style="color:#475569;font-size:13px;margin-top:8px">encerrados no dia</div>
-                  </div>
+                <div class="ut-stat-chip feitos" style="flex:1;">
+                  <span class="stat-value"><?=$metricas_agenda['finalizados']?></span>
+                  <span class="stat-label">Feitos</span>
                 </div>
               </div>
 
@@ -441,7 +441,13 @@
                             </td>
                             <td><?=ucfirst($agenda->tipo)?></td>
                             <td><?=$agenda->prestador_nome ? $agenda->prestador_nome : 'Nao informado'?></td>
-                            <td><span class="status-pill <?=$status_class?>"><?=$status_nome?></span></td>
+                            <td><?php
+                              $ut_pill_class = 'pendente';
+                              if((int)$agenda->status === 1) $ut_pill_class = 'atendimento';
+                              if((int)$agenda->status === 2) $ut_pill_class = 'finalizado';
+                              if((int)$agenda->status === 3) $ut_pill_class = 'cancelado';
+                            ?>
+                            <span class="ut-status-pill <?=$ut_pill_class?>"><?=$status_nome?></span></td>
                             <td>
                               <? $tel = str_replace(["-"," ","+","(",")"], "", $agenda->paciente_telefone); ?>
                               <? if($agenda->paciente_telefone){ ?>
