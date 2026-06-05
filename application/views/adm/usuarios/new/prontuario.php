@@ -527,6 +527,14 @@
                   $lbl['ph_avaliacao'] = 'Ausculta, hipóteses, ECG, exames solicitados.';
                   $lbl['ph_reav']      = 'Conduta, ajuste de medicação, exames de retorno.';
                   break;
+                case 29: // Oftalmologia
+                  $lbl['atendimento_inicial'] = 'Queixa / Motivo da Consulta';
+                  $lbl['avaliacao']           = 'Exame Ocular / Achados';
+                  $lbl['reavaliacao']         = 'Conduta / Prescrição / Retorno';
+                  $lbl['ph_inicial']   = 'Queixa principal, tempo de evolução, antecedentes oculares e sistêmicos relevantes.';
+                  $lbl['ph_avaliacao'] = 'Acuidade visual, biomicroscopia, fundoscopia, PIO e demais achados.';
+                  $lbl['ph_reav']      = 'Conduta adotada, prescrição de óculos/lentes, medicação ocular, orientações e retorno.';
+                  break;
               }
               // ── fim labels ───────────────────────────────────────────────────
               ?>
@@ -582,6 +590,34 @@
                       </div>
                     </div>
                   </div>
+                  <?php if(!empty($campos_config)){ ?>
+                  <hr style="margin:20px 0;border-color:#e6edf7;">
+                  <div class="row">
+                    <?php foreach($campos_config as $campo){
+                      $ce_val  = isset($campos_extras_vals[$campo->campo_chave]) ? $campos_extras_vals[$campo->campo_chave] : '';
+                      $ce_opts = $campo->campo_opcoes ? json_decode($campo->campo_opcoes, true) : [];
+                      $ce_col  = ($campo->campo_tipo === 'textarea') ? 'col-sm-12' : 'col-sm-6';
+                    ?>
+                    <div class="<?=$ce_col?>">
+                      <div class="form-group">
+                        <label class="mws-form-label"><?=htmlspecialchars($campo->campo_label)?></label>
+                        <?php if($campo->campo_tipo === 'select' && !empty($ce_opts)){ ?>
+                          <select name="campos_extras[<?=htmlspecialchars($campo->campo_chave)?>]" class="form-control form-control-sm">
+                            <option value="">— selecione —</option>
+                            <?php foreach($ce_opts as $ce_op){ ?>
+                              <option value="<?=htmlspecialchars($ce_op)?>" <?=($ce_val === $ce_op ? 'selected' : '')?>><?=htmlspecialchars($ce_op)?></option>
+                            <?php } ?>
+                          </select>
+                        <?php } elseif($campo->campo_tipo === 'textarea'){ ?>
+                          <textarea name="campos_extras[<?=htmlspecialchars($campo->campo_chave)?>]" class="form-control form-control-sm" rows="3" placeholder="<?=htmlspecialchars((string)$campo->campo_placeholder)?>"><?=htmlspecialchars($ce_val)?></textarea>
+                        <?php } else { ?>
+                          <input type="<?=htmlspecialchars($campo->campo_tipo)?>" name="campos_extras[<?=htmlspecialchars($campo->campo_chave)?>]" class="form-control form-control-sm" placeholder="<?=htmlspecialchars((string)$campo->campo_placeholder)?>" value="<?=htmlspecialchars($ce_val)?>">
+                        <?php } ?>
+                      </div>
+                    </div>
+                    <?php } ?>
+                  </div>
+                  <?php } ?>
                   <div class="ut-sticky-save ut-mobile-only">
                     <button class="btn btn-block" type="submit" name="acao_status" value="salvar"
                             style="background:var(--ut-green-900);color:#fff;font-family:var(--ut-font);font-weight:700;padding:13px;border-radius:var(--ut-radius-md);border:0;width:100%;">
@@ -674,7 +710,24 @@
                               </div>
                               <?php } ?>
 
-                              <?php if(trim((string)$agenda->atendimento_inicial) === '' && trim((string)$agenda->avaliacao) === '' && trim((string)$agenda->reavaliacao) === ''){ ?>
+                              <?php
+                              $tl_extras = [];
+                              if(!empty($agenda->campos_extras)){
+                                $tl_dec = json_decode($agenda->campos_extras, true);
+                                if(is_array($tl_dec)) $tl_extras = $tl_dec;
+                              }
+                              if(!empty($tl_extras) && !empty($campos_config)){
+                                foreach($campos_config as $tl_cfg){
+                                  $tl_v = isset($tl_extras[$tl_cfg->campo_chave]) ? $tl_extras[$tl_cfg->campo_chave] : '';
+                                  if($tl_v === '') continue;
+                                ?>
+                                <div class="timeline-section">
+                                  <h6><?=htmlspecialchars($tl_cfg->campo_label)?></h6>
+                                  <p><?=nl2br(htmlspecialchars($tl_v))?></p>
+                                </div>
+                                <?php } } ?>
+
+                              <?php if(trim((string)$agenda->atendimento_inicial) === '' && trim((string)$agenda->avaliacao) === '' && trim((string)$agenda->reavaliacao) === '' && empty($tl_extras)){ ?>
                               <div class="timeline-section">
                                 <h6>Registro clínico</h6>
                                 <p>Nenhuma evolução foi preenchida para este atendimento até o momento.</p>

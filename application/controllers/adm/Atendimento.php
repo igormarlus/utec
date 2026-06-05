@@ -276,10 +276,19 @@ function set() {
 		'id_user_alt' => $this->session->userdata('id'),
 		'atendimento_inicial' => $this->input->post('atendimento_inicial'),
 		'avaliacao' => $this->input->post('avaliacao'),
-		'reavaliacao' => $this->input->post('reavaliacao'),	
-		'status' => $status_destino	
-		
+		'reavaliacao' => $this->input->post('reavaliacao'),
+		'status' => $status_destino
 	);
+
+	$ce_post = $this->input->post('campos_extras');
+	if(is_array($ce_post)){
+		$ce_clean = [];
+		foreach($ce_post as $k => $v){
+			$k = preg_replace('/[^a-z0-9_]/', '', (string)$k);
+			if($k !== '' && (string)$v !== '') $ce_clean[$k] = (string)$v;
+		}
+		$dd['campos_extras'] = json_encode($ce_clean, JSON_UNESCAPED_UNICODE);
+	}
 
 
 	
@@ -367,6 +376,22 @@ function prontuario($id_user=1,$id_agenda=0){
 		$prestador_esp_id = (int)$dd_user->especialidade;
 	}
 	$dados['prestador_esp_id'] = $prestador_esp_id;
+
+	$dados['campos_config'] = [];
+	if($prestador_esp_id > 0 && $this->db->table_exists('especialidades_campos_config')){
+		$dados['campos_config'] = $this->db->query(
+			"SELECT * FROM especialidades_campos_config WHERE especialidade_id = ".$prestador_esp_id." AND status = 1 ORDER BY ordem ASC"
+		)->result();
+	}
+
+	$dados['campos_extras_vals'] = [];
+	if($id_agenda > 0 && isset($dados['dd_agenda'])){
+		$raw = isset($dados['dd_agenda']->campos_extras) ? $dados['dd_agenda']->campos_extras : '';
+		if($raw){
+			$dec = json_decode($raw, true);
+			if(is_array($dec)) $dados['campos_extras_vals'] = $dec;
+		}
+	}
 
 	$this->load->view('adm/usuarios/new/prontuario', $dados);
 
