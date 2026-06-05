@@ -157,7 +157,7 @@ class Calendario extends CI_Controller {
 			header('Content-Type: application/json');
 			echo json_encode(['success' => false, 'error' => 'Data inválida.']); return;
 		}
-		if (!preg_match('/^\d{2}:\d{2}$/', (string)$hora_agenda)) {
+		if (!preg_match('/^([01]\d|2[0-3]):[0-5]\d$/', (string)$hora_agenda)) {
 			header('Content-Type: application/json');
 			echo json_encode(['success' => false, 'error' => 'Horário inválido.']); return;
 		}
