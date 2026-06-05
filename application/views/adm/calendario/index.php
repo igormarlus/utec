@@ -290,7 +290,7 @@ function cal_prof_cor($id) {
 <script src="<?=base_url()?>bower_components/bootstrap/js/dist/dropdown.js"></script>
 <script src="<?=base_url()?>bower_components/bootstrap/js/dist/modal.js"></script>
 <script src="<?=base_url()?>bower_components/bootstrap/js/dist/tooltip.js"></script>
-<script src="<?=base_url()?>bower_components/moment/moment.min.js"></script>
+<script src="<?=base_url()?>bower_components/moment/moment.js"></script>
 <script src="<?=base_url()?>bower_components/fullcalendar/dist/fullcalendar.min.js"></script>
 <script src="<?=base_url()?>bower_components/fullcalendar/dist/locale/pt-br.js"></script>
 <script src="<?=base_url()?>js/demo_customizer.js?version=4.5.0"></script>
