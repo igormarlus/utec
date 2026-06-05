@@ -1058,6 +1058,43 @@
 </section>
 
 <!-- ═══════════════════════════════════════════════════════
+     PLANOS (discreta — trial-first)
+═══════════════════════════════════════════════════════ -->
+<?php if(!empty($public_plans)): ?>
+<section class="plans-section">
+    <div class="container">
+        <p class="section-label">Planos disponíveis</p>
+        <h2 class="section-title">Escolha seu ponto de partida — todos com 30 dias grátis</h2>
+        <p class="section-sub">Experimente sem compromisso. Você escolhe o plano certo depois de conhecer o sistema.</p>
+        <div class="plans-grid">
+            <?php
+            $plan_descs = [
+                'solo'    => 'Para quem atende individualmente',
+                'clinica' => 'Para consultórios com equipe',
+                'pro'     => 'Para clínicas em expansão',
+            ];
+            foreach($public_plans as $plano):
+                $desc = isset($plan_descs[$plano->plan_code]) ? $plan_descs[$plano->plan_code] : htmlspecialchars(trim(strip_tags((string)$plano->especificacoes)));
+            ?>
+            <div class="plan-card">
+                <h3 class="plan-name"><?=htmlspecialchars($plano->modelo)?></h3>
+                <p class="plan-desc"><?=htmlspecialchars($desc)?></p>
+                <p class="plan-price">a partir de R$ <?=number_format((float)$plano->preco_venda, 2, ',', '.')?>/<?=htmlspecialchars($plano->billing_interval)?></p>
+                <a href="<?=base_url()?>experimentar" class="btn-plan">Experimentar grátis →</a>
+            </div>
+            <?php endforeach; ?>
+            <div class="plan-card plan-card--custom">
+                <h3 class="plan-name">Clínica grande?</h3>
+                <p class="plan-desc">Muitos profissionais? Montamos um plano sob medida para a sua realidade.</p>
+                <p class="plan-price">Sob consulta</p>
+                <a href="https://wa.me/5581983276882?text=Ol%C3%A1%2C+gostaria+de+saber+mais+sobre+planos+para+minha+cl%C3%ADnica" class="btn-plan btn-plan--wa" target="_blank" rel="noopener">Falar pelo WhatsApp →</a>
+            </div>
+        </div>
+    </div>
+</section>
+<?php endif; ?>
+
+<!-- ═══════════════════════════════════════════════════════
      CTA FINAL
 ═══════════════════════════════════════════════════════ -->
 <section class="cta-section">
