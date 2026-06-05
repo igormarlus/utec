@@ -23,6 +23,7 @@
     <link href="<?=base_url()?>bower_components/slick-carousel/slick/slick.css" rel="stylesheet">
     <!--<link href="<?=base_url()?>css/main.css?version=4.5.0" rel="stylesheet">-->
     <link href="<?=base_url()?>css/clicklinica-main.css" rel="stylesheet">
+    <link href="<?=base_url()?>css/utec-redesign.css" rel="stylesheet">
 
     <link rel="stylesheet" href="<?=base_url()?>bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css">
     <style>
@@ -305,6 +306,19 @@
           grid-template-columns: 1fr;
         }
       }
+      .section-heading,
+      .timeline-date,
+      .timeline-section h6,
+      .element-header {
+        font-family: var(--ut-font) !important;
+      }
+      .timeline-list:before {
+        background: linear-gradient(180deg, var(--ut-green-border) 0%, #e2e8f0 100%);
+      }
+      .timeline-dot {
+        border-color: var(--ut-green-600) !important;
+        color: var(--ut-green-600) !important;
+      }
     </style>
     
   </head>
@@ -539,7 +553,13 @@
                         $status_card_class = 'status-cancelado';
                       }
                     ?>
-                    <span class="timeline-status <?=$status_card_class?>"><?=$status_card_nome?></span>
+                    <?php
+                      $ut_card_pill = 'pendente';
+                      if((int)$dd_agenda->status === 1) $ut_card_pill = 'atendimento';
+                      if((int)$dd_agenda->status === 2) $ut_card_pill = 'finalizado';
+                      if((int)$dd_agenda->status === 3) $ut_card_pill = 'cancelado';
+                    ?>
+                    <span class="ut-status-pill <?=$ut_card_pill?>"><?=$status_card_nome?></span>
                   </div>
                 </div>
                 <form id="form" name="form" class="mws-form" method="post" action="<?php echo base_url() ?>index.php/adm/atendimento/set" enctype='multipart/form-data'>
@@ -562,7 +582,13 @@
                       </div>
                     </div>
                   </div>
-                  <div class="timeline-actions">
+                  <div class="ut-sticky-save ut-mobile-only">
+                    <button class="btn btn-block" type="submit" name="acao_status" value="salvar"
+                            style="background:var(--ut-green-900);color:#fff;font-family:var(--ut-font);font-weight:700;padding:13px;border-radius:var(--ut-radius-md);border:0;width:100%;">
+                      Salvar prontuário
+                    </button>
+                  </div>
+                  <div class="ut-action-grid" style="margin-top:18px;">
                     <button class="btn btn-outline-secondary" type="submit" name="acao_status" value="salvar">Salvar sem encerrar</button>
                     <? if((int)$dd_agenda->status !== 1){ ?>
                       <button class="btn btn-primary" type="submit" name="acao_status" value="iniciar">Marcar como em atendimento</button>
@@ -617,7 +643,13 @@
                                 <div class="timeline-date"><?=$this->padrao_model->converte_data($agenda->data_agenda)?> as <?=substr($agenda->hora_agenda,0,5)?>h</div>
                                 <div class="timeline-meta">Agendamento #<?=$agenda->id?> • registrado por <?=$nome_profissional?></div>
                               </div>
-                              <span class="timeline-status <?=$status_class?>"><?=$status_nome?></span>
+                              <?php
+                                $ut_tl_pill = 'pendente';
+                                if((int)$agenda->status === 1) $ut_tl_pill = 'atendimento';
+                                if((int)$agenda->status === 2) $ut_tl_pill = 'finalizado';
+                                if((int)$agenda->status === 3) $ut_tl_pill = 'cancelado';
+                              ?>
+                              <span class="ut-status-pill <?=$ut_tl_pill?>"><?=$status_nome?></span>
                             </div>
 
                             <div class="timeline-sections">
