@@ -79,6 +79,9 @@ class Saas_model extends CI_Model {
 			return [];
 		}
 		$select = ['id', 'modelo', 'preco_venda', 'especificacoes'];
+		if($this->db->field_exists('plan_code', 'produtos')){
+			$select[] = 'plan_code';
+		}
 		if($this->db->field_exists('billing_interval', 'produtos')){
 			$select[] = 'billing_interval';
 		}
