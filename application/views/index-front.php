@@ -580,6 +580,34 @@
         /* ── UTILITY ── */
         .text-center { text-align: center; }
         .mt-4 { margin-top: 16px; }
+
+        /* ── PLANS ── */
+        .plans-section { padding: 72px 20px; background: var(--paper); }
+        .plans-grid {
+            display: grid; grid-template-columns: repeat(4, 1fr);
+            gap: 16px; margin-top: 40px;
+        }
+        @media(max-width: 900px) { .plans-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media(max-width: 560px) { .plans-grid { grid-template-columns: 1fr; } }
+        .plan-card {
+            background: #fff; border: 1px solid var(--border);
+            border-radius: var(--radius-md); padding: 24px 20px;
+            display: flex; flex-direction: column; gap: 8px;
+        }
+        .plan-card--custom { border-style: dashed; }
+        .plan-name { font-size: 18px; font-weight: 800; margin: 0; color: var(--text); }
+        .plan-desc { font-size: 14px; color: var(--muted); line-height: 1.6; margin: 0; flex: 1; }
+        .plan-price { font-size: 12px; color: var(--subtle); margin: 4px 0 0; }
+        .btn-plan {
+            display: block; text-align: center;
+            padding: 10px 16px; border-radius: 999px;
+            border: 1.5px solid var(--brand-blue); color: var(--brand-blue);
+            font-size: 14px; font-weight: 600; text-decoration: none;
+            transition: background .15s, color .15s; margin-top: 8px;
+        }
+        .btn-plan:hover { background: var(--brand-blue); color: #fff; }
+        .btn-plan--wa { border-color: #25d366; color: #25d366; }
+        .btn-plan--wa:hover { background: #25d366; color: #fff; }
     </style>
 </head>
 <body>
