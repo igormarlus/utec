@@ -10,6 +10,17 @@
 
       gtag('config', 'G-WSW6C4F4K8');
     </script>
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=AW-676174906"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'AW-676174906');
+    </script>
+
     <meta charset="UTF-8">
     <title>UTecnologia Saúde — Gestão clínica para clínicas e profissionais de saúde</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">

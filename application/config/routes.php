@@ -90,6 +90,10 @@ $route['software-para-clinicas']           = 'home/seo_software_para_clinicas';
 $route['sistema-para-clinica-oftalmologica'] = 'home/seo_clinica_oftalmologica';
 $route['software-para-medicos']            = 'home/seo_software_para_medicos';
 $route['sistema-para-nutricionistas']      = 'home/seo_sistema_nutricionistas';
+$route['sistema-para-ginecologia']         = 'home/seo_sistema_ginecologia';
+$route['sistema-para-pediatria']           = 'home/seo_sistema_pediatria';
+$route['sistema-para-psiquiatria']         = 'home/seo_sistema_psiquiatria';
+$route['sistema-para-fonoaudiologia']      = 'home/seo_sistema_fonoaudiologia';
 
 // Blog público
 $route['blog']        = 'blog/index';

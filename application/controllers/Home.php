@@ -628,6 +628,26 @@ class Home extends CI_Controller {
 		$this->load->view('public/seo/sistema-para-nutricionistas');
 	}
 
+	public function seo_sistema_ginecologia()
+	{
+		$this->load->view('public/seo/sistema-para-ginecologia');
+	}
+
+	public function seo_sistema_pediatria()
+	{
+		$this->load->view('public/seo/sistema-para-pediatria');
+	}
+
+	public function seo_sistema_psiquiatria()
+	{
+		$this->load->view('public/seo/sistema-para-psiquiatria');
+	}
+
+	public function seo_sistema_fonoaudiologia()
+	{
+		$this->load->view('public/seo/sistema-para-fonoaudiologia');
+	}
+
 	public function sobre()
 	{
 		$this->load->view('public/sobre');

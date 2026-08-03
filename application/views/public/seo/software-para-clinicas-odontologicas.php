@@ -1,6 +1,17 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=AW-676174906"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'AW-676174906');
+    </script>
+
     <meta charset="UTF-8">
     <title>Software para Clínicas Odontológicas | Gestão Completa para Dentistas | UTecnologia Saúde</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">

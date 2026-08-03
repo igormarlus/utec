@@ -13,22 +13,22 @@
 </script>
 
     <meta charset="UTF-8">
-    <title>Sistema para Dentistas e Clínicas Odontológicas — UTecnologia Saúde</title>
+    <title>Sistema para Pediatria — UTecnologia Saúde</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Sistema para dentistas com agenda, prontuário odontológico e gestão de pacientes. Para consultório e clínica odontológica de todos os tamanhos. Experimente grátis por 30 dias.">
-    <link rel="canonical" href="https://utecnologia.com.br/sistema-para-dentistas">
+    <meta name="description" content="Sistema para clínicas e consultórios de pediatria com agenda, prontuário com peso, altura e dados do responsável, e gestão de pacientes. Experimente grátis por 30 dias.">
+    <link rel="canonical" href="https://utecnologia.com.br/sistema-para-pediatria">
     <link rel="icon" type="image/png" sizes="512x512" href="<?=base_url('favicon.png')?>">
     <link rel="apple-touch-icon" href="<?=base_url('apple-touch-icon.png')?>">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://utecnologia.com.br/sistema-para-dentistas">
-    <meta property="og:title" content="Sistema para Dentistas — UTecnologia Saúde">
-    <meta property="og:description" content="Agenda, prontuário e gestão de pacientes para dentistas e clínicas odontológicas. Teste grátis 30 dias.">
+    <meta property="og:url" content="https://utecnologia.com.br/sistema-para-pediatria">
+    <meta property="og:title" content="Sistema para Pediatria — UTecnologia Saúde">
+    <meta property="og:description" content="Agenda, prontuário com peso, altura e dados do responsável, e gestão de pacientes para pediatria. Teste grátis 30 dias.">
     <meta property="og:image" content="https://utecnologia.com.br/imagens/og-cover.png">
     <meta property="og:site_name" content="UTecnologia Saúde">
     <meta property="og:locale" content="pt_BR">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Sistema para Dentistas — UTecnologia Saúde">
-    <meta name="twitter:description" content="Agenda, prontuário e gestão para dentistas e clínicas odontológicas. 30 dias grátis.">
+    <meta name="twitter:title" content="Sistema para Pediatria — UTecnologia Saúde">
+    <meta name="twitter:description" content="Agenda, prontuário e gestão para clínicas e consultórios de pediatria. 30 dias grátis.">
     <meta name="twitter:image" content="https://utecnologia.com.br/imagens/og-cover.png">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -89,7 +89,7 @@
     .pront-header h2{font-family:var(--ff-display);font-size:36px;font-weight:700;color:var(--white);margin-bottom:12px;}
     .pront-header p{font-size:16px;color:rgba(255,255,255,.65);max-width:540px;margin:0 auto;}
     .prontuario-stage{position:relative;max-width:820px;margin:0 auto;}
-    .prontuario-stage::before{content:'Prontuário — Odontologia';position:absolute;top:-12px;left:24px;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--teal-md);background:var(--navy);padding:0 8px;z-index:10;}
+    .prontuario-stage::before{content:'Prontuário — Pediatria';position:absolute;top:-12px;left:24px;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--teal-md);background:var(--navy);padding:0 8px;z-index:10;}
     .prontuario-mock{background:#0e2d4a;border:1px solid rgba(0,127,163,.4);border-radius:16px;overflow:hidden;box-shadow:var(--shadow-lg);}
     .pmock-topbar{background:var(--navy);padding:10px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(255,255,255,.08);}
     .pmock-dots{display:flex;gap:5px;}
@@ -163,15 +163,11 @@
     <div class="wrap">
         <div class="hero-inner">
             <div>
-                <div class="eyebrow">Software Odontológico</div>
-                <h1><em>Sistema para dentistas</em> e clínicas odontológicas</h1>
+                <div class="eyebrow">Software para Pediatria</div>
+                <h1><em>Sistema para pediatria</em> e consultório pediátrico</h1>
                 <p class="hero-text">
-                    Organize sua agenda de atendimentos, mantenha o prontuário de cada paciente atualizado
-                    e gerencie sua clínica ou consultório odontológico com eficiência — 100% online.
-                </p>
-                <p class="hero-text" style="font-size:16px;margin-bottom:0;">
-                    Se sua busca é por um <a href="<?=base_url()?>software-para-clinicas-odontologicas">software para clínicas odontológicas</a>,
-                    veja também nossa página dedicada para esse perfil de operação.
+                    Organize a agenda de consultas, registre peso, altura e evolução de cada criança,
+                    e mantenha os dados do responsável sempre à mão — 100% online.
                 </p>
                 <div class="hero-cta">
                     <a href="<?=base_url()?>experimentar" class="btn-primary">Testar 30 dias grátis →</a>
@@ -184,40 +180,36 @@
                 </div>
                 <div class="funciona-strip">
                     <span class="funciona-label">Funciona para:</span>
-                    <span class="funciona-chip">Dentista autônomo</span>
-                    <span class="funciona-chip">Consultório odontológico</span>
-                    <span class="funciona-chip">Clínica com vários dentistas</span>
-                    <span class="funciona-chip">Endodontia e especialidades</span>
+                    <span class="funciona-chip">Pediatra autônomo(a)</span>
+                    <span class="funciona-chip">Consultório pediátrico</span>
+                    <span class="funciona-chip">Clínica com equipe multiprofissional</span>
+                    <span class="funciona-chip">Puericultura e acompanhamento</span>
                     <span class="funciona-chip">Recepção + equipe clínica</span>
                 </div>
             </div>
             <div class="hero-card">
                 <div class="topbar-dots">
                     <span></span><span></span><span></span>
-                    <span class="card-title-bar">Registro de Atendimento — Odontologia</span>
+                    <span class="card-title-bar">Registro de Atendimento — Pediatria</span>
                 </div>
                 <div class="card-body">
-                    <div class="fm-group">
-                        <label class="fm-label">Dente(s) Tratado(s) — Numeração FDI</label>
-                        <input class="fm-input" type="text" placeholder="Ex: 36, 47, 11" readonly>
-                    </div>
                     <div class="fm-grid2">
                         <div>
-                            <label class="fm-label">Procedimento</label>
-                            <select class="fm-select" disabled><option>Endodontia (Canal)</option></select>
+                            <label class="fm-label">Peso (kg)</label>
+                            <input class="fm-input" type="text" placeholder="Ex: 14,2 kg" readonly>
                         </div>
                         <div>
-                            <label class="fm-label">Anestesia</label>
-                            <select class="fm-select" disabled><option>Articaína 4%</option></select>
+                            <label class="fm-label">Altura (cm)</label>
+                            <input class="fm-input" type="text" placeholder="Ex: 96 cm" readonly>
                         </div>
                     </div>
                     <div class="fm-group">
-                        <label class="fm-label">Material Utilizado</label>
-                        <input class="fm-input" type="text" placeholder="Ex: Cimento AH Plus, Guta-percha" readonly>
+                        <label class="fm-label">Responsável</label>
+                        <input class="fm-input" type="text" placeholder="Ex: Mariana Souza (mãe)" readonly>
                     </div>
                     <div class="fm-group">
-                        <label class="fm-label">Prescrição / Retorno</label>
-                        <input class="fm-input" type="text" placeholder="Amoxicilina 500mg. Retorno em 7 dias." readonly>
+                        <label class="fm-label">Conduta / Retorno</label>
+                        <input class="fm-input" type="text" placeholder="Retorno em 6 meses para consulta de rotina" readonly>
                     </div>
                     <button class="fm-btn" disabled>Salvar atendimento →</button>
                 </div>
@@ -230,51 +222,45 @@
     <div class="wrap">
         <div class="pront-header">
             <div class="pront-label">Visualização do Sistema</div>
-            <h2>Como o prontuário odontológico aparece na plataforma</h2>
-            <p>Dente tratado, procedimento, anestesia, material e prescrição registrados por atendimento — histórico completo por paciente.</p>
+            <h2>Como o prontuário pediátrico aparece na plataforma</h2>
+            <p>Peso, altura, dados do responsável e conduta registrados por consulta — histórico completo do crescimento e desenvolvimento da criança.</p>
         </div>
         <div class="prontuario-stage">
             <div class="prontuario-mock">
                 <div class="pmock-topbar">
                     <div class="pmock-dots"><span></span><span></span><span></span></div>
-                    <span class="pmock-title">Prontuário — Odontologia · Carlos Mendes · 05/06/2026</span>
+                    <span class="pmock-title">Prontuário — Pediatria · Théo Santos · 05/06/2026</span>
                 </div>
                 <div class="pmock-body">
                     <div class="pmock-group">
                         <div class="pmock-group-label">Queixa / Motivo</div>
                         <div class="pmock-row">
-                            <div class="pmock-field-input">Dor espontânea no dente 36 há 3 dias. Sensibilidade ao frio e quente. Dor noturna. Diagnóstico: pulpite irreversível.</div>
+                            <div class="pmock-field-input">Consulta de rotina. Responsável relata apetite e sono normais, sem queixas.</div>
                         </div>
                     </div>
                     <div class="pmock-group">
-                        <div class="pmock-group-label">Dente(s) Tratado(s)</div>
-                        <div class="pmock-row">
-                            <div class="pmock-field-input">36 (Primeiro Molar Inferior Esquerdo)</div>
-                        </div>
-                    </div>
-                    <div class="pmock-group">
-                        <div class="pmock-group-label">Procedimento + Anestesia</div>
+                        <div class="pmock-group-label">Peso + Altura</div>
                         <div class="pmock-row col2">
                             <div>
-                                <div style="font-size:10px;color:rgba(255,255,255,.4);margin-bottom:4px;">Procedimento</div>
-                                <div class="pmock-field-select">Endodontia (Canal)</div>
+                                <div style="font-size:10px;color:rgba(255,255,255,.4);margin-bottom:4px;">Peso</div>
+                                <div class="pmock-field-input">14,2 kg</div>
                             </div>
                             <div>
-                                <div style="font-size:10px;color:rgba(255,255,255,.4);margin-bottom:4px;">Anestesia</div>
-                                <div class="pmock-field-select">Articaína 4%</div>
+                                <div style="font-size:10px;color:rgba(255,255,255,.4);margin-bottom:4px;">Altura</div>
+                                <div class="pmock-field-input">96 cm</div>
                             </div>
                         </div>
                     </div>
                     <div class="pmock-group">
-                        <div class="pmock-group-label">Material Utilizado</div>
+                        <div class="pmock-group-label">Dados do Responsável</div>
                         <div class="pmock-row">
-                            <div class="pmock-field-input">Limas ProTaper. Cimento AH Plus. Guta-percha. Obtução termoplástica.</div>
+                            <div class="pmock-field-input">Mariana Santos (mãe) — (11) 9****-1234</div>
                         </div>
                     </div>
                     <div class="pmock-group">
-                        <div class="pmock-group-label">Prescrição / Retorno</div>
+                        <div class="pmock-group-label">Conduta / Retorno</div>
                         <div class="pmock-row">
-                            <div class="pmock-field-input">Amoxicilina 500mg 8/8h por 7 dias. Ibuprofeno 600mg se dor. Retorno em 7 dias para restauração.</div>
+                            <div class="pmock-field-input">Desenvolvimento dentro do esperado. Retorno em 6 meses para consulta de rotina.</div>
                         </div>
                     </div>
                     <div class="pmock-act">
@@ -290,38 +276,38 @@
 <section class="section">
     <div class="wrap">
         <div class="section-label">Recursos</div>
-        <h2>O que o sistema oferece para sua clínica odontológica</h2>
-        <p class="section-sub">Do agendamento à documentação clínica — tudo organizado em um único sistema.</p>
+        <h2>O que o sistema oferece para sua clínica de pediatria</h2>
+        <p class="section-sub">Do agendamento ao acompanhamento do crescimento — tudo organizado em um único sistema.</p>
         <div class="features-grid">
             <div class="feature-card">
                 <div class="feature-icon">📋</div>
-                <h3>Prontuário Odontológico</h3>
-                <p>Registre a evolução de cada atendimento, procedimentos realizados, histórico de queixas e documentos clínicos do paciente.</p>
+                <h3>Prontuário Pediátrico</h3>
+                <p>Registre peso, altura e a evolução de cada criança a cada consulta, com histórico completo por paciente.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">👨‍👩‍👧</div>
+                <h3>Dados do Responsável</h3>
+                <p>Nome, parentesco e contato do responsável ficam sempre visíveis no cadastro do paciente.</p>
             </div>
             <div class="feature-card">
                 <div class="feature-icon">📅</div>
                 <h3>Agenda de Consultas</h3>
-                <p>Organize os atendimentos por dentista, filtre por data e status. Cancele, remarque e confirme consultas com facilidade.</p>
+                <p>Organize consultas de rotina e retornos por pediatra, com filtro por data e status.</p>
             </div>
             <div class="feature-card">
                 <div class="feature-icon">🔬</div>
-                <h3>Exames e Imagens</h3>
-                <p>Solicite exames e armazene laudos, radiografias e outros arquivos diretamente no prontuário do paciente.</p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon">👥</div>
-                <h3>Multi-Dentistas</h3>
-                <p>Clínica com vários dentistas? Cada profissional gerencia seus próprios pacientes com acesso individualizado.</p>
+                <h3>Exames e Documentos</h3>
+                <p>Anexe exames, carteira de vacinação digitalizada e outros documentos diretamente ao prontuário.</p>
             </div>
             <div class="feature-card">
                 <div class="feature-icon">🏢</div>
                 <h3>Gestão de Equipe</h3>
-                <p>Cadastre recepcionistas e auxiliares com permissões específicas. A equipe operacional cuida da agenda sem acessar os prontuários.</p>
+                <p>Cadastre recepcionistas e auxiliares com permissões específicas. A equipe cuida da agenda sem acessar prontuários.</p>
             </div>
             <div class="feature-card">
                 <div class="feature-icon">📊</div>
                 <h3>Controle de Atendimentos</h3>
-                <p>Visualize quantos atendimentos cada dentista realizou, em qual período e com qual status — para gestão e faturamento.</p>
+                <p>Visualize quantas consultas cada pediatra realizou, em qual período e com qual status.</p>
             </div>
         </div>
     </div>
@@ -330,49 +316,45 @@
 <section class="section" style="background:var(--white);">
     <div class="wrap">
         <div class="section-label">Perguntas frequentes</div>
-        <h2>Dúvidas sobre o sistema para dentistas</h2>
+        <h2>Dúvidas sobre o sistema para pediatria</h2>
         <p class="section-sub" style="margin-bottom:40px;"></p>
         <div class="faq-list">
             <div class="faq-item open">
                 <div class="faq-q" onclick="this.closest('.faq-item').classList.toggle('open')">
-                    O sistema tem odontograma?
+                    O sistema mostra a curva de crescimento em gráfico?
                     <span class="faq-chevron">▾</span>
                 </div>
-                <div class="faq-a">O UTecnologia Saúde é uma plataforma de gestão clínica geral, com prontuário de texto livre estruturado, agenda e exames. O odontograma gráfico (mapeamento de dentes) não está disponível neste momento, mas os registros de procedimentos e evoluções são documentados no prontuário do paciente.</div>
+                <div class="faq-a">O prontuário registra peso e altura de forma estruturada a cada consulta, formando um histórico completo por paciente. Um gráfico automático de curva de crescimento não está disponível no momento, mas os dados ficam documentados e acessíveis a qualquer momento.</div>
             </div>
             <div class="faq-item">
                 <div class="faq-q" onclick="this.closest('.faq-item').classList.toggle('open')">
-                    Posso armazenar radiografias no sistema?
+                    Como ficam registrados os dados do responsável?
                     <span class="faq-chevron">▾</span>
                 </div>
-                <div class="faq-a">Sim. O sistema permite anexar arquivos (PDF, imagens) diretamente no prontuário do paciente. Você pode armazenar laudos, radiografias digitais e outros documentos clínicos associados ao histórico de cada paciente.</div>
+                <div class="faq-a">O cadastro do paciente tem um campo dedicado para nome, parentesco e contato do responsável, visível em todos os atendimentos da criança.</div>
             </div>
             <div class="faq-item">
                 <div class="faq-q" onclick="this.closest('.faq-item').classList.toggle('open')">
-                    Funciona para consultório com apenas 1 dentista?
+                    Funciona para consultório com apenas 1 pediatra?
                     <span class="faq-chevron">▾</span>
                 </div>
-                <div class="faq-a">Sim. O plano Solo é ideal para dentistas autônomos: 1 profissional, 2 colaboradores (ex: recepcionista) e pacientes ilimitados, por R$ 79/mês.</div>
+                <div class="faq-a">Sim. O plano Solo é ideal para pediatras autônomos: 1 profissional, 2 colaboradores (ex: recepcionista) e pacientes ilimitados, por R$ 79/mês.</div>
             </div>
             <div class="faq-item">
                 <div class="faq-q" onclick="this.closest('.faq-item').classList.toggle('open')">
-                    A recepcionista pode acessar a agenda sem ver os prontuários?
+                    A recepção acessa o prontuário da criança?
                     <span class="faq-chevron">▾</span>
                 </div>
-                <div class="faq-a">Sim. Colaboradores (nível 4) têm acesso à agenda e ao cadastro de pacientes, mas não ao prontuário clínico — que fica restrito ao profissional de saúde responsável.</div>
+                <div class="faq-a">Não. Colaboradores (nível 4) têm acesso à agenda e ao cadastro de pacientes, mas não ao prontuário clínico — que fica restrito ao profissional de saúde responsável.</div>
             </div>
         </div>
-        <p class="section-sub" style="margin-top:32px;margin-bottom:0;">
-            Para uma visão mais comercial e focada em clínicas com equipe, acesse
-            <a href="<?=base_url()?>software-para-clinicas-odontologicas">nosso software para clínicas odontológicas</a>.
-        </p>
     </div>
 </section>
 
 <section class="section">
     <div class="wrap">
         <div class="cta-wrap">
-            <h2>Organize sua clínica odontológica</h2>
+            <h2>Organize sua clínica ou consultório de pediatria</h2>
             <p class="cta-sub">30 dias grátis para você testar agenda, prontuário e gestão de equipe.<br>Sem cartão de crédito. Começa em minutos.</p>
             <a href="<?=base_url()?>experimentar" class="btn-white">Criar conta grátis →</a>
         </div>
@@ -386,7 +368,7 @@
             <div class="footer-links">
                 <a href="<?=base_url()?>">Início</a>
                 <a href="<?=base_url()?>sistema-para-clinicas">Todas as especialidades</a>
-                <a href="<?=base_url()?>software-para-clinicas-odontologicas">Software para Clínicas Odontológicas</a>
+                <a href="<?=base_url()?>sistema-para-ginecologia">Sistema para Ginecologia</a>
                 <a href="<?=base_url()?>sistema-para-clinica-medica">Clínica Médica</a>
                 <a href="<?=base_url()?>experimentar">Trial grátis</a>
             </div>
@@ -401,8 +383,8 @@
   "name": "UTecnologia Saúde",
   "applicationCategory": "HealthApplication",
   "operatingSystem": "Web",
-  "url": "https://utecnologia.com.br/sistema-para-dentistas",
-  "description": "Sistema para dentistas com agenda, prontuário odontológico e gestão de pacientes.",
+  "url": "https://utecnologia.com.br/sistema-para-pediatria",
+  "description": "Sistema para clínicas e consultórios de pediatria com agenda, prontuário com peso, altura e dados do responsável, e gestão de pacientes.",
   "offers": {"@type": "Offer", "price": "79", "priceCurrency": "BRL"}
 }
 </script>
@@ -413,7 +395,7 @@
   "itemListElement": [
     {"@type": "ListItem", "position": 1, "name": "Início", "item": "https://utecnologia.com.br/"},
     {"@type": "ListItem", "position": 2, "name": "Sistema para Clínicas", "item": "https://utecnologia.com.br/sistema-para-clinicas"},
-    {"@type": "ListItem", "position": 3, "name": "Sistema para Dentistas", "item": "https://utecnologia.com.br/sistema-para-dentistas"}
+    {"@type": "ListItem", "position": 3, "name": "Sistema para Pediatria", "item": "https://utecnologia.com.br/sistema-para-pediatria"}
   ]
 }
 </script>
@@ -422,9 +404,9 @@
   "@context": "https://schema.org",
   "@type": "FAQPage",
   "mainEntity": [
-    {"@type": "Question", "name": "O sistema tem odontograma?", "acceptedAnswer": {"@type": "Answer", "text": "O UTecnologia Saúde é uma plataforma de gestão clínica geral. O odontograma gráfico não está disponível, mas os registros de procedimentos e evoluções são documentados em prontuário estruturado."}},
-    {"@type": "Question", "name": "Posso armazenar radiografias no sistema?", "acceptedAnswer": {"@type": "Answer", "text": "Sim. O sistema permite anexar arquivos (PDF, imagens) diretamente no prontuário do paciente, incluindo laudos e radiografias digitais."}},
-    {"@type": "Question", "name": "Funciona para consultório com apenas 1 dentista?", "acceptedAnswer": {"@type": "Answer", "text": "Sim. O plano Solo é ideal para dentistas autônomos: 1 profissional, 2 colaboradores e pacientes ilimitados por R$ 79/mês."}}
+    {"@type": "Question", "name": "O sistema mostra a curva de crescimento em gráfico?", "acceptedAnswer": {"@type": "Answer", "text": "O prontuário registra peso e altura de forma estruturada a cada consulta. Um gráfico automático de curva de crescimento não está disponível no momento, mas os dados ficam documentados no histórico."}},
+    {"@type": "Question", "name": "Como ficam registrados os dados do responsável?", "acceptedAnswer": {"@type": "Answer", "text": "O cadastro do paciente tem um campo dedicado para nome, parentesco e contato do responsável, visível em todos os atendimentos da criança."}},
+    {"@type": "Question", "name": "Funciona para consultório com apenas 1 pediatra?", "acceptedAnswer": {"@type": "Answer", "text": "Sim. O plano Solo é ideal para pediatras autônomos: 1 profissional, 2 colaboradores e pacientes ilimitados por R$ 79/mês."}}
   ]
 }
 </script>

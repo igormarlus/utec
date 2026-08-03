@@ -1,0 +1,29 @@
+Pilar,Site alvo,Tipo,DR estimado,Contato/URL,Status,URL do artigo publicado,Anchor text sugerido,Data de publicação,Observação
+1 - Diretórios,Capterra + GetApp + Software Advice (G2 Digital Markets),Diretório,85,https://app.g2digitalmarkets.com/get-listed/start,Bloqueado (tentar manual),,UTecnologia Saúde,,Unificado sob G2 Digital Markets em 2026 - um cadastro cobre os 3. Form testado 2026-07-14 com comercial@utecnologia.com.br: erro "could not complete... try signing in". Site tem proteção Cloudflare que bloqueia acesso automatizado - tentar em navegador comum, não via script
+1 - Diretórios,G2.com,Diretório,91,https://www.g2.com/add_product_requests/new,Bloqueado (tentar manual),,UTecnologia Saúde,,Maior diretório de reviews do mundo; site distinto do G2 Digital Markets (Capterra/GetApp/SoftwareAdvice). Testado 2026-07-14: sell.g2.com virou tudo lead-gen/demo (sem form self-service); o link "Claim your profile" (g2.com/add_product_requests/new) exige login e caiu num CAPTCHA DataDome (slider) - precisa ser feito manualmente por humano
+1 - Diretórios,MicroSaaS.com.br,Diretório,30,https://diretorio.microsaas.com.br/minha-conta,Aguardando Igor criar conta,,UTecnologia Saúde,,Comunidade de founders/SaaS BR. Fluxo real: "Adicionar Micro-SaaS" -> exige criar conta (nome/e-mail/senha ou Google) antes de cadastrar o produto. Já existem 2 concorrentes diretos listados: SIMUS e qHoras (gestão para profissionais de saúde)
+2 - Guest posts,Blue Dental Blog,Guest post,,https://www.bluedental.com.br/contato/,Tentativa automatizada bloqueada por reCAPTCHA - reenviar manualmente,,UTecnologia Saúde,,Pedir inclusão na listicle "10 melhores softwares para consultório odontológico 2026" (UTec não está listado) em vez de guest post do zero. Texto pronto em docs/seo-offpage-emails-guest-post-2026-07-14.md
+2 - Guest posts,Dental Cremer Blog,Guest post,,contato institucional não confirmado - checar dentalcremer.com.br,E-mail pronto (docs/seo-offpage-emails-guest-post-2026-07-14.md),,UTecnologia Saúde,,Henry Schein Brasil. Propor para categoria "Gestão e Marketing" do blog, não "Solução Digital" (essa é sobre equipamento/hardware)
+2 - Guest posts,CoDental Blog,Guest post,,codental.com.br/blog,Não contatado,,digitalização de prontuário odontológico,,
+2 - Guest posts,SIN Implant System Blog,Guest post,,sinimplantsystem.com.br/blog,Não contatado,,prontuários e retornos de clínicas de implante,,
+2 - Guest posts,Saúde Digital News,Guest post/PR,,https://saudedigitalnews.com.br/contato/,E-mail pronto (docs/seo-offpage-emails-guest-post-2026-07-14.md),,UTecnologia Saúde,,Editorial cobre inovação de grande porte (Mayo Clinic, OpenAI) - pitch precisa de ângulo de dado/tendência, não anúncio de produto
+2 - Guest posts,Setor Saúde,Guest post/PR,,setorsaude.com.br,Não contatado,,UTecnologia Saúde,,Artigo de opinião ou dado de mercado
+2 - Guest posts,Portal Afya,Guest post,,portal.afya.com.br,Não contatado,,UTecnologia Saúde,,Artigo sobre digitalização de consultório
+2 - Guest posts,Futuro da Saúde,Guest post/PR,,futurodasaude.com.br,Não contatado,,UTecnologia Saúde,,Pauta sobre gestão de clínicas pequenas
+2 - Guest posts (monitorar),ZenFisio Blog,Monitorar (concorrente),,zenfisio.com,Monitorar,,,,NÃO fazer guest post — criar conteúdo superior no blog UTec
+2 - Guest posts (monitorar),Clínica nas Nuvens Blog,Monitorar (concorrente),,clinicanasnuvens.com.br/blog,Monitorar,,,,NÃO fazer guest post — monitorar temas publicados
+4 - Comunidades,NutraFisio Comunidades,Comunidade,,nutrafisio.comunidades.net,Não iniciado,,,,Participação orgânica 2 semanas antes de qualquer link
+4 - Comunidades,Fisioterapia Comunidades,Comunidade,,comunidades.net,Não iniciado,,,,Participação orgânica
+4 - Comunidades,Grupos Facebook de dentistas,Comunidade,,,Não iniciado,,,,Responder dúvidas com conteúdo útil do blog
+5 - PR digital,Tecnologia em Saúde (TecSaúde),PR,,,Não contatado,,,,Release sobre nova funcionalidade
+5 - PR digital,Startups.com.br,PR,,startups.com.br,Não contatado,,,,Release sobre crescimento/produto
+5 - PR digital,Pequenas Empresas Grandes Negócios,PR,,,Não contatado,,,,Pauta sobre digitalização de clínicas
+5 - PR digital,Portal Exame (tech),PR,,exame.com,Não contatado,,,,Artigo assinado sobre healthtech no Brasil
+6 - Parcerias,Blue Dental (parceria),Parceria,,,Não contatado,,,,Artigo colaborativo + menção mútua
+6 - Parcerias,Dental Cremer (parceria),Parceria,,,Não contatado,,,,Artigo colaborativo + menção mútua
+6 - Parcerias,Memed,Parceria,,,Não contatado,,,,Prescrição digital — artigo sobre fluxo integrado
+6 - Parcerias,Contabilizei,Parceria,,,Não contatado,,,,Artigo sobre gestão financeira + operacional
+Monitoramento backlinks concorrentes,feegow.com,Monitorar backlinks,,,Pendente,,,,Ahrefs/Ubersuggest — DR>30 dofollow
+Monitoramento backlinks concorrentes,clinicanasnuvens.com.br,Monitorar backlinks,,,Pendente,,,,Ahrefs/Ubersuggest — DR>30 dofollow
+Monitoramento backlinks concorrentes,odontoclinic.com.br,Monitorar backlinks,,,Pendente,,,,Ahrefs/Ubersuggest — DR>30 dofollow
+Monitoramento backlinks concorrentes,shosp.com.br,Monitorar backlinks,,,Pendente,,,,Ahrefs/Ubersuggest — DR>30 dofollow
