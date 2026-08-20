@@ -164,6 +164,11 @@
                     exames e relatórios. Para médicos autônomos e clínicas com equipe.
                     Sem instalação. Sem servidor local.
                 </p>
+                <p class="hero-text" style="font-size:15px;background:#ffffff;border:1px solid var(--border);border-radius:12px;padding:14px 16px;max-width:620px;">
+                    <strong>Em resumo:</strong> este software médico serve melhor para consultório e clínica que querem agenda,
+                    prontuário e operação online sem instalação. Se você precisa de um sistema ultraespecializado por equipamento
+                    ou integração muito específica de hospital, vale validar esse ponto antes da contratação.
+                </p>
                 <div class="hero-cta">
                     <a href="<?=base_url()?>experimentar" class="btn-primary">Testar 30 dias grátis →</a>
                     <a href="<?=base_url()?>sistema-para-consultorio-medico" class="btn-outline">Para consultório</a>
@@ -326,6 +331,34 @@
     </div>
 </section>
 
+<section class="section" style="background:var(--white);">
+    <div class="wrap">
+        <div class="section-label">Decisão prática</div>
+        <h2>Quando este software faz sentido para o médico</h2>
+        <p class="section-sub">A página precisa responder rápido para quem serve e quando não serve.</p>
+        <div class="personas">
+            <div class="persona-card highlight">
+                <div class="persona-title">Faz sentido se você quer</div>
+                <ul>
+                    <li>Prontuário, agenda e exames no mesmo fluxo</li>
+                    <li>Sistema online sem instalação local</li>
+                    <li>Começar com trial antes de assinar</li>
+                    <li>Plano para consultório e evolução para clínica</li>
+                </ul>
+            </div>
+            <div class="persona-card">
+                <div class="persona-title">Vale validar antes se você precisa</div>
+                <ul>
+                    <li>Integrações muito específicas fora do fluxo atual do produto</li>
+                    <li>Funcionalidades hospitalares não prometidas nesta página</li>
+                    <li>Campos ultraespecializados que dependem de nicho muito restrito</li>
+                    <li>Processos regulatórios que exigem conferência técnica própria</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
 <section class="section">
     <div class="wrap">
         <div class="section-label">Perguntas frequentes</div>
@@ -384,6 +417,11 @@
             <h2>Software médico com 30 dias grátis</h2>
             <p class="cta-sub">Prontuário, agenda e exames para o seu consultório.<br>Sem instalação. Sem cartão de crédito.</p>
             <a href="<?=base_url()?>experimentar" class="btn-white">Criar conta médica grátis →</a>
+            <p style="margin-top:16px;font-size:14px;color:rgba(255,255,255,.72);">
+                Compare também com <a href="<?=base_url()?>sistema-para-consultorio-medico" style="color:#fff;text-decoration:underline;">consultório médico</a>,
+                <a href="<?=base_url()?>sistema-para-clinica-medica" style="color:#fff;text-decoration:underline;">clínica médica</a> e
+                <a href="<?=base_url()?>alternativa-shosp" style="color:#fff;text-decoration:underline;">alternativa ao Shosp</a>.
+            </p>
         </div>
     </div>
 </section>
