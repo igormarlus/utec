@@ -603,6 +603,16 @@ class Home extends CI_Controller {
 		$this->load->view('public/seo/alternativa-odontoclinic');
 	}
 
+	public function seo_alternativa_shosp()
+	{
+		$this->load->view('public/seo/alternativa-shosp');
+	}
+
+	public function seo_alternativa_clinica_nuvens()
+	{
+		$this->load->view('public/seo/alternativa-clinica-nas-nuvens');
+	}
+
 	public function seo_sistema_gratuito()
 	{
 		$this->load->view('public/seo/sistema-gratuito-para-clinicas');
