@@ -218,23 +218,18 @@
 <section class="section" style="background:var(--white);">
     <div class="wrap">
         <div class="section-label">Comparativo</div>
-        <h2>UTecnologia Saúde vs outros sistemas</h2>
-        <p class="section-sub">Veja como o UTecnologia Saúde se posiciona nos critérios mais importantes para clínicas.</p>
+        <h2>UTecnologia Saúde vs Shosp</h2>
+        <p class="section-sub">Compare as duas opções nos critérios mais importantes para decidir uma mudança de sistema.</p>
         <div class="compare-wrap">
             <table class="compare-table">
                 <thead>
                     <tr>
-                        <th>Funcionalidade</th>
+                        <th>Critério de decisão</th>
                         <th class="col-utec">UTecnologia Saúde <span class="badge-utec">Recomendado</span></th>
-                        <th>Sistemas genéricos</th>
+                        <th>Shosp</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr><td>Prontuário eletrônico completo</td><td class="check">✓ Incluído</td><td class="partial">⚠ Varia</td></tr>
-                    <tr><td>Agenda por profissional</td><td class="check">✓ Incluído</td><td class="partial">⚠ Varia</td></tr>
-                    <tr><td>Multi-profissionais na mesma clínica</td><td class="check">✓ Todos os planos</td><td class="partial">⚠ Planos pagos</td></tr>
-                    <tr><td>Controle de exames integrado</td><td class="check">✓ Incluído</td><td class="cross">✗ Separado</td></tr>
-                    <tr><td>Hierarquia de acesso (perfis)</td><td class="check">✓ Incluído</td><td class="partial">⚠ Limitado</td></tr>
                     <tr><td>Trial sem cartão de crédito</td><td class="check">✓ 30 dias</td><td class="partial">⚠ Confirmar no fornecedor</td></tr>
                     <tr><td>Plano de entrada para operação menor</td><td class="check">✓ A partir de R$ 79/mês</td><td class="partial">⚠ Avaliar plano comercial</td></tr>
                     <tr><td>Agenda + prontuário + exames no mesmo fluxo</td><td class="check">✓ Incluído</td><td class="partial">⚠ Varia por plano</td></tr>
