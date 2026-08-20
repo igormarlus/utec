@@ -648,6 +648,11 @@ class Home extends CI_Controller {
 		$this->load->view('public/seo/sistema-para-fonoaudiologia');
 	}
 
+	public function seo_sistema_medicina_trabalho()
+	{
+		$this->load->view('public/seo/sistema-para-medicina-do-trabalho');
+	}
+
 	public function sobre()
 	{
 		$this->load->view('public/sobre');

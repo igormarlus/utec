@@ -55,4 +55,32 @@
     <priority>0.7</priority>
   </url>
 
+  <url>
+    <loc>https://utecnologia.com.br/blog/prontuario-para-oftalmologista-o-que-registrar-em-cada-consulta</loc>
+    <lastmod>2026-06-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://utecnologia.com.br/blog/melhor-software-para-clinicas-como-avaliar</loc>
+    <lastmod>2026-06-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://utecnologia.com.br/blog/software-para-clinica-odontologica-como-escolher</loc>
+    <lastmod>2026-06-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://utecnologia.com.br/blog/software-medico-como-escolher-para-consultorio-ou-clinica</loc>
+    <lastmod>2026-06-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
 </urlset>

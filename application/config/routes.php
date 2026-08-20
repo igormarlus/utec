@@ -94,6 +94,7 @@ $route['sistema-para-ginecologia']         = 'home/seo_sistema_ginecologia';
 $route['sistema-para-pediatria']           = 'home/seo_sistema_pediatria';
 $route['sistema-para-psiquiatria']         = 'home/seo_sistema_psiquiatria';
 $route['sistema-para-fonoaudiologia']      = 'home/seo_sistema_fonoaudiologia';
+$route['sistema-para-medicina-do-trabalho'] = 'home/seo_sistema_medicina_trabalho';
 
 // Blog público
 $route['blog']        = 'blog/index';
