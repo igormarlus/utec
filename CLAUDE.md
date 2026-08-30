@@ -228,6 +228,7 @@ Verificado por `Padrao_model::can_access_saas_module()`. O Admin (nível 1) tem 
 | `Saas.php` | `/adm/saas` | Tenants, assinaturas, checkout MP, webhook |
 | `Dev.php` | `/adm/dev` | Migrações e utilitários de desenvolvimento |
 | `Especialidades.php` | `/adm/especialidades` | CRUD de campos extras por especialidade (nível 1 apenas) |
+| `Marketing.php` | `/adm/marketing` | Dashboard de Tráfego de IA (referral de IA + conversões) — nível 1 apenas |
 
 > `Atencimento.php` (com typo) foi renomeado para `.bak` — não é controller ativo.
 
@@ -324,6 +325,8 @@ application/views/
     │   ├── index.php                 # Dashboard operacional SaaS
     │   ├── tenant.php                # Detalhe do tenant, assinatura e equipe
     │   └── bloqueado.php             # Tela de tenant bloqueado por inadimplência
+    ├── marketing/
+    │   └── trafego_ia.php            # Dashboard de Tráfego de IA (cards + Chart.js + tabelas)
     └── atendimento/
         └── atendimento.php           # Formulário de atendimento (19KB)
 ```
@@ -370,6 +373,16 @@ application/views/
 
 - **mPDF** via `application/libraries/M_pdf.php`
 - **TCPDF** via `application/libraries/tcpdf/`
+
+### 10.6 Monitoramento de Tráfego de IA
+
+- Config de fontes: `application/config/ai_sources.php` (domínios + UTMs; sem hardcode no código)
+- Captura: `Padrao_model::track_ai_referral()` (chamado em `Home` e `Blog` ao lado de `indexador()`), grava `ai_referrals` 1x por sessão + cookie `utec_air` (90 dias, first-touch)
+- Conversões: `Padrao_model::mark_ai_conversion($type, $value, $reference_id, $meta)` em trial, assinatura e pagamentos; beacon `e/track?t=whatsapp|contato` nas landings
+- Detector: `Padrao_model::detect_ai_source($referrer, $utm)` — ordem UTM → Referer → aux; teste em `adm/dev/testar_detector_ia`
+- Dashboard: `adm/marketing/trafego_ia` (nível 1) — cards, gráficos Chart.js, landing pages, conversão por origem
+- LGPD: só `ip_hash` (nunca IP puro), sem PII em `meta`, dashboard restrito ao admin, retenção via `adm/dev/purgar_monitoramento_ia`
+- GEO / Brand Radar (Parte 2 do `docs/monitoramento_geo_ia.md`): fase futura, não implementada
 
 ---
 
@@ -422,6 +435,9 @@ Controller: `application/controllers/adm/Dev.php`
 | `adm/dev/criar_tabela_arquivos_paciente` | Cria `pacientes_arquivos` |
 | `adm/dev/migrar_especialidades` | Cria `usuarios_especialidades` (42 especialidades seed, IDs fixos 1–42), migra valores texto em `usuarios.especialidade` para IDs, altera coluna para `INT` (idempotente) |
 | `adm/dev/migrar_fase2_prontuario_especialidades` | Cria `especialidades_campos_config` + `agendamentos.campos_extras` TEXT, insere config para 9 especialidades (idempotente) |
+| `adm/dev/migrar_monitoramento_ia` | Cria `ai_referrals` + `ai_conversions` (idempotente; `?desfazer=1` faz DROP) |
+| `adm/dev/testar_detector_ia` | Roda os casos mínimos do detector de tráfego de IA (PASS/FAIL) |
+| `adm/dev/purgar_monitoramento_ia` | Remove registros de IA com mais de 18 meses (`?meses=N` ajusta) |
 
 Para novas migrações: adicionar método em `Dev.php`, proteger com `nivel == 1` na sessão.
 
