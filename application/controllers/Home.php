@@ -127,6 +127,9 @@ class Home extends CI_Controller {
 		// Envia e-mail de boas-vindas com credenciais e link de definição de senha
 		$this->_enviar_email_boas_vindas($result);
 
+		// Atribuicao de trafego de IA — trial criado
+		$this->padrao_model->mark_ai_conversion('trial', null, 'trial_'.(int)$result['subscription_id'], 'plano:'.(string)$this->input->post('plano_id'));
+
 		// CAPI StartTrial + CompleteRegistration — trial criado com sucesso
 		$email    = trim((string)$this->input->post('email'));
 		$nome     = trim((string)$this->input->post('nome_responsavel'));
@@ -215,6 +218,9 @@ class Home extends CI_Controller {
 			],
 		]);
 		$this->session->set_flashdata('fb_sub_event_id', $ev_id_sub);
+
+		// Atribuicao de trafego de IA — assinatura iniciada (sem valor: intencao, nao receita)
+		$this->padrao_model->mark_ai_conversion('assinatura', null, 'sub_'.(int)$result['subscription_id'], 'etapa:cadastro');
 
 		$this->session->set_flashdata('public_signup_ok', 'Cadastro criado com sucesso. Agora escolha PIX ou cartao para concluir a contratacao.');
 		redirect('assinar/pagamento?subscription='.(int)$result['subscription_id']);
@@ -379,6 +385,7 @@ class Home extends CI_Controller {
 
 			if(in_array(isset($payment['status']) ? $payment['status'] : '', ['approved', 'authorized'])){
 				$this->saas_model->register_cycle_payment((int)$open_cycle->id, 'card', isset($payment['transaction_amount']) ? (float)$payment['transaction_amount'] : null, 'Pagamento confirmado via cartao Mercado Pago ID '.(isset($payment['id']) ? $payment['id'] : ''));
+				$this->padrao_model->mark_ai_conversion('assinatura', isset($payment['transaction_amount']) ? (float)$payment['transaction_amount'] : null, 'pay_'.(isset($payment['id']) ? $payment['id'] : (int)$detail['subscription']->id), 'via:cartao');
 			}
 
 			$this->output->set_content_type('application/json')->set_output(json_encode([
@@ -440,6 +447,7 @@ class Home extends CI_Controller {
 			]);
 			if(in_array(isset($payment['status']) ? $payment['status'] : '', ['approved', 'authorized'])){
 				$this->saas_model->register_cycle_payment((int)$open_cycle->id, isset($payment['payment_method_id']) ? $payment['payment_method_id'] : 'mercadopago', isset($payment['transaction_amount']) ? (float)$payment['transaction_amount'] : null, 'Pagamento confirmado via sincronizacao Mercado Pago ID '.(isset($payment['id']) ? $payment['id'] : ''));
+				$this->padrao_model->mark_ai_conversion('assinatura', isset($payment['transaction_amount']) ? (float)$payment['transaction_amount'] : null, 'pay_'.(isset($payment['id']) ? $payment['id'] : (int)$detail['subscription']->id), 'via:sync');
 				$this->session->set_flashdata('public_signup_ok', 'Pagamento confirmado com sucesso.');
 				redirect('assinar/sucesso?subscription='.(int)$detail['subscription']->id);
 				return;
@@ -672,6 +680,30 @@ class Home extends CI_Controller {
 	public function contato()
 	{
 		$this->load->view('public/contato');
+	}
+
+	public function track_evento()
+	{
+		$tipo = strtolower(trim((string)$this->input->get('t')));
+		$permitidos = array('whatsapp', 'contato');
+		if(!in_array($tipo, $permitidos, true)){
+			$this->output->set_status_header(204);
+			return;
+		}
+
+		// Rate-limit simples: 1 evento do mesmo tipo por sessao a cada 60s.
+		$flagkey = 'ai_evt_'.$tipo;
+		$last = (int)$this->session->userdata($flagkey);
+		if($last > 0 && (time() - $last) < 60){
+			$this->output->set_status_header(204);
+			return;
+		}
+		$this->session->set_userdata($flagkey, time());
+
+		$origem = preg_replace('/[^a-z0-9_\-\/]/i', '', (string)$this->input->get('o'));
+		$this->padrao_model->mark_ai_conversion($tipo, null, null, $origem !== '' ? 'origem:'.mb_substr($origem, 0, 80) : null);
+
+		$this->output->set_status_header(204);
 	}
 
 	public function politica_privacidade()
