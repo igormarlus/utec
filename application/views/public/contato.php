@@ -174,6 +174,24 @@
   }
 }
 </script>
+<script>
+(function () {
+    var TRACK = '<?=base_url()?>e/track';
+    function ping(t, o) {
+        try {
+            var url = TRACK + '?t=' + encodeURIComponent(t) + (o ? '&o=' + encodeURIComponent(o) : '');
+            if (navigator.sendBeacon) { navigator.sendBeacon(url); }
+            else { (new Image()).src = url; }
+        } catch (e) {}
+    }
+    document.addEventListener('click', function (ev) {
+        var a = ev.target.closest ? ev.target.closest('a[href*="wa.me"], a[href*="api.whatsapp.com"]') : null;
+        if (a) { ping('whatsapp', (a.className || '').split(' ')[0] || 'link'); }
+    }, true);
+    var form = document.querySelector('form[data-track="contato"]');
+    if (form) { form.addEventListener('submit', function () { ping('contato', 'form'); }); }
+})();
+</script>
 </body>
 </html>
 
