@@ -71,6 +71,11 @@ $route['acesso/salvar']       = 'home/salvar_senha';
 $route['webhooks/mercadopago'] = 'adm/saas/webhook_mercadopago';
 $route['e/track'] = 'home/track_evento';
 
+// Marketing — Trafego de IA
+$route['adm/marketing']            = 'adm/marketing/index';
+$route['adm/marketing/trafego_ia'] = 'adm/marketing/trafego_ia';
+$route['adm/marketing/api/(:any)'] = 'adm/marketing/api/$1';
+
 // Leads
 $route['adm/leads']                        = 'adm/leads/index';
 $route['adm/leads/atualizar_status']       = 'adm/leads/atualizar_status';

@@ -56,6 +56,22 @@ if($menu_can_admin){
 	];
 }
 
+if($menu_can_admin){
+	$menu_sections[] = [
+		'title' => 'Marketing',
+		'items' => [
+			[
+				'label' => 'Trafego de IA',
+				'icon' => 'os-icon-signal',
+				'url' => base_url().'adm/marketing/trafego_ia',
+				'children' => [
+					['label' => 'Visao geral', 'url' => base_url().'adm/marketing/trafego_ia'],
+				],
+			],
+		],
+	];
+}
+
 $menu_operacao_items = [];
 $menu_operacao_items[] = [
 	'label' => 'Visao geral',
