@@ -787,6 +787,161 @@ function detect_ai_source($referrer, $utm){
 	return array('is_ai' => false, 'source' => null, 'method' => null);
 }
 
+function _ai_set_cookie($id, $source){
+	$this->load->helper('cookie');
+	set_cookie(array(
+		'name'   => 'utec_air',
+		'value'  => (int)$id.'|'.preg_replace('/[^a-z0-9_\-]/i', '', (string)$source),
+		'expire' => 60 * 60 * 24 * 90,
+		'path'   => '/',
+	));
+}
+
+function track_ai_referral(){
+	if(!$this->db->table_exists('ai_referrals')){
+		return;
+	}
+	$this->load->helper(array('url', 'cookie'));
+
+	// Ja atribuido nesta sessao? garante cookie e sai.
+	$existing_id = (int)$this->session->userdata('ai_referral_id');
+	if($existing_id > 0){
+		$this->_ai_set_cookie($existing_id, (string)$this->session->userdata('ai_source'));
+		return;
+	}
+
+	$utm = array(
+		'utm_source'   => $this->input->get('utm_source'),
+		'utm_medium'   => $this->input->get('utm_medium'),
+		'utm_campaign' => $this->input->get('utm_campaign'),
+		'utm_content'  => $this->input->get('utm_content'),
+		'utm_term'     => $this->input->get('utm_term'),
+	);
+	$referrer = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '';
+
+	$r = $this->detect_ai_source($referrer, $utm);
+	if(empty($r['is_ai'])){
+		return;
+	}
+
+	$session_id = (string)$this->session->session_id;
+
+	// Ja existe linha para esta sessao? recupera e sai (nunca 2x por sessao).
+	$prev = $this->db->query("SELECT id, ai_source FROM ai_referrals WHERE session_id = ? ORDER BY id DESC LIMIT 1", array($session_id));
+	if($prev->num_rows()){
+		$row = $prev->row();
+		$this->session->set_userdata(array('ai_referral_id' => (int)$row->id, 'ai_source' => $row->ai_source));
+		$this->_ai_set_cookie((int)$row->id, $row->ai_source);
+		return;
+	}
+
+	$cut = function($v, $len){
+		$v = (string)$v;
+		return $v === '' ? null : mb_substr($v, 0, $len);
+	};
+	$app_key = getenv('APP_SECRET') ?: (getenv('MERCADOPAGO_WEBHOOK_SECRET') ?: 'utec-ai-salt');
+	$ip = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '';
+	$qs = (string)$this->input->server('QUERY_STRING');
+
+	$data = array(
+		'session_id'       => $cut($session_id, 100),
+		'ai_source'        => $r['source'],
+		'detection_method' => $r['method'],
+		'landing_page'     => $cut(current_url().($qs !== '' ? '?'.$qs : ''), 500),
+		'request_uri'      => $cut($this->input->server('REQUEST_URI'), 500),
+		'referrer'         => $cut($referrer, 500),
+		'utm_source'       => $cut($utm['utm_source'], 255),
+		'utm_medium'       => $cut($utm['utm_medium'], 255),
+		'utm_campaign'     => $cut($utm['utm_campaign'], 255),
+		'utm_content'      => $cut($utm['utm_content'], 255),
+		'utm_term'         => $cut($utm['utm_term'], 255),
+		'user_agent'       => $cut($this->input->user_agent(), 400),
+		'ip_hash'          => $ip !== '' ? hash('sha256', $ip.$app_key) : null,
+		'id_user'          => ((int)$this->session->userdata('id')) ?: null,
+		'converted'        => 0,
+		'created_at'       => date('Y-m-d H:i:s'),
+	);
+
+	try {
+		$this->db->insert('ai_referrals', $data);
+		$id = (int)$this->db->insert_id();
+		if($id > 0){
+			$this->session->set_userdata(array('ai_referral_id' => $id, 'ai_source' => $r['source']));
+			$this->_ai_set_cookie($id, $r['source']);
+		}
+	} catch (Exception $e) {
+		log_message('error', 'track_ai_referral: '.$e->getMessage());
+	}
+}
+
+function mark_ai_conversion($type, $value = null, $reference_id = null, $meta = null){
+	if(!$this->db->table_exists('ai_conversions')){
+		return;
+	}
+
+	$ref_id = (int)$this->session->userdata('ai_referral_id');
+	$ai_source = (string)$this->session->userdata('ai_source');
+
+	// Re-hidrata do cookie se a sessao perdeu o vinculo (conversao cross-session).
+	if($ref_id <= 0){
+		$this->load->helper('cookie');
+		$cookie = (string)get_cookie('utec_air');
+		if($cookie !== '' && strpos($cookie, '|') !== false && $this->db->table_exists('ai_referrals')){
+			list($cid, $csrc) = explode('|', $cookie, 2);
+			$cid = (int)$cid;
+			if($cid > 0){
+				$chk = $this->db->query("SELECT id, ai_source FROM ai_referrals WHERE id = ? LIMIT 1", array($cid));
+				if($chk->num_rows()){
+					$ref_id = $cid;
+					$ai_source = $chk->row()->ai_source;
+					$this->session->set_userdata(array('ai_referral_id' => $ref_id, 'ai_source' => $ai_source));
+				}
+			}
+		}
+	}
+
+	if($ref_id <= 0){
+		return; // visita nao atribuida a IA — nada a fazer
+	}
+
+	try {
+		// Dedup por reference_id (evita dupla contagem em retentativas de pagamento).
+		if($reference_id !== null && $reference_id !== ''){
+			$dup = $this->db->query("SELECT id FROM ai_conversions WHERE reference_id = ? LIMIT 1", array((string)$reference_id));
+			if($dup->num_rows()){
+				return;
+			}
+		}
+
+		$val = ($value === null || $value === '') ? null : (float)$value;
+
+		$this->db->insert('ai_conversions', array(
+			'ai_referral_id'   => $ref_id,
+			'session_id'       => mb_substr((string)$this->session->session_id, 0, 100),
+			'ai_source'        => $ai_source !== '' ? $ai_source : null,
+			'conversion_type'  => mb_substr((string)$type, 0, 50),
+			'conversion_value' => $val,
+			'reference_id'     => $reference_id !== null ? mb_substr((string)$reference_id, 0, 100) : null,
+			'meta'             => $meta !== null ? mb_substr((string)$meta, 0, 500) : null,
+			'created_at'       => date('Y-m-d H:i:s'),
+		));
+
+		// First-touch em ai_referrals — so na 1a conversao, nao sobrescreve.
+		$cur = $this->db->query("SELECT converted FROM ai_referrals WHERE id = ? LIMIT 1", array($ref_id));
+		if($cur->num_rows() && (int)$cur->row()->converted === 0){
+			$this->db->where('id', $ref_id);
+			$this->db->update('ai_referrals', array(
+				'converted'        => 1,
+				'conversion_type'  => mb_substr((string)$type, 0, 50),
+				'conversion_value' => $val,
+				'converted_at'     => date('Y-m-d H:i:s'),
+			));
+		}
+	} catch (Exception $e) {
+		log_message('error', 'mark_ai_conversion: '.$e->getMessage());
+	}
+}
+
 
 } // fecha class
 

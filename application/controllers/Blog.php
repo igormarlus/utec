@@ -8,6 +8,7 @@ class Blog extends CI_Controller {
         $this->load->model('padrao_model');
         $this->load->model('adm/blog_model');
         $this->padrao_model->indexador();
+        $this->padrao_model->track_ai_referral();
     }
 
     public function index() {
