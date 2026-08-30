@@ -114,7 +114,41 @@ class Dev extends CI_Controller {
 		echo '<li><a href="'.base_url().'adm/dev/migrar_especialidades">Criar tabela usuarios_especialidades e normalizar campo</a></li>';
 		echo '<li><a href="'.base_url().'adm/dev/migrar_fase2_prontuario_especialidades">Fase 2 — Campos extras por especialidade (tabela + inserts)</a></li>';
 		echo '<li><a href="'.base_url().'adm/dev/testar_email_boas_vindas">Testar e-mail de boas-vindas (sem cadastrar)</a></li>';
+		echo '<li><a href="'.base_url().'adm/dev/migrar_monitoramento_ia">Migrar monitoramento de trafego de IA (tabelas)</a></li>';
+		echo '<li><a href="'.base_url().'adm/dev/testar_detector_ia">Testar detector de trafego de IA</a></li>';
+		echo '<li><a href="'.base_url().'adm/dev/purgar_monitoramento_ia">Purgar monitoramento de IA (>18 meses)</a></li>';
 		echo '</ul>';
+	}
+
+	function testar_detector_ia(){
+		$this->load->model('padrao_model');
+
+		$casos = array(
+			array('nome' => 'ChatGPT via UTM',          'ref' => '',                                   'utm' => array('utm_source' => 'chatgpt.com'),  'esp' => array(true,  'chatgpt',    'utm')),
+			array('nome' => 'ChatGPT via Referer',       'ref' => 'https://chatgpt.com/',               'utm' => array(),                               'esp' => array(true,  'chatgpt',    'referer')),
+			array('nome' => 'Perplexity via Referer',    'ref' => 'https://www.perplexity.ai/',         'utm' => array(),                               'esp' => array(true,  'perplexity', 'referer')),
+			array('nome' => 'Google Search tradicional', 'ref' => 'https://www.google.com/search?q=x',  'utm' => array(),                               'esp' => array(false, null,         null)),
+			array('nome' => 'Acesso direto',            'ref' => '',                                    'utm' => array(),                               'esp' => array(false, null,         null)),
+			array('nome' => 'utm_medium ai-assistant',   'ref' => '',                                   'utm' => array('utm_medium' => 'ai-assistant'), 'esp' => array(true,  'outros',     'utm')),
+			array('nome' => 'Bing (nao e IA)',           'ref' => 'https://www.bing.com/search?q=x',    'utm' => array(),                               'esp' => array(false, null,         null)),
+		);
+
+		$falhas = 0;
+		echo '<h2>Teste: detector de trafego de IA</h2>';
+		echo '<table border="1" cellpadding="6" style="border-collapse:collapse;font-family:monospace;">';
+		echo '<tr><th>#</th><th>Caso</th><th>Esperado [is_ai, source, method]</th><th>Obtido</th><th></th></tr>';
+		foreach($casos as $i => $c){
+			$r = $this->padrao_model->detect_ai_source($c['ref'], $c['utm']);
+			$ok = ($r['is_ai'] === $c['esp'][0] && $r['source'] === $c['esp'][1] && ($c['esp'][2] === null || $r['method'] === $c['esp'][2]));
+			if(!$ok){ $falhas++; }
+			echo '<tr><td>'.($i + 1).'</td><td>'.htmlspecialchars($c['nome']).'</td>'
+				.'<td>'.htmlspecialchars(json_encode($c['esp'])).'</td>'
+				.'<td>'.htmlspecialchars(json_encode(array($r['is_ai'], $r['source'], $r['method']))).'</td>'
+				.'<td style="font-weight:bold;color:'.($ok ? 'green' : 'red').'">'.($ok ? 'PASS' : 'FAIL').'</td></tr>';
+		}
+		echo '</table>';
+		echo '<p><strong>'.(count($casos) - $falhas).'/'.count($casos).' PASS</strong></p>';
+		echo '<p><a href="'.base_url().'adm/dev">Voltar ao Dev</a></p>';
 	}
 
 	function testar_email_boas_vindas(){

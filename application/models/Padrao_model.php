@@ -737,6 +737,57 @@ function fuso_dt($data,$fusohorario=3,$invert="0",$minsoma=0){
 }
 
 
+function ai_sources_list(){
+	$this->config->load('ai_sources', TRUE);
+	$sources = $this->config->item('ai_sources', 'ai_sources');
+	$list = is_array($sources) ? array_keys($sources) : array();
+	$list[] = 'outros';
+	return $list;
+}
+
+function detect_ai_source($referrer, $utm){
+	$this->config->load('ai_sources', TRUE);
+	$sources = $this->config->item('ai_sources', 'ai_sources');
+	$medium_flags = $this->config->item('ai_medium_flags', 'ai_sources');
+	if(!is_array($sources)){ $sources = array(); }
+	if(!is_array($medium_flags)){ $medium_flags = array(); }
+	if(!is_array($utm)){ $utm = array(); }
+
+	$utm_source = isset($utm['utm_source']) ? strtolower(trim((string)$utm['utm_source'])) : '';
+	$utm_medium = isset($utm['utm_medium']) ? strtolower(trim((string)$utm['utm_medium'])) : '';
+	$ref = strtolower(trim((string)$referrer));
+
+	// 1. UTM explicita (prioridade maior)
+	if($utm_source !== ''){
+		foreach($sources as $slug => $conf){
+			$utms = (isset($conf['utm']) && is_array($conf['utm'])) ? $conf['utm'] : array();
+			if(in_array($utm_source, $utms, true)){
+				return array('is_ai' => true, 'source' => $slug, 'method' => 'utm');
+			}
+		}
+	}
+	if($utm_medium !== '' && in_array($utm_medium, $medium_flags, true)){
+		return array('is_ai' => true, 'source' => 'outros', 'method' => 'utm');
+	}
+
+	// 2. Referer (strpos, nao comparacao exata — subdominios e caminhos)
+	if($ref !== ''){
+		foreach($sources as $slug => $conf){
+			$domains = (isset($conf['domains']) && is_array($conf['domains'])) ? $conf['domains'] : array();
+			foreach($domains as $domain){
+				if($domain !== '' && strpos($ref, $domain) !== false){
+					return array('is_ai' => true, 'source' => $slug, 'method' => 'referer');
+				}
+			}
+		}
+	}
+
+	// 3. Extensao futura para identificadores proprios de IA — vazio nesta fase.
+
+	return array('is_ai' => false, 'source' => null, 'method' => null);
+}
+
+
 } // fecha class
 
 
