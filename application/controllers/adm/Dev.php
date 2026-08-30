@@ -151,6 +151,88 @@ class Dev extends CI_Controller {
 		echo '<p><a href="'.base_url().'adm/dev">Voltar ao Dev</a></p>';
 	}
 
+	function migrar_monitoramento_ia(){
+		$logs = array();
+
+		if($this->input->get('desfazer') == '1'){
+			$this->run_sql("DROP TABLE IF EXISTS `ai_conversions`", $logs, 'DROP `ai_conversions`');
+			$this->run_sql("DROP TABLE IF EXISTS `ai_referrals`", $logs, 'DROP `ai_referrals`');
+			echo '<h2>Monitoramento de IA — desfazer</h2><ul>';
+			foreach($logs as $log){ echo '<li>'.htmlspecialchars($log).'</li>'; }
+			echo '</ul><p><a href="'.base_url().'adm/dev">Voltar ao Dev</a></p>';
+			return;
+		}
+
+		$sql_referrals = "CREATE TABLE IF NOT EXISTS `ai_referrals` (
+			`id` BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+			`session_id` VARCHAR(100) NULL,
+			`ai_source` VARCHAR(50) NULL,
+			`detection_method` VARCHAR(20) NULL,
+			`landing_page` VARCHAR(500) NULL,
+			`request_uri` VARCHAR(500) NULL,
+			`referrer` VARCHAR(500) NULL,
+			`utm_source` VARCHAR(255) NULL,
+			`utm_medium` VARCHAR(255) NULL,
+			`utm_campaign` VARCHAR(255) NULL,
+			`utm_content` VARCHAR(255) NULL,
+			`utm_term` VARCHAR(255) NULL,
+			`user_agent` VARCHAR(400) NULL,
+			`ip_hash` VARCHAR(64) NULL,
+			`id_user` INT NULL,
+			`converted` TINYINT(1) NOT NULL DEFAULT 0,
+			`conversion_type` VARCHAR(50) NULL,
+			`conversion_value` DECIMAL(12,2) NULL,
+			`converted_at` DATETIME NULL,
+			`created_at` DATETIME NOT NULL,
+			KEY `idx_air_source` (`ai_source`),
+			KEY `idx_air_created` (`created_at`),
+			KEY `idx_air_session` (`session_id`),
+			KEY `idx_air_converted` (`converted`)
+		) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
+		$this->run_sql($sql_referrals, $logs, 'tabela `ai_referrals`');
+
+		$sql_conversions = "CREATE TABLE IF NOT EXISTS `ai_conversions` (
+			`id` BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+			`ai_referral_id` BIGINT UNSIGNED NOT NULL,
+			`session_id` VARCHAR(100) NULL,
+			`ai_source` VARCHAR(50) NULL,
+			`conversion_type` VARCHAR(50) NOT NULL,
+			`conversion_value` DECIMAL(12,2) NULL,
+			`reference_id` VARCHAR(100) NULL,
+			`meta` VARCHAR(500) NULL,
+			`created_at` DATETIME NOT NULL,
+			KEY `idx_aic_referral` (`ai_referral_id`),
+			KEY `idx_aic_source` (`ai_source`),
+			KEY `idx_aic_type` (`conversion_type`),
+			KEY `idx_aic_created` (`created_at`)
+		) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
+		$this->run_sql($sql_conversions, $logs, 'tabela `ai_conversions`');
+
+		// Politica de retencao sugerida: remover registros > 18 meses.
+		// Rodar manualmente quando necessario: adm/dev/purgar_monitoramento_ia
+
+		echo '<h2>Migracao — Monitoramento de Trafego de IA</h2><ul>';
+		foreach($logs as $log){ echo '<li>'.htmlspecialchars($log).'</li>'; }
+		echo '</ul>';
+		echo '<p><a href="'.base_url().'adm/marketing/trafego_ia">Abrir dashboard de Trafego de IA</a> &middot; ';
+		echo '<a href="'.base_url().'adm/dev/migrar_monitoramento_ia?desfazer=1" onclick="return confirm(\'Remover as tabelas ai_referrals e ai_conversions?\')">desfazer</a></p>';
+	}
+
+	function purgar_monitoramento_ia(){
+		$meses = (int)$this->input->get('meses');
+		if($meses <= 0){ $meses = 18; }
+		$logs = array();
+		if($this->db->table_exists('ai_conversions')){
+			$this->run_sql("DELETE FROM `ai_conversions` WHERE `created_at` < DATE_SUB(NOW(), INTERVAL ".$meses." MONTH)", $logs, 'purge ai_conversions > '.$meses.' meses');
+		}
+		if($this->db->table_exists('ai_referrals')){
+			$this->run_sql("DELETE FROM `ai_referrals` WHERE `created_at` < DATE_SUB(NOW(), INTERVAL ".$meses." MONTH)", $logs, 'purge ai_referrals > '.$meses.' meses');
+		}
+		echo '<h2>Purga — Monitoramento de IA</h2><ul>';
+		foreach($logs as $log){ echo '<li>'.htmlspecialchars($log).'</li>'; }
+		echo '</ul><p><a href="'.base_url().'adm/dev">Voltar ao Dev</a></p>';
+	}
+
 	function testar_email_boas_vindas(){
 		$enviado = false;
 		$erro    = '';
