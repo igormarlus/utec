@@ -215,6 +215,42 @@ if (!function_exists('utec_notificacoes_destinatarios_agendamento')) {
     }
 }
 
+if (!function_exists('utec_notificacoes_tipo_resposta_agendamento')) {
+    function utec_notificacoes_tipo_resposta_agendamento($acao)
+    {
+        $acao = strtolower(trim((string)$acao));
+
+        if ($acao === 'confirmar') {
+            return 'whatsapp_agendamento_confirmado';
+        }
+
+        if ($acao === 'cancelar') {
+            return 'whatsapp_agendamento_cancelado';
+        }
+
+        return '';
+    }
+}
+
+if (!function_exists('utec_notificacoes_mensagem_resposta_agendamento')) {
+    function utec_notificacoes_mensagem_resposta_agendamento($paciente_nome, $acao)
+    {
+        $paciente_nome = trim((string)$paciente_nome);
+        $paciente_nome = $paciente_nome !== '' ? $paciente_nome : 'O paciente';
+        $acao = strtolower(trim((string)$acao));
+
+        if ($acao === 'confirmar') {
+            return $paciente_nome . ' confirmou o agendamento pelo WhatsApp.';
+        }
+
+        if ($acao === 'cancelar') {
+            return $paciente_nome . ' cancelou o agendamento pelo WhatsApp.';
+        }
+
+        return '';
+    }
+}
+
 if (!function_exists('utec_whatsapp_extrair_evento_webhook')) {
     function utec_whatsapp_extrair_evento_webhook($payload)
     {

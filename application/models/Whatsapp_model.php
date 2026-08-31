@@ -236,6 +236,93 @@ class Whatsapp_model extends CI_Model {
         return $this->db->trans_commit();
     }
 
+    public function registrar_resposta_webhook($id_notificacao, $acao)
+    {
+        $resultado = [
+            'ok' => false,
+            'processado' => false,
+            'notificacao' => null,
+            'contexto' => null,
+        ];
+        $idNotificacao = (int)$id_notificacao;
+        $acao = strtolower(trim((string)$acao));
+
+        if ($idNotificacao <= 0 || !in_array($acao, ['confirmar', 'cancelar'], true)
+            || !$this->tabela_possui_campos($this->log_table, ['id', 'id_agendamento', 'tenant_id', 'telefone_destino', 'status_confirmacao', 'respondido_em'])
+            || !$this->tabela_possui_campos('agendamentos', ['id', 'id_paciente', 'id_user', 'id_prestador', 'status'])
+            || !$this->tabela_possui_campos('usuarios', ['id', 'nome'])) {
+            return $resultado;
+        }
+
+        $this->db->trans_begin();
+        $query = $this->db->query(
+            "SELECT wn.*, a.id_paciente, a.id_user, a.id_prestador, p.nome AS paciente_nome\n"
+            . "FROM `{$this->log_table}` wn\n"
+            . "INNER JOIN `agendamentos` a ON a.id = wn.id_agendamento\n"
+            . "LEFT JOIN `usuarios` p ON p.id = a.id_paciente\n"
+            . "WHERE wn.id = {$idNotificacao} LIMIT 1 FOR UPDATE"
+        );
+        if (!$query || !$query->num_rows()) {
+            $this->db->trans_rollback();
+            return $resultado;
+        }
+
+        $notificacao = $query->row();
+        $contexto = [
+            'id_agendamento' => (int)$notificacao->id_agendamento,
+            'id_paciente' => (int)$notificacao->id_paciente,
+            'paciente_nome' => (string)$notificacao->paciente_nome,
+            'id_user' => (int)$notificacao->id_user,
+            'id_prestador' => (int)$notificacao->id_prestador,
+            'tenant_id' => (int)$notificacao->tenant_id,
+            'telefone_destino' => (string)$notificacao->telefone_destino,
+            'id_whatsapp_notificacao' => (int)$notificacao->id,
+        ];
+        $resultado['notificacao'] = $notificacao;
+        $resultado['contexto'] = $contexto;
+
+        if ((string)$notificacao->status_confirmacao !== 'pendente') {
+            if ($this->db->trans_status() === false) {
+                $this->db->trans_rollback();
+                return $resultado;
+            }
+            $this->db->trans_commit();
+            $resultado['ok'] = true;
+            return $resultado;
+        }
+
+        $statusConfirmacao = $acao === 'confirmar' ? 'confirmado' : 'cancelado';
+        $dados = [
+            'status_confirmacao' => $statusConfirmacao,
+            'respondido_em' => date('Y-m-d H:i:s'),
+        ];
+        $this->db->where('id', $idNotificacao);
+        $this->db->where('status_confirmacao', 'pendente');
+        $notificacaoAtualizada = $this->db->update($this->log_table, $dados);
+        $agendamentoAtualizado = true;
+
+        if ($acao === 'cancelar') {
+            $this->db->where('id', (int)$notificacao->id_agendamento);
+            $agendamentoAtualizado = $this->db->update('agendamentos', ['status' => 3]);
+        }
+
+        if (!$notificacaoAtualizada || !$agendamentoAtualizado || $this->db->trans_status() === false) {
+            $this->db->trans_rollback();
+            return $resultado;
+        }
+
+        if (!$this->db->trans_commit()) {
+            return $resultado;
+        }
+
+        $notificacao->status_confirmacao = $statusConfirmacao;
+        $notificacao->respondido_em = $dados['respondido_em'];
+        $resultado['notificacao'] = $notificacao;
+        $resultado['ok'] = true;
+        $resultado['processado'] = true;
+        return $resultado;
+    }
+
     public function tabela_log_existe()
     {
         return $this->db->table_exists($this->log_table);
@@ -250,5 +337,20 @@ class Whatsapp_model extends CI_Model {
             }
         }
         return $filtered;
+    }
+
+    private function tabela_possui_campos($table, $campos)
+    {
+        if (!$this->db->table_exists($table)) {
+            return false;
+        }
+
+        foreach ($campos as $campo) {
+            if (!$this->db->field_exists($campo, $table)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }
