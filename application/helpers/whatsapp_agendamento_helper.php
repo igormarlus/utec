@@ -168,6 +168,53 @@ if (!function_exists('utec_whatsapp_payload_botao')) {
     }
 }
 
+if (!function_exists('utec_whatsapp_texto_resposta_agendamento')) {
+    function utec_whatsapp_texto_resposta_agendamento($acao)
+    {
+        $acao = strtolower(trim((string)$acao));
+
+        if ($acao === 'confirmar') {
+            return 'Recebemos sua confirmacao. Sua consulta permanece agendada. Em caso de necessidade, entre em contato com a clinica.';
+        }
+        if ($acao === 'cancelar') {
+            return 'Recebemos sua solicitacao de cancelamento. Nossa equipe esta a disposicao para auxiliar em um novo agendamento.';
+        }
+
+        return '';
+    }
+}
+
+if (!function_exists('utec_whatsapp_payload_texto')) {
+    function utec_whatsapp_payload_texto($telefone, $texto)
+    {
+        return [
+            'messaging_product' => 'whatsapp',
+            'recipient_type' => 'individual',
+            'to' => trim((string)$telefone),
+            'type' => 'text',
+            'text' => [
+                'preview_url' => false,
+                'body' => trim((string)$texto),
+            ],
+        ];
+    }
+}
+
+if (!function_exists('utec_notificacoes_destinatarios_agendamento')) {
+    function utec_notificacoes_destinatarios_agendamento($id_criador, $id_prestador)
+    {
+        $destinatarios = [];
+
+        foreach ([(int)$id_criador, (int)$id_prestador] as $idUsuario) {
+            if ($idUsuario > 0 && !in_array($idUsuario, $destinatarios, true)) {
+                $destinatarios[] = $idUsuario;
+            }
+        }
+
+        return $destinatarios;
+    }
+}
+
 if (!function_exists('utec_whatsapp_extrair_evento_webhook')) {
     function utec_whatsapp_extrair_evento_webhook($payload)
     {

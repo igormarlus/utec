@@ -89,6 +89,30 @@ assertSameValue('erro', utec_whatsapp_status_envio_meta('failed'), 'Status faile
 assertSameValue(true, utec_whatsapp_envio_consume_quota('erro', 'wamid.HBgMTESTE123'), 'Falha posterior da Meta nao pode devolver quota consumida.');
 assertSameValue(false, utec_whatsapp_envio_consume_quota('erro', ''), 'Erro sincrono sem wamid nao pode consumir quota.');
 
+assertSameValue(
+    'Recebemos sua confirmacao. Sua consulta permanece agendada. Em caso de necessidade, entre em contato com a clinica.',
+    utec_whatsapp_texto_resposta_agendamento('confirmar'),
+    'Confirmacao deve retornar o texto padrao ao paciente.'
+);
+assertSameValue(
+    'Recebemos sua solicitacao de cancelamento. Nossa equipe esta a disposicao para auxiliar em um novo agendamento.',
+    utec_whatsapp_texto_resposta_agendamento('cancelar'),
+    'Cancelamento deve retornar o texto padrao ao paciente.'
+);
+assertSameValue('', utec_whatsapp_texto_resposta_agendamento('desconhecer'), 'Acao invalida nao deve gerar texto de retorno.');
+assertSameValue('', utec_whatsapp_texto_resposta_agendamento(''), 'Acao ausente nao deve gerar texto de retorno.');
+
+$payloadTexto = utec_whatsapp_payload_texto(
+    '5581988887777',
+    'Recebemos sua confirmacao.'
+);
+assertSameValue('whatsapp', $payloadTexto['messaging_product'], 'Payload de texto deve informar o produto WhatsApp.');
+assertSameValue('individual', $payloadTexto['recipient_type'], 'Payload de texto deve ser individual.');
+assertSameValue('5581988887777', $payloadTexto['to'], 'Payload de texto deve manter o telefone de destino.');
+assertSameValue('text', $payloadTexto['type'], 'Payload deve ter tipo text.');
+assertSameValue(false, $payloadTexto['text']['preview_url'], 'Payload de texto nao deve gerar preview de URL.');
+assertSameValue('Recebemos sua confirmacao.', $payloadTexto['text']['body'], 'Payload de texto deve manter o corpo informado.');
+
 $lote = $payloadStatus;
 $lote['entry'][0]['changes'][0]['value']['statuses'][] = [
     'id' => 'wamid.HBgMTESTE456',
