@@ -14,6 +14,14 @@ $top_logo_path = isset($_SERVER['DOCUMENT_ROOT']) ? rtrim($_SERVER['DOCUMENT_ROO
 $top_logo_available = $top_logo_path && file_exists($top_logo_path);
 $top_notifications = [];
 
+$top_unread_notifications = [];
+$top_unread_count = 0;
+if($top_user_id){
+	$ci_top->load->model('Notificacoes_model', 'notificacoes_model');
+	$top_unread_notifications = $ci_top->notificacoes_model->listar_nao_lidas($top_user_id, 8);
+	$top_unread_count = $ci_top->notificacoes_model->contar_nao_lidas($top_user_id);
+}
+
 if($top_tenant && isset($top_tenant->tenant_nome)){
 	$top_notifications[] = [
 		'title' => 'Assinatura da clinica',
@@ -139,6 +147,35 @@ if($top_level === 5){
         <? } ?>
       </div>
     <? } ?>
+
+    <div class="messages-notifications os-dropdown-trigger os-dropdown-position-left">
+      <i class="os-icon os-icon-bell"></i>
+      <? if($top_unread_count > 0){ ?>
+        <div class="new-messages-count"><?=$top_unread_count?></div>
+      <? } ?>
+      <div class="os-dropdown light message-list">
+        <ul>
+          <? if(count($top_unread_notifications)){ ?>
+            <? foreach($top_unread_notifications as $top_evento){ ?>
+              <li>
+                <a href="<?=base_url()?>adm/notificacoes/abrir/<?=(int)$top_evento->id?>">
+                  <div class="message-content">
+                    <h6 class="message-from"><?=htmlspecialchars((string)$top_evento->titulo)?></h6>
+                    <h6 class="message-title"><?=htmlspecialchars((string)$top_evento->mensagem)?></h6>
+                  </div>
+                </a>
+              </li>
+            <? } ?>
+          <? } else { ?>
+            <li>
+              <div class="message-content">
+                <h6 class="message-title" style="color:#94a3b8;">Nenhum aviso novo.</h6>
+              </div>
+            </li>
+          <? } ?>
+        </ul>
+      </div>
+    </div>
 
     <div class="messages-notifications os-dropdown-trigger os-dropdown-position-left">
       <i class="os-icon os-icon-activity"></i>

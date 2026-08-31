@@ -36,4 +36,14 @@ $mensagemCancelamento = utec_notificacoes_mensagem_resposta_agendamento('Maria S
 assertSameValue(true, strpos($mensagemCancelamento, 'Maria Silva') !== false, 'Mensagem de cancelamento deve conter o nome do paciente.');
 assertSameValue(true, strpos(strtolower($mensagemCancelamento), 'cancel') !== false, 'Mensagem de cancelamento deve informar a acao.');
 
+assertSameValue('Confirmado via WhatsApp', utec_whatsapp_rotulo_confirmacao('confirmado'), 'Rotulo de confirmacao para a agenda e o prontuario.');
+assertSameValue('Cancelado via WhatsApp', utec_whatsapp_rotulo_confirmacao('cancelado'), 'Rotulo de cancelamento para a agenda e o prontuario.');
+assertSameValue('Sem retorno WhatsApp', utec_whatsapp_rotulo_confirmacao(''), 'Sem resposta do paciente deve exibir rotulo neutro.');
+
+$controllerNotificacoes = file_get_contents(__DIR__ . '/../application/controllers/adm/Notificacoes.php');
+assertSameValue(true, strpos($controllerNotificacoes, "verSession(") !== false, 'Notificacoes deve validar a sessao.');
+assertSameValue(true, strpos($controllerNotificacoes, "abrir_para_usuario(\$id, ") !== false, 'Notificacoes deve abrir a linha pelo destinatario.');
+assertSameValue(true, strpos($controllerNotificacoes, "session->userdata('id')") !== false, 'Notificacoes deve usar o usuario logado como destinatario.');
+assertSameValue(true, strpos($controllerNotificacoes, 'redirect(') !== false, 'Notificacoes deve redirecionar para a URL armazenada.');
+
 echo "OK\n";
