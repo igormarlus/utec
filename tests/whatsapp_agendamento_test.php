@@ -46,4 +46,19 @@ assertSameValue('danger', $resumoErro['type'], 'Falha da API deve gerar alerta d
 $resumoConfig = utec_whatsapp_resumo_envio(['sent' => false, 'reason' => 'config_unavailable']);
 assertSameValue('warning', $resumoConfig['type'], 'Configuração indisponível deve gerar alerta warning.');
 
+$componentes = utec_whatsapp_componentes_template([
+    'id' => 77,
+    'paciente_nome' => 'Maria',
+    'tipo' => 'Consulta',
+    'data_agenda' => '2026-09-01',
+    'hora_agenda' => '14:30:00',
+    'prestador_nome' => 'Dra. Ana',
+], [
+    'header_image_url' => 'https://utecnologia.com.br/img/logo-w.png',
+]);
+assertSameValue(4, count($componentes), 'Template com imagem e quick replies deve montar header, body e 2 botoes.');
+assertSameValue('image', $componentes[0]['parameters'][0]['type'], 'Primeiro componente deve ser o header de imagem.');
+assertSameValue('confirmar_agendamento:77', $componentes[2]['parameters'][0]['payload'], 'Payload do botao confirmar deve incluir o agendamento.');
+assertSameValue('cancelar_agendamento:77', $componentes[3]['parameters'][0]['payload'], 'Payload do botao cancelar deve incluir o agendamento.');
+
 echo "OK\n";

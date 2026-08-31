@@ -129,3 +129,88 @@ if (!function_exists('utec_whatsapp_resumo_envio')) {
         }
     }
 }
+
+if (!function_exists('utec_whatsapp_payload_botao')) {
+    function utec_whatsapp_payload_botao($acao, $id_agendamento)
+    {
+        $acao = trim((string)$acao);
+        $id_agendamento = (int)$id_agendamento;
+        return $acao.'_agendamento:'.$id_agendamento;
+    }
+}
+
+if (!function_exists('utec_whatsapp_header_image_url')) {
+    function utec_whatsapp_header_image_url($config = null)
+    {
+        $configUrl = trim((string)utec_whatsapp_read($config, 'header_image_url', ''));
+        if ($configUrl !== '') {
+            return $configUrl;
+        }
+
+        if (function_exists('base_url')) {
+            return rtrim((string)base_url(), '/').'/img/logo-w.png';
+        }
+
+        return 'https://utecnologia.com.br/img/logo-w.png';
+    }
+}
+
+if (!function_exists('utec_whatsapp_componentes_template')) {
+    function utec_whatsapp_componentes_template($agendamento, $config = null)
+    {
+        $agendamentoId = (int)utec_whatsapp_read($agendamento, 'id', 0);
+        $componentes = [];
+        $headerImageUrl = utec_whatsapp_header_image_url($config);
+
+        if ($headerImageUrl !== '') {
+            $componentes[] = [
+                'type' => 'header',
+                'parameters' => [
+                    [
+                        'type' => 'image',
+                        'image' => [
+                            'link' => $headerImageUrl,
+                        ],
+                    ],
+                ],
+            ];
+        }
+
+        $componentes[] = [
+            'type' => 'body',
+            'parameters' => [
+                ['type' => 'text', 'text' => trim((string)utec_whatsapp_read($agendamento, 'paciente_nome', 'Paciente'))],
+                ['type' => 'text', 'text' => trim((string)utec_whatsapp_read($agendamento, 'tipo', 'Consulta'))],
+                ['type' => 'text', 'text' => utec_whatsapp_formatar_data_br(utec_whatsapp_read($agendamento, 'data_agenda', ''))],
+                ['type' => 'text', 'text' => utec_whatsapp_formatar_hora_br(utec_whatsapp_read($agendamento, 'hora_agenda', ''))],
+                ['type' => 'text', 'text' => trim((string)utec_whatsapp_read($agendamento, 'prestador_nome', 'Profissional'))],
+            ],
+        ];
+
+        $componentes[] = [
+            'type' => 'button',
+            'sub_type' => 'quick_reply',
+            'index' => '0',
+            'parameters' => [
+                [
+                    'type' => 'payload',
+                    'payload' => utec_whatsapp_payload_botao('confirmar', $agendamentoId),
+                ],
+            ],
+        ];
+
+        $componentes[] = [
+            'type' => 'button',
+            'sub_type' => 'quick_reply',
+            'index' => '1',
+            'parameters' => [
+                [
+                    'type' => 'payload',
+                    'payload' => utec_whatsapp_payload_botao('cancelar', $agendamentoId),
+                ],
+            ],
+        ];
+
+        return $componentes;
+    }
+}

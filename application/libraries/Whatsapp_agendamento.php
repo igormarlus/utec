@@ -141,6 +141,7 @@ class Whatsapp_agendamento {
     {
         return [
             'messaging_product' => 'whatsapp',
+            'recipient_type' => 'individual',
             'to' => $telefone,
             'type' => 'template',
             'template' => [
@@ -148,18 +149,7 @@ class Whatsapp_agendamento {
                 'language' => [
                     'code' => trim((string)$config->template_lang),
                 ],
-                'components' => [
-                    [
-                        'type' => 'body',
-                        'parameters' => [
-                            ['type' => 'text', 'text' => trim((string)$agendamento->paciente_nome)],
-                            ['type' => 'text', 'text' => trim((string)$agendamento->tipo)],
-                            ['type' => 'text', 'text' => utec_whatsapp_formatar_data_br($agendamento->data_agenda)],
-                            ['type' => 'text', 'text' => utec_whatsapp_formatar_hora_br($agendamento->hora_agenda)],
-                            ['type' => 'text', 'text' => trim((string)$agendamento->prestador_nome)],
-                        ],
-                    ],
-                ],
+                'components' => utec_whatsapp_componentes_template($agendamento, $config),
             ],
         ];
     }
