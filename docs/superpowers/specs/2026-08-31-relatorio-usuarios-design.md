@@ -2,7 +2,7 @@
 
 **Data:** 2026-08-31
 **Status:** Aprovado para planejamento
-**Escopo:** Ajustar `adm/usuarios` e `adm/usuarios/rel/{nivel}` para um formato de relatorio em linhas responsivas, com atividade visivel, acoes no inicio e avatar sem foto usando icone
+**Escopo:** Ajustar `adm/usuarios` e `adm/usuarios/rel/{nivel}` para um formato de relatorio em linhas responsivas, com atividade visivel, acoes no inicio, indicadores operacionais/comerciais e avatar sem foto usando icone
 **Stack:** PHP 7 + CodeIgniter 3 + Bootstrap 4 + jQuery
 
 ## 1. Objetivo
@@ -14,6 +14,7 @@ O resultado esperado e uma tela que:
 - fique ampla e escaneavel no desktop
 - continue pratica no celular, com botoes grandes o suficiente para toque
 - mostre a atividade do usuario com mais clareza
+- resuma volume operacional e contexto comercial quando isso fizer sentido
 - deixe as acoes principais no inicio de cada linha
 - pare de exibir imagem de template quando nao houver foto cadastrada
 
@@ -33,6 +34,8 @@ O resultado esperado e uma tela que:
 | Experiencia mobile | Quebra em blocos verticais mantendo acoes no topo da linha |
 | Acoes | Botoes com texto visivel no inicio da linha |
 | Atividade | Prestador prioriza `especialidade`; demais niveis usam `profissao` |
+| Indicadores | Mostrar mais detalhes para admin, clinicas e profissionais; versao reduzida para atendentes |
+| Status comercial | Exibir se o usuario esta em plano pago, trial ou sem assinatura ativa quando houver contexto SaaS |
 | Avatar sem foto | Renderizar icone de usuario em SVG, sem imagem placeholder externa |
 | Busca | Manter filtro atual por nome, adaptado para as novas linhas |
 
@@ -63,13 +66,14 @@ A view sai do modelo de cards em grade (`.ul-grid` / `.ul-card`) e passa para um
 
 Cada linha deve expor as seguintes areas:
 
-`Acoes` | `Usuario` | `Atividade` | `Contato` | `Cadastro` | `Status`
+`Acoes` | `Usuario` | `Atividade` | `Indicadores` | `Contato` | `Cadastro` | `Status`
 
 Comportamento:
 
 - `Acoes`: primeiro bloco da linha, contendo `Prontuario` quando nivel 5, `Editar`, `Remover`, `Acessar`, `Ativar/Desativar` e `WhatsApp` quando houver telefone
 - `Usuario`: avatar, nome, id e login quando aplicavel
 - `Atividade`: valor resolvido conforme regra da secao 5
+- `Indicadores`: bloco com marcacoes, pacientes e situacao comercial, conforme regra da secao 6
 - `Contato`: telefone clicavel para WhatsApp, e-mail quando existir
 - `Cadastro`: data de cadastro formatada
 - `Status`: pill visual de ativo/inativo
@@ -87,7 +91,66 @@ Definicao da atividade mostrada em cada registro:
 
 Essa regra deixa a tela mais aderente ao uso clinico, onde o papel operacional do prestador costuma ser identificado pela especialidade.
 
-## 6. Avatar sem foto
+## 6. Indicadores operacionais e comerciais
+
+Os indicadores adicionais devem aparecer com foco nos niveis operacionais:
+
+- **Nivel 1 - Admin:** pode ver a versao completa do relatorio para todos os registros listados
+- **Nivel 2 - Clinica / Estabelecimento:** deve ver indicadores completos do proprio registro e dos profissionais vinculados
+- **Nivel 3 - Profissional:** deve ver indicadores completos do proprio registro
+- **Nivel 4 - Atendente / Colaborador:** deve ver somente uma versao reduzida, sem excesso de dados comerciais
+- **Nivel 5 - Paciente:** nao precisa receber esse bloco expandido
+
+### 6.1 Campos propostos no bloco `Indicadores`
+
+Para admin, clinicas e profissionais:
+
+- `Marcacoes`: quantidade de agendamentos vinculados ao usuario
+- `Pacientes`: quantidade de pacientes vinculados ao usuario, quando essa relacao fizer sentido
+- `Plano`: situacao comercial resumida, como `Pago`, `Trial`, `Sem plano`, `Bloqueado` ou equivalente local
+
+Para atendentes:
+
+- mostrar apenas o essencial, priorizando `Marcacoes` e eventualmente `Pacientes`
+- omitir detalhes comerciais mais completos quando nao agregarem ao uso do perfil
+
+### 6.2 Regras de leitura dos indicadores
+
+As regras devem priorizar valor operacional, sem transformar a listagem em dashboard pesado.
+
+**Marcacoes**
+
+- Para profissional: contar agendamentos onde `agendamentos.id_prestador = usuarios.id`
+- Para clinica/estabelecimento: contar agendamentos ligados ao escopo operacional daquele usuario, de forma coerente com a arvore atual
+- Para admin: exibir contagem conforme o registro listado
+- Para atendente: permitir contagem mais simples e enxuta, sem detalhamento excessivo
+
+**Pacientes**
+
+- Para profissional: quantidade de pacientes distintos vinculados aos seus agendamentos
+- Para clinica/estabelecimento: quantidade de pacientes do escopo da clinica
+- Para admin: quantidade coerente com o registro e com o tipo de usuario listado
+- Para atendente: mostrar apenas se a leitura ficar clara e leve
+
+**Plano**
+
+- Quando houver `tenant_id` e dados SaaS relacionados, mostrar um resumo comercial direto:
+  - `Pago` para tenant ativo com assinatura operacional valida
+  - `Trial` quando o tenant estiver em periodo de trial
+  - `Sem plano` quando nao houver assinatura ativa
+  - `Bloqueado` quando o tenant existir mas estiver inativo
+- Quando o registro nao tiver contexto SaaS aplicavel, omitir o chip ou mostrar um texto neutro, evitando ruído
+
+### 6.3 Informacoes adicionais relevantes
+
+Se a consulta e o custo de renderizacao continuarem simples, o relatorio tambem pode aproveitar mais dois sinais leves:
+
+- `Ultima atividade`: data da ultima marcacao vinculada ao usuario
+- `Vinculo`: nome resumido do estabelecimento ou responsavel ao qual o usuario pertence
+
+Esses dados sao opcionais na primeira entrega. Entram apenas se couberem sem deixar a tela poluida e sem complicar demais a consulta.
+
+## 7. Avatar sem foto
 
 Hoje a ausencia de foto nao deve depender de imagem padrao de template. O novo comportamento sera:
 
@@ -96,7 +159,7 @@ Hoje a ausencia de foto nao deve depender de imagem padrao de template. O novo c
 
 O icone deve ser leve e local a propria view, evitando dependencia externa. A inicial do nome deixa de ser o fallback principal nessa tela.
 
-## 7. Responsividade
+## 8. Responsividade
 
 Breakpoints pretendidos:
 
@@ -111,7 +174,7 @@ Criterios de usabilidade:
 - textos longos quebram linha sem sobrepor conteudo
 - nenhuma rolagem horizontal obrigatoria na tela principal
 
-## 8. Estilo visual
+## 9. Estilo visual
 
 Direcao visual:
 
@@ -122,19 +185,22 @@ Direcao visual:
 
 O foco nao e parecer uma tabela HTML antiga, e sim entregar leitura de tabela com comportamento responsivo moderno.
 
-## 9. Riscos e mitigacoes
+## 10. Riscos e mitigacoes
 
 | Risco | Mitigacao |
 |---|---|
 | View ficar densa demais no celular | Quebrar a linha em blocos e priorizar acoes + usuario no topo |
 | Consulta falhar em bases sem `usuarios_especialidades` | Verificar `table_exists()` antes de usar join |
+| Consulta ficar pesada com contadores extras | Limitar indicadores ao essencial e agregar no controller com cuidado |
 | Acoes no inicio ocuparem espaco excessivo | Usar botoes compactos e permitir quebra controlada |
 | Regressao no filtro por nome | Manter atributo `data-nome` por registro e reaproveitar a logica JS |
 
-## 10. Criterios de sucesso
+## 11. Criterios de sucesso
 
 - `adm/usuarios` e `adm/usuarios/rel/{nivel}` passam a exibir linhas de relatorio responsivas
 - A atividade aparece corretamente para prestadores com prioridade para especialidade
+- Admin, clinicas e profissionais passam a ver indicadores operacionais e comerciais relevantes
+- Atendentes recebem uma visualizacao mais limitada e objetiva
 - Os botoes ficam no inicio de cada registro
 - Quando nao houver foto, aparece um icone de usuario, sem foto padrao do template
 - O link de WhatsApp continua funcional e pratico no celular
