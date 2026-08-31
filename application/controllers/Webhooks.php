@@ -89,7 +89,7 @@ class Webhooks extends CI_Controller {
     {
         $notificacao = $this->whatsapp_model->get_notificacao_por_wamid($evento['wamid']);
         if (!$notificacao) {
-            log_message('warning', '[whatsapp_webhook] Status sem notificacao correspondente. wamid='.$evento['wamid']);
+            log_message('error', '[whatsapp_webhook] Status sem notificacao correspondente. wamid='.$evento['wamid']);
             return;
         }
 
@@ -101,27 +101,35 @@ class Webhooks extends CI_Controller {
         );
         if (!$atualizado) {
             log_message('error', '[whatsapp_webhook] Nao foi possivel atualizar status. id='.(int)$notificacao->id);
+            return;
         }
+
+        log_message('info', '[whatsapp_webhook] Status atualizado. id='.(int)$notificacao->id.' wamid='.$evento['wamid'].' status='.$evento['delivery_status']);
     }
 
     protected function processar_resposta_agendamento($evento)
     {
         $notificacao = $this->whatsapp_model->resolver_notificacao_webhook($evento['wamid'], $evento['id_agendamento']);
         if (!$notificacao) {
-            log_message('warning', '[whatsapp_webhook] Resposta sem notificacao correspondente. wamid='.$evento['wamid']);
+            log_message('error', '[whatsapp_webhook] Resposta sem notificacao correspondente. wamid='.$evento['wamid'].' agendamento='.(int)$evento['id_agendamento']);
             return;
         }
 
         if ($evento['action'] === 'cancelar') {
             if (!$this->whatsapp_model->cancelar_notificacao_e_agendamento((int)$notificacao->id, (int)$notificacao->id_agendamento)) {
                 log_message('error', '[whatsapp_webhook] Nao foi possivel processar cancelamento. id='.(int)$notificacao->id);
+                return;
             }
+            log_message('info', '[whatsapp_webhook] Cancelamento atualizado. id='.(int)$notificacao->id.' agendamento='.(int)$notificacao->id_agendamento);
             return;
         }
 
         if (!$this->whatsapp_model->atualizar_confirmacao_notificacao((int)$notificacao->id, 'confirmado')) {
             log_message('error', '[whatsapp_webhook] Nao foi possivel atualizar confirmacao. id='.(int)$notificacao->id);
+            return;
         }
+
+        log_message('info', '[whatsapp_webhook] Confirmacao atualizada. id='.(int)$notificacao->id.' agendamento='.(int)$notificacao->id_agendamento);
     }
 
     protected function responder_json($data, $status = 200)

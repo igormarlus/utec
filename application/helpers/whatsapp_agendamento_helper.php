@@ -201,6 +201,9 @@ if (!function_exists('utec_whatsapp_extrair_eventos_webhook')) {
                     $buttonId = isset($mensagem['interactive']['button_reply']['id'])
                         ? trim((string)$mensagem['interactive']['button_reply']['id'])
                         : '';
+                    if ($buttonId === '' && isset($mensagem['button']['payload'])) {
+                        $buttonId = trim((string)$mensagem['button']['payload']);
+                    }
                     $evento = utec_whatsapp_evento_webhook_vazio();
                     $evento['payload'] = $buttonId;
                     $evento['wamid'] = isset($mensagem['context']['id']) ? trim((string)$mensagem['context']['id']) : '';

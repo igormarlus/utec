@@ -37,6 +37,28 @@ assertSameValue(492, $evento['id_agendamento'], 'Deve identificar o id do agenda
 assertSameValue('wamid.HBgMTESTE123', $evento['wamid'], 'Deve identificar o wamid de contexto.');
 assertSameValue('cancelar_agendamento:492', $evento['payload'], 'Deve manter o payload original.');
 
+$payloadBotaoTemplate = [
+    'entry' => [[
+        'changes' => [[
+            'value' => [
+                'messages' => [[
+                    'context' => ['id' => 'wamid.HBgMTESTE789'],
+                    'type' => 'button',
+                    'button' => [
+                        'payload' => 'confirmar_agendamento:493',
+                        'text' => 'Confirmar',
+                    ],
+                ]],
+            ],
+        ]],
+    ]],
+];
+
+$eventoBotaoTemplate = utec_whatsapp_extrair_evento_webhook($payloadBotaoTemplate);
+assertSameValue('confirmar', $eventoBotaoTemplate['action'], 'Deve identificar a confirmacao de botao rapido de template.');
+assertSameValue(493, $eventoBotaoTemplate['id_agendamento'], 'Deve identificar o agendamento do botao rapido de template.');
+assertSameValue('wamid.HBgMTESTE789', $eventoBotaoTemplate['wamid'], 'Deve manter o contexto do botao rapido de template.');
+
 $desconhecido = utec_whatsapp_extrair_evento_webhook(['entry' => []]);
 assertSameValue('', $desconhecido['action'], 'Payload sem mensagem interativa deve voltar vazio.');
 
