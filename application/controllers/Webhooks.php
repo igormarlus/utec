@@ -115,21 +115,43 @@ class Webhooks extends CI_Controller {
             return;
         }
 
-        if ($evento['action'] === 'cancelar') {
-            if (!$this->whatsapp_model->cancelar_notificacao_e_agendamento((int)$notificacao->id, (int)$notificacao->id_agendamento)) {
-                log_message('error', '[whatsapp_webhook] Nao foi possivel processar cancelamento. id='.(int)$notificacao->id);
-                return;
-            }
-            log_message('info', '[whatsapp_webhook] Cancelamento atualizado. id='.(int)$notificacao->id.' agendamento='.(int)$notificacao->id_agendamento);
+        $acao = $evento['action'];
+        $resultado = $this->whatsapp_model->registrar_resposta_webhook((int)$notificacao->id, $acao);
+
+        if (!$resultado['ok']) {
+            log_message('error', '[whatsapp_webhook] Nao foi possivel processar resposta. id='.(int)$notificacao->id.' acao='.$acao);
             return;
         }
 
-        if (!$this->whatsapp_model->atualizar_confirmacao_notificacao((int)$notificacao->id, 'confirmado')) {
-            log_message('error', '[whatsapp_webhook] Nao foi possivel atualizar confirmacao. id='.(int)$notificacao->id);
+        if (!$resultado['processado']) {
+            log_message('info', '[whatsapp_webhook] Resposta ja processada, reentrega ignorada. id='.(int)$notificacao->id);
             return;
         }
 
-        log_message('info', '[whatsapp_webhook] Confirmacao atualizada. id='.(int)$notificacao->id.' agendamento='.(int)$notificacao->id_agendamento);
+        $contexto = is_array($resultado['contexto']) ? $resultado['contexto'] : array();
+        $idAgendamento = isset($contexto['id_agendamento']) ? (int)$contexto['id_agendamento'] : (int)$notificacao->id_agendamento;
+
+        if ($acao === 'cancelar') {
+            log_message('info', '[whatsapp_webhook] Cancelamento atualizado. id='.(int)$notificacao->id.' agendamento='.$idAgendamento);
+        } else {
+            log_message('info', '[whatsapp_webhook] Confirmacao atualizada. id='.(int)$notificacao->id.' agendamento='.$idAgendamento);
+        }
+
+        // Avisos internos para quem marcou e para o profissional. Falha aqui nao afeta a resposta ao paciente.
+        $this->load->model('Notificacoes_model', 'notificacoes_model');
+        if ($this->notificacoes_model->criar_resposta_agendamento($contexto, $acao) === false) {
+            log_message('error', '[whatsapp_webhook] Falha ao registrar avisos internos. id='.(int)$notificacao->id);
+        }
+
+        // Resposta de texto ao paciente. Nunca faz rollback da confirmacao/cancelamento ja aplicados.
+        $telefone = isset($contexto['telefone_destino']) ? $contexto['telefone_destino'] : '';
+        $this->load->library('whatsapp_agendamento');
+        $envio = $this->whatsapp_agendamento->responder_interacao($telefone, $acao);
+        if (!empty($envio['sent'])) {
+            log_message('info', '[whatsapp_webhook] Resposta ao paciente enviada. id='.(int)$notificacao->id.' wamid='.(string)$envio['wamid']);
+        } else {
+            log_message('error', '[whatsapp_webhook] Falha ao responder paciente. id='.(int)$notificacao->id.' erro='.(string)$envio['error']);
+        }
     }
 
     protected function responder_json($data, $status = 200)

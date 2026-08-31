@@ -115,6 +115,46 @@ class Whatsapp_agendamento {
         return $result;
     }
 
+    public function responder_interacao($telefone, $acao)
+    {
+        $resultado = ['sent' => false, 'wamid' => '', 'error' => ''];
+
+        $telefone = $this->normalizar_destino($telefone);
+        if ($telefone === '') {
+            $resultado['error'] = 'Telefone de destino invalido para resposta.';
+            log_message('error', '[whatsapp_agendamento] '.$resultado['error']);
+            return $resultado;
+        }
+
+        $texto = utec_whatsapp_texto_resposta_agendamento($acao);
+        if ($texto === '') {
+            $resultado['error'] = 'Acao sem texto de resposta definido.';
+            log_message('error', '[whatsapp_agendamento] '.$resultado['error']);
+            return $resultado;
+        }
+
+        $config = $this->CI->whatsapp_model->get_configuracao_ativa();
+        if (!utec_whatsapp_config_ativa($config)) {
+            $resultado['error'] = 'Configuracao do WhatsApp ausente, incompleta ou inativa.';
+            log_message('error', '[whatsapp_agendamento] '.$resultado['error']);
+            return $resultado;
+        }
+
+        $response = $this->enviar_payload($config, utec_whatsapp_payload_texto($telefone, $texto));
+
+        $resultado['sent'] = (bool)$response['ok'];
+        $resultado['wamid'] = (string)$response['wamid'];
+        $resultado['error'] = (string)$response['error'];
+
+        log_message(
+            $response['ok'] ? 'debug' : 'error',
+            '[whatsapp_agendamento] Resposta de interacao '.($response['ok'] ? 'aceita pela Meta' : 'falhou')
+                .'. acao='.strtolower(trim((string)$acao)).($response['ok'] ? '' : ' erro='.$resultado['error'])
+        );
+
+        return $resultado;
+    }
+
     protected function get_subscription_status_by_tenant($tenant_id)
     {
         $tenant_id = (int)$tenant_id;
