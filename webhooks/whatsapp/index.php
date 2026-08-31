@@ -1,2 +1,3 @@
 <?php
-require dirname(__DIR__, 2) . '/index.php';
+chdir(dirname(__DIR__, 2));
+require 'index.php';
