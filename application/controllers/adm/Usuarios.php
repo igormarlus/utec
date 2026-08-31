@@ -7,7 +7,7 @@ class Usuarios extends CI_Controller {
 	{
 		parent::__construct();
 		$this->load->library('session');
-		$this->load->helper(array('form','url'));
+		$this->load->helper(array('form','url','usuarios_relatorio'));
 		$this->load->model('adm/usuarios_model');
 		$this->load->model('adm/saas_model');
 		$this->load->model('padrao_model');
@@ -21,16 +21,153 @@ class Usuarios extends CI_Controller {
 
    } // fecha fn USER
 
-function Index(){
-	#echo "teste";
+private function map_relatorio_metricas_por_usuario($usuarios)
+{
+	$metricas = array(
+		'geradas' => array(),
+		'vinculadas' => array(),
+		'pacientes' => array(),
+		'ultima_gerada' => array(),
+		'ultima_vinculada' => array(),
+	);
+
+	if(empty($usuarios) || !$this->db->table_exists('agendamentos')){
+		return $metricas;
+	}
+
+	$user_ids = array();
+	foreach($usuarios as $usuario){
+		$user_ids[] = (int)$usuario->id;
+	}
+	$user_ids = array_values(array_unique(array_filter($user_ids)));
+	if(empty($user_ids)){
+		return $metricas;
+	}
+
+	$ids_sql = implode(',', $user_ids);
+
+	$qr_geradas = $this->db->query(
+		"SELECT id_user, COUNT(id) AS total, MAX(data_agenda) AS ultima_data
+		FROM agendamentos
+		WHERE id_user IN (".$ids_sql.")
+		GROUP BY id_user"
+	);
+	foreach($qr_geradas->result() as $row){
+		$metricas['geradas'][(int)$row->id_user] = (int)$row->total;
+		$metricas['ultima_gerada'][(int)$row->id_user] = (string)$row->ultima_data;
+	}
+
+	$qr_vinculadas = $this->db->query(
+		"SELECT id_prestador, COUNT(id) AS total, COUNT(DISTINCT id_paciente) AS total_pacientes, MAX(data_agenda) AS ultima_data
+		FROM agendamentos
+		WHERE id_prestador IN (".$ids_sql.")
+		GROUP BY id_prestador"
+	);
+	foreach($qr_vinculadas->result() as $row){
+		$metricas['vinculadas'][(int)$row->id_prestador] = (int)$row->total;
+		$metricas['pacientes'][(int)$row->id_prestador] = (int)$row->total_pacientes;
+		$metricas['ultima_vinculada'][(int)$row->id_prestador] = (string)$row->ultima_data;
+	}
+
+	$qr_pacientes = $this->db->query(
+		"SELECT id_user, COUNT(id) AS total
+		FROM usuarios
+		WHERE nivel = 5 AND id_user IN (".$ids_sql.")
+		GROUP BY id_user"
+	);
+	foreach($qr_pacientes->result() as $row){
+		$metricas['pacientes'][(int)$row->id_user] = max(
+			isset($metricas['pacientes'][(int)$row->id_user]) ? (int)$metricas['pacientes'][(int)$row->id_user] : 0,
+			(int)$row->total
+		);
+	}
+
+	return $metricas;
+}
+
+private function carregar_relatorio_usuarios($nivel = null)
+{
 	$dd_user = $this->padrao_model->get_usuario_logado();
 	$scope_ids = $this->padrao_model->get_scope_user_ids($dd_user);
 	$scope_sql = $this->padrao_model->ids_to_sql_in($scope_ids);
-	if((int)$dd_user->nivel === 1){
-		$dados["usuarios"] = $this->db->query("SELECT * FROM usuarios");
+	$select = array('u.*');
+	$joins = array();
+	$where = array();
+
+	if($this->db->table_exists('usuarios_especialidades')){
+		$select[] = "ue.nome AS especialidade_nome";
+		$joins[] = "LEFT JOIN usuarios_especialidades ue ON ue.id = u.especialidade";
 	}else{
-		$dados["usuarios"] = $this->db->query("SELECT * FROM usuarios WHERE id IN (".$scope_sql.")");
+		$select[] = "'' AS especialidade_nome";
 	}
+
+	if($this->db->field_exists('tenant_id', 'usuarios') && $this->db->table_exists('saas_tenants')){
+		$select[] = "st.status AS tenant_status";
+		$joins[] = "LEFT JOIN saas_tenants st ON st.id = u.tenant_id";
+	}else{
+		$select[] = "NULL AS tenant_status";
+	}
+
+	if($this->db->field_exists('tenant_id', 'usuarios') && $this->db->table_exists('saas_subscriptions')){
+		$select[] = "ss.status AS subscription_status";
+		$select[] = "ss.trial_ends_at AS subscription_trial_ends_at";
+		$joins[] = "LEFT JOIN (
+			SELECT s1.tenant_id, s1.status, s1.trial_ends_at
+			FROM saas_subscriptions s1
+			INNER JOIN (
+				SELECT tenant_id, MAX(id) AS max_id
+				FROM saas_subscriptions
+				GROUP BY tenant_id
+			) s2 ON s2.max_id = s1.id
+		) ss ON ss.tenant_id = u.tenant_id";
+	}else{
+		$select[] = "'' AS subscription_status";
+		$select[] = "NULL AS subscription_trial_ends_at";
+	}
+
+	if($nivel !== null){
+		$where[] = "u.nivel = ".(int)$nivel;
+	}
+
+	if((int)$dd_user->nivel !== 1){
+		$where[] = "u.id IN (".$scope_sql.")";
+	}
+
+	$sql = "SELECT ".implode(",\n", $select)."\nFROM usuarios u\n";
+	if(!empty($joins)){
+		$sql .= implode("\n", $joins)."\n";
+	}
+	if(!empty($where)){
+		$sql .= "WHERE ".implode(" AND ", $where)."\n";
+	}
+	$sql .= "ORDER BY u.dt_cadastro DESC, u.id DESC";
+
+	$usuarios = $this->db->query($sql)->result();
+	$metricas = $this->map_relatorio_metricas_por_usuario($usuarios);
+
+	foreach($usuarios as $usuario){
+		$user_id = (int)$usuario->id;
+		$usuario->total_agendamentos_gerados = isset($metricas['geradas'][$user_id]) ? (int)$metricas['geradas'][$user_id] : 0;
+		$usuario->total_agendamentos_vinculados = isset($metricas['vinculadas'][$user_id]) ? (int)$metricas['vinculadas'][$user_id] : 0;
+		$usuario->total_pacientes = isset($metricas['pacientes'][$user_id]) ? (int)$metricas['pacientes'][$user_id] : 0;
+		$usuario->ultima_atividade = '';
+		if(!empty($metricas['ultima_vinculada'][$user_id])){
+			$usuario->ultima_atividade = $metricas['ultima_vinculada'][$user_id];
+		}elseif(!empty($metricas['ultima_gerada'][$user_id])){
+			$usuario->ultima_atividade = $metricas['ultima_gerada'][$user_id];
+		}
+	}
+
+	return array(
+		'usuarios' => $usuarios,
+		'usuario_logado' => $dd_user,
+	);
+}
+
+function Index(){
+	$relatorio = $this->carregar_relatorio_usuarios();
+	$dados["usuarios"] = $relatorio['usuarios'];
+	$dados['usuario_logado'] = $relatorio['usuario_logado'];
 	$dados['nivel'] = 1;
 	#$this->load->view('adm/usuarios/lista', $dados);
 	$this->load->view('adm/usuarios/new/lista', $dados);
@@ -200,14 +337,9 @@ function rel($nivel=3){
 		$nivel = (int)$nivel;
 		$this->load->model('padrao_model');
 		$dados['nivel'] = $nivel;
-		$dd_user = $this->padrao_model->get_usuario_logado();
-		$scope_ids = $this->padrao_model->get_scope_user_ids($dd_user);
-		$scope_sql = $this->padrao_model->ids_to_sql_in($scope_ids);
-		if((int)$dd_user->nivel === 1){
-			$dados["usuarios"] = $this->db->query("SELECT * FROM usuarios WHERE nivel = $nivel ");
-		}else{
-			$dados["usuarios"] = $this->db->query("SELECT * FROM usuarios WHERE nivel = $nivel AND id IN (".$scope_sql.") ");
-		}
+		$relatorio = $this->carregar_relatorio_usuarios($nivel);
+		$dados["usuarios"] = $relatorio['usuarios'];
+		$dados['usuario_logado'] = $relatorio['usuario_logado'];
 
 		$this->load->view('adm/usuarios/new/lista', $dados);
 

@@ -20,7 +20,7 @@ class Marketing extends CI_Controller {
 
 	public function index(){
 		$this->trafego_ia();
-	}
+	}Ana
 
 	public function trafego_ia(){
 		$filtros = $this->_filtros_from_get();
