@@ -21,6 +21,33 @@ if (!function_exists('utec_whatsapp_normalizar_numero')) {
     }
 }
 
+if (!function_exists('utec_whatsapp_normalizar_status_assinatura')) {
+    function utec_whatsapp_normalizar_status_assinatura($status)
+    {
+        return strtolower(trim((string)$status));
+    }
+}
+
+if (!function_exists('utec_whatsapp_politica_limite')) {
+    function utec_whatsapp_politica_limite($subscription_status, $used)
+    {
+        $status = utec_whatsapp_normalizar_status_assinatura($subscription_status);
+        $used = (int)$used;
+
+        if ($status === 'active') {
+            return ['allowed' => true, 'reason' => 'active_unlimited', 'limit' => 0, 'used' => $used];
+        }
+
+        $limit = 3;
+        return [
+            'allowed' => $used < $limit,
+            'reason' => $used < $limit ? 'quota_available' : 'quota_reached',
+            'limit' => $limit,
+            'used' => $used,
+        ];
+    }
+}
+
 if (!function_exists('utec_whatsapp_checkbox_marcado')) {
     function utec_whatsapp_checkbox_marcado($post)
     {
@@ -118,6 +145,8 @@ if (!function_exists('utec_whatsapp_resumo_envio')) {
                 return ['type' => 'warning', 'message' => 'Configuracao do WhatsApp ausente, incompleta ou inativa.'];
             case 'invalid_phone':
                 return ['type' => 'warning', 'message' => 'Paciente sem telefone valido para WhatsApp.'];
+            case 'quota_reached':
+                return ['type' => 'warning', 'message' => $error !== '' ? $error : 'Limite de 3 envios do plano trial/free atingido. Contrate um plano para liberar novos disparos.'];
             case 'agendamento_not_found':
                 return ['type' => 'danger', 'message' => 'Nao foi possivel localizar o agendamento para disparo do WhatsApp.'];
             case 'invalid_agendamento':

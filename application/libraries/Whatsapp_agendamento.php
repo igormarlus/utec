@@ -12,6 +12,7 @@ class Whatsapp_agendamento {
         $this->CI->load->helper('whatsapp_agendamento');
         $this->CI->load->model('Whatsapp_model', 'whatsapp_model');
         $this->CI->load->model('padrao_model');
+        $this->CI->load->model('adm/Saas_model', 'saas_model');
     }
 
     public function is_disponivel()
@@ -68,6 +69,18 @@ class Whatsapp_agendamento {
             return $result;
         }
 
+        $quota = $this->validar_quota_tenant($agendamento, $telefone);
+        if (!$quota['ok']) {
+            $result = [
+                'sent' => false,
+                'reason' => 'quota_reached',
+                'error' => $quota['message'],
+                'policy' => $quota['policy'],
+            ];
+            log_message('error', '[whatsapp_agendamento] '.utec_whatsapp_resumo_envio($result)['message']);
+            return $result;
+        }
+
         $payload = $this->montar_payload($config, $agendamento, $telefone);
         $response = $this->enviar_payload($config, $payload);
 
@@ -100,6 +113,53 @@ class Whatsapp_agendamento {
         ];
         log_message($response['ok'] ? 'debug' : 'error', '[whatsapp_agendamento] '.utec_whatsapp_resumo_envio($result)['message']);
         return $result;
+    }
+
+    protected function get_subscription_status_by_tenant($tenant_id)
+    {
+        $tenant_id = (int)$tenant_id;
+        if ($tenant_id <= 0) {
+            return '';
+        }
+
+        $subscription = $this->CI->saas_model->get_tenant_primary_subscription($tenant_id);
+        if (!$subscription || !isset($subscription->status)) {
+            return '';
+        }
+
+        return utec_whatsapp_normalizar_status_assinatura($subscription->status);
+    }
+
+    protected function validar_quota_tenant($agendamento, $telefone)
+    {
+        $tenant_id = (int)utec_whatsapp_read($agendamento, 'tenant_id', 0);
+        if ($tenant_id <= 0) {
+            return [
+                'ok' => true,
+                'policy' => [
+                    'allowed' => true,
+                    'reason' => 'tenant_unresolved',
+                    'limit' => 0,
+                    'used' => 0,
+                ],
+            ];
+        }
+
+        $subscription_status = $this->get_subscription_status_by_tenant($tenant_id);
+        $policy = $this->CI->whatsapp_model->resumir_consumo_tenant($tenant_id, $subscription_status);
+        if ($policy['allowed']) {
+            return ['ok' => true, 'policy' => $policy];
+        }
+
+        $message = 'Limite de 3 envios do plano trial/free atingido. Contrate um plano para liberar novos disparos.';
+        $this->CI->whatsapp_model->registrar_limite_atingido(
+            $tenant_id,
+            (int)utec_whatsapp_read($agendamento, 'id', 0),
+            $telefone,
+            $message
+        );
+
+        return ['ok' => false, 'policy' => $policy, 'message' => $message];
     }
 
     protected function buscar_contexto_agendamento($id_agendamento)

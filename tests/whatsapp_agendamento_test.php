@@ -37,6 +37,27 @@ assertSameValue(false, utec_whatsapp_checkbox_marcado([]), 'Checkbox ausente dev
 assertSameValue('5581999999999', utec_whatsapp_normalizar_numero('+55 (81) 99999-9999'), 'Numero deve ficar apenas com digitos.');
 assertSameValue('', utec_whatsapp_normalizar_numero(''), 'Numero vazio deve continuar vazio.');
 
+assertSameValue('active', utec_whatsapp_normalizar_status_assinatura(' ACTIVE '), 'Status de assinatura deve ser normalizado.');
+
+$politicaTrial = utec_whatsapp_politica_limite('trial', 2);
+assertSameValue(true, $politicaTrial['allowed'], 'Trial com 2 envios ainda deve poder enviar.');
+assertSameValue('quota_available', $politicaTrial['reason'], 'Trial abaixo do limite deve retornar quota disponivel.');
+assertSameValue(3, $politicaTrial['limit'], 'Trial deve ter limite de 3 envios.');
+
+$politicaTrialBloqueado = utec_whatsapp_politica_limite('trial', 3);
+assertSameValue(false, $politicaTrialBloqueado['allowed'], 'Trial com 3 envios deve bloquear o 4o.');
+assertSameValue('quota_reached', $politicaTrialBloqueado['reason'], 'Trial bloqueado deve retornar motivo de quota.');
+
+$politicaStatusNaoAtivo = utec_whatsapp_politica_limite('past_due', 3);
+assertSameValue(false, $politicaStatusNaoAtivo['allowed'], 'Status nao ativo com 3 envios deve bloquear.');
+
+$politicaActive = utec_whatsapp_politica_limite('active', 999);
+assertSameValue(true, $politicaActive['allowed'], 'Assinatura ativa deve ter envio ilimitado.');
+assertSameValue(0, $politicaActive['limit'], 'Assinatura ativa deve retornar limite zero como ilimitado.');
+
+$politicaSemAssinatura = utec_whatsapp_politica_limite('', 3);
+assertSameValue(false, $politicaSemAssinatura['allowed'], 'Tenant sem assinatura com 3 envios deve bloquear.');
+
 $resumoEnviado = utec_whatsapp_resumo_envio(['sent' => true, 'reason' => 'sent', 'wamid' => 'wamid.123']);
 assertSameValue('success', $resumoEnviado['type'], 'Envio com sucesso deve gerar alerta success.');
 
@@ -45,6 +66,9 @@ assertSameValue('danger', $resumoErro['type'], 'Falha da API deve gerar alerta d
 
 $resumoConfig = utec_whatsapp_resumo_envio(['sent' => false, 'reason' => 'config_unavailable']);
 assertSameValue('warning', $resumoConfig['type'], 'Configuração indisponível deve gerar alerta warning.');
+
+$resumoQuota = utec_whatsapp_resumo_envio(['sent' => false, 'reason' => 'quota_reached']);
+assertSameValue('warning', $resumoQuota['type'], 'Quota atingida deve gerar alerta warning.');
 
 $componentes = utec_whatsapp_componentes_template([
     'id' => 77,

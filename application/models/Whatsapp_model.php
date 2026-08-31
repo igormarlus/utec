@@ -94,6 +94,41 @@ class Whatsapp_model extends CI_Model {
         return $this->db->insert($this->log_table, $log);
     }
 
+    public function contar_envios_enviados_por_tenant($tenant_id)
+    {
+        $tenant_id = (int)$tenant_id;
+        if ($tenant_id <= 0 || !$this->db->table_exists($this->log_table)) {
+            return 0;
+        }
+
+        $qr = $this->db->query(
+            "SELECT COUNT(id) AS total
+             FROM `{$this->log_table}`
+             WHERE tenant_id = {$tenant_id}
+               AND status_envio = 'enviado'"
+        );
+
+        return $qr->num_rows() ? (int)$qr->row()->total : 0;
+    }
+
+    public function registrar_limite_atingido($tenant_id, $id_agendamento, $telefone_destino, $mensagem)
+    {
+        return $this->registrar_log([
+            'tenant_id' => (int)$tenant_id,
+            'id_agendamento' => (int)$id_agendamento,
+            'telefone_destino' => trim((string)$telefone_destino),
+            'status_envio' => 'limite',
+            'erro_detalhe' => trim((string)$mensagem),
+            'status_confirmacao' => 'nao_enviado',
+        ]);
+    }
+
+    public function resumir_consumo_tenant($tenant_id, $subscription_status)
+    {
+        $used = $this->contar_envios_enviados_por_tenant($tenant_id);
+        return utec_whatsapp_politica_limite($subscription_status, $used);
+    }
+
     public function tabela_log_existe()
     {
         return $this->db->table_exists($this->log_table);
