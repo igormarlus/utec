@@ -7,9 +7,11 @@ class Calendario extends CI_Controller {
 	{
 		parent::__construct();
 		$this->load->library('session');
-		$this->load->helper(array('form', 'url'));
+		$this->load->helper(array('form', 'url', 'whatsapp_agendamento'));
+		$this->load->library('Whatsapp_agendamento');
 		$this->load->model('adm/usuarios_model');
 		$this->load->model('padrao_model');
+		$this->load->model('Whatsapp_model', 'whatsapp_model');
 		$this->usuarios_model->verSession();
 		$this->load->model('FbApi_model', 'fbapi_model');
 		$this->padrao_model->indexador();
@@ -36,6 +38,7 @@ class Calendario extends CI_Controller {
 		$dados['dd']          = $dd_user;
 		$dados['nivel']       = (int)$dd_user->nivel;
 		$dados['prestadores'] = $prestadores;
+		$dados['whatsapp_disponivel'] = $this->whatsapp_agendamento->is_disponivel();
 
 		$this->load->view('adm/calendario/index', $dados);
 	}
@@ -143,6 +146,7 @@ class Calendario extends CI_Controller {
 		$data_agenda  = $this->input->post('data_agenda',  true);
 		$hora_agenda  = $this->input->post('hora_agenda',  true);
 		$tipo         = $this->input->post('tipo',         true);
+		$post_data    = $this->input->post(NULL, true);
 
 		// Validações
 		if (!$id_paciente) {
@@ -193,7 +197,12 @@ class Calendario extends CI_Controller {
 
 		header('Content-Type: application/json');
 		if ($this->db->insert('agendamentos', $dados)) {
-			echo json_encode(['success' => true, 'id' => (int)$this->db->insert_id()]);
+			$agendamento_id = (int)$this->db->insert_id();
+			$whatsapp = $this->whatsapp_agendamento->notificar_agendamento(
+				$agendamento_id,
+				utec_whatsapp_checkbox_marcado($post_data)
+			);
+			echo json_encode(['success' => true, 'id' => $agendamento_id, 'whatsapp' => $whatsapp]);
 		} else {
 			echo json_encode(['success' => false, 'error' => 'Falha ao salvar agendamento.']);
 		}

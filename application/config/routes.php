@@ -75,6 +75,8 @@ $route['e/track'] = 'home/track_evento';
 $route['adm/marketing']            = 'adm/marketing/index';
 $route['adm/marketing/trafego_ia'] = 'adm/marketing/trafego_ia';
 $route['adm/marketing/api/(:any)'] = 'adm/marketing/api/$1';
+$route['adm/whatsapp']             = 'adm/whatsapp/index';
+$route['adm/whatsapp/salvar']      = 'adm/whatsapp/salvar';
 
 // Leads
 $route['adm/leads']                        = 'adm/leads/index';

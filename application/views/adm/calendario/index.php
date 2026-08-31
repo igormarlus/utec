@@ -223,6 +223,13 @@ function cal_prof_cor($id) {
               <option value="Exame">Exame</option>
             </select>
           </div>
+          <div class="custom-control custom-checkbox" style="margin-bottom:12px;">
+            <input type="checkbox" class="custom-control-input" id="criar-enviar-whatsapp" name="enviar_whatsapp_confirmacao" value="1" checked>
+            <label class="custom-control-label" for="criar-enviar-whatsapp">Enviar confirmacao pelo WhatsApp</label>
+          </div>
+          <? if(empty($whatsapp_disponivel)){ ?>
+            <div class="alert alert-warning" style="font-size:13px;">Configuracao do WhatsApp ainda incompleta. O agendamento sera salvo sem disparo.</div>
+          <? } ?>
           <div id="criar-erro" class="alert alert-danger" style="display:none;font-size:13px;"></div>
         </form>
       </div>

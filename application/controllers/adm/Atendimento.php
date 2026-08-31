@@ -7,9 +7,11 @@ class Atendimento extends CI_Controller {
 	{
 		parent::__construct();
 		$this->load->library('session');
-		$this->load->helper(array('form','url'));
+		$this->load->helper(array('form','url','whatsapp_agendamento'));
+		$this->load->library('Whatsapp_agendamento');
 		$this->load->model('adm/usuarios_model');
 		$this->load->model('padrao_model');
+		$this->load->model('Whatsapp_model', 'whatsapp_model');
 		#$this->padrao_model->indexador();
 		$this->usuarios_model->verSession();
 		$this->load->model('FbApi_model', 'fbapi_model');
@@ -155,6 +157,7 @@ function novo($id_user){
 			$dados["prestador_padrao"] = 0;
 		}
 	}
+	$dados['whatsapp_disponivel'] = $this->whatsapp_agendamento->is_disponivel();
 
 	$this->load->view('adm/atendimento/atendimento' , $dados);	
 }
@@ -179,6 +182,7 @@ function cadastro($nivel){
 
 function cadastrar() {
 	$id_paciente = (int)$this->input->post('id_paciente');
+	$post_data = $this->input->post(NULL, true);
 	if(!$this->padrao_model->can_access_usuario($id_paciente)){
 		show_error('Acesso negado ao paciente selecionado.', 403);
 		return;
@@ -208,6 +212,11 @@ function cadastrar() {
 
 	#$this->db->where('id', $_POST['id']);
 	if ($this->db->insert('agendamentos', $dd)) {
+		$agendamento_id = (int)$this->db->insert_id();
+		$this->whatsapp_agendamento->notificar_agendamento(
+			$agendamento_id,
+			utec_whatsapp_checkbox_marcado($post_data)
+		);
 		// CAPI Schedule — sinaliza que o profissional usou o sistema até o ponto de agendar
 		if ($user_logado) {
 			$this->fbapi_model->send_event('Schedule', [

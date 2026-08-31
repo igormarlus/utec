@@ -35,6 +35,14 @@ if($menu_can_admin){
 				],
 			],
 			[
+				'label' => 'WhatsApp',
+				'icon' => 'os-icon-mail-14',
+				'url' => base_url().'adm/whatsapp',
+				'children' => [
+					['label' => 'Configuracoes', 'url' => base_url().'adm/whatsapp'],
+				],
+			],
+			[
 				'label' => 'Blog',
 				'icon' => 'os-icon-edit-32',
 				'url' => base_url().'adm/blog',

@@ -195,6 +195,15 @@
                       <input type="time" name="hora_agenda" class="form-control" required>
                     </div>
                   </div>
+                  <div style="margin-top:18px;">
+                    <div class="custom-control custom-checkbox">
+                      <input type="checkbox" class="custom-control-input" id="enviar-whatsapp-confirmacao" name="enviar_whatsapp_confirmacao" value="1" checked>
+                      <label class="custom-control-label" for="enviar-whatsapp-confirmacao">Enviar confirmacao pelo WhatsApp</label>
+                    </div>
+                    <? if(empty($whatsapp_disponivel)){ ?>
+                      <div class="alert alert-warning" style="margin:12px 0 0;">A configuracao do WhatsApp ainda nao esta pronta. O agendamento sera salvo normalmente sem disparo.</div>
+                    <? } ?>
+                  </div>
                   <div style="margin-top:18px">
                     <button class="btn btn-primary" type="submit">Confirmar agendamento</button>
                   </div>
