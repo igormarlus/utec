@@ -202,7 +202,12 @@ class Calendario extends CI_Controller {
 				$agendamento_id,
 				utec_whatsapp_checkbox_marcado($post_data)
 			);
-			echo json_encode(['success' => true, 'id' => $agendamento_id, 'whatsapp' => $whatsapp]);
+			echo json_encode([
+				'success' => true,
+				'id' => $agendamento_id,
+				'whatsapp' => $whatsapp,
+				'whatsapp_feedback' => utec_whatsapp_resumo_envio($whatsapp),
+			]);
 		} else {
 			echo json_encode(['success' => false, 'error' => 'Falha ao salvar agendamento.']);
 		}

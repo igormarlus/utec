@@ -37,4 +37,13 @@ assertSameValue(false, utec_whatsapp_checkbox_marcado([]), 'Checkbox ausente dev
 assertSameValue('5581999999999', utec_whatsapp_normalizar_numero('+55 (81) 99999-9999'), 'Numero deve ficar apenas com digitos.');
 assertSameValue('', utec_whatsapp_normalizar_numero(''), 'Numero vazio deve continuar vazio.');
 
+$resumoEnviado = utec_whatsapp_resumo_envio(['sent' => true, 'reason' => 'sent', 'wamid' => 'wamid.123']);
+assertSameValue('success', $resumoEnviado['type'], 'Envio com sucesso deve gerar alerta success.');
+
+$resumoErro = utec_whatsapp_resumo_envio(['sent' => false, 'reason' => 'api_error', 'error' => 'Template não encontrado']);
+assertSameValue('danger', $resumoErro['type'], 'Falha da API deve gerar alerta danger.');
+
+$resumoConfig = utec_whatsapp_resumo_envio(['sent' => false, 'reason' => 'config_unavailable']);
+assertSameValue('warning', $resumoConfig['type'], 'Configuração indisponível deve gerar alerta warning.');
+
 echo "OK\n";

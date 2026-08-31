@@ -429,6 +429,9 @@ $(function(){
         var r = typeof res === 'string' ? JSON.parse(res) : res;
         if (r.success) {
           $('#modal-criar').modal('hide');
+          if (r.whatsapp_feedback && r.whatsapp_feedback.message) {
+            alert(r.whatsapp_feedback.message);
+          }
           $('#calendario').fullCalendar('refetchEvents');
           var data = document.getElementById('criar-data').value;
           if (data) calLoadDia(data, data.split('-').reverse().join('/'));

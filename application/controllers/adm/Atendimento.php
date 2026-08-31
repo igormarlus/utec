@@ -213,10 +213,11 @@ function cadastrar() {
 	#$this->db->where('id', $_POST['id']);
 	if ($this->db->insert('agendamentos', $dd)) {
 		$agendamento_id = (int)$this->db->insert_id();
-		$this->whatsapp_agendamento->notificar_agendamento(
+		$whatsapp_result = $this->whatsapp_agendamento->notificar_agendamento(
 			$agendamento_id,
 			utec_whatsapp_checkbox_marcado($post_data)
 		);
+		$this->session->set_flashdata('whatsapp_status', utec_whatsapp_resumo_envio($whatsapp_result));
 		// CAPI Schedule — sinaliza que o profissional usou o sistema até o ponto de agendar
 		if ($user_logado) {
 			$this->fbapi_model->send_event('Schedule', [

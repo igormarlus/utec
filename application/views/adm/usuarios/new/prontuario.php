@@ -385,6 +385,10 @@
           </div>
           <div class="content-i">
             <div class="content-box">
+              <?php $whatsapp_status = $this->session->flashdata('whatsapp_status'); ?>
+              <?php if($whatsapp_status && isset($whatsapp_status['message'])){ ?>
+                <div class="alert alert-<?=htmlspecialchars($whatsapp_status['type'])?>" style="margin-bottom:20px;"><?=htmlspecialchars($whatsapp_status['message'])?></div>
+              <?php } ?>
               <div class="row">
                 <div class="col-sm-12">
                   <div class="patient-summary-card">

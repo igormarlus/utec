@@ -23,11 +23,15 @@ class Whatsapp_agendamento {
     {
         $id_agendamento = (int)$id_agendamento;
         if ($id_agendamento <= 0) {
-            return ['sent' => false, 'reason' => 'invalid_agendamento'];
+            $result = ['sent' => false, 'reason' => 'invalid_agendamento'];
+            log_message('error', '[whatsapp_agendamento] '.utec_whatsapp_resumo_envio($result)['message']);
+            return $result;
         }
 
         if (!$enviar) {
-            return ['sent' => false, 'reason' => 'unchecked'];
+            $result = ['sent' => false, 'reason' => 'unchecked'];
+            log_message('debug', '[whatsapp_agendamento] '.utec_whatsapp_resumo_envio($result)['message']);
+            return $result;
         }
 
         $config = $this->CI->whatsapp_model->get_configuracao_ativa();
@@ -38,12 +42,16 @@ class Whatsapp_agendamento {
                 'erro_detalhe' => 'Configuracao do WhatsApp ausente, incompleta ou inativa.',
                 'status_confirmacao' => 'nao_enviado',
             ]);
-            return ['sent' => false, 'reason' => 'config_unavailable'];
+            $result = ['sent' => false, 'reason' => 'config_unavailable'];
+            log_message('error', '[whatsapp_agendamento] '.utec_whatsapp_resumo_envio($result)['message']);
+            return $result;
         }
 
         $agendamento = $this->buscar_contexto_agendamento($id_agendamento);
         if (!$agendamento) {
-            return ['sent' => false, 'reason' => 'agendamento_not_found'];
+            $result = ['sent' => false, 'reason' => 'agendamento_not_found'];
+            log_message('error', '[whatsapp_agendamento] '.utec_whatsapp_resumo_envio($result)['message']);
+            return $result;
         }
 
         $telefone = $this->normalizar_destino(isset($agendamento->paciente_telefone) ? $agendamento->paciente_telefone : '');
@@ -55,7 +63,9 @@ class Whatsapp_agendamento {
                 'erro_detalhe' => 'Paciente sem telefone valido para WhatsApp.',
                 'status_confirmacao' => 'nao_enviado',
             ]);
-            return ['sent' => false, 'reason' => 'invalid_phone'];
+            $result = ['sent' => false, 'reason' => 'invalid_phone'];
+            log_message('error', '[whatsapp_agendamento] '.utec_whatsapp_resumo_envio($result)['message']);
+            return $result;
         }
 
         $payload = $this->montar_payload($config, $agendamento, $telefone);
@@ -82,12 +92,14 @@ class Whatsapp_agendamento {
             'status_confirmacao' => $response['ok'] ? 'pendente' : 'nao_enviado',
         ]);
 
-        return [
+        $result = [
             'sent' => $response['ok'],
             'reason' => $response['ok'] ? 'sent' : 'api_error',
             'wamid' => $wamid,
             'error' => $erro,
         ];
+        log_message($response['ok'] ? 'debug' : 'error', '[whatsapp_agendamento] '.utec_whatsapp_resumo_envio($result)['message']);
+        return $result;
     }
 
     protected function buscar_contexto_agendamento($id_agendamento)
