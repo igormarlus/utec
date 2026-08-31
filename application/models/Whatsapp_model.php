@@ -281,7 +281,11 @@ class Whatsapp_model extends CI_Model {
         $resultado['notificacao'] = $notificacao;
         $resultado['contexto'] = $contexto;
 
-        if ((string)$notificacao->status_confirmacao !== 'pendente') {
+        $statusConfirmacao = $acao === 'confirmar' ? 'confirmado' : 'cancelado';
+        $statusAtual = (string)$notificacao->status_confirmacao;
+
+        // Nova resposta igual a que ja esta registrada: reentrega da Meta ou clique repetido no mesmo botao.
+        if ($statusAtual === $statusConfirmacao) {
             if ($this->db->trans_status() === false) {
                 $this->db->trans_rollback();
                 return $resultado;
@@ -291,19 +295,24 @@ class Whatsapp_model extends CI_Model {
             return $resultado;
         }
 
-        $statusConfirmacao = $acao === 'confirmar' ? 'confirmado' : 'cancelado';
+        // Transicao valida: pendente -> confirmado/cancelado ou troca entre confirmado <-> cancelado.
         $dados = [
             'status_confirmacao' => $statusConfirmacao,
             'respondido_em' => date('Y-m-d H:i:s'),
         ];
         $this->db->where('id', $idNotificacao);
-        $this->db->where('status_confirmacao', 'pendente');
+        $this->db->where('status_confirmacao', $statusAtual);
         $notificacaoAtualizada = $this->db->update($this->log_table, $dados);
         $agendamentoAtualizado = true;
 
         if ($acao === 'cancelar') {
             $this->db->where('id', (int)$notificacao->id_agendamento);
             $agendamentoAtualizado = $this->db->update('agendamentos', ['status' => 3]);
+        } elseif ($statusAtual === 'cancelado') {
+            // Reconfirmacao apos cancelamento: reativa o agendamento se ele ainda estava cancelado.
+            $this->db->where('id', (int)$notificacao->id_agendamento);
+            $this->db->where('status', 3);
+            $agendamentoAtualizado = $this->db->update('agendamentos', ['status' => 0]);
         }
 
         if (!$notificacaoAtualizada || !$agendamentoAtualizado || $this->db->trans_status() === false) {
