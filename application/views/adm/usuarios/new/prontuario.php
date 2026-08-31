@@ -549,6 +549,21 @@
                   <div>
                     <div class="section-heading" style="font-size:22px;margin-bottom:4px">Registro do atendimento em andamento</div>
                     <p style="margin:0;color:#5f708c"><?=$this->padrao_model->converte_data($dd_agenda->data_agenda)?> as <?=substr($dd_agenda->hora_agenda,0,5)?>h</p>
+                    <?php $wa_retorno = isset($whatsapp_retorno) ? $whatsapp_retorno : null; ?>
+                    <?php if($wa_retorno && isset($wa_retorno->status_confirmacao) && function_exists('utec_whatsapp_rotulo_confirmacao')){
+                      $wa_st = (string)$wa_retorno->status_confirmacao;
+                      if($wa_st === 'confirmado'){ $wa_line_css = 'color:#16874b;'; }
+                      elseif($wa_st === 'cancelado'){ $wa_line_css = 'color:#b91c1c;'; }
+                      else { $wa_st = ''; $wa_line_css = 'color:#94a3b8;'; }
+                    ?>
+                      <p style="margin:4px 0 0;font-size:13px;font-weight:700;<?=$wa_line_css?>">
+                        <?=htmlspecialchars(utec_whatsapp_rotulo_confirmacao($wa_st))?><?php
+                          if($wa_st !== '' && !empty($wa_retorno->respondido_em)){
+                            echo ' &middot; '.date('d/m/Y H:i', strtotime($wa_retorno->respondido_em));
+                          }
+                        ?>
+                      </p>
+                    <?php } ?>
                   </div>
                   <div>
                     <?php

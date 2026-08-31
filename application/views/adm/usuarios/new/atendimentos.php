@@ -487,7 +487,17 @@
                               if((int)$agenda->status === 2) $ut_pill_class = 'finalizado';
                               if((int)$agenda->status === 3) $ut_pill_class = 'cancelado';
                             ?>
-                            <span class="ut-status-pill <?=$ut_pill_class?>"><?=$status_nome?></span></td>
+                            <span class="ut-status-pill <?=$ut_pill_class?>"><?=$status_nome?></span>
+                            <? $wa_status = isset($agenda->whatsapp_status) ? (string)$agenda->whatsapp_status : ''; ?>
+                            <? if($wa_status !== '' && function_exists('utec_whatsapp_rotulo_confirmacao')){
+                                 if($wa_status === 'confirmado'){ $wa_css = 'background:#ebfff1;color:#16874b;'; }
+                                 elseif($wa_status === 'cancelado'){ $wa_css = 'background:#fef2f2;color:#b91c1c;'; }
+                                 else { $wa_css = 'background:#f1f5f9;color:#64748b;'; }
+                            ?>
+                              <span class="ut-wa-tag" style="display:inline-block;margin-top:4px;font-size:11px;font-weight:700;padding:2px 8px;border-radius:10px;<?=$wa_css?>">
+                                <?=utec_whatsapp_rotulo_confirmacao($wa_status)?><? if(!empty($agenda->whatsapp_respondido_em) && ($wa_status === 'confirmado' || $wa_status === 'cancelado')){ ?> &middot; <?=date('d/m H:i', strtotime($agenda->whatsapp_respondido_em))?><? } ?>
+                              </span>
+                            <? } ?></td>
                             <td>
                               <? $tel = str_replace(["-"," ","+","(",")"], "", $agenda->paciente_telefone); ?>
                               <? if($agenda->paciente_telefone){ ?>
@@ -592,7 +602,11 @@
       <div class="ut-queue-avatar" style="background:var(--ut-green-900);"><?=$ini?></div>
       <div style="flex:1;min-width:0;">
         <p class="ut-queue-name"><?=htmlspecialchars($agenda->paciente_nome)?></p>
-        <p class="ut-queue-meta"><?=substr($agenda->hora_agenda,0,5)?> · <?=ucfirst($agenda->tipo)?></p>
+        <p class="ut-queue-meta"><?=substr($agenda->hora_agenda,0,5)?> · <?=ucfirst($agenda->tipo)?><?
+          $wa_m = isset($agenda->whatsapp_status) ? (string)$agenda->whatsapp_status : '';
+          if($wa_m === 'confirmado'){ echo ' · <span style="color:#16874b;font-weight:700;">&#10003; WhatsApp</span>'; }
+          elseif($wa_m === 'cancelado'){ echo ' · <span style="color:#b91c1c;font-weight:700;">&#10007; WhatsApp</span>'; }
+        ?></p>
       </div>
       <span class="ut-status-pill pendente" style="flex-shrink:0;">Pendente</span>
       <span class="ut-queue-chevron">›</span>

@@ -63,12 +63,29 @@ function Index(){
 	}
 	$where_sql = count($where) ? " WHERE ".implode(" AND ", $where)." " : "";
 
+	$whatsapp_select = "";
+	$whatsapp_join = "";
+	if($this->db->table_exists('whatsapp_notificacoes')){
+		$whatsapp_select = ", wr.status_confirmacao AS whatsapp_status, wr.respondido_em AS whatsapp_respondido_em";
+		$whatsapp_join = "
+		LEFT JOIN (
+			SELECT n.id_agendamento, n.status_confirmacao, n.respondido_em
+			FROM whatsapp_notificacoes n
+			INNER JOIN (
+				SELECT id_agendamento, MAX(id) AS max_id
+				FROM whatsapp_notificacoes
+				GROUP BY id_agendamento
+			) nm ON nm.max_id = n.id
+		) wr ON wr.id_agendamento = a.id ";
+	}
+
 	$qr_agendamentos = $this->db->query(
-		"SELECT a.*, p.nome AS paciente_nome, p.telefone AS paciente_telefone, p.img AS paciente_img, pr.nome AS prestador_nome, cad.nome AS cadastrado_por_nome
+		"SELECT a.*, p.nome AS paciente_nome, p.telefone AS paciente_telefone, p.img AS paciente_img, pr.nome AS prestador_nome, cad.nome AS cadastrado_por_nome".$whatsapp_select."
 		FROM agendamentos a
 		LEFT JOIN usuarios p ON p.id = a.id_paciente
 		LEFT JOIN usuarios pr ON pr.id = a.id_prestador
 		LEFT JOIN usuarios cad ON cad.id = a.id_user
+		".$whatsapp_join."
 		".$where_sql."
 		ORDER BY a.data_agenda ASC, a.hora_agenda ASC, a.id DESC"
 	);
@@ -360,6 +377,7 @@ function prontuario($id_user=1,$id_agenda=0){
 		}else{
 			$dados['dd_agenda'] = $qr_agenda->row();
 		}
+		$dados['whatsapp_retorno'] = $this->whatsapp_model->get_notificacao_por_agendamento($id_agenda);
 	}
 	
 	$dados["usuarios"] = $this->db->query("SELECT * FROM usuarios WHERE nivel = $nivel ");

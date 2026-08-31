@@ -251,6 +251,23 @@ if (!function_exists('utec_notificacoes_mensagem_resposta_agendamento')) {
     }
 }
 
+if (!function_exists('utec_whatsapp_rotulo_confirmacao')) {
+    function utec_whatsapp_rotulo_confirmacao($status)
+    {
+        $status = strtolower(trim((string)$status));
+
+        if ($status === 'confirmado') {
+            return 'Confirmado via WhatsApp';
+        }
+
+        if ($status === 'cancelado') {
+            return 'Cancelado via WhatsApp';
+        }
+
+        return 'Sem retorno WhatsApp';
+    }
+}
+
 if (!function_exists('utec_whatsapp_extrair_evento_webhook')) {
     function utec_whatsapp_extrair_evento_webhook($payload)
     {

@@ -379,8 +379,11 @@ function prontuario($id_user=1,$id_agenda=0){
 		}else{
 			$dados['dd_agenda'] = $qr_agenda->row();
 		}
+		$this->load->helper('whatsapp_agendamento');
+		$this->load->model('Whatsapp_model', 'whatsapp_model');
+		$dados['whatsapp_retorno'] = $this->whatsapp_model->get_notificacao_por_agendamento($id_agenda);
 	}
-	
+
 	$dados["usuarios"] = $this->db->query("SELECT * FROM usuarios WHERE nivel = $nivel ");
 
 	$dados["dd"] = $this->db->query("SELECT * FROM usuarios WHERE id = $id_user ")->row();
