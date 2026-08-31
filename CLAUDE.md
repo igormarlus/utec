@@ -156,6 +156,11 @@ O projeto usa **CodeIgniter 3.1.10** em produção. **Não migrar para CI4 ou ou
 - `api_conv_fb` — eventos para Facebook Pixel (Conversions API)
 - `pi_whats_users` — usuários vinculados ao WhatsApp
 
+**WhatsApp (agendamento / Cloud API)**
+- `whatsapp_config` — conexão ativa da Meta (phone_number_id, access_token, app_secret, verify_token, template_name/lang, status). Só uma linha `status = 1`
+- `whatsapp_notificacoes` — log de cada disparo: `id_agendamento`, `tenant_id`, `telefone_destino`, `wamid`, `status_envio` (pendente/enviado/entregue/lido/erro), `status_confirmacao` (pendente/confirmado/cancelado/nao_enviado), `respondido_em`
+- `notificacoes_usuarios` — avisos internos por usuário (`id_usuario_destino`, `id_agendamento`, `id_whatsapp_notificacao`, `tipo`, `titulo`, `mensagem`, `url`, `lida`, `lida_em`). Chave única `(id_usuario_destino, id_whatsapp_notificacao, tipo)` evita reenvio. SQL em `docs/notificacoes-usuarios.sql` (aplicar manualmente — sem migration automática)
+
 **RPG (módulo educacional)**
 - `rpg_personagens`, `rpg_personagens_atributos`
 - `rpg_items`, `rpg_user_inventory`
@@ -217,6 +222,7 @@ Verificado por `Padrao_model::can_access_saas_module()`. O Admin (nível 1) tem 
 | `Home.php` | `/` | Landing page pública |
 | `Admin.php` | `/admin` | Login + `logar_como/{id}` (admin nível 1) |
 | `User.php` | `/user` | Carrinho, pedidos, MP legado |
+| `Webhooks.php` | `/webhooks/whatsapp` | Verificação (GET) + recepção (POST) do WhatsApp Cloud API: valida assinatura HMAC, processa status de entrega e respostas de botão (confirmar/cancelar) |
 
 ### 6.2 Admin (`application/controllers/adm/`)
 
@@ -229,6 +235,8 @@ Verificado por `Padrao_model::can_access_saas_module()`. O Admin (nível 1) tem 
 | `Dev.php` | `/adm/dev` | Migrações e utilitários de desenvolvimento |
 | `Especialidades.php` | `/adm/especialidades` | CRUD de campos extras por especialidade (nível 1 apenas) |
 | `Marketing.php` | `/adm/marketing` | Dashboard de Tráfego de IA (referral de IA + conversões) — nível 1 apenas |
+| `Whatsapp.php` | `/adm/whatsapp` | Tela de configuração da conexão WhatsApp (nível 1) — grava `whatsapp_config` |
+| `Notificacoes.php` | `/adm/notificacoes/abrir/{id}` | Marca o aviso interno como lido pelo destinatário logado e redireciona para a `url` da notificação |
 
 > `Atencimento.php` (com typo) foi renomeado para `.bak` — não é controller ativo.
 
@@ -238,7 +246,13 @@ Verificado por `Padrao_model::can_access_saas_module()`. O Admin (nível 1) tem 
 $route['default_controller'] = 'home';
 $route['locations'] = 'rpgLocations/index';
 $route['webhooks/mercadopago'] = 'adm/saas/webhook_mercadopago';
+$route['webhooks/whatsapp'] = 'webhooks/whatsapp';
+$route['adm/whatsapp'] = 'adm/whatsapp/index';
+$route['adm/whatsapp/salvar'] = 'adm/whatsapp/salvar';
 ```
+
+> `adm/notificacoes/abrir/{id}` usa o roteamento padrão do CI (sem rota explícita).
+> A pasta `webhooks/whatsapp/` tem um bridge (`index.php`) que sobe para a raiz e carrega o CodeIgniter — necessário porque o host serve o diretório diretamente.
 
 ---
 
@@ -289,6 +303,31 @@ Carregado obrigatoriamente em todos os controllers admin. Funções principais:
 ### 7.4 `FbApi_model`
 
 Integração com Facebook Conversions API (eventos de pixel).
+
+### 7.5 `Whatsapp_model`
+
+Configuração e log do WhatsApp. Todos os métodos guardam por `table_exists`/`field_exists` — degradam sem quebrar quando a tabela não existe.
+
+| Função | Descrição |
+|--------|-----------|
+| `get_configuracao_ativa()` | Linha `whatsapp_config` com `status = 1` |
+| `salvar_configuracao($data)` | Upsert da conexão; zera as demais quando ativa uma |
+| `registrar_log($data)` | Insere linha em `whatsapp_notificacoes` |
+| `resolver_notificacao_webhook($wamid, $id_agendamento)` | Acha a notificação pelo `wamid` do template ou pelo `id_agendamento` |
+| `registrar_resposta_webhook($id_notificacao, $acao)` | Transição idempotente da resposta do paciente (transação + `FOR UPDATE`). Ignora só quando a ação nova = estado atual; troca `confirmado ⇄ cancelado` é permitida. Cancelar → `agendamentos.status = 3`; reconfirmar → volta a `0` se estava em `3`. Retorna `['ok', 'processado', 'notificacao', 'contexto']` |
+| `atualizar_status_envio_notificacao(...)` | Baixa status de entrega da Meta (sent/delivered/read/failed) |
+| `contar_envios_enviados_por_tenant($tenant_id)` | Quota de disparos (limite trial/free) |
+
+### 7.6 `Notificacoes_model`
+
+Avisos internos em `notificacoes_usuarios`. Também guarda por `table_exists`/`field_exists`.
+
+| Função | Descrição |
+|--------|-----------|
+| `criar_resposta_agendamento($contexto, $acao)` | Uma linha por destinatário (quem marcou + prestador, deduplicados por `utec_notificacoes_destinatarios_agendamento()`), via `INSERT IGNORE` |
+| `listar_nao_lidas($id_usuario, $limite = 8)` | Avisos não lidos do usuário, mais recentes primeiro |
+| `contar_nao_lidas($id_usuario)` | Contador do sino no topo |
+| `abrir_para_usuario($id, $id_usuario)` | Marca como lida se o destinatário confere; retorna a linha (com `url`) |
 
 ---
 
@@ -361,6 +400,19 @@ application/views/
 
 - Banco `chwtppbr_db` (local: `db2`, remoto: `dbbot`)
 - Usuários vinculados em `pi_whats_users`
+
+### 10.3.1 WhatsApp — Confirmação de Agendamento (Meta Cloud API)
+
+Fluxo próprio, independente do chatbot legado. Config em `adm/whatsapp`, tabela `whatsapp_config`.
+
+- **Disparo:** ao criar agendamento com o checkbox "Enviar confirmação pelo WhatsApp" marcado, `Whatsapp_agendamento::notificar_agendamento()` envia o template aprovado (com header de imagem + 2 botões quick-reply `confirmar_agendamento:{id}` / `cancelar_agendamento:{id}`) e grava `whatsapp_notificacoes`. Falha externa nunca bloqueia o salvamento.
+- **Limite trial/free:** `utec_whatsapp_politica_limite()` — 3 disparos por tenant sem assinatura ativa.
+- **Webhook** (`Webhooks.php`, rota `webhooks/whatsapp`): GET valida `verify_token`; POST valida assinatura HMAC (`X-Hub-Signature-256` vs `app_secret`). Extrai eventos com `utec_whatsapp_extrair_eventos_webhook()`:
+  - **status de entrega** → `atualizar_status_envio_notificacao()`
+  - **resposta de botão** → `registrar_resposta_webhook()` (idempotente). Na 1ª transição válida: cria os avisos internos (`Notificacoes_model::criar_resposta_agendamento()`) e responde ao paciente com mensagem de texto (`Whatsapp_agendamento::responder_interacao()`). Reentrega da Meta / clique repetido no mesmo botão = no-op. Trocar confirmar ⇄ cancelar depois é permitido.
+- **Exibição:** etiqueta "Confirmado / Cancelado via WhatsApp" na agenda (`adm/atendimento`, desktop + mobile) e linha no card do prontuário; sino de avisos não lidos no topo (`includes/adm/top.php` → `adm/notificacoes/abrir/{id}`).
+- **Arquivos-chave:** `application/libraries/Whatsapp_agendamento.php`, `application/helpers/whatsapp_agendamento_helper.php` (funções puras + testes em `tests/whatsapp_*`), `application/models/Whatsapp_model.php`, `application/models/Notificacoes_model.php`.
+- **Planos/specs:** `docs/superpowers/plans/2026-08-31-whatsapp-*.md` e `2026-08-31-respostas-whatsapp-notificacoes.md`.
 
 ### 10.4 Upload de Arquivos
 
@@ -479,6 +531,7 @@ Para novas migrações: adicionar método em `Dev.php`, proteger com `nivel == 1
 - [x] Cancelamento e remarcação direto na agenda
 - [x] Árvore de escopo de acesso por nível
 - [x] Upload de arquivos de pacientes
+- [x] Confirmação de agendamento via WhatsApp (template + webhook): paciente confirma/cancela pelo botão, sistema responde por texto, atualiza a agenda e gera avisos internos (ver 10.3.1)
 
 ### 15.2 Próximas Entregas (Prioridade Alta)
 
@@ -490,7 +543,7 @@ Para novas migrações: adicionar método em `Dev.php`, proteger com `nivel == 1
 
 - [ ] Tela de configuração comercial (credenciais MP + parâmetros SaaS por tenant)
 - [ ] Portal do cliente (tenant acompanha assinatura e faturas)
-- [ ] Notificações / lembretes de consulta via WhatsApp
+- [ ] Lembretes automáticos de consulta via WhatsApp (D-1 / mesmo dia) — a confirmação no ato do agendamento já existe (10.3.1)
 - [ ] Relatórios PDF de prontuário
 - [ ] Onboarding self-service (cadastro de clínica sem intervenção admin)
 - [ ] Controle de limites do plano em tempo real (max_profissionais, etc.)
