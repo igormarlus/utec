@@ -24,6 +24,7 @@ class Whatsapp extends CI_Controller {
         $dados['flash_ok'] = $this->session->flashdata('ok');
         $dados['flash_error'] = $this->session->flashdata('error');
         $dados['whatsapp_disponivel'] = utec_whatsapp_config_ativa($this->whatsapp_model->get_configuracao_ativa());
+        $dados['whatsapp_webhook_disponivel'] = trim((string)utec_whatsapp_read($this->whatsapp_model->get_configuracao_ativa(), 'app_secret', '')) !== '';
         $dados['whatsapp_log_tabela'] = $this->whatsapp_model->tabela_log_existe();
         $this->load->view('adm/whatsapp/index', $dados);
     }

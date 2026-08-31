@@ -105,7 +105,8 @@ class Whatsapp_model extends CI_Model {
             "SELECT COUNT(id) AS total
              FROM `{$this->log_table}`
              WHERE tenant_id = {$tenant_id}
-               AND status_envio = 'enviado'"
+               AND wamid <> ''
+               AND status_envio IN ('enviado', 'entregue', 'lido', 'erro', 'apagado')"
         );
 
         return $qr->num_rows() ? (int)$qr->row()->total : 0;
@@ -127,6 +128,112 @@ class Whatsapp_model extends CI_Model {
     {
         $used = $this->contar_envios_enviados_por_tenant($tenant_id);
         return utec_whatsapp_politica_limite($subscription_status, $used);
+    }
+
+    public function get_notificacao_por_wamid($wamid)
+    {
+        $wamid = trim((string)$wamid);
+        if ($wamid === '' || !$this->db->table_exists($this->log_table)) {
+            return null;
+        }
+
+        $qr = $this->db->query(
+            "SELECT * FROM `{$this->log_table}` WHERE wamid = ".$this->db->escape($wamid)." ORDER BY id DESC LIMIT 1"
+        );
+
+        return $qr->num_rows() ? $qr->row() : null;
+    }
+
+    public function get_notificacao_por_agendamento($id_agendamento)
+    {
+        $id_agendamento = (int)$id_agendamento;
+        if ($id_agendamento <= 0 || !$this->db->table_exists($this->log_table)) {
+            return null;
+        }
+
+        $qr = $this->db->query(
+            "SELECT * FROM `{$this->log_table}` WHERE id_agendamento = {$id_agendamento} ORDER BY id DESC LIMIT 1"
+        );
+
+        return $qr->num_rows() ? $qr->row() : null;
+    }
+
+    public function resolver_notificacao_webhook($wamid, $id_agendamento)
+    {
+        $wamid = trim((string)$wamid);
+        return $wamid !== '' ? $this->get_notificacao_por_wamid($wamid) : $this->get_notificacao_por_agendamento($id_agendamento);
+    }
+
+    public function atualizar_status_envio_notificacao($id, $status_meta, $erro_detalhe = '', $event_at = null)
+    {
+        $id = (int)$id;
+        $status_envio = utec_whatsapp_status_envio_meta($status_meta);
+        if ($id <= 0 || $status_envio === '' || !$this->db->table_exists($this->log_table)) {
+            return false;
+        }
+
+        $dados = $this->filtrar_colunas($this->log_table, [
+            'status_envio' => $status_envio,
+            'erro_detalhe' => trim((string)$erro_detalhe),
+            'status_atualizado_em' => $event_at,
+        ]);
+        if (empty($dados)) {
+            return false;
+        }
+
+        $this->db->where('id', $id);
+        if ($event_at && $this->db->field_exists('status_atualizado_em', $this->log_table)) {
+            $this->db->group_start();
+            $this->db->where('status_atualizado_em IS NULL', null, false);
+            $this->db->or_where('status_atualizado_em <=', $event_at);
+            $this->db->group_end();
+        }
+        return $this->db->update($this->log_table, $dados);
+    }
+
+    public function atualizar_confirmacao_notificacao($id, $status_confirmacao)
+    {
+        $id = (int)$id;
+        $status_confirmacao = trim((string)$status_confirmacao);
+        if ($id <= 0 || $status_confirmacao === '' || !$this->db->table_exists($this->log_table)) {
+            return false;
+        }
+
+        $dados = $this->filtrar_colunas($this->log_table, [
+            'status_confirmacao' => $status_confirmacao,
+            'respondido_em' => date('Y-m-d H:i:s'),
+        ]);
+        if (empty($dados)) {
+            return false;
+        }
+
+        $this->db->where('id', $id);
+        return $this->db->update($this->log_table, $dados);
+    }
+
+    public function cancelar_agendamento_por_webhook($id_agendamento)
+    {
+        $id_agendamento = (int)$id_agendamento;
+        if ($id_agendamento <= 0 || !$this->db->table_exists('agendamentos')) {
+            return false;
+        }
+
+        $this->db->where('id', $id_agendamento);
+        return $this->db->update('agendamentos', ['status' => 3]);
+    }
+
+    public function cancelar_notificacao_e_agendamento($id_notificacao, $id_agendamento)
+    {
+        $this->db->trans_begin();
+        $notificacaoAtualizada = $this->atualizar_confirmacao_notificacao($id_notificacao, 'cancelado');
+        $agendamentoCancelado = $notificacaoAtualizada && $this->cancelar_agendamento_por_webhook($id_agendamento);
+
+        if (!$notificacaoAtualizada || !$agendamentoCancelado || $this->db->trans_status() === false) {
+            $this->db->trans_rollback();
+            return false;
+        }
+
+        return $this->db->trans_commit();
     }
 
     public function tabela_log_existe()

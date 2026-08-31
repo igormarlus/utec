@@ -69,6 +69,7 @@ $route['acesso/senha/(:any)'] = 'home/definir_senha/$1';
 $route['acesso/senha']        = 'home/definir_senha';
 $route['acesso/salvar']       = 'home/salvar_senha';
 $route['webhooks/mercadopago'] = 'adm/saas/webhook_mercadopago';
+$route['webhooks/whatsapp'] = 'webhooks/whatsapp';
 $route['e/track'] = 'home/track_evento';
 
 // Marketing — Trafego de IA

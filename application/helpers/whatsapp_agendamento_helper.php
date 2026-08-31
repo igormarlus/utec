@@ -131,7 +131,7 @@ if (!function_exists('utec_whatsapp_resumo_envio')) {
         $sent = (bool)utec_whatsapp_read($resultado, 'sent', false);
 
         if ($sent) {
-            $message = 'WhatsApp enviado com sucesso.';
+            $message = 'Solicitacao WhatsApp aceita pela Meta. A entrega sera atualizada pelo webhook.';
             if ($wamid !== '') {
                 $message .= ' ID Meta: '.$wamid;
             }
@@ -165,6 +165,133 @@ if (!function_exists('utec_whatsapp_payload_botao')) {
         $acao = trim((string)$acao);
         $id_agendamento = (int)$id_agendamento;
         return $acao.'_agendamento:'.$id_agendamento;
+    }
+}
+
+if (!function_exists('utec_whatsapp_extrair_evento_webhook')) {
+    function utec_whatsapp_extrair_evento_webhook($payload)
+    {
+        $eventos = utec_whatsapp_extrair_eventos_webhook($payload);
+        return !empty($eventos) ? $eventos[0] : utec_whatsapp_evento_webhook_vazio();
+    }
+}
+
+if (!function_exists('utec_whatsapp_extrair_eventos_webhook')) {
+    function utec_whatsapp_extrair_eventos_webhook($payload)
+    {
+        $eventos = [];
+        $entries = isset($payload['entry']) && is_array($payload['entry']) ? $payload['entry'] : [];
+
+        foreach ($entries as $entry) {
+            $changes = isset($entry['changes']) && is_array($entry['changes']) ? $entry['changes'] : [];
+            foreach ($changes as $change) {
+                $value = isset($change['value']) && is_array($change['value']) ? $change['value'] : [];
+                $statuses = isset($value['statuses']) && is_array($value['statuses']) ? $value['statuses'] : [];
+                foreach ($statuses as $status) {
+                    $evento = utec_whatsapp_evento_webhook_vazio();
+                    $evento['wamid'] = trim((string)utec_whatsapp_read($status, 'id', ''));
+                    $evento['delivery_status'] = trim((string)utec_whatsapp_read($status, 'status', ''));
+                    $evento['event_at'] = utec_whatsapp_data_evento_webhook(utec_whatsapp_read($status, 'timestamp', ''));
+                    $evento['error_detail'] = utec_whatsapp_detalhe_erro_webhook(utec_whatsapp_read($status, 'errors', []));
+                    $eventos[] = $evento;
+                }
+
+                $messages = isset($value['messages']) && is_array($value['messages']) ? $value['messages'] : [];
+                foreach ($messages as $mensagem) {
+                    $buttonId = isset($mensagem['interactive']['button_reply']['id'])
+                        ? trim((string)$mensagem['interactive']['button_reply']['id'])
+                        : '';
+                    $evento = utec_whatsapp_evento_webhook_vazio();
+                    $evento['payload'] = $buttonId;
+                    $evento['wamid'] = isset($mensagem['context']['id']) ? trim((string)$mensagem['context']['id']) : '';
+                    $evento['event_at'] = utec_whatsapp_data_evento_webhook(utec_whatsapp_read($mensagem, 'timestamp', ''));
+
+                    if (preg_match('/^(confirmar|cancelar)_agendamento:(\d+)$/', $buttonId, $matches)) {
+                        $evento['action'] = $matches[1];
+                        $evento['id_agendamento'] = (int)$matches[2];
+                    }
+
+                    $eventos[] = $evento;
+                }
+            }
+        }
+
+        return $eventos;
+    }
+}
+
+if (!function_exists('utec_whatsapp_evento_webhook_vazio')) {
+    function utec_whatsapp_evento_webhook_vazio()
+    {
+        return [
+            'action' => '',
+            'id_agendamento' => 0,
+            'wamid' => '',
+            'payload' => '',
+            'delivery_status' => '',
+            'error_detail' => '',
+            'event_at' => null,
+        ];
+    }
+}
+
+if (!function_exists('utec_whatsapp_data_evento_webhook')) {
+    function utec_whatsapp_data_evento_webhook($timestamp)
+    {
+        $timestamp = trim((string)$timestamp);
+        return ctype_digit($timestamp) ? gmdate('Y-m-d H:i:s', (int)$timestamp) : null;
+    }
+}
+
+if (!function_exists('utec_whatsapp_detalhe_erro_webhook')) {
+    function utec_whatsapp_detalhe_erro_webhook($errors)
+    {
+        $error = isset($errors[0]) && is_array($errors[0]) ? $errors[0] : [];
+        if (empty($error)) {
+            return '';
+        }
+
+        $parts = [];
+        $code = trim((string)utec_whatsapp_read($error, 'code', ''));
+        $title = trim((string)utec_whatsapp_read($error, 'title', ''));
+        $message = trim((string)utec_whatsapp_read($error, 'message', ''));
+        $details = trim((string)utec_whatsapp_read(utec_whatsapp_read($error, 'error_data', []), 'details', ''));
+        if ($code !== '' || $title !== '') {
+            $parts[] = trim($code.($code !== '' && $title !== '' ? ': ' : '').$title);
+        }
+        if ($message !== '') {
+            $parts[] = $message;
+        }
+        if ($details !== '') {
+            $parts[] = $details;
+        }
+
+        return implode(' - ', $parts);
+    }
+}
+
+if (!function_exists('utec_whatsapp_status_envio_meta')) {
+    function utec_whatsapp_status_envio_meta($status)
+    {
+        $status = strtolower(trim((string)$status));
+        $map = [
+            'sent' => 'enviado',
+            'delivered' => 'entregue',
+            'read' => 'lido',
+            'failed' => 'erro',
+            'deleted' => 'apagado',
+        ];
+
+        return isset($map[$status]) ? $map[$status] : '';
+    }
+}
+
+if (!function_exists('utec_whatsapp_envio_consume_quota')) {
+    function utec_whatsapp_envio_consume_quota($status_envio, $wamid)
+    {
+        $status_envio = trim((string)$status_envio);
+        $wamid = trim((string)$wamid);
+        return $wamid !== '' && in_array($status_envio, ['enviado', 'entregue', 'lido', 'erro', 'apagado'], true);
     }
 }
 

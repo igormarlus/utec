@@ -67,6 +67,7 @@
             <? if($flash_ok){ ?><div class="alert alert-success"><?=htmlspecialchars($flash_ok)?></div><? } ?>
             <? if($flash_error){ ?><div class="alert alert-danger"><?=htmlspecialchars($flash_error)?></div><? } ?>
             <? if(!$whatsapp_disponivel){ ?><div class="alert alert-warning">A configuracao atual ainda nao esta pronta para disparar mensagens. Os agendamentos seguem funcionando normalmente.</div><? } ?>
+            <? if(!$whatsapp_webhook_disponivel){ ?><div class="alert alert-warning">Preencha o App Secret para registrar entrega, falhas e respostas dos botoes no webhook.</div><? } ?>
             <? if(!$whatsapp_log_tabela){ ?><div class="alert alert-warning">A tabela <code>whatsapp_notificacoes</code> ainda nao existe. O envio nao vai registrar auditoria ate essa tabela ser criada.</div><? } ?>
 
             <div class="wa-panel">
@@ -96,7 +97,7 @@
                   </div>
                   <div>
                     <label>App Secret</label>
-                    <input type="text" name="app_secret" class="form-control" value="<?=htmlspecialchars(isset($config->app_secret) ? $config->app_secret : '')?>">
+                    <input type="password" name="app_secret" class="form-control" value="<?=htmlspecialchars(isset($config->app_secret) ? $config->app_secret : '')?>" autocomplete="new-password">
                   </div>
                   <div>
                     <label>Verify Token</label>

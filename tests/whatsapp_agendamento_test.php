@@ -60,6 +60,7 @@ assertSameValue(false, $politicaSemAssinatura['allowed'], 'Tenant sem assinatura
 
 $resumoEnviado = utec_whatsapp_resumo_envio(['sent' => true, 'reason' => 'sent', 'wamid' => 'wamid.123']);
 assertSameValue('success', $resumoEnviado['type'], 'Envio com sucesso deve gerar alerta success.');
+assertSameValue('Solicitacao WhatsApp aceita pela Meta. A entrega sera atualizada pelo webhook. ID Meta: wamid.123', $resumoEnviado['message'], 'Mensagem de sucesso deve deixar claro que a entrega ainda sera confirmada.');
 
 $resumoErro = utec_whatsapp_resumo_envio(['sent' => false, 'reason' => 'api_error', 'error' => 'Template não encontrado']);
 assertSameValue('danger', $resumoErro['type'], 'Falha da API deve gerar alerta danger.');
