@@ -80,6 +80,92 @@ $botoesUtf8 = utec_whatsapp_payload_botoes('5581988887777', 'Consulta', 'Escolha
 ]]);
 assertSameValue(str_repeat($caractereUtf8, 20), $botoesUtf8['interactive']['action']['buttons'][0]['reply']['title'], 'Rotulo de botao deve respeitar UTF-8.');
 
+$secoesLimite = [];
+for ($indice = 0; $indice < 11; $indice++) {
+    $secoesLimite[] = [
+        'title' => str_repeat('S', 25),
+        'rows' => [[
+            'id' => 'chat:linha:'.$indice,
+            'title' => str_repeat('R', 25),
+            'description' => str_repeat('D', 73),
+        ]],
+    ];
+}
+$listaLimitada = utec_whatsapp_payload_lista('5581988887777', 'Titulo', 'Corpo', 'Abrir', $secoesLimite);
+assertSameValue(10, count($listaLimitada['interactive']['action']['sections']), 'Lista deve limitar secoes a dez.');
+$totalLinhas = 0;
+foreach ($listaLimitada['interactive']['action']['sections'] as $secaoLimitada) {
+    $totalLinhas += count($secaoLimitada['rows']);
+}
+assertSameValue(10, $totalLinhas, 'Lista deve limitar linhas totais a dez.');
+assertSameValue(str_repeat('S', 24), $listaLimitada['interactive']['action']['sections'][0]['title'], 'Titulo da secao deve limitar a 24 caracteres.');
+assertSameValue(str_repeat('R', 24), $listaLimitada['interactive']['action']['sections'][0]['rows'][0]['title'], 'Titulo da linha deve limitar a 24 caracteres.');
+assertSameValue(str_repeat('D', 72), $listaLimitada['interactive']['action']['sections'][0]['rows'][0]['description'], 'Descricao da linha deve limitar a 72 caracteres.');
+
+$secoesAposLimite = [];
+for ($indice = 0; $indice < 10; $indice++) {
+    $secoesAposLimite[] = ['rows' => [['id' => '', 'title' => 'Invalida']]];
+}
+$secoesAposLimite[] = ['rows' => [['id' => 'chat:fora-do-limite', 'title' => 'Ignorar']]];
+assertSameValue([], utec_whatsapp_payload_lista('5581988887777', 'Titulo', 'Corpo', 'Abrir', $secoesAposLimite), 'Lista deve ignorar secoes apos o limite de dez.');
+
+assertSameValue([], utec_whatsapp_payload_lista('5581988887777', '', 'Corpo', 'Abrir', $secoesLimite), 'Lista sem titulo deve permitir fallback.');
+assertSameValue([], utec_whatsapp_payload_lista('5581988887777', 'Titulo', '', 'Abrir', $secoesLimite), 'Lista sem corpo deve permitir fallback.');
+assertSameValue([], utec_whatsapp_payload_lista('5581988887777', 'Titulo', 'Corpo', '', $secoesLimite), 'Lista sem botao deve permitir fallback.');
+assertSameValue([], utec_whatsapp_payload_lista('5581988887777', 'Titulo', 'Corpo', 'Abrir', [[
+    'rows' => [['id' => str_repeat('x', 201), 'title' => 'Muito longo']],
+]]), 'Lista deve rejeitar id acima de 200 caracteres.');
+assertSameValue([], utec_whatsapp_payload_botoes('5581988887777', '', 'Corpo', [['id' => 'chat:ok', 'title' => 'Ok']]), 'Botoes sem titulo devem permitir fallback.');
+assertSameValue([], utec_whatsapp_payload_botoes('5581988887777', 'Titulo', '', [['id' => 'chat:ok', 'title' => 'Ok']]), 'Botoes sem corpo devem permitir fallback.');
+assertSameValue([], utec_whatsapp_payload_lista('5581988887777', 'Titulo', 'Corpo', 'Abrir', [[
+    'rows' => [['id' => [], 'title' => 'Invalido']],
+]]), 'Lista deve rejeitar id nao escalar.');
+assertSameValue([], utec_whatsapp_payload_botoes('5581988887777', 'Titulo', 'Corpo', [[
+    'id' => 'chat:invalido',
+    'title' => [],
+]]), 'Botoes devem rejeitar titulo nao escalar.');
+
+$warningsMeta = [];
+set_error_handler(function ($severity, $message) use (&$warningsMeta) {
+    $warningsMeta[] = $message;
+    return true;
+});
+$eventoMalformado = utec_whatsapp_extrair_evento_webhook([
+    'entry' => [[
+        'changes' => [[
+            'value' => ['messages' => [[
+                'id' => [],
+                'from' => [],
+                'type' => [],
+                'text' => ['body' => []],
+                'context' => ['id' => []],
+                'interactive' => [
+                    'list_reply' => ['id' => []],
+                    'button_reply' => ['id' => []],
+                ],
+                'button' => ['payload' => []],
+            ]]],
+        ]],
+    ]],
+]);
+restore_error_handler();
+assertSameValue([], $warningsMeta, 'Webhook malformado nao deve gerar warnings.');
+assertSameValue('', $eventoMalformado['message_id'], 'Id recebido como array deve ser ignorado.');
+assertSameValue('', $eventoMalformado['from'], 'Remetente recebido como array deve ser ignorado.');
+assertSameValue('', $eventoMalformado['message_type'], 'Tipo recebido como array deve ser ignorado.');
+assertSameValue('', $eventoMalformado['text'], 'Texto recebido como array deve ser ignorado.');
+assertSameValue('', $eventoMalformado['wamid'], 'Contexto recebido como array deve ser ignorado.');
+assertSameValue('', $eventoMalformado['payload'], 'Botoes recebidos como array devem ser ignorados.');
+assertSameValue('', $eventoMalformado['action'], 'Evento malformado nao deve executar acao.');
+assertSameValue(0, $eventoMalformado['id_agendamento'], 'Evento malformado nao deve apontar agendamento.');
+
+$arquivoFallbackUnicode = tempnam(sys_get_temp_dir(), 'utec-whatsapp-');
+$codigoFallbackUnicode = '<?php define("BASEPATH", 1); require '.var_export(realpath(__DIR__ . '/../application/helpers/whatsapp_agendamento_helper.php'), true).'; echo utec_whatsapp_truncar_texto("\\xC3\\xA1\\xC3\\xA1", 1);';
+file_put_contents($arquivoFallbackUnicode, $codigoFallbackUnicode);
+$saidaFallbackUnicode = shell_exec(escapeshellarg(PHP_BINARY).' -n '.escapeshellarg($arquivoFallbackUnicode));
+unlink($arquivoFallbackUnicode);
+assertSameValue("\xC3\xA1", $saidaFallbackUnicode, 'Fallback sem mbstring deve preservar UTF-8.');
+
 $legado = utec_whatsapp_extrair_evento_webhook([
     'entry' => [[
         'changes' => [[

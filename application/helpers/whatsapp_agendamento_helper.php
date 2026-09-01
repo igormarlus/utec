@@ -206,11 +206,38 @@ if (!function_exists('utec_whatsapp_truncar_texto')) {
         $texto = (string)$texto;
         $limite = (int)$limite;
 
+        if ($texto === '' || $limite <= 0) {
+            return '';
+        }
+
         if (function_exists('mb_substr')) {
             return mb_substr($texto, 0, $limite, 'UTF-8');
         }
 
-        return substr($texto, 0, $limite);
+        if (function_exists('iconv_substr')) {
+            $truncado = @iconv_substr($texto, 0, $limite, 'UTF-8');
+            if ($truncado !== false) {
+                return $truncado;
+            }
+        }
+
+        if (@preg_match('//u', $texto) !== 1) {
+            return '';
+        }
+
+        $caracteres = preg_split('//u', $texto, -1, PREG_SPLIT_NO_EMPTY);
+        return is_array($caracteres) ? implode('', array_slice($caracteres, 0, $limite)) : '';
+    }
+}
+
+if (!function_exists('utec_whatsapp_texto_scalar')) {
+    function utec_whatsapp_texto_scalar($valor)
+    {
+        if (!is_scalar($valor) && $valor !== null) {
+            return '';
+        }
+
+        return trim((string)$valor);
     }
 }
 
@@ -219,24 +246,42 @@ if (!function_exists('utec_whatsapp_payload_lista')) {
     {
         $sections = [];
         $secoes = is_array($secoes) ? $secoes : [];
+        $secoes = array_slice($secoes, 0, 10);
+        $titulo = utec_whatsapp_truncar_texto(utec_whatsapp_texto_scalar($titulo), 60);
+        $corpo = utec_whatsapp_truncar_texto(utec_whatsapp_texto_scalar($corpo), 1024);
+        $texto_botao = utec_whatsapp_truncar_texto(utec_whatsapp_texto_scalar($texto_botao), 20);
+        if ($titulo === '' || $corpo === '' || $texto_botao === '') {
+            return [];
+        }
+
+        $totalLinhas = 0;
 
         foreach ($secoes as $secao) {
+            if (count($sections) >= 10 || $totalLinhas >= 10) {
+                break;
+            }
+
             $rows = [];
             $itens = utec_whatsapp_read($secao, 'rows', []);
             $itens = is_array($itens) ? $itens : [];
             foreach ($itens as $item) {
-                $id = trim((string)utec_whatsapp_read($item, 'id', ''));
-                $tituloItem = trim((string)utec_whatsapp_read($item, 'title', ''));
-                if ($id === '' || $tituloItem === '') {
+                if ($totalLinhas >= 10) {
+                    break;
+                }
+
+                $id = utec_whatsapp_texto_scalar(utec_whatsapp_read($item, 'id', ''));
+                $tituloItem = utec_whatsapp_truncar_texto(utec_whatsapp_texto_scalar(utec_whatsapp_read($item, 'title', '')), 24);
+                if ($id === '' || strlen($id) > 200 || $tituloItem === '') {
                     continue;
                 }
 
                 $row = ['id' => $id, 'title' => $tituloItem];
-                $descricao = trim((string)utec_whatsapp_read($item, 'description', ''));
+                $descricao = utec_whatsapp_truncar_texto(utec_whatsapp_texto_scalar(utec_whatsapp_read($item, 'description', '')), 72);
                 if ($descricao !== '') {
                     $row['description'] = $descricao;
                 }
                 $rows[] = $row;
+                $totalLinhas++;
             }
 
             if (empty($rows)) {
@@ -244,7 +289,7 @@ if (!function_exists('utec_whatsapp_payload_lista')) {
             }
 
             $section = ['rows' => $rows];
-            $tituloSecao = trim((string)utec_whatsapp_read($secao, 'title', ''));
+            $tituloSecao = utec_whatsapp_truncar_texto(utec_whatsapp_texto_scalar(utec_whatsapp_read($secao, 'title', '')), 24);
             if ($tituloSecao !== '') {
                 $section['title'] = $tituloSecao;
             }
@@ -257,16 +302,13 @@ if (!function_exists('utec_whatsapp_payload_lista')) {
 
         $interactive = [
             'type' => 'list',
-            'body' => ['text' => utec_whatsapp_truncar_texto(trim((string)$corpo), 1024)],
+            'body' => ['text' => $corpo],
             'action' => [
-                'button' => utec_whatsapp_truncar_texto(trim((string)$texto_botao), 20),
+                'button' => $texto_botao,
                 'sections' => $sections,
             ],
         ];
-        $titulo = utec_whatsapp_truncar_texto(trim((string)$titulo), 60);
-        if ($titulo !== '') {
-            $interactive['header'] = ['type' => 'text', 'text' => $titulo];
-        }
+        $interactive['header'] = ['type' => 'text', 'text' => $titulo];
 
         return [
             'messaging_product' => 'whatsapp',
@@ -283,10 +325,15 @@ if (!function_exists('utec_whatsapp_payload_botoes')) {
     {
         $buttons = [];
         $botoes = is_array($botoes) ? $botoes : [];
+        $titulo = utec_whatsapp_truncar_texto(utec_whatsapp_texto_scalar($titulo), 60);
+        $corpo = utec_whatsapp_truncar_texto(utec_whatsapp_texto_scalar($corpo), 1024);
+        if ($titulo === '' || $corpo === '') {
+            return [];
+        }
 
         foreach ($botoes as $botao) {
-            $id = trim((string)utec_whatsapp_read($botao, 'id', ''));
-            $tituloBotao = trim((string)utec_whatsapp_read($botao, 'title', ''));
+            $id = utec_whatsapp_texto_scalar(utec_whatsapp_read($botao, 'id', ''));
+            $tituloBotao = utec_whatsapp_truncar_texto(utec_whatsapp_texto_scalar(utec_whatsapp_read($botao, 'title', '')), 20);
             if ($id === '' || $tituloBotao === '') {
                 continue;
             }
@@ -309,13 +356,10 @@ if (!function_exists('utec_whatsapp_payload_botoes')) {
 
         $interactive = [
             'type' => 'button',
-            'body' => ['text' => utec_whatsapp_truncar_texto(trim((string)$corpo), 1024)],
+            'body' => ['text' => $corpo],
             'action' => ['buttons' => $buttons],
         ];
-        $titulo = utec_whatsapp_truncar_texto(trim((string)$titulo), 60);
-        if ($titulo !== '') {
-            $interactive['header'] = ['type' => 'text', 'text' => $titulo];
-        }
+        $interactive['header'] = ['type' => 'text', 'text' => $titulo];
 
         return [
             'messaging_product' => 'whatsapp',
@@ -416,8 +460,8 @@ if (!function_exists('utec_whatsapp_extrair_eventos_webhook')) {
                 $statuses = isset($value['statuses']) && is_array($value['statuses']) ? $value['statuses'] : [];
                 foreach ($statuses as $status) {
                     $evento = utec_whatsapp_evento_webhook_vazio();
-                    $evento['wamid'] = trim((string)utec_whatsapp_read($status, 'id', ''));
-                    $evento['delivery_status'] = trim((string)utec_whatsapp_read($status, 'status', ''));
+                    $evento['wamid'] = utec_whatsapp_texto_scalar(utec_whatsapp_read($status, 'id', ''));
+                    $evento['delivery_status'] = utec_whatsapp_texto_scalar(utec_whatsapp_read($status, 'status', ''));
                     $evento['event_at'] = utec_whatsapp_data_evento_webhook(utec_whatsapp_read($status, 'timestamp', ''));
                     $evento['error_detail'] = utec_whatsapp_detalhe_erro_webhook(utec_whatsapp_read($status, 'errors', []));
                     $eventos[] = $evento;
@@ -425,22 +469,33 @@ if (!function_exists('utec_whatsapp_extrair_eventos_webhook')) {
 
                 $messages = isset($value['messages']) && is_array($value['messages']) ? $value['messages'] : [];
                 foreach ($messages as $mensagem) {
-                    $buttonId = isset($mensagem['interactive']['list_reply']['id'])
-                        ? trim((string)$mensagem['interactive']['list_reply']['id'])
-                        : '';
-                    if ($buttonId === '' && isset($mensagem['interactive']['button_reply']['id'])) {
-                        $buttonId = trim((string)$mensagem['interactive']['button_reply']['id']);
+                    $interactive = utec_whatsapp_read($mensagem, 'interactive', []);
+                    $interactive = is_array($interactive) ? $interactive : [];
+                    $listReply = utec_whatsapp_read($interactive, 'list_reply', []);
+                    $listReply = is_array($listReply) ? $listReply : [];
+                    $buttonReply = utec_whatsapp_read($interactive, 'button_reply', []);
+                    $buttonReply = is_array($buttonReply) ? $buttonReply : [];
+                    $button = utec_whatsapp_read($mensagem, 'button', []);
+                    $button = is_array($button) ? $button : [];
+                    $context = utec_whatsapp_read($mensagem, 'context', []);
+                    $context = is_array($context) ? $context : [];
+                    $text = utec_whatsapp_read($mensagem, 'text', []);
+                    $text = is_array($text) ? $text : [];
+
+                    $buttonId = utec_whatsapp_texto_scalar(utec_whatsapp_read($listReply, 'id', ''));
+                    if ($buttonId === '') {
+                        $buttonId = utec_whatsapp_texto_scalar(utec_whatsapp_read($buttonReply, 'id', ''));
                     }
-                    if ($buttonId === '' && isset($mensagem['button']['payload'])) {
-                        $buttonId = trim((string)$mensagem['button']['payload']);
+                    if ($buttonId === '') {
+                        $buttonId = utec_whatsapp_texto_scalar(utec_whatsapp_read($button, 'payload', ''));
                     }
                     $evento = utec_whatsapp_evento_webhook_vazio();
                     $evento['payload'] = $buttonId;
-                    $evento['wamid'] = isset($mensagem['context']['id']) ? trim((string)$mensagem['context']['id']) : '';
-                    $evento['message_id'] = trim((string)utec_whatsapp_read($mensagem, 'id', ''));
-                    $evento['from'] = trim((string)utec_whatsapp_read($mensagem, 'from', ''));
-                    $evento['message_type'] = trim((string)utec_whatsapp_read($mensagem, 'type', ''));
-                    $evento['text'] = isset($mensagem['text']['body']) ? trim((string)$mensagem['text']['body']) : '';
+                    $evento['wamid'] = utec_whatsapp_texto_scalar(utec_whatsapp_read($context, 'id', ''));
+                    $evento['message_id'] = utec_whatsapp_texto_scalar(utec_whatsapp_read($mensagem, 'id', ''));
+                    $evento['from'] = utec_whatsapp_texto_scalar(utec_whatsapp_read($mensagem, 'from', ''));
+                    $evento['message_type'] = utec_whatsapp_texto_scalar(utec_whatsapp_read($mensagem, 'type', ''));
+                    $evento['text'] = utec_whatsapp_texto_scalar(utec_whatsapp_read($text, 'body', ''));
                     $evento['event_at'] = utec_whatsapp_data_evento_webhook(utec_whatsapp_read($mensagem, 'timestamp', ''));
 
                     if (preg_match('/^(confirmar|cancelar)_agendamento:(\d+)$/', $buttonId, $matches)) {
@@ -479,7 +534,7 @@ if (!function_exists('utec_whatsapp_evento_webhook_vazio')) {
 if (!function_exists('utec_whatsapp_data_evento_webhook')) {
     function utec_whatsapp_data_evento_webhook($timestamp)
     {
-        $timestamp = trim((string)$timestamp);
+        $timestamp = utec_whatsapp_texto_scalar($timestamp);
         return ctype_digit($timestamp) ? gmdate('Y-m-d H:i:s', (int)$timestamp) : null;
     }
 }
@@ -493,10 +548,10 @@ if (!function_exists('utec_whatsapp_detalhe_erro_webhook')) {
         }
 
         $parts = [];
-        $code = trim((string)utec_whatsapp_read($error, 'code', ''));
-        $title = trim((string)utec_whatsapp_read($error, 'title', ''));
-        $message = trim((string)utec_whatsapp_read($error, 'message', ''));
-        $details = trim((string)utec_whatsapp_read(utec_whatsapp_read($error, 'error_data', []), 'details', ''));
+        $code = utec_whatsapp_texto_scalar(utec_whatsapp_read($error, 'code', ''));
+        $title = utec_whatsapp_texto_scalar(utec_whatsapp_read($error, 'title', ''));
+        $message = utec_whatsapp_texto_scalar(utec_whatsapp_read($error, 'message', ''));
+        $details = utec_whatsapp_texto_scalar(utec_whatsapp_read(utec_whatsapp_read($error, 'error_data', []), 'details', ''));
         if ($code !== '' || $title !== '') {
             $parts[] = trim($code.($code !== '' && $title !== '' ? ': ' : '').$title);
         }
