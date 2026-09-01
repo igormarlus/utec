@@ -10,8 +10,10 @@ que procuram **confirmar, lembrar e notificar agendamentos por WhatsApp**, usand
 confirmação/lembrete de agendamento do UTecnologia Saúde como isca para o trial de 30 dias.
 
 É a primeira rodada de um tema novo (não é especialidade nem comparativo). Escopo desta rodada:
-**1 landing dedicada + 3 artigos de blog** (o 3º artigo é opcional / corte natural se houver
-pouco fôlego editorial).
+**1 landing dedicada + 7 artigos de blog** formando um cluster de conteúdo (hub = landing).
+Mais 2 artigos ficam documentados como "próxima leva". A nova landing entra no menu principal
+e no rodapé do site; os artigos entram no `sitemap-blog.xml` (o `/blog` já lista os posts do
+banco automaticamente).
 
 ## 2. Critério de sucesso
 
@@ -100,7 +102,8 @@ esta é uma jogada de isca de recurso, não disputa com vendor de chatbot.
 
 ## 5. Decisão estratégica
 
-Publicar **1 landing** + **cluster de 3 artigos** que alimentam a landing.
+Publicar **1 landing** + **cluster de 7 artigos** que alimentam a landing (2 extras documentados
+para a próxima leva).
 
 - Confirmação (no agendamento) e lembrete (cron D-1 / mesmo dia) são **a mesma feature e a mesma
   intenção de compra** → **uma única URL**, com H1/title cobrindo os dois termos. Não se cria
@@ -108,6 +111,10 @@ Publicar **1 landing** + **cluster de 3 artigos** que alimentam a landing.
 - `sistema-de-agendamento-com-whatsapp` teve sinal de compra mais forte, mas induz a leitura
   "paciente agenda sozinho pelo WhatsApp", que **não** é o recurso. Fica como termo secundário
   trabalhado no corpo e no `<title>`, não como slug.
+- Os artigos são um cluster editorial: todos linkam para a landing (hub) e entre si. Cada um
+  ataca uma variação de busca distinta confirmada na pesquisa (seção 4) — sem canibalização,
+  porque a intenção de cada slug é diferente (modelo vs quando enviar vs passo a passo vs
+  decisão vs no-show vs odontologia).
 
 ## 6. Arquitetura de arquivos
 
@@ -118,13 +125,15 @@ Segue o padrão já consolidado do projeto (idêntico às 22 landings SEO existe
 | `application/config/routes.php` | Modificar | Nova rota `confirmacao-de-consulta-por-whatsapp` → `home/seo_confirmacao_whatsapp`, no bloco de rotas `seo_*` |
 | `application/controllers/Home.php` | Modificar | Novo método `seo_confirmacao_whatsapp()` — só `$this->load->view('public/seo/confirmacao-de-consulta-por-whatsapp')` |
 | `application/views/public/seo/confirmacao-de-consulta-por-whatsapp.php` | Criar | Nova landing, base visual copiada de `sistema-para-medicina-do-trabalho.php` |
-| `docs/seo-geo-blog-whatsapp-confirmacao-2026-08-31.sql` | Criar | Seed com os 3 artigos (`INSERT INTO blog_posts`, mesmas colunas de `docs/blog-posts-seed.sql`), `id_categoria` = 1 com aviso para conferir |
+| `docs/seo-geo-blog-whatsapp-confirmacao-2026-08-31.sql` | Criar | Seed com os 7 artigos (`INSERT INTO blog_posts`, mesmas colunas de `docs/blog-posts-seed.sql`), `id_categoria` = 1 com aviso para conferir |
+| `application/views/index-front.php` | Modificar | (a) novo item no dropdown "Sistema" do header apontando para a landing; (b) novo link na coluna "Recursos" do rodapé |
 | `sitemap.xml` | Modificar | Nova `<url>` da landing — `changefreq monthly`, `priority 0.8`, `lastmod 2026-08-31` |
-| `sitemap-blog.xml` | Modificar | 3 novas `<url>` dos slugs de blog |
+| `sitemap-blog.xml` | Modificar | 7 novas `<url>` dos slugs de blog — `changefreq monthly`, `priority 0.6`, `lastmod 2026-08-31` |
 | `sitemap-index.xml` | Modificar | Atualizar `lastmod` dos dois blocos `<sitemap>` para `2026-08-31` |
 
 Rota de blog já existente: `$route['blog/(:any)'] = 'blog/post/$1'` — os artigos ficam
-acessíveis em `/blog/{slug}` assim que o SQL for aplicado. Nenhuma rota nova de blog é necessária.
+acessíveis em `/blog/{slug}` assim que o SQL for aplicado. Nenhuma rota nova de blog é necessária,
+e o índice `/blog` já lista os posts do banco automaticamente (nenhum menu de blog manual).
 
 ## 7. Anatomia da landing
 
@@ -155,24 +164,41 @@ mesma `topnav`, mesmo `footer`, gtag). Blocos:
    honestas** (ver seção 9). Ex.: "Precisa do WhatsApp Business API?"; "O paciente consegue
    reagendar pelo WhatsApp?"; "Funciona com o meu número atual?"; "Quantas mensagens posso
    enviar no teste?"; "Isso é um chatbot de atendimento?".
-8. **CTA final** (`cta-wrap`) + **footer** com links internos (seção 10).
+8. **Bloco "Leia também"** com 3–4 artigos do cluster + **CTA final** (`cta-wrap`) + **footer**
+   com links internos (seção 10).
 9. **3 blocos JSON-LD** — `SoftwareApplication` (url da landing, `offers` R$ 79/BRL),
    `BreadcrumbList` (Início → Sistema para Clínicas → Confirmação por WhatsApp),
    `FAQPage` (mesmas perguntas do HTML).
 
-## 8. Os 3 artigos de blog
+## 8. Os artigos de blog
 
 Todos: ~700–900 palavras, HTML em `conteudo`, `autor` "UTecnologia Saúde", `publicado` = 1,
-`id_categoria` = 1 (conferir), pelo menos 1 link interno para a landing
-`/confirmacao-de-consulta-por-whatsapp` e 1 para `/experimentar`.
+`id_categoria` = 1 (conferir antes de importar), `tempo_leitura` coerente (5–7),
+`criado_em` / `publicado_em` = `2026-08-31`. Cada artigo tem pelo menos 1 link interno para a
+landing `/confirmacao-de-consulta-por-whatsapp` e 1 para `/experimentar`, mais links cruzados
+entre os artigos do cluster.
+
+### 8.1 Rodada atual (7 artigos)
 
 | # | Slug | Título | Ângulo / estrutura | Cluster-alvo |
 |---|---|---|---|---|
-| 1 | `modelo-de-mensagem-de-confirmacao-de-consulta-whatsapp` | Modelos de mensagem de confirmação de consulta para WhatsApp | Introdução curta + blocos de modelos prontos para copiar (consulta médica, retorno, odontologia, exame, primeira consulta), boas práticas de horário/tom, e um bloco "como automatizar isso" que leva à landing | `mensagem de confirmação de consulta` (+ modelo, whatsapp, odontológica, médica) |
-| 2 | `mensagem-de-lembrete-de-consulta-quando-enviar` | Mensagem de lembrete de consulta: modelos e quando enviar | Diferença entre lembrete e confirmação; janelas recomendadas (D-1, manhã do dia); modelos prontos; erros comuns (enviar cedo demais, sem opção de resposta); bloco de automação → landing | `lembrete de consulta` + `mensagem de lembrete de consulta` |
-| 3 *(opcional)* | `confirmacao-de-consulta-manual-ou-automatica` | Confirmação de consulta: fazer manual pelo WhatsApp ou automatizar? | Artigo-ponte de decisão: custo do processo manual (tempo da recepção, esquecimento, falta), quando o volume justifica automatizar, o que muda com botão de resposta que atualiza a agenda; CTA forte para trial | objeção comercial ("reduzir faltas" no corpo, sem virar slug) |
+| 1 | `modelo-de-mensagem-de-confirmacao-de-consulta-whatsapp` | Modelos de mensagem de confirmação de consulta para WhatsApp | Blocos de modelos prontos para copiar (consulta médica, retorno, exame, 1ª consulta), boas práticas de horário/tom, bloco "como automatizar" → landing | `mensagem de confirmação de consulta` (+ modelo, whatsapp, médica) |
+| 2 | `mensagem-de-lembrete-de-consulta-quando-enviar` | Mensagem de lembrete de consulta: modelos e quando enviar | Diferença lembrete × confirmação; janelas (D-1, manhã do dia); modelos; erros comuns; bloco de automação → landing | `lembrete de consulta` + `mensagem de lembrete de consulta` |
+| 3 | `como-fazer-mensagem-de-confirmacao-de-consulta-no-whatsapp` | Como montar a mensagem de confirmação de consulta no WhatsApp: passo a passo | Tutorial: dados que não podem faltar, tom, opção de resposta (sim/não), o que muda com WhatsApp Business API e template aprovado; ao final, "ou deixe o sistema fazer" → landing | `como fazer mensagem de confirmação de consulta no whatsapp` |
+| 4 | `confirmacao-de-consulta-manual-ou-automatica` | Confirmação de consulta: manual pelo WhatsApp ou automática? | Ponte de decisão: custo do processo manual (tempo da recepção, esquecimento), quando o volume justifica automatizar, o que muda com botão que atualiza a agenda; CTA forte para trial | objeção comercial |
+| 5 | `como-reduzir-faltas-de-pacientes-no-consultorio` | Como reduzir faltas de pacientes no consultório | Lista de 6–7 práticas (confirmação ativa, lembrete D-1, política de remarcação, lista de espera, horário realista); lembrete automático como uma das práticas → landing | "reduzir faltas" / "no-show" (só corpo — sem sinal de autocomplete) |
+| 6 | `o-que-fazer-quando-paciente-nao-confirma-consulta` | O que fazer quando o paciente não confirma a consulta | Fluxo prático: prazo-limite de confirmação, mensagem de cobrança, quando liberar o horário, lista de espera; como o sistema marca "não confirmado" | `mensagem de não confirmação de consulta` / `confirmação de presença consulta` |
+| 7 | `mensagem-de-confirmacao-de-consulta-odontologica` | Mensagem de confirmação de consulta odontológica: modelos e rotina | Modelos específicos (avaliação, retorno, procedimento, manutenção de aparelho), rotina da recepção do consultório odontológico; link para `sistema-para-dentistas` e para a landing | `mensagem de confirmação de consulta odontológica` + `lembrete de consulta odontológica` |
 
-Se cortar o #3: publicar só 1 e 2 e ajustar `sitemap-blog.xml` e o `.sql` para 2 registros.
+### 8.2 Próxima leva (documentado, fora desta rodada)
+
+| Slug | Título | Cluster-alvo |
+|---|---|---|
+| `enviar-mensagem-para-paciente-whatsapp-lgpd` | Enviar mensagem para paciente pelo WhatsApp: o que a LGPD exige | consentimento / opt-out / base legal — alto valor de confiança e citação por IA |
+| `sistema-de-agendamento-com-whatsapp-o-que-da-para-automatizar` | WhatsApp na agenda da clínica: o que dá (e o que não dá) para automatizar | `sistema de agendamento com whatsapp` (+ integrado ao whatsapp) — expectativa realista |
+
+O usuário pode promover qualquer um dos 2 para a rodada atual ou cortar itens de 8.1. Se o número
+de artigos mudar, ajustar em conjunto o `.sql` e o `sitemap-blog.xml`.
 
 ## 9. Posicionamento e honestidade
 
@@ -195,31 +221,66 @@ Se cortar o #3: publicar só 1 e 2 e ajustar `sitemap-blog.xml` e o `.sql` para 
 - envio no teste limitado pela política atual (3 disparos por tenant sem assinatura ativa);
 - template precisa seguir os modelos aprovados pela Meta (não é texto 100% livre no disparo).
 
-**Gate de publicação:** a landing e os artigos podem ser escritos e revisados agora, mas a
-**entrada nos sitemaps e a divulgação só acontecem quando o cron de lembrete estiver no ar**.
-Até lá, as afirmações de "lembrete automático D-1" descrevem recurso ainda não publicado.
-Alternativa aceita pelo usuário: seguir com C+B assumindo a entrega próxima.
+**Gate de publicação:** a landing, os artigos, o item de menu e o link de rodapé podem ser
+escritos/aplicados agora, mas **a entrada nos sitemaps, o item no menu principal e a divulgação
+só ficam ativos quando o cron de lembrete estiver no ar** — os três tornam a página descoberta
+por usuário/robô e não devem prometer o lembrete automático antes de ele existir. Até lá a rota
+funciona (acesso direto por URL) para revisão interna. Alternativa aceita pelo usuário: seguir
+com C+B assumindo a entrega próxima do cron.
 
-## 10. Interlinking
+Operacionalmente: o plano de implementação pode deixar as mudanças de `index-front.php` e dos
+sitemaps como um último passo separado ("publicar"), aplicado só na virada de chave.
+
+## 10. Interlinking e menus do site
+
+### 10.1 Menu principal e rodapé (`application/views/index-front.php`)
+
+- **Header — dropdown "Sistema"** (`<div class="nav-item">` cujo `nav-dropdown` começa por
+  "Para clínicas"): adicionar uma entrada **antes** de `<div class="nav-divider"></div>`, no
+  mesmo formato dos itens existentes:
+  ```php
+  <a href="<?=base_url()?>confirmacao-de-consulta-por-whatsapp">
+      <span class="dd-icon">📲</span>
+      <span class="dd-text"><span class="dd-label">Confirmação por WhatsApp</span><span class="dd-desc">Lembrete e confirmação de consulta</span></span>
+  </a>
+  ```
+- **Rodapé — coluna "Recursos"** (`<div class="footer-col">` com título "Recursos"): adicionar
+  `<a href="<?=base_url()?>confirmacao-de-consulta-por-whatsapp">Confirmação por WhatsApp</a>`
+  logo após "Software para Médicos".
+- O menu mobile do site reaproveita os mesmos links do header (não há lista separada a manter).
+- Os **artigos** não entram em menu — `/blog` já lista os posts do banco. Só entram no
+  `sitemap-blog.xml`.
+
+### 10.2 Ligações da landing
 
 - **Landing → trial:** CTA do hero, CTA final, botão da nav.
 - **Landing → landings de decisão:** footer com links para `sistema-para-clinicas`,
   `sistema-para-clinica-medica`, `sistema-para-dentistas` (odontologia teve sinal forte no
   cluster), `sistema-prontuario-eletronico`.
+- **Landing → artigos:** um bloco "Leia também" no fim da landing com 3–4 dos artigos do cluster.
+
+### 10.3 Ligações dos artigos
+
 - **Artigos → landing:** cada artigo com 1–2 âncoras para `/confirmacao-de-consulta-por-whatsapp`
   no bloco de automação.
-- **Artigos entre si:** #1 ↔ #2 (confirmação vs lembrete), #3 puxa #1 e #2.
-- **Landings existentes → nova landing (fase seguinte, fora desta rodada):** avaliar um link em
-  `sistema-para-clinicas` e `sistema-para-dentistas` depois que a página provar tração.
+- **Artigos entre si:** #1 ↔ #2 (confirmação × lembrete); #3 puxa #1; #4 puxa #1, #2 e #5;
+  #5 ↔ #6; #7 puxa #1 e linka `sistema-para-dentistas`.
+
+### 10.4 Fase seguinte (fora desta rodada)
+
+- Avaliar um link para a nova landing dentro de `sistema-para-clinicas` e `sistema-para-dentistas`
+  depois que a página provar tração.
 
 ## 11. Validação
 
 Sem suíte automatizada para páginas públicas — mesma abordagem das rodadas SEO anteriores:
 
-- `php -l` em `routes.php`, `Home.php` e na nova view;
-- inspeção visual do `.sql` (um `INSERT`, N blocos `(...)`, vírgula entre itens, `;` só no último);
+- `php -l` em `routes.php`, `Home.php`, `index-front.php` e na nova view;
+- inspeção visual do `.sql` (um `INSERT`, 7 blocos `(...)`, vírgula entre itens, `;` só no último);
 - smoke test manual: abrir `http://localhost/utec/confirmacao-de-consulta-por-whatsapp` e conferir
   `title`, H1, CTA, FAQ expandindo, 3 blocos JSON-LD no HTML final;
+- smoke test do menu: abrir `http://localhost/utec/` e conferir o novo item no dropdown "Sistema"
+  e o link no rodapé apontando para a landing;
 - `Get-Content -Raw` nos 3 XML de sitemap: continua bem formado, URLs novas aparecem 1x,
   `lastmod 2026-08-31` só nas entradas desta rodada;
 - revisão de diff.
@@ -247,9 +308,9 @@ Sem suíte automatizada para páginas públicas — mesma abordagem das rodadas 
 
 1. Rota + método no `Home.php` (`php -l`).
 2. View da landing a partir da base de `sistema-para-medicina-do-trabalho.php` (`php -l`, smoke test).
-3. `.sql` com os 3 artigos (revisão visual).
-4. Sitemaps (`sitemap.xml`, `sitemap-blog.xml`, `sitemap-index.xml`) — **só quando o cron estiver
-   pronto para ir ao ar**, ou conforme decisão do usuário de antecipar.
-5. Atualizar `docs/seo-geo-agente-ledger.md`: nova frente de conteúdo, keywords testadas nesta
+3. `.sql` com os 7 artigos (revisão visual).
+4. Atualizar `docs/seo-geo-agente-ledger.md`: nova frente de conteúdo, keywords testadas nesta
    rodada, e nota para auditar concorrentes de "agendamento com whatsapp".
+5. **Passo "publicar" (só na virada de chave com o cron no ar):** item no dropdown "Sistema" e
+   link no rodapé de `index-front.php`; `sitemap.xml`, `sitemap-blog.xml`, `sitemap-index.xml`.
 6. Revisão do usuário → `git add` / `commit` (feito pelo usuário ou sob pedido explícito).
