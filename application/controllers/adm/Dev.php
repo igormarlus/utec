@@ -387,6 +387,43 @@ class Dev extends CI_Controller {
 		echo '</ul>';
 	}
 
+	function migrar_lembrete_whatsapp(){
+		if($this->session->userdata('nivel') != 1){
+			show_error('Acesso negado.', 403); return;
+		}
+		$logs = [];
+		$tabela = 'whatsapp_notificacoes';
+
+		if(!$this->db->table_exists($tabela)){
+			$logs[] = "❌ Tabela <strong>$tabela</strong> nao existe. Crie o fluxo de confirmacao antes.";
+		} else {
+			if(!$this->db->field_exists('tipo_notificacao', $tabela)){
+				if($this->db->query("ALTER TABLE `$tabela` ADD COLUMN `tipo_notificacao` VARCHAR(30) NOT NULL DEFAULT 'confirmacao'")){
+					$logs[] = "✅ Coluna <strong>tipo_notificacao</strong> adicionada.";
+				} else {
+					$logs[] = "❌ Erro ao adicionar tipo_notificacao: ".$this->db->error()['message'];
+				}
+			} else {
+				$logs[] = "⚠️ Coluna <strong>tipo_notificacao</strong> ja existe.";
+			}
+
+			$temIndice = $this->db->query("SHOW INDEX FROM `$tabela` WHERE Key_name = 'idx_wn_agendamento_tipo'")->num_rows() > 0;
+			if(!$temIndice){
+				if($this->db->query("ALTER TABLE `$tabela` ADD INDEX `idx_wn_agendamento_tipo` (`id_agendamento`, `tipo_notificacao`)")){
+					$logs[] = "✅ Indice <strong>idx_wn_agendamento_tipo</strong> criado.";
+				} else {
+					$logs[] = "❌ Erro ao criar indice: ".$this->db->error()['message'];
+				}
+			} else {
+				$logs[] = "⚠️ Indice <strong>idx_wn_agendamento_tipo</strong> ja existe.";
+			}
+		}
+
+		echo '<h3>Migração: lembrete de consulta por WhatsApp</h3><ul>';
+		foreach($logs as $l) echo "<li>$l</li>";
+		echo '</ul>';
+	}
+
 	function criar_tabela_arquivos_paciente(){
 		$sql = "CREATE TABLE IF NOT EXISTS `pacientes_arquivos` (
 			`id`             INT AUTO_INCREMENT PRIMARY KEY,

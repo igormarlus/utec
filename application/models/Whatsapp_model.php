@@ -87,6 +87,7 @@ class Whatsapp_model extends CI_Model {
             'status_envio' => trim((string)utec_whatsapp_read($data, 'status_envio', 'pendente')),
             'erro_detalhe' => trim((string)utec_whatsapp_read($data, 'erro_detalhe', '')),
             'status_confirmacao' => trim((string)utec_whatsapp_read($data, 'status_confirmacao', 'pendente')),
+            'tipo_notificacao' => trim((string)utec_whatsapp_read($data, 'tipo_notificacao', 'confirmacao')),
             'criado_em' => date('Y-m-d H:i:s'),
             'respondido_em' => utec_whatsapp_read($data, 'respondido_em', null),
         ]);
