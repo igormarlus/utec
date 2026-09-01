@@ -672,6 +672,11 @@ class Home extends CI_Controller {
 		$this->load->view('public/seo/sistema-para-medicina-do-trabalho');
 	}
 
+	public function seo_confirmacao_whatsapp()
+	{
+		$this->load->view('public/seo/confirmacao-de-consulta-por-whatsapp');
+	}
+
 	public function sobre()
 	{
 		$this->load->view('public/sobre');
