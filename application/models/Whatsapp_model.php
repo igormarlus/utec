@@ -5,6 +5,8 @@ class Whatsapp_model extends CI_Model {
 
     private $table = 'whatsapp_config';
     private $log_table = 'whatsapp_notificacoes';
+    private $chatbot_session_table = 'whatsapp_chatbot_sessoes';
+    private $chatbot_event_table = 'whatsapp_chatbot_eventos';
 
     public function __construct()
     {
@@ -383,6 +385,196 @@ class Whatsapp_model extends CI_Model {
         return $resultado;
     }
 
+    public function iniciar_evento_chatbot($message_id, $telefone, $tipo = 'mensagem', $entrada = '')
+    {
+        $message_id = trim((string)$message_id);
+        $telefone = utec_whatsapp_normalizar_numero($telefone);
+        $tipo = trim((string)$tipo);
+
+        if ($message_id === '' || $telefone === '' || $tipo === ''
+            || !$this->tabela_possui_campos($this->chatbot_event_table, ['message_id', 'telefone', 'tipo', 'entrada', 'criado_em'])) {
+            return 0;
+        }
+
+        $sql = "INSERT IGNORE INTO `{$this->chatbot_event_table}` (`message_id`, `telefone`, `tipo`, `entrada`, `criado_em`) VALUES ("
+            .$this->db->escape($message_id).", "
+            .$this->db->escape($telefone).", "
+            .$this->db->escape($tipo).", "
+            .$this->db->escape($this->chatbot_json($entrada)).", NOW())";
+        if (!$this->db->query($sql) || (int)$this->db->affected_rows() !== 1) {
+            return 0;
+        }
+
+        return (int)$this->db->insert_id();
+    }
+
+    public function finalizar_evento_chatbot($id_evento, $resultado, $id_sessao = 0, $id_usuario = 0, $id_agendamento = 0)
+    {
+        $id_evento = (int)$id_evento;
+        if ($id_evento <= 0 || !$this->tabela_possui_campos($this->chatbot_event_table, ['id', 'resultado'])) {
+            return false;
+        }
+
+        $dados = $this->filtrar_colunas($this->chatbot_event_table, [
+            'resultado' => $this->chatbot_json($resultado),
+            'id_whatsapp_chatbot_sessao' => (int)$id_sessao,
+            'id_usuario' => (int)$id_usuario,
+            'id_agendamento' => (int)$id_agendamento,
+        ]);
+        if (empty($dados)) {
+            return false;
+        }
+
+        $this->db->where('id', $id_evento);
+        return $this->db->update($this->chatbot_event_table, $dados);
+    }
+
+    public function obter_sessao_chatbot($telefone)
+    {
+        $telefone = utec_whatsapp_normalizar_numero($telefone);
+        if ($telefone === '' || !$this->tabela_possui_campos($this->chatbot_session_table, ['telefone', 'dados_json', 'expira_em'])) {
+            return null;
+        }
+
+        $query = $this->db->query(
+            "SELECT * FROM `{$this->chatbot_session_table}` WHERE telefone = ".$this->db->escape($telefone)." AND expira_em > NOW() LIMIT 1"
+        );
+        if (!$query || !$query->num_rows()) {
+            return null;
+        }
+
+        $sessao = $query->row();
+        $dados = json_decode((string)$sessao->dados_json, true);
+        $sessao->dados = is_array($dados) ? $dados : [];
+        return $sessao;
+    }
+
+    public function salvar_sessao_chatbot($telefone, $perfil, $id_usuario, $tenant_id, $fluxo, $etapa, $dados = [])
+    {
+        $telefone = utec_whatsapp_normalizar_numero($telefone);
+        $perfil = trim((string)$perfil);
+        if ($telefone === '' || $perfil === ''
+            || !$this->tabela_possui_campos($this->chatbot_session_table, ['telefone', 'perfil', 'id_usuario', 'tenant_id', 'fluxo', 'etapa', 'dados_json', 'atividade_em', 'expira_em', 'criado_em', 'atualizado_em'])) {
+            return false;
+        }
+
+        $sql = "INSERT INTO `{$this->chatbot_session_table}` (`telefone`, `perfil`, `id_usuario`, `tenant_id`, `fluxo`, `etapa`, `dados_json`, `atividade_em`, `expira_em`, `criado_em`, `atualizado_em`) VALUES ("
+            .$this->db->escape($telefone).", "
+            .$this->db->escape($perfil).", "
+            .(int)$id_usuario.", "
+            .(int)$tenant_id.", "
+            .$this->db->escape(trim((string)$fluxo)).", "
+            .$this->db->escape(trim((string)$etapa)).", "
+            .$this->db->escape($this->chatbot_json($dados)).", NOW(), DATE_ADD(NOW(), INTERVAL 15 MINUTE), NOW(), NOW()) "
+            ."ON DUPLICATE KEY UPDATE perfil = VALUES(perfil), id_usuario = VALUES(id_usuario), tenant_id = VALUES(tenant_id), fluxo = VALUES(fluxo), etapa = VALUES(etapa), dados_json = VALUES(dados_json), atividade_em = NOW(), expira_em = DATE_ADD(NOW(), INTERVAL 15 MINUTE), atualizado_em = NOW()";
+
+        return (bool)$this->db->query($sql);
+    }
+
+    public function limpar_sessao_chatbot($telefone)
+    {
+        $telefone = utec_whatsapp_normalizar_numero($telefone);
+        if ($telefone === '' || !$this->tabela_possui_campos($this->chatbot_session_table, ['telefone'])) {
+            return false;
+        }
+
+        $this->db->where('telefone', $telefone);
+        return $this->db->delete($this->chatbot_session_table);
+    }
+
+    public function resolver_perfil_chatbot($telefone)
+    {
+        $resultado = ['telefone' => utec_whatsapp_normalizar_numero($telefone), 'perfil' => '', 'id_usuario' => 0, 'tenant_id' => 0];
+        if ($resultado['telefone'] === '' || !$this->tabela_possui_campos('usuarios', ['id', 'nivel', 'telefone'])) {
+            return $resultado;
+        }
+
+        $tenantSelect = $this->db->field_exists('tenant_id', 'usuarios') ? 'tenant_id' : '0 AS tenant_id';
+        $telefoneSql = $this->telefone_chatbot_sql('telefone');
+        $usuario = $this->db->query(
+            "SELECT id, nivel, {$tenantSelect} FROM `usuarios` WHERE nivel BETWEEN 1 AND 4 AND {$telefoneSql} = ".$this->db->escape($resultado['telefone'])." ORDER BY id ASC LIMIT 1"
+        );
+        if (!$usuario || !$usuario->num_rows()) {
+            $usuario = $this->db->query(
+                "SELECT id, nivel, {$tenantSelect} FROM `usuarios` WHERE nivel = 5 AND {$telefoneSql} = ".$this->db->escape($resultado['telefone'])." ORDER BY id ASC LIMIT 1"
+            );
+        }
+        if (!$usuario || !$usuario->num_rows()) {
+            return $resultado;
+        }
+
+        $usuario = $usuario->row();
+        $resultado['id_usuario'] = (int)$usuario->id;
+        $resultado['tenant_id'] = (int)$usuario->tenant_id;
+        $resultado['perfil'] = utec_whatsapp_perfil_por_nivel($usuario->nivel);
+        return $resultado;
+    }
+
+    public function listar_agendamentos_chatbot($perfil, $id_usuario, $tenant_id = 0)
+    {
+        $contexto = $this->contexto_chatbot_autorizado($perfil, $id_usuario, $tenant_id);
+        if (!$contexto || !$this->tabela_possui_campos('agendamentos', ['id', 'id_paciente', 'id_prestador', 'id_user', 'data_agenda', 'hora_agenda', 'tipo', 'status'])) {
+            return [];
+        }
+
+        $where = $this->where_agendamento_chatbot($contexto);
+        if ($where === '') {
+            return [];
+        }
+
+        $statusWhatsapp = "'' AS status_whatsapp";
+        if ($this->tabela_possui_campos($this->log_table, ['id', 'id_agendamento', 'status_envio', 'status_confirmacao'])) {
+            $statusWhatsapp = "COALESCE((SELECT CONCAT_WS('/', wn.status_envio, wn.status_confirmacao) FROM `{$this->log_table}` wn WHERE wn.id_agendamento = a.id ORDER BY wn.id DESC LIMIT 1), '') AS status_whatsapp";
+        }
+        $query = $this->db->query(
+            "SELECT a.id, a.id_paciente, a.id_prestador, a.data_agenda, a.hora_agenda, a.tipo, a.status, p.nome AS paciente_nome, pr.nome AS prestador_nome, {$statusWhatsapp} FROM `agendamentos` a LEFT JOIN `usuarios` p ON p.id = a.id_paciente LEFT JOIN `usuarios` pr ON pr.id = a.id_prestador WHERE {$where} ORDER BY a.data_agenda ASC, a.hora_agenda ASC, a.id ASC"
+        );
+        return $query ? $query->result() : [];
+    }
+
+    public function obter_agendamento_chatbot($id_agendamento, $perfil, $id_usuario, $tenant_id = 0)
+    {
+        $id_agendamento = (int)$id_agendamento;
+        $contexto = $this->contexto_chatbot_autorizado($perfil, $id_usuario, $tenant_id);
+        if ($id_agendamento <= 0 || !$contexto || !$this->tabela_possui_campos('agendamentos', ['id', 'id_paciente', 'id_prestador', 'id_user', 'data_agenda', 'hora_agenda', 'tipo', 'status'])) {
+            return null;
+        }
+
+        $where = $this->where_agendamento_chatbot($contexto);
+        if ($where === '') {
+            return null;
+        }
+
+        $statusWhatsapp = "'' AS status_whatsapp";
+        if ($this->tabela_possui_campos($this->log_table, ['id', 'id_agendamento', 'status_envio', 'status_confirmacao'])) {
+            $statusWhatsapp = "COALESCE((SELECT CONCAT_WS('/', wn.status_envio, wn.status_confirmacao) FROM `{$this->log_table}` wn WHERE wn.id_agendamento = a.id ORDER BY wn.id DESC LIMIT 1), '') AS status_whatsapp";
+        }
+        $query = $this->db->query(
+            "SELECT a.id, a.id_paciente, a.id_prestador, a.data_agenda, a.hora_agenda, a.tipo, a.status, p.nome AS paciente_nome, pr.nome AS prestador_nome, {$statusWhatsapp} FROM `agendamentos` a LEFT JOIN `usuarios` p ON p.id = a.id_paciente LEFT JOIN `usuarios` pr ON pr.id = a.id_prestador WHERE a.id = {$id_agendamento} AND {$where} LIMIT 1"
+        );
+        return $query && $query->num_rows() ? $query->row() : null;
+    }
+
+    public function obter_plano_chatbot($perfil, $id_usuario, $tenant_id = 0)
+    {
+        if (!utec_whatsapp_perfil_tem_plano($perfil)
+            || !$this->tabela_possui_campos('saas_subscriptions', ['id', 'tenant_id', 'plano_id', 'status'])
+            || !$this->tabela_possui_campos('produtos', ['id', 'modelo'])) {
+            return null;
+        }
+
+        $contexto = $this->contexto_chatbot_autorizado($perfil, $id_usuario, $tenant_id);
+        if (!$contexto || (int)$contexto->tenant_id <= 0) {
+            return null;
+        }
+
+        $dataSelect = $this->db->field_exists('current_period_end', 'saas_subscriptions') ? 's.current_period_end' : 'NULL';
+        $query = $this->db->query(
+            "SELECT p.modelo, s.status, {$dataSelect} AS data FROM `saas_subscriptions` s INNER JOIN `produtos` p ON p.id = s.plano_id WHERE s.tenant_id = ".(int)$contexto->tenant_id." ORDER BY s.id DESC LIMIT 1"
+        );
+        return $query && $query->num_rows() ? $query->row() : null;
+    }
+
     public function tabela_log_existe()
     {
         return $this->db->table_exists($this->log_table);
@@ -412,5 +604,62 @@ class Whatsapp_model extends CI_Model {
         }
 
         return true;
+    }
+
+    private function chatbot_json($valor)
+    {
+        if (is_string($valor)) {
+            return $valor;
+        }
+
+        $json = json_encode($valor, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        return $json === false ? '{}' : $json;
+    }
+
+    private function telefone_chatbot_sql($campo)
+    {
+        return "REPLACE(REPLACE(REPLACE(REPLACE(REPLACE({$campo}, '+', ''), '(', ''), ')', ''), '-', ''), ' ', '')";
+    }
+
+    private function contexto_chatbot_autorizado($perfil, $id_usuario, $tenant_id)
+    {
+        $perfil = trim((string)$perfil);
+        $id_usuario = (int)$id_usuario;
+        if ($id_usuario <= 0 || !in_array($perfil, ['paciente', 'profissional', 'atendente', 'admin'], true)
+            || !$this->tabela_possui_campos('usuarios', ['id', 'nivel'])) {
+            return null;
+        }
+
+        $tenantSelect = $this->db->field_exists('tenant_id', 'usuarios') ? 'tenant_id' : '0 AS tenant_id';
+        $query = $this->db->query("SELECT *, {$tenantSelect} FROM `usuarios` WHERE id = {$id_usuario} LIMIT 1");
+        if (!$query || !$query->num_rows()) {
+            return null;
+        }
+
+        $usuario = $query->row();
+        if (utec_whatsapp_perfil_por_nivel($usuario->nivel) !== $perfil) {
+            return null;
+        }
+        if ((int)$tenant_id > 0 && (int)$usuario->tenant_id > 0 && (int)$tenant_id !== (int)$usuario->tenant_id) {
+            return null;
+        }
+
+        return $usuario;
+    }
+
+    private function where_agendamento_chatbot($usuario)
+    {
+        if ($usuario->nivel == 5) {
+            return 'a.id_paciente = '.(int)$usuario->id;
+        }
+
+        if (!in_array((int)$usuario->nivel, [2, 3, 4], true)) {
+            return '';
+        }
+
+        $this->load->model('Padrao_model', 'padrao_model');
+        $ids = $this->padrao_model->get_scope_user_ids($usuario);
+        $idsSql = $this->padrao_model->ids_to_sql_in($ids);
+        return "(a.id_user IN ({$idsSql}) OR a.id_paciente IN ({$idsSql}) OR a.id_prestador IN ({$idsSql}))";
     }
 }
