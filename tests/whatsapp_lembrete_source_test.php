@@ -37,4 +37,26 @@ assertSource(strpos($lib, "'tipo_notificacao' => \$tipo") !== false, 'O log do l
 assertSource(strpos($lib, 'validar_quota_tenant(') !== false, 'O lembrete deve respeitar a cota do tenant.');
 assertSource(strpos($lib, "log_message('warning'") === false, 'A biblioteca nao deve usar log_message(warning).');
 
+// --- Task 5: config, controller e rota ---
+$cron = file_get_contents(__DIR__ . '/../application/controllers/Cron.php');
+$routes = file_get_contents(__DIR__ . '/../application/config/routes.php');
+$cfg = file_get_contents(__DIR__ . '/../application/config/whatsapp.php');
+
+assertSource(strpos($cfg, "getenv('WHATSAPP_CRON_TOKEN')") !== false, 'A config deve ler o token de uma env var.');
+assertSource(strpos($cfg, "\$config['cron_token']") !== false, 'A config deve definir cron_token.');
+
+assertSource(strpos($cron, 'function lembrete_whatsapp(') !== false, 'O Cron deve expor lembrete_whatsapp().');
+assertSource(strpos($cron, 'hash_equals(') !== false, 'O Cron deve comparar o token com hash_equals.');
+assertSource(strpos($cron, 'set_status_header(403)') !== false, 'Token invalido deve responder 403.');
+assertSource(strpos($cron, "\$this->input->get('token')") !== false, 'O token deve vir de input->get.');
+assertSource(strpos($cron, "config->load('whatsapp'") !== false, 'O Cron deve carregar a config whatsapp.');
+assertSource(strpos($cron, 'utec_whatsapp_config_ativa(') !== false, 'O Cron deve checar a config ativa antes de iterar.');
+assertSource(strpos($cron, 'utec_whatsapp_lembrete_intervalo(') !== false, 'O Cron deve calcular a janela pelo helper.');
+assertSource(strpos($cron, 'get_agendamentos_para_lembrete(') !== false, 'O Cron deve buscar os elegiveis pelo model.');
+assertSource(strpos($cron, 'notificar_lembrete(') !== false, 'O Cron deve disparar via notificar_lembrete.');
+assertSource(strpos($cron, "'lembrete_paciente'") !== false && strpos($cron, "'lembrete_profissional'") !== false, 'O Cron deve iterar os dois tipos.');
+assertSource(strpos($cron, "log_message('warning'") === false, 'O Cron nao deve usar log_message(warning).');
+
+assertSource(strpos($routes, "\$route['cron/lembrete-whatsapp']") !== false, 'routes.php deve ter a rota do cron.');
+
 echo "OK\n";
