@@ -200,6 +200,111 @@ if (!function_exists('utec_whatsapp_payload_texto')) {
     }
 }
 
+if (!function_exists('utec_whatsapp_payload_lista')) {
+    function utec_whatsapp_payload_lista($telefone, $titulo, $corpo, $texto_botao, $secoes)
+    {
+        $sections = [];
+        $secoes = is_array($secoes) ? $secoes : [];
+
+        foreach ($secoes as $secao) {
+            $rows = [];
+            $itens = utec_whatsapp_read($secao, 'rows', []);
+            $itens = is_array($itens) ? $itens : [];
+            foreach ($itens as $item) {
+                $id = trim((string)utec_whatsapp_read($item, 'id', ''));
+                $tituloItem = trim((string)utec_whatsapp_read($item, 'title', ''));
+                if ($id === '' || $tituloItem === '') {
+                    continue;
+                }
+
+                $row = ['id' => $id, 'title' => $tituloItem];
+                $descricao = trim((string)utec_whatsapp_read($item, 'description', ''));
+                if ($descricao !== '') {
+                    $row['description'] = $descricao;
+                }
+                $rows[] = $row;
+            }
+
+            if (empty($rows)) {
+                continue;
+            }
+
+            $section = ['rows' => $rows];
+            $tituloSecao = trim((string)utec_whatsapp_read($secao, 'title', ''));
+            if ($tituloSecao !== '') {
+                $section['title'] = $tituloSecao;
+            }
+            $sections[] = $section;
+        }
+
+        $interactive = [
+            'type' => 'list',
+            'body' => ['text' => substr(trim((string)$corpo), 0, 1024)],
+            'action' => [
+                'button' => substr(trim((string)$texto_botao), 0, 20),
+                'sections' => $sections,
+            ],
+        ];
+        $titulo = substr(trim((string)$titulo), 0, 60);
+        if ($titulo !== '') {
+            $interactive['header'] = ['type' => 'text', 'text' => $titulo];
+        }
+
+        return [
+            'messaging_product' => 'whatsapp',
+            'recipient_type' => 'individual',
+            'to' => trim((string)$telefone),
+            'type' => 'interactive',
+            'interactive' => $interactive,
+        ];
+    }
+}
+
+if (!function_exists('utec_whatsapp_payload_botoes')) {
+    function utec_whatsapp_payload_botoes($telefone, $titulo, $corpo, $botoes)
+    {
+        $buttons = [];
+        $botoes = is_array($botoes) ? $botoes : [];
+
+        foreach ($botoes as $botao) {
+            $id = trim((string)utec_whatsapp_read($botao, 'id', ''));
+            $tituloBotao = trim((string)utec_whatsapp_read($botao, 'title', ''));
+            if ($id === '' || $tituloBotao === '') {
+                continue;
+            }
+
+            $buttons[] = [
+                'type' => 'reply',
+                'reply' => [
+                    'id' => $id,
+                    'title' => substr($tituloBotao, 0, 20),
+                ],
+            ];
+            if (count($buttons) === 3) {
+                break;
+            }
+        }
+
+        $interactive = [
+            'type' => 'button',
+            'body' => ['text' => substr(trim((string)$corpo), 0, 1024)],
+            'action' => ['buttons' => $buttons],
+        ];
+        $titulo = substr(trim((string)$titulo), 0, 60);
+        if ($titulo !== '') {
+            $interactive['header'] = ['type' => 'text', 'text' => $titulo];
+        }
+
+        return [
+            'messaging_product' => 'whatsapp',
+            'recipient_type' => 'individual',
+            'to' => trim((string)$telefone),
+            'type' => 'interactive',
+            'interactive' => $interactive,
+        ];
+    }
+}
+
 if (!function_exists('utec_notificacoes_destinatarios_agendamento')) {
     function utec_notificacoes_destinatarios_agendamento($id_criador, $id_prestador)
     {
@@ -298,15 +403,22 @@ if (!function_exists('utec_whatsapp_extrair_eventos_webhook')) {
 
                 $messages = isset($value['messages']) && is_array($value['messages']) ? $value['messages'] : [];
                 foreach ($messages as $mensagem) {
-                    $buttonId = isset($mensagem['interactive']['button_reply']['id'])
-                        ? trim((string)$mensagem['interactive']['button_reply']['id'])
+                    $buttonId = isset($mensagem['interactive']['list_reply']['id'])
+                        ? trim((string)$mensagem['interactive']['list_reply']['id'])
                         : '';
+                    if ($buttonId === '' && isset($mensagem['interactive']['button_reply']['id'])) {
+                        $buttonId = trim((string)$mensagem['interactive']['button_reply']['id']);
+                    }
                     if ($buttonId === '' && isset($mensagem['button']['payload'])) {
                         $buttonId = trim((string)$mensagem['button']['payload']);
                     }
                     $evento = utec_whatsapp_evento_webhook_vazio();
                     $evento['payload'] = $buttonId;
                     $evento['wamid'] = isset($mensagem['context']['id']) ? trim((string)$mensagem['context']['id']) : '';
+                    $evento['message_id'] = trim((string)utec_whatsapp_read($mensagem, 'id', ''));
+                    $evento['from'] = trim((string)utec_whatsapp_read($mensagem, 'from', ''));
+                    $evento['message_type'] = trim((string)utec_whatsapp_read($mensagem, 'type', ''));
+                    $evento['text'] = isset($mensagem['text']['body']) ? trim((string)$mensagem['text']['body']) : '';
                     $evento['event_at'] = utec_whatsapp_data_evento_webhook(utec_whatsapp_read($mensagem, 'timestamp', ''));
 
                     if (preg_match('/^(confirmar|cancelar)_agendamento:(\d+)$/', $buttonId, $matches)) {
@@ -331,6 +443,10 @@ if (!function_exists('utec_whatsapp_evento_webhook_vazio')) {
             'id_agendamento' => 0,
             'wamid' => '',
             'payload' => '',
+            'message_id' => '',
+            'from' => '',
+            'message_type' => '',
+            'text' => '',
             'delivery_status' => '',
             'error_detail' => '',
             'event_at' => null,
