@@ -695,6 +695,10 @@
                         <span class="dd-icon">💻</span>
                         <span class="dd-text"><span class="dd-label">Software para clínicas</span><span class="dd-desc">SaaS 100% online, sem instalação</span></span>
                     </a>
+                    <a href="<?=base_url()?>confirmacao-de-consulta-por-whatsapp">
+                        <span class="dd-icon">📲</span>
+                        <span class="dd-text"><span class="dd-label">Confirmação por WhatsApp</span><span class="dd-desc">Lembrete e confirmação de consulta</span></span>
+                    </a>
                     <div class="nav-divider"></div>
                     <a href="<?=base_url()?>sistema-gratuito-para-clinicas">
                         <span class="dd-icon">🎁</span>
@@ -1247,6 +1251,7 @@
             <a href="<?=base_url()?>sistema-prontuario-eletronico">Prontuário Eletrônico</a>
             <a href="<?=base_url()?>software-para-clinicas">Software para Clínicas</a>
             <a href="<?=base_url()?>software-para-medicos">Software para Médicos</a>
+            <a href="<?=base_url()?>confirmacao-de-consulta-por-whatsapp">Confirmação por WhatsApp</a>
             <a href="<?=base_url()?>sistema-gratuito-para-clinicas">Trial Gratuito</a>
             <a href="<?=base_url()?>assinar">Ver Planos</a>
         </div>

@@ -733,7 +733,7 @@ git commit -m "docs: ledger seo/geo registra frente de confirmacao por whatsapp"
 - Modify: `sitemap-blog.xml`
 - Modify: `sitemap-index.xml`
 
-- [ ] **Step 1: Adicionar o item no dropdown "Sistema" do header**
+- [x] **Step 1: Adicionar o item no dropdown "Sistema" do header**
 
 Em `application/views/index-front.php`, localize (dentro do primeiro `nav-item`, dropdown "Sistema"):
 ```php
@@ -757,7 +757,7 @@ Substitua por:
                     <div class="nav-divider"></div>
 ```
 
-- [ ] **Step 2: Adicionar o link na coluna "Recursos" do rodapé**
+- [x] **Step 2: Adicionar o link na coluna "Recursos" do rodapé**
 
 Localize:
 ```php
@@ -772,7 +772,7 @@ Substitua por:
             <a href="<?=base_url()?>sistema-gratuito-para-clinicas">Trial Gratuito</a>
 ```
 
-- [ ] **Step 3: Validar sintaxe de `index-front.php`**
+- [x] **Step 3: Validar sintaxe de `index-front.php`**
 
 Run:
 ```powershell
@@ -783,7 +783,7 @@ Expected:
 No syntax errors detected in application/views/index-front.php
 ```
 
-- [ ] **Step 4: Adicionar a landing em `sitemap.xml`**
+- [x] **Step 4: Adicionar a landing em `sitemap.xml`**
 
 Localize o bloco:
 ```xml
@@ -816,7 +816,7 @@ Substitua por:
   <!-- Páginas institucionais — E-A-T / Google YMYL health signals -->
 ```
 
-- [ ] **Step 5: Adicionar os 7 artigos em `sitemap-blog.xml`**
+- [x] **Step 5: Adicionar os 7 artigos em `sitemap-blog.xml`**
 
 Localize o fim do arquivo:
 ```xml
@@ -891,7 +891,7 @@ Substitua por:
 </urlset>
 ```
 
-- [ ] **Step 6: Atualizar `lastmod` em `sitemap-index.xml`**
+- [x] **Step 6: Atualizar `lastmod` em `sitemap-index.xml`**
 
 Substitua o conteúdo inteiro por:
 ```xml
@@ -908,7 +908,7 @@ Substitua o conteúdo inteiro por:
 </sitemapindex>
 ```
 
-- [ ] **Step 7: Validar os XML e o menu**
+- [x] **Step 7: Validar os XML e o menu**
 
 Run:
 ```powershell
@@ -925,7 +925,7 @@ Smoke test manual: abrir `http://localhost/utec/` e conferir:
 - dropdown "Sistema" mostra "Confirmação por WhatsApp" antes do divisor, apontando para `/confirmacao-de-consulta-por-whatsapp`
 - rodapé, coluna "Recursos", tem o link "Confirmação por WhatsApp"
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```bash
 git add application/views/index-front.php sitemap.xml sitemap-blog.xml sitemap-index.xml
