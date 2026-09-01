@@ -18,6 +18,9 @@ $payload = [
         'changes' => [[
             'value' => [
                 'messages' => [[
+                    'id' => 'wamid.inbound.legacy.492',
+                    'from' => '5581988887777',
+                    'type' => 'interactive',
                     'context' => ['id' => 'wamid.HBgMTESTE123'],
                     'interactive' => [
                         'button_reply' => [
@@ -36,6 +39,9 @@ assertSameValue('cancelar', $evento['action'], 'Deve identificar acao cancelar.'
 assertSameValue(492, $evento['id_agendamento'], 'Deve identificar o id do agendamento.');
 assertSameValue('wamid.HBgMTESTE123', $evento['wamid'], 'Deve identificar o wamid de contexto.');
 assertSameValue('cancelar_agendamento:492', $evento['payload'], 'Deve manter o payload original.');
+assertSameValue('wamid.inbound.legacy.492', $evento['message_id'], 'Deve identificar o id da mensagem recebida.');
+assertSameValue('5581988887777', $evento['from'], 'Deve identificar o remetente da mensagem recebida.');
+assertSameValue('interactive', $evento['message_type'], 'Deve identificar o tipo da mensagem recebida.');
 
 $payloadBotaoTemplate = [
     'entry' => [[
