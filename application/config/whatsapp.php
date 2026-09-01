@@ -3,9 +3,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 $whatsapp_env_cron_token = getenv('WHATSAPP_CRON_TOKEN');
 
-// Trocar o fallback por um token longo e aleatorio antes do deploy,
-// ou definir a env var WHATSAPP_CRON_TOKEN no ambiente.
-$config['cron_token'] = $whatsapp_env_cron_token ? $whatsapp_env_cron_token : 'TROCAR_ESTE_TOKEN_LONGO_ANTES_DO_DEPLOY';
+// Fallback usado quando a env var WHATSAPP_CRON_TOKEN nao esta definida no ambiente.
+$config['cron_token'] = $whatsapp_env_cron_token ? $whatsapp_env_cron_token : 'notwa10230901marlusti';
 
 $whatsapp_env_lembrete_prof = getenv('WHATSAPP_LEMBRETE_PROFISSIONAL');
 // Lane do lembrete ao profissional. Manter FALSE ate o template dedicado
