@@ -473,3 +473,29 @@ if (!function_exists('utec_whatsapp_componentes_template')) {
         return $componentes;
     }
 }
+
+if (!function_exists('utec_whatsapp_lembrete_tipos')) {
+    function utec_whatsapp_lembrete_tipos()
+    {
+        return ['lembrete_paciente', 'lembrete_profissional'];
+    }
+}
+
+if (!function_exists('utec_whatsapp_lembrete_tipo_valido')) {
+    function utec_whatsapp_lembrete_tipo_valido($tipo)
+    {
+        return in_array((string)$tipo, utec_whatsapp_lembrete_tipos(), true);
+    }
+}
+
+if (!function_exists('utec_whatsapp_lembrete_intervalo')) {
+    function utec_whatsapp_lembrete_intervalo($agora_ts, $horas = 7)
+    {
+        $agora_ts = (int)$agora_ts;
+        $horas = (int)$horas;
+        return [
+            'inicio' => date('Y-m-d H:i:s', $agora_ts),
+            'fim' => date('Y-m-d H:i:s', $agora_ts + ($horas * 3600)),
+        ];
+    }
+}
