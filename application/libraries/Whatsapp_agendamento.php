@@ -115,6 +115,80 @@ class Whatsapp_agendamento {
         return $result;
     }
 
+    public function notificar_lembrete($id_agendamento, $tipo)
+    {
+        $id_agendamento = (int)$id_agendamento;
+        $tipo = (string)$tipo;
+
+        if ($id_agendamento <= 0 || !utec_whatsapp_lembrete_tipo_valido($tipo)) {
+            $result = ['sent' => false, 'reason' => 'invalid_input', 'wamid' => '', 'error' => 'Agendamento ou tipo de lembrete invalido.'];
+            log_message('error', '[whatsapp_lembrete] '.$result['error'].' agendamento='.$id_agendamento.' tipo='.$tipo);
+            return $result;
+        }
+
+        $config = $this->CI->whatsapp_model->get_configuracao_ativa();
+        if (!utec_whatsapp_config_ativa($config)) {
+            $result = ['sent' => false, 'reason' => 'config_unavailable', 'wamid' => '', 'error' => 'Configuracao do WhatsApp ausente, incompleta ou inativa.'];
+            log_message('error', '[whatsapp_lembrete] '.$result['error']);
+            return $result;
+        }
+
+        $agendamento = $this->buscar_contexto_agendamento($id_agendamento);
+        if (!$agendamento) {
+            $result = ['sent' => false, 'reason' => 'agendamento_not_found', 'wamid' => '', 'error' => 'Agendamento nao encontrado.'];
+            log_message('error', '[whatsapp_lembrete] '.$result['error'].' agendamento='.$id_agendamento);
+            return $result;
+        }
+
+        $bruto = $tipo === 'lembrete_profissional'
+            ? (isset($agendamento->prestador_telefone) ? $agendamento->prestador_telefone : '')
+            : (isset($agendamento->paciente_telefone) ? $agendamento->paciente_telefone : '');
+        $telefone = $this->normalizar_destino($bruto);
+        if ($telefone === '') {
+            $this->CI->whatsapp_model->registrar_log([
+                'id_agendamento' => $id_agendamento,
+                'tenant_id' => (int)$agendamento->tenant_id,
+                'status_envio' => 'erro',
+                'erro_detalhe' => 'Destino sem telefone valido para o lembrete.',
+                'status_confirmacao' => 'nao_enviado',
+                'tipo_notificacao' => $tipo,
+            ]);
+            $result = ['sent' => false, 'reason' => 'invalid_phone', 'wamid' => '', 'error' => 'Destino sem telefone valido.'];
+            log_message('error', '[whatsapp_lembrete] '.$result['error'].' agendamento='.$id_agendamento.' tipo='.$tipo);
+            return $result;
+        }
+
+        $quota = $this->validar_quota_tenant($agendamento, $telefone);
+        if (!$quota['ok']) {
+            $result = ['sent' => false, 'reason' => 'quota_reached', 'wamid' => '', 'error' => $quota['message']];
+            log_message('error', '[whatsapp_lembrete] '.$result['error'].' agendamento='.$id_agendamento);
+            return $result;
+        }
+
+        $payload = $this->montar_payload($config, $agendamento, $telefone);
+        $response = $this->enviar_payload($config, $payload);
+
+        $this->CI->whatsapp_model->registrar_log([
+            'id_agendamento' => $id_agendamento,
+            'tenant_id' => (int)$agendamento->tenant_id,
+            'telefone_destino' => $telefone,
+            'wamid' => $response['ok'] ? $response['wamid'] : '',
+            'status_envio' => $response['ok'] ? 'enviado' : 'erro',
+            'erro_detalhe' => $response['ok'] ? '' : $response['error'],
+            'status_confirmacao' => $response['ok'] ? 'pendente' : 'nao_enviado',
+            'tipo_notificacao' => $tipo,
+        ]);
+
+        $result = [
+            'sent' => $response['ok'],
+            'reason' => $response['ok'] ? 'sent' : 'api_error',
+            'wamid' => $response['ok'] ? $response['wamid'] : '',
+            'error' => $response['ok'] ? '' : $response['error'],
+        ];
+        log_message($response['ok'] ? 'info' : 'error', '[whatsapp_lembrete] '.($response['ok'] ? 'enviado' : 'falha').' agendamento='.$id_agendamento.' tipo='.$tipo.($response['ok'] ? '' : ' erro='.$result['error']));
+        return $result;
+    }
+
     public function responder_interacao($telefone, $acao)
     {
         $resultado = ['sent' => false, 'wamid' => '', 'error' => ''];
@@ -211,7 +285,7 @@ class Whatsapp_agendamento {
         $qr = $this->CI->db->query(
             "SELECT a.id, a.data_agenda, a.hora_agenda, a.tipo,
                     p.nome AS paciente_nome, p.telefone AS paciente_telefone,
-                    pr.nome AS prestador_nome,
+                    pr.nome AS prestador_nome, pr.telefone AS prestador_telefone,
                     cad.nome AS cadastrado_por_nome,
                     {$tenantSelect}
              FROM agendamentos a

@@ -28,4 +28,13 @@ assertSource(strpos($model, "a.status = 0") !== false, 'A query deve exigir agen
 assertSource(strpos($model, "'lembrete_profissional'") !== false, 'A query deve tratar o tipo lembrete_profissional.');
 assertSource(strpos($model, "a.id_prestador > 0") !== false, 'O lembrete do profissional exige prestador vinculado.');
 
+// --- Task 4: notificar_lembrete na biblioteca ---
+$lib = file_get_contents(__DIR__ . '/../application/libraries/Whatsapp_agendamento.php');
+assertSource(strpos($lib, 'function notificar_lembrete(') !== false, 'A biblioteca deve expor notificar_lembrete().');
+assertSource(strpos($lib, 'utec_whatsapp_lembrete_tipo_valido(') !== false, 'notificar_lembrete deve validar o tipo recebido.');
+assertSource(strpos($lib, 'pr.telefone AS prestador_telefone') !== false, 'O contexto deve trazer o telefone do prestador.');
+assertSource(strpos($lib, "'tipo_notificacao' => \$tipo") !== false, 'O log do lembrete deve carimbar o tipo.');
+assertSource(strpos($lib, 'validar_quota_tenant(') !== false, 'O lembrete deve respeitar a cota do tenant.');
+assertSource(strpos($lib, "log_message('warning'") === false, 'A biblioteca nao deve usar log_message(warning).');
+
 echo "OK\n";
