@@ -200,6 +200,20 @@ if (!function_exists('utec_whatsapp_payload_texto')) {
     }
 }
 
+if (!function_exists('utec_whatsapp_truncar_texto')) {
+    function utec_whatsapp_truncar_texto($texto, $limite)
+    {
+        $texto = (string)$texto;
+        $limite = (int)$limite;
+
+        if (function_exists('mb_substr')) {
+            return mb_substr($texto, 0, $limite, 'UTF-8');
+        }
+
+        return substr($texto, 0, $limite);
+    }
+}
+
 if (!function_exists('utec_whatsapp_payload_lista')) {
     function utec_whatsapp_payload_lista($telefone, $titulo, $corpo, $texto_botao, $secoes)
     {
@@ -237,15 +251,19 @@ if (!function_exists('utec_whatsapp_payload_lista')) {
             $sections[] = $section;
         }
 
+        if (empty($sections)) {
+            return [];
+        }
+
         $interactive = [
             'type' => 'list',
-            'body' => ['text' => substr(trim((string)$corpo), 0, 1024)],
+            'body' => ['text' => utec_whatsapp_truncar_texto(trim((string)$corpo), 1024)],
             'action' => [
-                'button' => substr(trim((string)$texto_botao), 0, 20),
+                'button' => utec_whatsapp_truncar_texto(trim((string)$texto_botao), 20),
                 'sections' => $sections,
             ],
         ];
-        $titulo = substr(trim((string)$titulo), 0, 60);
+        $titulo = utec_whatsapp_truncar_texto(trim((string)$titulo), 60);
         if ($titulo !== '') {
             $interactive['header'] = ['type' => 'text', 'text' => $titulo];
         }
@@ -277,7 +295,7 @@ if (!function_exists('utec_whatsapp_payload_botoes')) {
                 'type' => 'reply',
                 'reply' => [
                     'id' => $id,
-                    'title' => substr($tituloBotao, 0, 20),
+                    'title' => utec_whatsapp_truncar_texto($tituloBotao, 20),
                 ],
             ];
             if (count($buttons) === 3) {
@@ -285,12 +303,16 @@ if (!function_exists('utec_whatsapp_payload_botoes')) {
             }
         }
 
+        if (empty($buttons)) {
+            return [];
+        }
+
         $interactive = [
             'type' => 'button',
-            'body' => ['text' => substr(trim((string)$corpo), 0, 1024)],
+            'body' => ['text' => utec_whatsapp_truncar_texto(trim((string)$corpo), 1024)],
             'action' => ['buttons' => $buttons],
         ];
-        $titulo = substr(trim((string)$titulo), 0, 60);
+        $titulo = utec_whatsapp_truncar_texto(trim((string)$titulo), 60);
         if ($titulo !== '') {
             $interactive['header'] = ['type' => 'text', 'text' => $titulo];
         }
