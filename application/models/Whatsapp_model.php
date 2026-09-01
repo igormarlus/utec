@@ -159,6 +159,46 @@ class Whatsapp_model extends CI_Model {
         return $qr->num_rows() ? $qr->row() : null;
     }
 
+    public function get_agendamentos_para_lembrete($tipo, $inicio, $fim)
+    {
+        $tipo = (string)$tipo;
+        if (!utec_whatsapp_lembrete_tipo_valido($tipo)
+            || !$this->db->table_exists('agendamentos')
+            || !$this->db->table_exists($this->log_table)
+            || !$this->db->field_exists('tipo_notificacao', $this->log_table)) {
+            return [];
+        }
+
+        $inicio = $this->db->escape((string)$inicio);
+        $fim = $this->db->escape((string)$fim);
+        $tipoEscapado = $this->db->escape($tipo);
+
+        $condicaoConfirmado = '';
+        $condicaoPrestador = '';
+        if ($tipo === 'lembrete_paciente') {
+            $condicaoConfirmado =
+                " AND NOT EXISTS (SELECT 1 FROM `{$this->log_table}` wc"
+                . " WHERE wc.id_agendamento = a.id AND wc.status_confirmacao = 'confirmado')";
+        } elseif ($tipo === 'lembrete_profissional') {
+            $condicaoPrestador = ' AND a.id_prestador > 0';
+        }
+
+        $sql =
+            "SELECT a.id\n"
+            . "FROM `agendamentos` a\n"
+            . "WHERE a.status = 0\n"
+            . "  AND TIMESTAMP(a.data_agenda, a.hora_agenda) >= {$inicio}\n"
+            . "  AND TIMESTAMP(a.data_agenda, a.hora_agenda) <= {$fim}\n"
+            . "  AND NOT EXISTS (SELECT 1 FROM `{$this->log_table}` wn"
+            . " WHERE wn.id_agendamento = a.id AND wn.tipo_notificacao = {$tipoEscapado})\n"
+            . $condicaoConfirmado
+            . $condicaoPrestador
+            . "\nORDER BY a.data_agenda ASC, a.hora_agenda ASC, a.id ASC";
+
+        $qr = $this->db->query($sql);
+        return $qr ? $qr->result() : [];
+    }
+
     public function resolver_notificacao_webhook($wamid, $id_agendamento)
     {
         $wamid = trim((string)$wamid);

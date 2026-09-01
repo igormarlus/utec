@@ -19,4 +19,13 @@ assertSource(strpos($dev, 'idx_wn_agendamento_tipo') !== false, 'A migracao deve
 assertSource(strpos($model, "'tipo_notificacao' =>") !== false, 'registrar_log deve gravar tipo_notificacao.');
 assertSource(strpos($model, "log_message('warning'") === false, 'O model nao deve usar log_message(warning).');
 
+// --- Task 3: query de elegibilidade ---
+assertSource(strpos($model, 'function get_agendamentos_para_lembrete(') !== false, 'O model deve expor get_agendamentos_para_lembrete().');
+assertSource(strpos($model, 'utec_whatsapp_lembrete_tipo_valido(') !== false, 'A query deve validar o tipo de lembrete.');
+assertSource(strpos($model, 'NOT EXISTS') !== false, 'A query deve usar NOT EXISTS para a idempotencia.');
+assertSource(strpos($model, "TIMESTAMP(a.data_agenda, a.hora_agenda)") !== false, 'A query deve comparar a data e hora do agendamento como TIMESTAMP.');
+assertSource(strpos($model, "a.status = 0") !== false, 'A query deve exigir agendamento pendente (status 0).');
+assertSource(strpos($model, "'lembrete_profissional'") !== false, 'A query deve tratar o tipo lembrete_profissional.');
+assertSource(strpos($model, "a.id_prestador > 0") !== false, 'O lembrete do profissional exige prestador vinculado.');
+
 echo "OK\n";
