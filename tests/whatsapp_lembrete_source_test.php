@@ -27,6 +27,8 @@ assertSource(strpos($model, "TIMESTAMP(a.data_agenda, a.hora_agenda)") !== false
 assertSource(strpos($model, "a.status = 0") !== false, 'A query deve exigir agendamento pendente (status 0).');
 assertSource(strpos($model, "'lembrete_profissional'") !== false, 'A query deve tratar o tipo lembrete_profissional.');
 assertSource(strpos($model, "a.id_prestador > 0") !== false, 'O lembrete do profissional exige prestador vinculado.');
+assertSource(strpos($model, "status_confirmacao = 'confirmado'") !== false, 'A query paciente deve excluir agendamentos ja confirmados.');
+assertSource(strpos($model, "wr.tipo_notificacao = 'confirmacao'") !== false, 'A query paciente deve pular quem recebeu confirmacao ha pouco.');
 
 // --- Task 4: notificar_lembrete na biblioteca ---
 $lib = file_get_contents(__DIR__ . '/../application/libraries/Whatsapp_agendamento.php');
@@ -56,6 +58,8 @@ assertSource(strpos($cron, 'get_agendamentos_para_lembrete(') !== false, 'O Cron
 assertSource(strpos($cron, 'notificar_lembrete(') !== false, 'O Cron deve disparar via notificar_lembrete.');
 assertSource(strpos($cron, "'lembrete_paciente'") !== false && strpos($cron, "'lembrete_profissional'") !== false, 'O Cron deve iterar os dois tipos.');
 assertSource(strpos($cron, "log_message('warning'") === false, 'O Cron nao deve usar log_message(warning).');
+assertSource(strpos($cron, "lembrete_profissional_ativo") !== false, 'O cron deve gatear a lane do profissional por config.');
+assertSource(strpos($cfg, "lembrete_profissional_ativo") !== false, 'A config deve definir lembrete_profissional_ativo.');
 
 assertSource(strpos($routes, "\$route['cron/lembrete-whatsapp']") !== false, 'routes.php deve ter a rota do cron.');
 

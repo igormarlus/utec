@@ -113,7 +113,7 @@ class Whatsapp_model extends CI_Model {
         return $qr->num_rows() ? (int)$qr->row()->total : 0;
     }
 
-    public function registrar_limite_atingido($tenant_id, $id_agendamento, $telefone_destino, $mensagem)
+    public function registrar_limite_atingido($tenant_id, $id_agendamento, $telefone_destino, $mensagem, $tipo_notificacao = 'confirmacao')
     {
         return $this->registrar_log([
             'tenant_id' => (int)$tenant_id,
@@ -122,6 +122,7 @@ class Whatsapp_model extends CI_Model {
             'status_envio' => 'limite',
             'erro_detalhe' => trim((string)$mensagem),
             'status_confirmacao' => 'nao_enviado',
+            'tipo_notificacao' => trim((string)$tipo_notificacao),
         ]);
     }
 
@@ -174,11 +175,18 @@ class Whatsapp_model extends CI_Model {
         $tipoEscapado = $this->db->escape($tipo);
 
         $condicaoConfirmado = '';
+        $condicaoConfirmacaoRecente = '';
         $condicaoPrestador = '';
         if ($tipo === 'lembrete_paciente') {
             $condicaoConfirmado =
                 " AND NOT EXISTS (SELECT 1 FROM `{$this->log_table}` wc"
                 . " WHERE wc.id_agendamento = a.id AND wc.status_confirmacao = 'confirmado')";
+
+            $cutoffConfirmacao = $this->db->escape(date('Y-m-d H:i:s', time() - 3 * 3600));
+            $condicaoConfirmacaoRecente =
+                " AND NOT EXISTS (SELECT 1 FROM `{$this->log_table}` wr"
+                . " WHERE wr.id_agendamento = a.id AND wr.tipo_notificacao = 'confirmacao'"
+                . " AND wr.criado_em >= {$cutoffConfirmacao})";
         } elseif ($tipo === 'lembrete_profissional') {
             $condicaoPrestador = ' AND a.id_prestador > 0';
         }
@@ -192,8 +200,10 @@ class Whatsapp_model extends CI_Model {
             . "  AND NOT EXISTS (SELECT 1 FROM `{$this->log_table}` wn"
             . " WHERE wn.id_agendamento = a.id AND wn.tipo_notificacao = {$tipoEscapado})\n"
             . $condicaoConfirmado
+            . $condicaoConfirmacaoRecente
             . $condicaoPrestador
-            . "\nORDER BY a.data_agenda ASC, a.hora_agenda ASC, a.id ASC";
+            . "\nORDER BY a.data_agenda ASC, a.hora_agenda ASC, a.id ASC"
+            . "\nLIMIT 200";
 
         $qr = $this->db->query($sql);
         return $qr ? $qr->result() : [];

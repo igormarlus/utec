@@ -158,7 +158,7 @@ class Whatsapp_agendamento {
             return $result;
         }
 
-        $quota = $this->validar_quota_tenant($agendamento, $telefone);
+        $quota = $this->validar_quota_tenant($agendamento, $telefone, $tipo);
         if (!$quota['ok']) {
             $result = ['sent' => false, 'reason' => 'quota_reached', 'wamid' => '', 'error' => $quota['message']];
             log_message('error', '[whatsapp_lembrete] '.$result['error'].' agendamento='.$id_agendamento);
@@ -244,7 +244,7 @@ class Whatsapp_agendamento {
         return utec_whatsapp_normalizar_status_assinatura($subscription->status);
     }
 
-    protected function validar_quota_tenant($agendamento, $telefone)
+    protected function validar_quota_tenant($agendamento, $telefone, $tipo = 'confirmacao')
     {
         $tenant_id = (int)utec_whatsapp_read($agendamento, 'tenant_id', 0);
         if ($tenant_id <= 0) {
@@ -270,7 +270,8 @@ class Whatsapp_agendamento {
             $tenant_id,
             (int)utec_whatsapp_read($agendamento, 'id', 0),
             $telefone,
-            $message
+            $message,
+            $tipo
         );
 
         return ['ok' => false, 'policy' => $policy, 'message' => $message];

@@ -395,7 +395,7 @@ class Dev extends CI_Controller {
 		$tabela = 'whatsapp_notificacoes';
 
 		if(!$this->db->table_exists($tabela)){
-			$logs[] = "❌ Tabela <strong>$tabela</strong> nao existe. Crie o fluxo de confirmacao antes.";
+			$logs[] = "❌ Tabela <strong>$tabela</strong> não existe. Crie o fluxo de confirmação antes.";
 		} else {
 			if(!$this->db->field_exists('tipo_notificacao', $tabela)){
 				if($this->db->query("ALTER TABLE `$tabela` ADD COLUMN `tipo_notificacao` VARCHAR(30) NOT NULL DEFAULT 'confirmacao'")){
@@ -404,18 +404,19 @@ class Dev extends CI_Controller {
 					$logs[] = "❌ Erro ao adicionar tipo_notificacao: ".$this->db->error()['message'];
 				}
 			} else {
-				$logs[] = "⚠️ Coluna <strong>tipo_notificacao</strong> ja existe.";
+				$logs[] = "⚠️ Coluna <strong>tipo_notificacao</strong> já existe.";
 			}
 
-			$temIndice = $this->db->query("SHOW INDEX FROM `$tabela` WHERE Key_name = 'idx_wn_agendamento_tipo'")->num_rows() > 0;
+			$qIdx = $this->db->query("SHOW INDEX FROM `$tabela` WHERE Key_name = 'idx_wn_agendamento_tipo'");
+			$temIndice = $qIdx && $qIdx->num_rows() > 0;
 			if(!$temIndice){
 				if($this->db->query("ALTER TABLE `$tabela` ADD INDEX `idx_wn_agendamento_tipo` (`id_agendamento`, `tipo_notificacao`)")){
-					$logs[] = "✅ Indice <strong>idx_wn_agendamento_tipo</strong> criado.";
+					$logs[] = "✅ Índice <strong>idx_wn_agendamento_tipo</strong> criado.";
 				} else {
-					$logs[] = "❌ Erro ao criar indice: ".$this->db->error()['message'];
+					$logs[] = "❌ Erro ao criar índice: ".$this->db->error()['message'];
 				}
 			} else {
-				$logs[] = "⚠️ Indice <strong>idx_wn_agendamento_tipo</strong> ja existe.";
+				$logs[] = "⚠️ Índice <strong>idx_wn_agendamento_tipo</strong> já existe.";
 			}
 		}
 

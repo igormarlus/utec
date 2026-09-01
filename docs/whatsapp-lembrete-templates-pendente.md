@@ -1,5 +1,17 @@
 # Pendencia: templates dedicados do lembrete por WhatsApp
 
+## Estado atual (revisao final)
+
+- **Lane do profissional sai DESLIGADA.** Ela existe no codigo, mas fica atras do
+  flag `whatsapp.lembrete_profissional_ativo` (env `WHATSAPP_LEMBRETE_PROFISSIONAL=1`).
+  So habilitar depois que `lembrete_consulta_profissional` (template sem botoes) for
+  aprovado na Meta e o nome/idioma dele estiverem ligados no codigo. Enquanto isso o
+  cron dispara apenas o lembrete ao paciente, e a resposta JSON continua emitindo os
+  seis contadores (os `_profissional` ficam em `0`).
+- **Cota trial permanece INALTERADA de proposito:** os lembretes contam contra o
+  limite de 3 disparos do trial/free (`utec_whatsapp_politica_limite`). Revisitar se
+  as clinicas em trial precisarem ver mais de um fluxo completo.
+
 Contexto: o cron de lembrete de consulta (ver
 `docs/superpowers/specs/2026-09-01-whatsapp-lembrete-consulta-cron-design.md`) foi
 entregue reutilizando o template atual `confirmacao_consulta` para os dois disparos

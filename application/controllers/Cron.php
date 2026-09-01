@@ -17,9 +17,15 @@ class Cron extends CI_Controller {
         $tokenRecebido = trim((string)$this->input->get('token'));
 
         if ($tokenEsperado === '' || $tokenEsperado === 'TROCAR_ESTE_TOKEN_LONGO_ANTES_DO_DEPLOY' || !hash_equals($tokenEsperado, $tokenRecebido)) {
-            log_message('error', '[cron_lembrete_whatsapp] Token invalido ou nao configurado.');
-            $this->output->set_status_header(403);
-            echo 'forbidden';
+            if ($tokenRecebido === '') {
+                log_message('info', '[cron_lembrete_whatsapp] Requisicao sem token (scanner ou warm-up).');
+            } else {
+                log_message('error', '[cron_lembrete_whatsapp] Token invalido ou nao configurado.');
+            }
+            $this->output
+                ->set_status_header(403)
+                ->set_content_type('text/plain')
+                ->set_output('forbidden');
             return;
         }
 
@@ -37,8 +43,18 @@ class Cron extends CI_Controller {
         $this->load->library('whatsapp_agendamento');
         $intervalo = utec_whatsapp_lembrete_intervalo(time());
 
-        $resumo = ['ok' => true];
-        foreach (['lembrete_paciente' => 'paciente', 'lembrete_profissional' => 'profissional'] as $tipo => $sufixo) {
+        $resumo = [
+            'ok' => true,
+            'elegiveis_paciente' => 0, 'enviados_paciente' => 0, 'falhas_paciente' => 0,
+            'elegiveis_profissional' => 0, 'enviados_profissional' => 0, 'falhas_profissional' => 0,
+        ];
+
+        $tipos = ['lembrete_paciente' => 'paciente'];
+        if ($this->config->item('lembrete_profissional_ativo', 'whatsapp')) {
+            $tipos['lembrete_profissional'] = 'profissional';
+        }
+
+        foreach ($tipos as $tipo => $sufixo) {
             $ids = $this->whatsapp_model->get_agendamentos_para_lembrete($tipo, $intervalo['inicio'], $intervalo['fim']);
             $enviados = 0;
             $falhas = 0;
@@ -61,8 +77,9 @@ class Cron extends CI_Controller {
 
     protected function responder_json($data, $status = 200)
     {
-        $this->output->set_status_header((int)$status);
-        $this->output->set_content_type('application/json');
-        echo json_encode($data);
+        $this->output
+            ->set_status_header((int)$status)
+            ->set_content_type('application/json')
+            ->set_output(json_encode($data));
     }
 }
