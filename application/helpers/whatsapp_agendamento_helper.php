@@ -31,6 +31,7 @@ if (!function_exists('utec_whatsapp_perfil_por_nivel')) {
                 return 'profissional';
             case 4:
                 return 'atendente';
+            case 1:
             case 2:
                 return 'admin';
             default:
