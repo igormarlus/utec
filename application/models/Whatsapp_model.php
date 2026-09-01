@@ -649,6 +649,10 @@ class Whatsapp_model extends CI_Model {
 
     private function where_agendamento_chatbot($usuario)
     {
+        if ((int)$usuario->nivel === 1) {
+            return '1 = 1';
+        }
+
         if ($usuario->nivel == 5) {
             return 'a.id_paciente = '.(int)$usuario->id;
         }
