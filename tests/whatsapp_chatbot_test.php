@@ -62,6 +62,7 @@ assertSameValue([], $botoesInvalidos, 'Botoes sem itens validos devem permitir f
 
 $caractereUtf8 = "\xC3\xA1";
 assertSameValue(str_repeat($caractereUtf8, 60), utec_whatsapp_truncar_texto(str_repeat($caractereUtf8, 61), 60), 'Truncamento deve preservar caracteres UTF-8 completos.');
+assertSameValue('', utec_whatsapp_truncar_texto(chr(195), 1), 'Truncamento com mbstring deve rejeitar UTF-8 invalido.');
 
 $listaUtf8 = utec_whatsapp_payload_lista(
     '5581988887777',
@@ -109,13 +110,11 @@ for ($indice = 0; $indice < 10; $indice++) {
 $secoesAposLimite[] = ['rows' => [['id' => 'chat:fora-do-limite', 'title' => 'Ignorar']]];
 assertSameValue([], utec_whatsapp_payload_lista('5581988887777', 'Titulo', 'Corpo', 'Abrir', $secoesAposLimite), 'Lista deve ignorar secoes apos o limite de dez.');
 
-assertSameValue([], utec_whatsapp_payload_lista('5581988887777', '', 'Corpo', 'Abrir', $secoesLimite), 'Lista sem titulo deve permitir fallback.');
 assertSameValue([], utec_whatsapp_payload_lista('5581988887777', 'Titulo', '', 'Abrir', $secoesLimite), 'Lista sem corpo deve permitir fallback.');
 assertSameValue([], utec_whatsapp_payload_lista('5581988887777', 'Titulo', 'Corpo', '', $secoesLimite), 'Lista sem botao deve permitir fallback.');
 assertSameValue([], utec_whatsapp_payload_lista('5581988887777', 'Titulo', 'Corpo', 'Abrir', [[
     'rows' => [['id' => str_repeat('x', 201), 'title' => 'Muito longo']],
 ]]), 'Lista deve rejeitar id acima de 200 caracteres.');
-assertSameValue([], utec_whatsapp_payload_botoes('5581988887777', '', 'Corpo', [['id' => 'chat:ok', 'title' => 'Ok']]), 'Botoes sem titulo devem permitir fallback.');
 assertSameValue([], utec_whatsapp_payload_botoes('5581988887777', 'Titulo', '', [['id' => 'chat:ok', 'title' => 'Ok']]), 'Botoes sem corpo devem permitir fallback.');
 assertSameValue([], utec_whatsapp_payload_lista('5581988887777', 'Titulo', 'Corpo', 'Abrir', [[
     'rows' => [['id' => [], 'title' => 'Invalido']],
@@ -124,6 +123,30 @@ assertSameValue([], utec_whatsapp_payload_botoes('5581988887777', 'Titulo', 'Cor
     'id' => 'chat:invalido',
     'title' => [],
 ]]), 'Botoes devem rejeitar titulo nao escalar.');
+
+$botaoId256 = str_repeat('b', 256);
+$botoesId256 = utec_whatsapp_payload_botoes('5581988887777', 'Titulo', 'Corpo', [[
+    'id' => $botaoId256,
+    'title' => 'Valido',
+]]);
+assertSameValue($botaoId256, $botoesId256['interactive']['action']['buttons'][0]['reply']['id'], 'Botao deve aceitar reply.id com 256 bytes.');
+assertSameValue([], utec_whatsapp_payload_botoes('5581988887777', 'Titulo', 'Corpo', [[
+    'id' => str_repeat('b', 257),
+    'title' => 'Invalido',
+]]), 'Botao deve rejeitar reply.id acima de 256 bytes.');
+
+$listaSemHeader = utec_whatsapp_payload_lista('5581988887777', '', 'Corpo', 'Abrir', [[
+    'rows' => [['id' => 'chat:sem-header', 'title' => 'Opcao']],
+]]);
+assertSameValue('interactive', $listaSemHeader['type'], 'Lista valida sem titulo deve permanecer interativa.');
+assertSameValue(false, isset($listaSemHeader['interactive']['header']), 'Lista sem titulo nao deve incluir header.');
+
+$botoesSemHeader = utec_whatsapp_payload_botoes('5581988887777', '', 'Corpo', [[
+    'id' => 'chat:sem-header',
+    'title' => 'Opcao',
+]]);
+assertSameValue('interactive', $botoesSemHeader['type'], 'Botoes validos sem titulo devem permanecer interativos.');
+assertSameValue(false, isset($botoesSemHeader['interactive']['header']), 'Botoes sem titulo nao devem incluir header.');
 
 $warningsMeta = [];
 set_error_handler(function ($severity, $message) use (&$warningsMeta) {

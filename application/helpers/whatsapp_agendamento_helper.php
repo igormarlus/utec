@@ -210,6 +210,10 @@ if (!function_exists('utec_whatsapp_truncar_texto')) {
             return '';
         }
 
+        if (@preg_match('//u', $texto) !== 1) {
+            return '';
+        }
+
         if (function_exists('mb_substr')) {
             return mb_substr($texto, 0, $limite, 'UTF-8');
         }
@@ -219,10 +223,6 @@ if (!function_exists('utec_whatsapp_truncar_texto')) {
             if ($truncado !== false) {
                 return $truncado;
             }
-        }
-
-        if (@preg_match('//u', $texto) !== 1) {
-            return '';
         }
 
         $caracteres = preg_split('//u', $texto, -1, PREG_SPLIT_NO_EMPTY);
@@ -250,7 +250,7 @@ if (!function_exists('utec_whatsapp_payload_lista')) {
         $titulo = utec_whatsapp_truncar_texto(utec_whatsapp_texto_scalar($titulo), 60);
         $corpo = utec_whatsapp_truncar_texto(utec_whatsapp_texto_scalar($corpo), 1024);
         $texto_botao = utec_whatsapp_truncar_texto(utec_whatsapp_texto_scalar($texto_botao), 20);
-        if ($titulo === '' || $corpo === '' || $texto_botao === '') {
+        if ($corpo === '' || $texto_botao === '') {
             return [];
         }
 
@@ -308,7 +308,9 @@ if (!function_exists('utec_whatsapp_payload_lista')) {
                 'sections' => $sections,
             ],
         ];
-        $interactive['header'] = ['type' => 'text', 'text' => $titulo];
+        if ($titulo !== '') {
+            $interactive['header'] = ['type' => 'text', 'text' => $titulo];
+        }
 
         return [
             'messaging_product' => 'whatsapp',
@@ -327,14 +329,14 @@ if (!function_exists('utec_whatsapp_payload_botoes')) {
         $botoes = is_array($botoes) ? $botoes : [];
         $titulo = utec_whatsapp_truncar_texto(utec_whatsapp_texto_scalar($titulo), 60);
         $corpo = utec_whatsapp_truncar_texto(utec_whatsapp_texto_scalar($corpo), 1024);
-        if ($titulo === '' || $corpo === '') {
+        if ($corpo === '') {
             return [];
         }
 
         foreach ($botoes as $botao) {
             $id = utec_whatsapp_texto_scalar(utec_whatsapp_read($botao, 'id', ''));
             $tituloBotao = utec_whatsapp_truncar_texto(utec_whatsapp_texto_scalar(utec_whatsapp_read($botao, 'title', '')), 20);
-            if ($id === '' || $tituloBotao === '') {
+            if ($id === '' || strlen($id) > 256 || $tituloBotao === '') {
                 continue;
             }
 
@@ -359,7 +361,9 @@ if (!function_exists('utec_whatsapp_payload_botoes')) {
             'body' => ['text' => $corpo],
             'action' => ['buttons' => $buttons],
         ];
-        $interactive['header'] = ['type' => 'text', 'text' => $titulo];
+        if ($titulo !== '') {
+            $interactive['header'] = ['type' => 'text', 'text' => $titulo];
+        }
 
         return [
             'messaging_product' => 'whatsapp',
