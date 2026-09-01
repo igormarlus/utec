@@ -413,6 +413,7 @@ Fluxo próprio, independente do chatbot legado. Config em `adm/whatsapp`, tabela
 - **Exibição:** etiqueta "Confirmado / Cancelado via WhatsApp" na agenda (`adm/atendimento`, desktop + mobile) e linha no card do prontuário; sino de avisos não lidos no topo (`includes/adm/top.php` → `adm/notificacoes/abrir/{id}`).
 - **Arquivos-chave:** `application/libraries/Whatsapp_agendamento.php`, `application/helpers/whatsapp_agendamento_helper.php` (funções puras + testes em `tests/whatsapp_*`), `application/models/Whatsapp_model.php`, `application/models/Notificacoes_model.php`.
 - **Planos/specs:** `docs/superpowers/plans/2026-08-31-whatsapp-*.md` e `2026-08-31-respostas-whatsapp-notificacoes.md`.
+- **Lembrete automático (cron):** `GET /cron/lembrete-whatsapp?token=...` (`Cron::lembrete_whatsapp()`), agendado de hora em hora no cPanel, dispara um lembrete único ao paciente e ao profissional quando faltam até 7h para a consulta (`status = 0`), pulando quem já recebeu o mesmo tipo e — para o paciente — quem já confirmou. Token em `application/config/whatsapp.php` (`WHATSAPP_CRON_TOKEN`). Log em `whatsapp_notificacoes` com `tipo_notificacao` (`confirmacao` | `lembrete_paciente` | `lembrete_profissional`). MVP reusa o template de confirmação; templates dedicados: `docs/whatsapp-lembrete-templates-pendente.md`. Migração: `adm/dev/migrar_lembrete_whatsapp`.
 
 ### 10.4 Upload de Arquivos
 
@@ -488,6 +489,7 @@ Controller: `application/controllers/adm/Dev.php`
 | `adm/dev/migrar_especialidades` | Cria `usuarios_especialidades` (42 especialidades seed, IDs fixos 1–42), migra valores texto em `usuarios.especialidade` para IDs, altera coluna para `INT` (idempotente) |
 | `adm/dev/migrar_fase2_prontuario_especialidades` | Cria `especialidades_campos_config` + `agendamentos.campos_extras` TEXT, insere config para 9 especialidades (idempotente) |
 | `adm/dev/migrar_monitoramento_ia` | Cria `ai_referrals` + `ai_conversions` (idempotente; `?desfazer=1` faz DROP) |
+| `adm/dev/migrar_lembrete_whatsapp` | Adiciona `whatsapp_notificacoes.tipo_notificacao` + índice (idempotente) |
 | `adm/dev/testar_detector_ia` | Roda os casos mínimos do detector de tráfego de IA (PASS/FAIL) |
 | `adm/dev/purgar_monitoramento_ia` | Remove registros de IA com mais de 18 meses (`?meses=N` ajusta) |
 
@@ -543,7 +545,7 @@ Para novas migrações: adicionar método em `Dev.php`, proteger com `nivel == 1
 
 - [ ] Tela de configuração comercial (credenciais MP + parâmetros SaaS por tenant)
 - [ ] Portal do cliente (tenant acompanha assinatura e faturas)
-- [ ] Lembretes automáticos de consulta via WhatsApp (D-1 / mesmo dia) — a confirmação no ato do agendamento já existe (10.3.1)
+- [x] Lembrete automático de consulta via WhatsApp (cron horário, ~6h antes) — ver 10.3.1. Falta: templates dedicados e janelas D-1/manhã (`docs/whatsapp-lembrete-templates-pendente.md`)
 - [ ] Relatórios PDF de prontuário
 - [ ] Onboarding self-service (cadastro de clínica sem intervenção admin)
 - [ ] Controle de limites do plano em tempo real (max_profissionais, etc.)
