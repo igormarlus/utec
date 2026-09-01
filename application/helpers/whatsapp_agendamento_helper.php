@@ -21,6 +21,31 @@ if (!function_exists('utec_whatsapp_normalizar_numero')) {
     }
 }
 
+if (!function_exists('utec_whatsapp_perfil_por_nivel')) {
+    function utec_whatsapp_perfil_por_nivel($nivel)
+    {
+        switch ((int)$nivel) {
+            case 5:
+                return 'paciente';
+            case 3:
+                return 'profissional';
+            case 4:
+                return 'atendente';
+            case 2:
+                return 'admin';
+            default:
+                return '';
+        }
+    }
+}
+
+if (!function_exists('utec_whatsapp_perfil_tem_plano')) {
+    function utec_whatsapp_perfil_tem_plano($perfil)
+    {
+        return in_array(trim((string)$perfil), ['admin', 'profissional'], true);
+    }
+}
+
 if (!function_exists('utec_whatsapp_normalizar_status_assinatura')) {
     function utec_whatsapp_normalizar_status_assinatura($status)
     {

@@ -13,6 +13,19 @@ function assertSameValue($expected, $actual, $message)
     }
 }
 
+assertSameValue('paciente', utec_whatsapp_perfil_por_nivel(5), 'Nivel 5 deve ser paciente no chatbot.');
+assertSameValue('profissional', utec_whatsapp_perfil_por_nivel(3), 'Nivel 3 deve ser profissional no chatbot.');
+assertSameValue('atendente', utec_whatsapp_perfil_por_nivel(4), 'Nivel 4 deve ser atendente no chatbot.');
+assertSameValue('admin', utec_whatsapp_perfil_por_nivel(2), 'Nivel 2 deve ser admin no chatbot.');
+assertSameValue('', utec_whatsapp_perfil_por_nivel(0), 'Nivel vazio nao deve receber perfil no chatbot.');
+assertSameValue('', utec_whatsapp_perfil_por_nivel(1), 'Nivel fora do contrato nao deve receber perfil no chatbot.');
+
+assertSameValue(true, utec_whatsapp_perfil_tem_plano('admin'), 'Admin deve poder consultar plano.');
+assertSameValue(true, utec_whatsapp_perfil_tem_plano('profissional'), 'Profissional deve poder consultar plano.');
+assertSameValue(false, utec_whatsapp_perfil_tem_plano('atendente'), 'Atendente nao deve poder consultar plano.');
+assertSameValue(false, utec_whatsapp_perfil_tem_plano('paciente'), 'Paciente nao deve poder consultar plano.');
+assertSameValue(false, utec_whatsapp_perfil_tem_plano(''), 'Perfil vazio nao deve poder consultar plano.');
+
 $evento = utec_whatsapp_extrair_evento_webhook([
     'entry' => [[
         'changes' => [[
