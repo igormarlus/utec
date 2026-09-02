@@ -21,6 +21,78 @@ assertSameValue('', utec_whatsapp_perfil_por_nivel(0), 'Nivel vazio nao deve rec
 assertSameValue('admin', utec_whatsapp_perfil_por_nivel(1), 'Nivel 1 deve ser admin no chatbot.');
 
 $codigoModeloChatbot = file_get_contents(__DIR__ . '/../application/models/Whatsapp_model.php');
+$sqlSessoesChatbot = file_get_contents(__DIR__ . '/../docs/whatsapp-chatbot-sessoes.sql');
+
+assertSameValue(
+    false,
+    stripos($codigoModeloChatbot, 'INSERT IGNORE INTO `{$this->chatbot_event_table}`') !== false,
+    'Evento do chatbot nao pode usar INSERT IGNORE, pois reentregas devem recuperar processamento interrompido.'
+);
+assertSameValue(
+    1,
+    preg_match('/SELECT \* FROM `\{\$this->chatbot_event_table\}` WHERE message_id = .*FOR UPDATE/s', $codigoModeloChatbot),
+    'Evento do chatbot deve ser bloqueado em transacao antes de decidir entre processar, aguardar ou recuperar.'
+);
+assertSameValue(
+    1,
+    preg_match('/\$resultado\[\'status\'\]\s*=\s*\'processavel\'/', $codigoModeloChatbot),
+    'Evento novo deve expor retorno processavel.'
+);
+assertSameValue(
+    1,
+    preg_match('/\$resultado\[\'status\'\]\s*=\s*\'duplicado_finalizado\'/', $codigoModeloChatbot),
+    'Evento finalizado deve expor retorno distinto para impedir nova resposta.'
+);
+assertSameValue(
+    1,
+    preg_match('/\$resultado\[\'status\'\]\s*=\s*\'reclaim\'/', $codigoModeloChatbot),
+    'Evento pendente ou expirado deve expor retorno reclaim para nova tentativa segura.'
+);
+assertSameValue(
+    1,
+    preg_match('/processamento_token/', $codigoModeloChatbot),
+    'O leasing do evento deve possuir token para impedir que processador expirado finalize tentativa recuperada.'
+);
+assertSameValue(
+    1,
+    preg_match('/origem_em.*origem_evento/s', $codigoModeloChatbot),
+    'Sessao deve armazenar data e identificador do evento de origem.'
+);
+assertSameValue(
+    1,
+    preg_match('/VALUES\(origem_em\) > origem_em.*VALUES\(origem_evento\) > origem_evento/s', $codigoModeloChatbot),
+    'Sessao deve atualizar etapa e dados apenas quando a mensagem for mais recente na ordenacao causal.'
+);
+assertSameValue(
+    1,
+    preg_match('/expira_em = IF\(\{\$origemMaisRecente\}, DATE_ADD\(NOW\(\), INTERVAL 15 MINUTE\), expira_em\), atualizado_em = IF\(\{\$origemMaisRecente\}, NOW\(\), atualizado_em\), origem_em = IF/s', $codigoModeloChatbot),
+    'TTL da sessao deve ser renovado antes de atualizar a origem usada pela comparacao causal.'
+);
+assertSameValue(
+    1,
+    preg_match('/CREATE PROCEDURE `instalar_whatsapp_chatbot_sessoes`/i', $sqlSessoesChatbot),
+    'Instalacao deve usar procedimento temporario para ALTERs repetiveis.'
+);
+assertSameValue(
+    1,
+    preg_match('/INFORMATION_SCHEMA\.COLUMNS/i', $sqlSessoesChatbot),
+    'Instalacao deve consultar INFORMATION_SCHEMA para colunas ausentes.'
+);
+assertSameValue(
+    1,
+    preg_match('/INFORMATION_SCHEMA\.STATISTICS/i', $sqlSessoesChatbot),
+    'Instalacao deve consultar INFORMATION_SCHEMA para indices ausentes.'
+);
+assertSameValue(
+    1,
+    preg_match('/PREPARE .* FROM @chatbot_sql.*EXECUTE .*DEALLOCATE PREPARE/s', $sqlSessoesChatbot),
+    'Instalacao deve executar ALTER dinamico somente quando o objeto estiver ausente.'
+);
+assertSameValue(
+    false,
+    preg_match('/^SHOW (?:COLUMNS|INDEX)|^ALTER TABLE/m', $sqlSessoesChatbot) === 1,
+    'Instalacao nao deve exigir SHOW ou ALTER manual fora do procedimento temporario.'
+);
 assertSameValue(
     1,
     preg_match('/if \(\(int\)\$usuario->nivel === 1\) \{\s*return \'1 = 1\';\s*\}/', $codigoModeloChatbot),

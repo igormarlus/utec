@@ -387,31 +387,87 @@ class Whatsapp_model extends CI_Model {
 
     public function iniciar_evento_chatbot($message_id, $telefone, $tipo = 'mensagem', $entrada = '')
     {
+        $resultado = ['status' => 'invalido', 'id_evento' => 0, 'token_processamento' => ''];
         $message_id = trim((string)$message_id);
         $telefone = utec_whatsapp_normalizar_numero($telefone);
         $tipo = trim((string)$tipo);
 
         if ($message_id === '' || $telefone === '' || $tipo === ''
-            || !$this->tabela_possui_campos($this->chatbot_event_table, ['message_id', 'telefone', 'tipo', 'entrada', 'criado_em'])) {
-            return 0;
+            || !$this->tabela_possui_campos($this->chatbot_event_table, ['id', 'message_id', 'telefone', 'tipo', 'entrada', 'resultado', 'processamento_status', 'processamento_token', 'processando_em', 'finalizado_em', 'criado_em'])) {
+            return $resultado;
         }
 
-        $sql = "INSERT IGNORE INTO `{$this->chatbot_event_table}` (`message_id`, `telefone`, `tipo`, `entrada`, `criado_em`) VALUES ("
+        $token = $this->chatbot_token_processamento();
+        $this->db->trans_begin();
+        $sql = "INSERT INTO `{$this->chatbot_event_table}` (`message_id`, `telefone`, `tipo`, `entrada`, `processamento_status`, `processamento_token`, `processando_em`, `criado_em`) VALUES ("
             .$this->db->escape($message_id).", "
             .$this->db->escape($telefone).", "
             .$this->db->escape($tipo).", "
-            .$this->db->escape($this->chatbot_json($entrada)).", NOW())";
-        if (!$this->db->query($sql) || (int)$this->db->affected_rows() !== 1) {
-            return 0;
+            .$this->db->escape($this->chatbot_json($entrada)).", 'processando', "
+            .$this->db->escape($token).", NOW(), NOW()) "
+            ."ON DUPLICATE KEY UPDATE id = LAST_INSERT_ID(id)";
+        if (!$this->db->query($sql)) {
+            $this->db->trans_rollback();
+            return $resultado;
         }
 
-        return (int)$this->db->insert_id();
+        $eventoNovo = (int)$this->db->affected_rows() === 1;
+        $query = $this->db->query(
+            "SELECT * FROM `{$this->chatbot_event_table}` WHERE message_id = ".$this->db->escape($message_id)." LIMIT 1 FOR UPDATE"
+        );
+        if (!$query || !$query->num_rows()) {
+            $this->db->trans_rollback();
+            return $resultado;
+        }
+
+        $evento = $query->row();
+        $resultado['id_evento'] = (int)$evento->id;
+        if ($eventoNovo) {
+            if ($this->db->trans_status() === false || !$this->db->trans_commit()) {
+                $resultado['id_evento'] = 0;
+                return $resultado;
+            }
+            $resultado['status'] = 'processavel';
+            $resultado['token_processamento'] = $token;
+            return $resultado;
+        }
+
+        if ((string)$evento->processamento_status === 'finalizado') {
+            $this->db->trans_commit();
+            $resultado['status'] = 'duplicado_finalizado';
+            return $resultado;
+        }
+
+        $sqlRecuperar = "UPDATE `{$this->chatbot_event_table}` SET processamento_status = 'processando', processamento_token = "
+            .$this->db->escape($token).", processando_em = NOW(), finalizado_em = NULL WHERE id = ".(int)$evento->id
+            ." AND processamento_status <> 'finalizado' AND (processamento_status = 'pendente' OR processando_em IS NULL OR processando_em <= DATE_SUB(NOW(), INTERVAL 5 MINUTE))";
+        if (!$this->db->query($sqlRecuperar)) {
+            $this->db->trans_rollback();
+            $resultado['id_evento'] = 0;
+            return $resultado;
+        }
+
+        if ((int)$this->db->affected_rows() === 1) {
+            if ($this->db->trans_status() === false || !$this->db->trans_commit()) {
+                $resultado['id_evento'] = 0;
+                return $resultado;
+            }
+            $resultado['status'] = 'reclaim';
+            $resultado['token_processamento'] = $token;
+            return $resultado;
+        }
+
+        $this->db->trans_commit();
+        $resultado['status'] = 'duplicado_processando';
+        return $resultado;
     }
 
-    public function finalizar_evento_chatbot($id_evento, $resultado, $id_sessao = 0, $id_usuario = 0, $id_agendamento = 0)
+    public function finalizar_evento_chatbot($id_evento, $resultado, $id_sessao = 0, $id_usuario = 0, $id_agendamento = 0, $token_processamento = '')
     {
         $id_evento = (int)$id_evento;
-        if ($id_evento <= 0 || !$this->tabela_possui_campos($this->chatbot_event_table, ['id', 'resultado'])) {
+        $token_processamento = trim((string)$token_processamento);
+        if ($id_evento <= 0 || $token_processamento === ''
+            || !$this->tabela_possui_campos($this->chatbot_event_table, ['id', 'resultado', 'processamento_status', 'processamento_token', 'finalizado_em'])) {
             return false;
         }
 
@@ -420,13 +476,21 @@ class Whatsapp_model extends CI_Model {
             'id_whatsapp_chatbot_sessao' => (int)$id_sessao,
             'id_usuario' => (int)$id_usuario,
             'id_agendamento' => (int)$id_agendamento,
+            'processamento_status' => 'finalizado',
+            'finalizado_em' => date('Y-m-d H:i:s'),
         ]);
         if (empty($dados)) {
             return false;
         }
 
         $this->db->where('id', $id_evento);
-        return $this->db->update($this->chatbot_event_table, $dados);
+        $this->db->where('processamento_status', 'processando');
+        $this->db->where('processamento_token', $token_processamento);
+        if (!$this->db->update($this->chatbot_event_table, $dados)) {
+            return false;
+        }
+
+        return (int)$this->db->affected_rows() === 1;
     }
 
     public function obter_sessao_chatbot($telefone)
@@ -449,27 +513,33 @@ class Whatsapp_model extends CI_Model {
         return $sessao;
     }
 
-    public function salvar_sessao_chatbot($telefone, $perfil, $id_usuario, $tenant_id, $fluxo, $etapa, $dados = [])
+    public function salvar_sessao_chatbot($telefone, $perfil, $id_usuario, $tenant_id, $fluxo, $etapa, $dados = [], $origem_em = null, $origem_evento = '')
     {
         $telefone = utec_whatsapp_normalizar_numero($telefone);
         $perfil = trim((string)$perfil);
+        $origemEm = $this->chatbot_data_origem($origem_em);
+        $origemEvento = trim((string)$origem_evento);
         if ($telefone === '' || $perfil === ''
-            || !$this->tabela_possui_campos($this->chatbot_session_table, ['telefone', 'perfil', 'id_usuario', 'tenant_id', 'fluxo', 'etapa', 'dados_json', 'atividade_em', 'expira_em', 'criado_em', 'atualizado_em'])) {
+            || !$this->tabela_possui_campos($this->chatbot_session_table, ['telefone', 'perfil', 'id_usuario', 'tenant_id', 'fluxo', 'etapa', 'dados_json', 'origem_em', 'origem_evento', 'atividade_em', 'expira_em', 'criado_em', 'atualizado_em'])) {
             return false;
         }
 
-        $sql = "INSERT INTO `{$this->chatbot_session_table}` (`telefone`, `perfil`, `id_usuario`, `tenant_id`, `fluxo`, `etapa`, `dados_json`, `atividade_em`, `expira_em`, `criado_em`, `atualizado_em`) VALUES ("
+        $origemMaisRecente = '(VALUES(origem_em) > origem_em OR (VALUES(origem_em) = origem_em AND VALUES(origem_evento) > origem_evento))';
+        $sql = "INSERT INTO `{$this->chatbot_session_table}` (`telefone`, `perfil`, `id_usuario`, `tenant_id`, `fluxo`, `etapa`, `dados_json`, `origem_em`, `origem_evento`, `atividade_em`, `expira_em`, `criado_em`, `atualizado_em`) VALUES ("
             .$this->db->escape($telefone).", "
             .$this->db->escape($perfil).", "
             .(int)$id_usuario.", "
             .(int)$tenant_id.", "
             .$this->db->escape(trim((string)$fluxo)).", "
             .$this->db->escape(trim((string)$etapa)).", "
-            .$this->db->escape($this->chatbot_json($dados)).", NOW(), DATE_ADD(NOW(), INTERVAL 15 MINUTE), NOW(), NOW()) "
-            ."ON DUPLICATE KEY UPDATE perfil = VALUES(perfil), id_usuario = VALUES(id_usuario), tenant_id = VALUES(tenant_id), fluxo = VALUES(fluxo), etapa = VALUES(etapa), dados_json = VALUES(dados_json), atividade_em = NOW(), expira_em = DATE_ADD(NOW(), INTERVAL 15 MINUTE), atualizado_em = NOW()";
+            .$this->db->escape($this->chatbot_json($dados)).", "
+            .$this->db->escape($origemEm).", "
+            .$this->db->escape($origemEvento).", NOW(), DATE_ADD(NOW(), INTERVAL 15 MINUTE), NOW(), NOW()) "
+            ."ON DUPLICATE KEY UPDATE perfil = IF({$origemMaisRecente}, VALUES(perfil), perfil), id_usuario = IF({$origemMaisRecente}, VALUES(id_usuario), id_usuario), tenant_id = IF({$origemMaisRecente}, VALUES(tenant_id), tenant_id), fluxo = IF({$origemMaisRecente}, VALUES(fluxo), fluxo), etapa = IF({$origemMaisRecente}, VALUES(etapa), etapa), dados_json = IF({$origemMaisRecente}, VALUES(dados_json), dados_json), atividade_em = IF({$origemMaisRecente}, NOW(), atividade_em), expira_em = IF({$origemMaisRecente}, DATE_ADD(NOW(), INTERVAL 15 MINUTE), expira_em), atualizado_em = IF({$origemMaisRecente}, NOW(), atualizado_em), origem_em = IF({$origemMaisRecente}, VALUES(origem_em), origem_em), origem_evento = IF({$origemMaisRecente}, VALUES(origem_evento), origem_evento)";
 
         return (bool)$this->db->query($sql);
     }
+
 
     public function limpar_sessao_chatbot($telefone)
     {
@@ -614,6 +684,21 @@ class Whatsapp_model extends CI_Model {
 
         $json = json_encode($valor, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
         return $json === false ? '{}' : $json;
+    }
+
+    private function chatbot_token_processamento()
+    {
+        return sha1(uniqid('', true));
+    }
+
+    private function chatbot_data_origem($origem_em)
+    {
+        if (is_numeric($origem_em) && (int)$origem_em > 0) {
+            return date('Y-m-d H:i:s', (int)$origem_em);
+        }
+
+        $timestamp = is_scalar($origem_em) ? strtotime((string)$origem_em) : false;
+        return $timestamp === false ? date('Y-m-d H:i:s') : date('Y-m-d H:i:s', $timestamp);
     }
 
     private function telefone_chatbot_sql($campo)
