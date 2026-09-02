@@ -8,6 +8,7 @@ class Webhooks extends CI_Controller {
         parent::__construct();
         $this->load->helper(array('whatsapp_agendamento'));
         $this->load->model('Whatsapp_model', 'whatsapp_model');
+        $this->load->library('whatsapp_chatbot');
     }
 
     public function whatsapp()
@@ -64,6 +65,10 @@ class Webhooks extends CI_Controller {
             }
             if ($evento['action'] !== '') {
                 $this->processar_resposta_agendamento($evento);
+                continue;
+            }
+            if ($evento['message_id'] !== '' && $evento['from'] !== '') {
+                $this->whatsapp_chatbot->processar($evento);
             }
         }
 

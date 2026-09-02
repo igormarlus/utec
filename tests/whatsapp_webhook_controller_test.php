@@ -31,6 +31,18 @@ assertWebhookController(
     'O controller deve disparar a resposta de texto ao paciente.'
 );
 assertWebhookController(
+    strpos($controller, "load->library('whatsapp_chatbot')") !== false,
+    'O controller deve carregar a biblioteca do chatbot.'
+);
+assertWebhookController(
+    strpos($controller, 'whatsapp_chatbot->processar($evento)') !== false,
+    'O controller deve encaminhar mensagens novas ao chatbot.'
+);
+assertWebhookController(
+    preg_match('/processar_resposta_agendamento\(\$evento\);\s*continue;/', $controller) === 1,
+    'Acoes legadas devem encerrar a iteracao antes do chatbot.'
+);
+assertWebhookController(
     strpos($controller, '[whatsapp_webhook] Resposta ao paciente enviada.') !== false,
     'O controller deve registrar o envio da resposta ao paciente.'
 );
