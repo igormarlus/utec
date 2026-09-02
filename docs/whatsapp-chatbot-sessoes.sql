@@ -100,6 +100,11 @@ BEGIN
     SELECT COUNT(*) INTO chatbot_existe FROM INFORMATION_SCHEMA.STATISTICS
     WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'whatsapp_chatbot_eventos' AND INDEX_NAME = 'uq_whatsapp_chatbot_evento_message';
     IF chatbot_existe = 0 THEN
+        DELETE evento_novo FROM `whatsapp_chatbot_eventos` evento_novo
+        INNER JOIN `whatsapp_chatbot_eventos` evento_antigo
+            ON evento_antigo.`message_id` = evento_novo.`message_id`
+            AND evento_antigo.`id` < evento_novo.`id`;
+
         SET @chatbot_sql = 'ALTER TABLE `whatsapp_chatbot_eventos` ADD UNIQUE KEY `uq_whatsapp_chatbot_evento_message` (`message_id`)';
         PREPARE chatbot_stmt FROM @chatbot_sql; EXECUTE chatbot_stmt; DEALLOCATE PREPARE chatbot_stmt;
     END IF;
