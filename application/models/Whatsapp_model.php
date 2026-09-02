@@ -597,7 +597,7 @@ class Whatsapp_model extends CI_Model {
             $statusWhatsapp = "COALESCE((SELECT CONCAT_WS('/', wn.status_envio, wn.status_confirmacao) FROM `{$this->log_table}` wn WHERE wn.id_agendamento = a.id ORDER BY wn.id DESC LIMIT 1), '') AS status_whatsapp";
         }
         $query = $this->db->query(
-            "SELECT a.id, a.id_paciente, a.id_prestador, a.data_agenda, a.hora_agenda, a.tipo, a.status, p.nome AS paciente_nome, pr.nome AS prestador_nome, {$statusWhatsapp} FROM `agendamentos` a LEFT JOIN `usuarios` p ON p.id = a.id_paciente LEFT JOIN `usuarios` pr ON pr.id = a.id_prestador WHERE {$where} ORDER BY a.data_agenda ASC, a.hora_agenda ASC, a.id ASC"
+            "SELECT a.id, a.id_paciente, a.id_prestador, a.id_user, a.data_agenda, a.hora_agenda, a.tipo, a.status, p.nome AS paciente_nome, pr.nome AS prestador_nome, {$statusWhatsapp} FROM `agendamentos` a LEFT JOIN `usuarios` p ON p.id = a.id_paciente LEFT JOIN `usuarios` pr ON pr.id = a.id_prestador WHERE {$where} ORDER BY a.data_agenda ASC, a.hora_agenda ASC, a.id ASC"
         );
         return $query ? $query->result() : [];
     }
@@ -620,7 +620,7 @@ class Whatsapp_model extends CI_Model {
             $statusWhatsapp = "COALESCE((SELECT CONCAT_WS('/', wn.status_envio, wn.status_confirmacao) FROM `{$this->log_table}` wn WHERE wn.id_agendamento = a.id ORDER BY wn.id DESC LIMIT 1), '') AS status_whatsapp";
         }
         $query = $this->db->query(
-            "SELECT a.id, a.id_paciente, a.id_prestador, a.data_agenda, a.hora_agenda, a.tipo, a.status, p.nome AS paciente_nome, pr.nome AS prestador_nome, {$statusWhatsapp} FROM `agendamentos` a LEFT JOIN `usuarios` p ON p.id = a.id_paciente LEFT JOIN `usuarios` pr ON pr.id = a.id_prestador WHERE a.id = {$id_agendamento} AND {$where} LIMIT 1"
+            "SELECT a.id, a.id_paciente, a.id_prestador, a.id_user, a.data_agenda, a.hora_agenda, a.tipo, a.status, p.nome AS paciente_nome, pr.nome AS prestador_nome, {$statusWhatsapp} FROM `agendamentos` a LEFT JOIN `usuarios` p ON p.id = a.id_paciente LEFT JOIN `usuarios` pr ON pr.id = a.id_prestador WHERE a.id = {$id_agendamento} AND {$where} LIMIT 1"
         );
         return $query && $query->num_rows() ? $query->row() : null;
     }
