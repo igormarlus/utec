@@ -38,7 +38,7 @@ Publicados no banco (`docs/blog-posts-seed.sql`): "Gestão de clínica médica: 
 Gerados como `.sql` pendente de aplicação:
 - `docs/seo-geo-agente-blog-2026-08-20.sql` → "Sistema para clínica de medicina do trabalho: o que avaliar antes de contratar" (slug `sistema-para-clinica-de-medicina-do-trabalho`) — **pendente de aplicação**
 - `docs/seo-geo-agente-blog-2026-08-20.sql` → "Software médico: como escolher para consultório ou clínica" (slug `software-medico-como-escolher-consultorio-clinica`) — **pendente de aplicação**
-- `docs/seo-geo-blog-whatsapp-confirmacao-2026-08-31.sql` → 7 artigos do cluster "confirmação/lembrete por WhatsApp" (slugs: `modelo-de-mensagem-de-confirmacao-de-consulta-whatsapp`, `mensagem-de-lembrete-de-consulta-quando-enviar`, `como-fazer-mensagem-de-confirmacao-de-consulta-no-whatsapp`, `confirmacao-de-consulta-manual-ou-automatica`, `como-reduzir-faltas-de-pacientes-no-consultorio`, `o-que-fazer-quando-paciente-nao-confirma-consulta`, `mensagem-de-confirmacao-de-consulta-odontologica`) — **pendente de aplicação; publicar só com o cron de lembrete no ar**
+- `docs/seo-geo-blog-whatsapp-confirmacao-2026-08-31.sql` → 7 artigos do cluster "confirmação/lembrete por WhatsApp" (slugs: `modelo-de-mensagem-de-confirmacao-de-consulta-whatsapp`, `mensagem-de-lembrete-de-consulta-quando-enviar`, `como-fazer-mensagem-de-confirmacao-de-consulta-no-whatsapp`, `confirmacao-de-consulta-manual-ou-automatica`, `como-reduzir-faltas-de-pacientes-no-consultorio`, `o-que-fazer-quando-paciente-nao-confirma-consulta`, `mensagem-de-confirmacao-de-consulta-odontologica`) — **aplicado em produção 2026-09-02; landing + menu + rodapé + sitemaps no ar, sitemaps reenviados ao Google**
 
 ## 3. Descartes (avaliado e rejeitado)
 
