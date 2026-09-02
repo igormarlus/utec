@@ -47,6 +47,47 @@ if (!function_exists('utec_whatsapp_perfil_tem_plano')) {
     }
 }
 
+if (!function_exists('utec_whatsapp_status_chatbot')) {
+    function utec_whatsapp_status_chatbot($agendamento)
+    {
+        $status = strtolower(trim((string)utec_whatsapp_read($agendamento, 'status', '')));
+        $statusWhatsapp = strtolower(trim((string)utec_whatsapp_read($agendamento, 'status_whatsapp', '')));
+
+        if ($status === '3' || strpos($status, 'cancel') !== false || strpos($statusWhatsapp, 'cancel') !== false) {
+            return '❌ cancelado';
+        }
+        if (strpos($statusWhatsapp, 'confirm') !== false) {
+            return '✅ confirmado';
+        }
+
+        return '⏳ pendente';
+    }
+}
+
+if (!function_exists('utec_whatsapp_chatbot_url_suporte')) {
+    function utec_whatsapp_chatbot_url_suporte()
+    {
+        return 'https://wa.me/5581983276882';
+    }
+}
+
+if (!function_exists('utec_whatsapp_chatbot_texto_suporte')) {
+    function utec_whatsapp_chatbot_texto_suporte()
+    {
+        return 'Fale com o dev.';
+    }
+}
+
+if (!function_exists('utec_notificacoes_tipo_solicitacao_chatbot')) {
+    function utec_notificacoes_tipo_solicitacao_chatbot($acao)
+    {
+        $acao = strtolower(trim((string)$acao));
+        return in_array($acao, ['remarcacao', 'cancelamento'], true)
+            ? 'whatsapp_chatbot_'.$acao
+            : '';
+    }
+}
+
 if (!function_exists('utec_whatsapp_normalizar_status_assinatura')) {
     function utec_whatsapp_normalizar_status_assinatura($status)
     {

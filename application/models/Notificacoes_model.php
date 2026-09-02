@@ -67,6 +67,54 @@ class Notificacoes_model extends CI_Model {
         return true;
     }
 
+    public function criar_solicitacao_chatbot($contexto, $acao, $motivo, $id_evento)
+    {
+        $tipo = utec_notificacoes_tipo_solicitacao_chatbot($acao);
+        $motivo = trim((string)$motivo);
+        $idEvento = (int)$id_evento;
+        if ($tipo === '' || strlen($motivo) < 3 || $idEvento <= 0 || !$this->tabela_possui_campos([
+            'tenant_id', 'id_usuario_destino', 'id_agendamento', 'id_whatsapp_notificacao',
+            'id_whatsapp_chatbot_evento', 'tipo', 'titulo', 'mensagem', 'url', 'lida', 'criado_em'
+        ])) {
+            return false;
+        }
+
+        $idAgendamento = (int)utec_whatsapp_read($contexto, 'id_agendamento', 0);
+        $idPaciente = (int)utec_whatsapp_read($contexto, 'id_paciente', 0);
+        if ($idAgendamento <= 0) {
+            return false;
+        }
+
+        $destinatarios = utec_notificacoes_destinatarios_agendamento(
+            (int)utec_whatsapp_read($contexto, 'id_user', 0),
+            (int)utec_whatsapp_read($contexto, 'id_prestador', 0)
+        );
+        if (empty($destinatarios)) {
+            return true;
+        }
+
+        $acao = strtolower(trim((string)$acao));
+        $titulo = $acao === 'remarcacao' ? 'Solicitacao de remarcacao' : 'Solicitacao de cancelamento';
+        $nome = trim((string)utec_whatsapp_read($contexto, 'paciente_nome', 'O paciente'));
+        $nome = $nome !== '' ? $nome : 'O paciente';
+        $mensagem = $nome.' solicitou '.$acao.' pelo WhatsApp. Motivo: '.utec_whatsapp_truncar_texto($motivo, 300);
+        $url = $idPaciente > 0 ? 'adm/usuarios/prontuario/'.$idPaciente.'/'.$idAgendamento : 'adm/atendimento';
+        $tenantId = (int)utec_whatsapp_read($contexto, 'tenant_id', 0);
+
+        foreach ($destinatarios as $idUsuario) {
+            $sql = "INSERT IGNORE INTO `{$this->table}`\n"
+                . '(tenant_id, id_usuario_destino, id_agendamento, id_whatsapp_notificacao, id_whatsapp_chatbot_evento, tipo, titulo, mensagem, url, lida, criado_em) VALUES ('
+                . $tenantId.', '.(int)$idUsuario.', '.$idAgendamento.', 0, '.$idEvento.', '
+                . $this->db->escape($tipo).', '.$this->db->escape($titulo).', '
+                . $this->db->escape($mensagem).', '.$this->db->escape($url).", 0, '".date('Y-m-d H:i:s')."')";
+            if ($this->db->query($sql) === false) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     public function listar_nao_lidas($id_usuario, $limite = 8)
     {
         $idUsuario = (int)$id_usuario;

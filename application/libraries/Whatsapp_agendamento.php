@@ -229,6 +229,36 @@ class Whatsapp_agendamento {
         return $resultado;
     }
 
+    public function enviar_chatbot($telefone, $payload)
+    {
+        $resultado = ['sent' => false, 'reason' => 'invalid_phone', 'wamid' => '', 'error' => ''];
+        $telefone = $this->normalizar_destino($telefone);
+        if ($telefone === '') {
+            return $resultado;
+        }
+
+        $config = $this->CI->whatsapp_model->get_configuracao_ativa();
+        if (!utec_whatsapp_config_ativa($config)) {
+            $resultado['reason'] = 'config_unavailable';
+            $resultado['error'] = 'Configuracao do WhatsApp ausente, incompleta ou inativa.';
+            return $resultado;
+        }
+
+        if (!is_array($payload) || empty($payload)) {
+            $resultado['reason'] = 'invalid_payload';
+            $resultado['error'] = 'Payload do chatbot invalido.';
+            return $resultado;
+        }
+
+        $payload['to'] = $telefone;
+        $response = $this->enviar_payload($config, $payload);
+        $resultado['sent'] = (bool)$response['ok'];
+        $resultado['reason'] = $response['ok'] ? 'sent' : 'api_error';
+        $resultado['wamid'] = (string)$response['wamid'];
+        $resultado['error'] = (string)$response['error'];
+        return $resultado;
+    }
+
     protected function get_subscription_status_by_tenant($tenant_id)
     {
         $tenant_id = (int)$tenant_id;
