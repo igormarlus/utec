@@ -40,6 +40,27 @@ if (!function_exists('utec_whatsapp_perfil_por_nivel')) {
     }
 }
 
+if (!function_exists('utec_whatsapp_resolver_perfil_chatbot_unico')) {
+    function utec_whatsapp_resolver_perfil_chatbot_unico($usuarios)
+    {
+        if (!is_array($usuarios) || count($usuarios) !== 1) {
+            return [];
+        }
+
+        $usuario = $usuarios[0];
+        $perfil = utec_whatsapp_perfil_por_nivel(utec_whatsapp_read($usuario, 'nivel'));
+        if ($perfil === '') {
+            return [];
+        }
+
+        return [
+            'id_usuario' => (int)utec_whatsapp_read($usuario, 'id'),
+            'tenant_id' => (int)utec_whatsapp_read($usuario, 'tenant_id'),
+            'perfil' => $perfil,
+        ];
+    }
+}
+
 if (!function_exists('utec_whatsapp_perfil_tem_plano')) {
     function utec_whatsapp_perfil_tem_plano($perfil)
     {
