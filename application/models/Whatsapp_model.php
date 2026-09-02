@@ -524,7 +524,7 @@ class Whatsapp_model extends CI_Model {
             return false;
         }
 
-        $origemMaisRecente = '(VALUES(origem_em) > origem_em OR (VALUES(origem_em) = origem_em AND VALUES(origem_evento) > origem_evento))';
+        $origemMaisRecente = '(VALUES(origem_em) > origem_em)';
         $sql = "INSERT INTO `{$this->chatbot_session_table}` (`telefone`, `perfil`, `id_usuario`, `tenant_id`, `fluxo`, `etapa`, `dados_json`, `origem_em`, `origem_evento`, `atividade_em`, `expira_em`, `criado_em`, `atualizado_em`) VALUES ("
             .$this->db->escape($telefone).", "
             .$this->db->escape($perfil).", "

@@ -60,8 +60,8 @@ assertSameValue(
 );
 assertSameValue(
     1,
-    preg_match('/VALUES\(origem_em\) > origem_em.*VALUES\(origem_evento\) > origem_evento/s', $codigoModeloChatbot),
-    'Sessao deve atualizar etapa e dados apenas quando a mensagem for mais recente na ordenacao causal.'
+    preg_match('/\$origemMaisRecente = \'\(VALUES\(origem_em\) > origem_em\)\';/', $codigoModeloChatbot),
+    'Sessao nao deve desempatar mensagens com mesmo timestamp pelo id do evento de origem.'
 );
 assertSameValue(
     1,
@@ -87,6 +87,11 @@ assertSameValue(
     1,
     preg_match('/PREPARE .* FROM @chatbot_sql.*EXECUTE .*DEALLOCATE PREPARE/s', $sqlSessoesChatbot),
     'Instalacao deve executar ALTER dinamico somente quando o objeto estiver ausente.'
+);
+assertSameValue(
+    1,
+    preg_match('/DELETE evento_novo FROM `whatsapp_chatbot_eventos` evento_novo\s+INNER JOIN `whatsapp_chatbot_eventos` evento_antigo\s+ON evento_antigo\.`message_id` = evento_novo\.`message_id`\s+AND evento_antigo\.`id` < evento_novo\.`id`;\s+SET @chatbot_sql = \'ALTER TABLE `whatsapp_chatbot_eventos` ADD UNIQUE KEY `uq_whatsapp_chatbot_evento_message`/s', $sqlSessoesChatbot),
+    'Instalacao deve remover eventos duplicados, mantendo a menor id, antes de criar o indice unico por message_id.'
 );
 assertSameValue(
     false,
