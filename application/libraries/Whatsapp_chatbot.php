@@ -258,7 +258,7 @@ class Whatsapp_chatbot {
         $comandos = [
             'paciente' => ['proximas', 'consulta', 'cancelar', 'remarcar', 'atendimento', 'voltar'],
             'profissional' => ['agenda_hoje', 'amanha', 'pendencias', 'plano', 'suporte', 'voltar'],
-            'admin' => ['agenda', 'pedencias', 'cancelamentos', 'plano', 'suporte', 'voltar'],
+            'admin' => ['agenda', 'pendencias', 'cancelamentos', 'plano', 'suporte', 'voltar'],
             'atendente' => ['agenda_hoje', 'amanha', 'pendencias', 'suporte', 'voltar'],
         ];
         return isset($comandos[$perfil]) ? $comandos[$perfil] : [];

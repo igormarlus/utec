@@ -223,6 +223,8 @@ $chatbot->processar([
 ]);
 assertChatbotSame(1, count($notificacoes->solicitacoes), 'Motivo valido deve criar solicitacao interna.');
 assertChatbotSame('cancelamento', $notificacoes->solicitacoes[0]['acao'], 'Cancelar deve criar tipo de solicitacao correto.');
+assertChatbotSame(9, $notificacoes->solicitacoes[0]['contexto']['id_user'], 'Solicitacao deve incluir o criador do agendamento.');
+assertChatbotSame(3, $notificacoes->solicitacoes[0]['contexto']['id_prestador'], 'Solicitacao deve incluir o prestador do agendamento.');
 assertChatbotSame(false, isset($modelo->sessoes['5581999999999']), 'Solicitacao concluida deve encerrar a sessao.');
 
 list($chatbot, $modelo, $envio) = novoChatbotDeTeste([
@@ -266,5 +268,19 @@ $codigoNotificacoes = file_get_contents(__DIR__ . '/../application/models/Notifi
 assertChatbotSame(true, strpos($codigoNotificacoes, 'function criar_solicitacao_chatbot(') !== false, 'Modelo deve registrar solicitacoes do chatbot.');
 assertChatbotSame(true, strpos($codigoNotificacoes, 'id_whatsapp_chatbot_evento') !== false, 'Solicitacoes devem deduplicar pelo evento do chatbot.');
 assertChatbotSame(true, strpos($codigoNotificacoes, 'utec_notificacoes_tipo_solicitacao_chatbot') !== false, 'Modelo deve validar somente os tipos fechados de solicitacao.');
+
+$codigoWhatsappModel = file_get_contents(__DIR__ . '/../application/models/Whatsapp_model.php');
+$inicioListarAgendamentos = strpos($codigoWhatsappModel, 'function listar_agendamentos_chatbot(');
+$fimListarAgendamentos = strpos($codigoWhatsappModel, 'function obter_agendamento_chatbot(', $inicioListarAgendamentos);
+$corpoListarAgendamentos = substr($codigoWhatsappModel, $inicioListarAgendamentos, $fimListarAgendamentos - $inicioListarAgendamentos);
+assertChatbotSame(true, strpos($corpoListarAgendamentos, 'SELECT a.id, a.id_paciente, a.id_prestador, a.id_user,') !== false, 'Lista de agendamentos deve selecionar o criador para o contexto de notificacao.');
+
+$inicioObterAgendamento = $fimListarAgendamentos;
+$fimObterAgendamento = strpos($codigoWhatsappModel, 'function obter_plano_chatbot(', $inicioObterAgendamento);
+$corpoObterAgendamento = substr($codigoWhatsappModel, $inicioObterAgendamento, $fimObterAgendamento - $inicioObterAgendamento);
+assertChatbotSame(true, strpos($corpoObterAgendamento, 'SELECT a.id, a.id_paciente, a.id_prestador, a.id_user,') !== false, 'Detalhe do agendamento deve selecionar o criador para o contexto de notificacao.');
+
+$codigoChatbot = file_get_contents(__DIR__ . '/../application/libraries/Whatsapp_chatbot.php');
+assertChatbotSame(true, strpos($codigoChatbot, "'admin' => ['agenda', 'pendencias', 'cancelamentos'") !== false, 'Menu admin deve expor o comando Pendencias com grafia correta.');
 
 echo "OK\n";
