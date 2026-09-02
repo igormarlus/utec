@@ -20,6 +20,24 @@ assertSameValue('admin', utec_whatsapp_perfil_por_nivel(2), 'Nivel 2 deve ser ad
 assertSameValue('', utec_whatsapp_perfil_por_nivel(0), 'Nivel vazio nao deve receber perfil no chatbot.');
 assertSameValue('admin', utec_whatsapp_perfil_por_nivel(1), 'Nivel 1 deve ser admin no chatbot.');
 
+$perfilInternoDuplicado = utec_whatsapp_resolver_perfil_chatbot_unico([
+    (object)['id' => 12, 'nivel' => 3, 'tenant_id' => 4],
+    (object)['id' => 19, 'nivel' => 4, 'tenant_id' => 4],
+]);
+assertSameValue([], $perfilInternoDuplicado, 'Telefone compartilhado por dois perfis internos deve ser ambiguo.');
+
+$perfilMistoDuplicado = utec_whatsapp_resolver_perfil_chatbot_unico([
+    (object)['id' => 23, 'nivel' => 2, 'tenant_id' => 8],
+    (object)['id' => 31, 'nivel' => 5, 'tenant_id' => 8],
+]);
+assertSameValue([], $perfilMistoDuplicado, 'Telefone compartilhado por perfil interno e paciente deve ser ambiguo.');
+
+$perfilUnico = utec_whatsapp_resolver_perfil_chatbot_unico([
+    (object)['id' => 42, 'nivel' => 5, 'tenant_id' => 11],
+]);
+assertSameValue(42, $perfilUnico['id_usuario'], 'Uma unica correspondencia deve manter o usuario autorizado.');
+assertSameValue('paciente', $perfilUnico['perfil'], 'Uma unica correspondencia deve manter o perfil autorizado.');
+
 $codigoModeloChatbot = file_get_contents(__DIR__ . '/../application/models/Whatsapp_model.php');
 $sqlSessoesChatbot = file_get_contents(__DIR__ . '/../docs/whatsapp-chatbot-sessoes.sql');
 

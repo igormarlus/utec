@@ -562,21 +562,20 @@ class Whatsapp_model extends CI_Model {
         $tenantSelect = $this->db->field_exists('tenant_id', 'usuarios') ? 'tenant_id' : '0 AS tenant_id';
         $telefoneSql = $this->telefone_chatbot_sql('telefone');
         $usuario = $this->db->query(
-            "SELECT id, nivel, {$tenantSelect} FROM `usuarios` WHERE nivel BETWEEN 1 AND 4 AND {$telefoneSql} = ".$this->db->escape($resultado['telefone'])." ORDER BY id ASC LIMIT 1"
+            "SELECT id, nivel, {$tenantSelect} FROM `usuarios` WHERE nivel BETWEEN 1 AND 5 AND {$telefoneSql} = ".$this->db->escape($resultado['telefone'])
         );
-        if (!$usuario || !$usuario->num_rows()) {
-            $usuario = $this->db->query(
-                "SELECT id, nivel, {$tenantSelect} FROM `usuarios` WHERE nivel = 5 AND {$telefoneSql} = ".$this->db->escape($resultado['telefone'])." ORDER BY id ASC LIMIT 1"
-            );
-        }
         if (!$usuario || !$usuario->num_rows()) {
             return $resultado;
         }
 
-        $usuario = $usuario->row();
-        $resultado['id_usuario'] = (int)$usuario->id;
-        $resultado['tenant_id'] = (int)$usuario->tenant_id;
-        $resultado['perfil'] = utec_whatsapp_perfil_por_nivel($usuario->nivel);
+        $perfil = utec_whatsapp_resolver_perfil_chatbot_unico($usuario->result());
+        if (!$perfil) {
+            return $resultado;
+        }
+
+        $resultado['id_usuario'] = $perfil['id_usuario'];
+        $resultado['tenant_id'] = $perfil['tenant_id'];
+        $resultado['perfil'] = $perfil['perfil'];
         return $resultado;
     }
 
