@@ -678,3 +678,26 @@ IDs fixos inseridos por `adm/dev/migrar_especialidades`. Relevantes para o pront
 | 33 | Pediatria | Sim — peso/altura, dados do responsável |
 | 36 | Psicologia | **Sim** — sessão confidencial, modalidade |
 | 37 | Psiquiatria | Sim — MSE, CID, ajuste medicamentoso |
+
+---
+
+## 18. Arquitetura de Agentes
+
+Orquestrador de triagem + 7 subagentes de domínio. Documento completo:
+`docs/arquitetura-agentes.md`. Arquivos em `.claude/agents/`.
+
+| Agente | Aciona quando |
+|--------|---------------|
+| `orquestrador` | Demanda toca 2+ domínios, mexe em banco/migração, altera pagamento/webhook, ou é priorização. Devolve plano; não implementa. |
+| `agente-clinico` | Usuários, níveis, árvore de escopo, agenda, prontuário, exames, especialidades. |
+| `agente-saas-billing` | Tenants, assinaturas, ciclos, planos/`produtos`, Mercado Pago, inadimplência, limites. |
+| `agente-whatsapp` | Cloud API própria (confirmação, lembrete, webhook, avisos internos) e chatbot legado. |
+| `agente-seo-geo` | Landings `seo_*`, blog, keyword research, link building, sitemaps, tráfego de IA, FB CAPI. |
+| `agente-frontend` | Views admin, landing pages, `css/clicklinica-main.css`, template, UX/a11y. |
+| `agente-dev-infra` | Migrações (`adm/Dev.php`), rotas, `config/`, deploy FTP, cron. Único que publica em produção. |
+| `agente-produto` | Roadmap, pricing/planos, ICP, concorrentes, specs de negócio. Não edita código. |
+
+Fluxo: você descreve → `orquestrador` decompõe e roteia → sessão principal
+aciona cada agente na ordem → cada agente roda o pipeline superpowers
+(brainstorming → writing-plans → TDD → code-review → verification) →
+`agente-dev-infra` fecha com deploy. RPG é domínio dormant (sem agente).
