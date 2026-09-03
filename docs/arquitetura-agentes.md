@@ -75,17 +75,23 @@ Formato fixo de saída (para a sessão principal consumir):
 
 ```
 DEMANDA: <reformulação em 1 frase>
-TIPO: feature nova | evolução | bug | operação recorrente | decisão de produto | infra
+TIPO: <feature nova | evolução | bug | operação recorrente | decisão de produto | infra — pode combinar>
 DOMÍNIOS AFETADOS: [lista de agentes]
 TAREFAS:
   1. [agente-x] <o que fazer>  (depende de: -)
   2. [agente-y] <o que fazer>  (depende de: 1)
   ...
-SPECS/PLANOS A CRIAR: [caminhos sugeridos em docs/superpowers/]
+PRÉ-REQUISITOS/BLOQUEADORES: [débitos abertos ou recursos ainda não construídos sobre os quais a demanda se apoia — distinto de RISCOS e FORA DE ESCOPO; "nenhum" quando não houver]
+SPECS/PLANOS A CRIAR: [caminhos em docs/ — inclui docs/superpowers/ e a raiz de docs/]
 RISCOS: [produção, dados, credenciais, limites de plano, webhook, etc.]
 FORA DE ESCOPO: [o que deliberadamente não entra]
-PRÓXIMO PASSO: <qual agente aciona primeiro e com qual skill>
+PRÓXIMO PASSO: <qual(is) agente(s) aciona primeiro e com qual skill — mais de um quando paralelizável>
 ```
+
+> Ajustes 1–7 vieram do piloto de 2026-09-02 (`docs/arquitetura-agentes-piloto-2026-09-02.md`).
+> Fronteiras transversais recorrentes (encanamento de includes compartilhados,
+> seleção de destinatários por escopo clínico, schema, cota por plano) estão
+> na seção "Fronteiras que se repetem" de `.claude/agents/orquestrador.md`.
 
 ### 3.3 Quando pular o orquestrador
 
