@@ -22,7 +22,8 @@ Thumbs.db
 
 .vscode/
 
-.claude
+.claude/*
+!.claude/agents/
 claude
 
 mercadopado.zip
