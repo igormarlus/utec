@@ -130,11 +130,13 @@ assertChatbotSame('Fale com o dev.', utec_whatsapp_chatbot_texto_suporte(), 'Sup
 assertChatbotSame('whatsapp_chatbot_remarcacao', utec_notificacoes_tipo_solicitacao_chatbot('remarcacao'), 'Solicitacao de remarcacao deve ser aceita.');
 assertChatbotSame('', utec_notificacoes_tipo_solicitacao_chatbot('confirmar'), 'Acoes fora do escopo nao devem criar solicitacao.');
 
+$hojeTeste = date('Y-m-d');
+$amanhaTeste = date('Y-m-d', strtotime('+1 day'));
 $agenda = [];
 for ($indice = 0; $indice < 11; $indice++) {
     $agenda[] = (object)[
         'id' => $indice + 1,
-        'data_agenda' => '2026-09-02',
+        'data_agenda' => $hojeTeste,
         'hora_agenda' => sprintf('%02d:00:00', 8 + $indice),
         'paciente_nome' => 'Paciente '.$indice,
         'prestador_nome' => 'Dra. Ana',
@@ -158,6 +160,8 @@ $resultadoAgenda = $chatbot->processar([
     'event_at' => '2026-09-02 10:00:00',
 ]);
 assertChatbotSame(true, $resultadoAgenda['processado'], 'Comando fechado de paciente deve ser processado.');
+assertChatbotSame('wamid.chatbot', $resultadoAgenda['wamid'], 'Resultado do chatbot deve manter o identificador da mensagem enviada.');
+assertChatbotSame('encontrado', $resultadoAgenda['perfil_status'], 'Resultado do chatbot deve informar que o perfil foi localizado.');
 assertChatbotSame(1, count($envio->payloads), 'Chatbot deve enviar uma resposta pelo dispatcher de agendamento.');
 $textoAgenda = $envio->payloads[0]['payload']['text']['body'];
 assertChatbotSame(true, strpos($textoAgenda, '08:00 - Dra. Ana - ⏳ pendente') !== false, 'Agenda do paciente deve expor somente horario, profissional e status.');
@@ -172,7 +176,7 @@ list($chatbot, $modelo, $envio, $notificacoes) = novoChatbotDeTeste([
     'tenant_id' => 2,
 ], [(object)[
     'id' => 71,
-    'data_agenda' => '2026-09-03',
+    'data_agenda' => $amanhaTeste,
     'hora_agenda' => '14:30:00',
     'paciente_nome' => 'Maria',
     'prestador_nome' => 'Dra. Ana',

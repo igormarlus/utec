@@ -36,6 +36,16 @@ assertSameValue(false, utec_whatsapp_checkbox_marcado([]), 'Checkbox ausente dev
 
 assertSameValue('5581999999999', utec_whatsapp_normalizar_numero('+55 (81) 99999-9999'), 'Numero deve ficar apenas com digitos.');
 assertSameValue('', utec_whatsapp_normalizar_numero(''), 'Numero vazio deve continuar vazio.');
+assertSameValue(
+    ['558183276882', '8183276882', '81983276882', '5581983276882'],
+    utec_whatsapp_variantes_numero_chatbot('558183276882'),
+    'Chatbot deve considerar a variacao brasileira com nono digito.'
+);
+assertSameValue(
+    ['15551234567'],
+    utec_whatsapp_variantes_numero_chatbot('15551234567'),
+    'Numero internacional fora do padrao brasileiro nao deve ganhar variacoes.'
+);
 
 assertSameValue('active', utec_whatsapp_normalizar_status_assinatura(' ACTIVE '), 'Status de assinatura deve ser normalizado.');
 

@@ -68,7 +68,17 @@ class Webhooks extends CI_Controller {
                 continue;
             }
             if ($evento['message_id'] !== '' && $evento['from'] !== '') {
-                $this->whatsapp_chatbot->processar($evento);
+                log_message('info', '[whatsapp_webhook] Mensagem recebida. wamid='.$evento['message_id'].' tipo='.$evento['message_type']);
+                $resultado = $this->whatsapp_chatbot->processar($evento);
+                log_message(
+                    'info',
+                    '[whatsapp_webhook] Chatbot processado. wamid='.$evento['message_id']
+                    .' processado='.(!empty($resultado['processado']) ? '1' : '0')
+                    .' motivo='.(string)utec_whatsapp_read($resultado, 'reason', '')
+                    .' perfil_status='.(string)utec_whatsapp_read($resultado, 'perfil_status', '')
+                    .' envio_wamid='.(string)utec_whatsapp_read($resultado, 'wamid', '')
+                    .' erro='.(string)utec_whatsapp_read($resultado, 'error', '')
+                );
             }
         }
 
@@ -94,7 +104,7 @@ class Webhooks extends CI_Controller {
     {
         $notificacao = $this->whatsapp_model->get_notificacao_por_wamid($evento['wamid']);
         if (!$notificacao) {
-            log_message('error', '[whatsapp_webhook] Status sem notificacao correspondente. wamid='.$evento['wamid']);
+            log_message('error', '[whatsapp_webhook] Status sem notificacao correspondente. wamid='.$evento['wamid'].' status='.$evento['delivery_status'].' erro='.$evento['error_detail']);
             return;
         }
 

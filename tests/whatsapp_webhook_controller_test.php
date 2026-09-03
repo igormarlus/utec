@@ -50,5 +50,18 @@ assertWebhookController(
     strpos($controller, '[whatsapp_webhook] Falha ao responder paciente.') !== false,
     'O controller deve registrar a falha ao responder o paciente.'
 );
+assertWebhookController(
+    preg_match('/Status sem notificacao correspondente\. wamid=.*status=.*erro=/', $controller) === 1,
+    'O status sem notificacao deve registrar o status e o detalhe retornados pela Meta.'
+);
+assertWebhookController(
+    strpos($controller, '[whatsapp_webhook] Mensagem recebida.') !== false
+    && strpos($controller, '[whatsapp_webhook] Chatbot processado.') !== false,
+    'O controller deve registrar o encaminhamento e o resultado do chatbot sem expor o texto recebido.'
+);
+assertWebhookController(
+    strpos($controller, 'perfil_status=') !== false,
+    'O log do chatbot deve registrar o diagnostico da identificacao de perfil.'
+);
 
 echo "OK\n";

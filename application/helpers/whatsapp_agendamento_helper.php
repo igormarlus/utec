@@ -21,6 +21,39 @@ if (!function_exists('utec_whatsapp_normalizar_numero')) {
     }
 }
 
+if (!function_exists('utec_whatsapp_variantes_numero_chatbot')) {
+    function utec_whatsapp_variantes_numero_chatbot($numero)
+    {
+        $numero = utec_whatsapp_normalizar_numero($numero);
+        if ($numero === '') {
+            return [];
+        }
+
+        $variantes = [$numero => true];
+        if (substr($numero, 0, 2) !== '55' || !in_array(strlen($numero), [12, 13], true)) {
+            return array_map('strval', array_keys($variantes));
+        }
+        $local = substr($numero, 2);
+
+        $alternativo = '';
+        if (strlen($local) === 10) {
+            $alternativo = substr($local, 0, 2).'9'.substr($local, 2);
+        } elseif (strlen($local) === 11 && substr($local, 2, 1) === '9') {
+            $alternativo = substr($local, 0, 2).substr($local, 3);
+        }
+
+        foreach ([$local, $alternativo] as $candidato) {
+            if ($candidato === '') {
+                continue;
+            }
+            $variantes[$candidato] = true;
+            $variantes['55'.$candidato] = true;
+        }
+
+        return array_map('strval', array_keys($variantes));
+    }
+}
+
 if (!function_exists('utec_whatsapp_perfil_por_nivel')) {
     function utec_whatsapp_perfil_por_nivel($nivel)
     {

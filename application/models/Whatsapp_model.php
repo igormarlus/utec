@@ -554,28 +554,43 @@ class Whatsapp_model extends CI_Model {
 
     public function resolver_perfil_chatbot($telefone)
     {
-        $resultado = ['telefone' => utec_whatsapp_normalizar_numero($telefone), 'perfil' => '', 'id_usuario' => 0, 'tenant_id' => 0];
-        if ($resultado['telefone'] === '' || !$this->tabela_possui_campos('usuarios', ['id', 'nivel', 'telefone'])) {
+        $resultado = ['telefone' => utec_whatsapp_normalizar_numero($telefone), 'perfil' => '', 'id_usuario' => 0, 'tenant_id' => 0, 'perfil_status' => 'telefone_invalido'];
+        if ($resultado['telefone'] === '') {
+            return $resultado;
+        }
+        if (!$this->tabela_possui_campos('usuarios', ['id', 'nivel', 'telefone'])) {
+            $resultado['perfil_status'] = 'schema_usuarios_invalido';
             return $resultado;
         }
 
         $tenantSelect = $this->db->field_exists('tenant_id', 'usuarios') ? 'tenant_id' : '0 AS tenant_id';
         $telefoneSql = $this->telefone_chatbot_sql('telefone');
+        $telefones = utec_whatsapp_variantes_numero_chatbot($resultado['telefone']);
+        $telefonesSql = [];
+        foreach ($telefones as $telefone) {
+            $telefonesSql[] = $this->db->escape($telefone);
+        }
+        if (empty($telefonesSql)) {
+            return $resultado;
+        }
         $usuario = $this->db->query(
-            "SELECT id, nivel, {$tenantSelect} FROM `usuarios` WHERE nivel BETWEEN 1 AND 5 AND {$telefoneSql} = ".$this->db->escape($resultado['telefone'])
+            "SELECT id, nivel, {$tenantSelect} FROM `usuarios` WHERE nivel BETWEEN 1 AND 5 AND {$telefoneSql} IN (".implode(', ', $telefonesSql).")"
         );
         if (!$usuario || !$usuario->num_rows()) {
+            $resultado['perfil_status'] = 'numero_nao_encontrado';
             return $resultado;
         }
 
         $perfil = utec_whatsapp_resolver_perfil_chatbot_unico($usuario->result());
         if (!$perfil) {
+            $resultado['perfil_status'] = 'numero_ambiguo';
             return $resultado;
         }
 
         $resultado['id_usuario'] = $perfil['id_usuario'];
         $resultado['tenant_id'] = $perfil['tenant_id'];
         $resultado['perfil'] = $perfil['perfil'];
+        $resultado['perfil_status'] = 'encontrado';
         return $resultado;
     }
 

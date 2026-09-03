@@ -58,6 +58,13 @@ class Whatsapp_chatbot {
                 $idAgendamento = (int)utec_whatsapp_read($resultado, 'id_agendamento', 0);
             }
         } finally {
+            $perfilStatus = trim((string)utec_whatsapp_read($perfil, 'perfil_status', ''));
+            if ($perfilStatus === '') {
+                $perfilStatus = $idUsuario > 0 && trim((string)utec_whatsapp_read($perfil, 'perfil', '')) !== ''
+                    ? 'encontrado'
+                    : 'indisponivel';
+            }
+            $resultado['perfil_status'] = $perfilStatus;
             $this->CI->whatsapp_model->finalizar_evento_chatbot($idEvento, $resultado, $idSessao, $idUsuario, $idAgendamento, $token);
         }
 
@@ -237,7 +244,12 @@ class Whatsapp_chatbot {
             return ['processado' => false, 'reason' => 'payload_invalido'];
         }
         $envio = $this->CI->whatsapp_agendamento->enviar_chatbot($telefone, $payload);
-        return ['processado' => !empty($envio['sent']), 'reason' => !empty($envio['reason']) ? $envio['reason'] : 'api_error'];
+        return [
+            'processado' => !empty($envio['sent']),
+            'reason' => !empty($envio['reason']) ? $envio['reason'] : 'api_error',
+            'wamid' => trim((string)utec_whatsapp_read($envio, 'wamid', '')),
+            'error' => trim((string)utec_whatsapp_read($envio, 'error', '')),
+        ];
     }
 
     protected function extrair_comando($perfil, $evento)
