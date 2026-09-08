@@ -786,7 +786,7 @@ function assinatura_pagamento_status($subscription_id=0){
 
 function manual($nivel=null){
 	$dd_user = $this->padrao_model->get_usuario_logado();
-	$manual = $this->build_manual_context($nivel, $dd_user);
+	$manual = $this->manual_dados($nivel, $dd_user);
 	if(!$manual){
 		redirect('adm/usuarios/dash');
 		return;
@@ -798,29 +798,29 @@ function manual($nivel=null){
 
 function manual_pdf($nivel=null){
 	$dd_user = $this->padrao_model->get_usuario_logado();
-	$manual = $this->build_manual_context($nivel, $dd_user);
+	$manual = $this->manual_dados($nivel, $dd_user);
 	if(!$manual){
 		redirect('adm/usuarios/dash');
 		return;
 	}
 	$dados['manual'] = $manual;
-	$html = $this->load->view('adm/usuarios/manual_funcao_pdf', $dados, true);
-	require_once APPPATH.'libraries/tcpdf/tcpdf.php';
-	$pdf = new TCPDF('P', 'mm', 'A4', true, 'UTF-8', false);
-	$pdf->SetCreator('UTec Saude');
-	$pdf->SetAuthor('UTec Saude');
-	$pdf->SetTitle($manual['pdf_title']);
-	$pdf->SetMargins(12, 12, 12);
-	$pdf->SetAutoPageBreak(true, 12);
-	$pdf->setPrintHeader(false);
-	$pdf->setPrintFooter(false);
-	$pdf->SetFont('helvetica', '', 10);
-	$pdf->AddPage();
-	$pdf->writeHTML($html, true, false, true, false, '');
-	$pdf->Output($manual['pdf_slug'].'.pdf', 'I');
+	$html_capa = $this->load->view('adm/usuarios/manual_pdf_capa', $dados, true);
+	$html_conteudo = $this->load->view('adm/usuarios/manual_pdf_conteudo', $dados, true);
+
+	$this->load->library('m_pdf');
+	$mpdf = $this->m_pdf->pdf;
+	$mpdf->SetTitle($manual['pdf_title']);
+	$mpdf->SetAuthor('UTec Saude');
+	$mpdf->SetHTMLHeader('<div style="text-align:right;font-size:8pt;color:#64748b;border-bottom:0.5pt solid #e2e8f0;padding-bottom:4px;">'.$manual['title'].'</div>');
+	$mpdf->SetHTMLFooter('<div style="text-align:center;font-size:8pt;color:#94a3b8;border-top:0.5pt solid #e2e8f0;padding-top:4px;">Manual v'.$manual['versao'].' &middot; gerado em '.$manual['gerado_em'].' &middot; pagina {PAGENO} de {nb}</div>');
+	$mpdf->h2toc = array('H2' => 0);
+	$mpdf->WriteHTML($html_capa);
+	$mpdf->WriteHTML('<tocpagebreak toc-preHTML="&lt;h1&gt;Sumario&lt;/h1&gt;" links="on" />');
+	$mpdf->WriteHTML($html_conteudo);
+	$mpdf->Output($manual['pdf_slug'].'.pdf', 'I');
 }
 
-private function build_manual_context($nivel=null, $dd_user=null){
+private function manual_dados($nivel=null, $dd_user=null){
 	if(!$dd_user){
 		$dd_user = $this->padrao_model->get_usuario_logado();
 	}
@@ -832,109 +832,24 @@ private function build_manual_context($nivel=null, $dd_user=null){
 		return null;
 	}
 
-	$manual = [
-		'level' => $nivel,
-		'title' => '',
-		'subtitle' => '',
-		'pdf_title' => '',
-		'pdf_slug' => '',
-		'who' => [],
-		'access' => [],
-		'day_to_day' => [],
-		'payments' => [],
-		'good_practices' => [],
+	$titulos = [
+		2 => ['titulo' => 'Manual do Estabelecimento', 'subtitulo' => 'Guia da clinica/estabelecimento para gerir equipe, pacientes, agenda e assinatura.', 'slug' => 'manual-estabelecimento-nivel-2'],
+		3 => ['titulo' => 'Manual do Prestador', 'subtitulo' => 'Guia do profissional para atender pacientes, acompanhar agenda e operar dentro da clinica.', 'slug' => 'manual-prestador-nivel-3'],
+		4 => ['titulo' => 'Manual do Colaborador', 'subtitulo' => 'Guia de secretaria e apoio operacional para agenda, pacientes e rotina compartilhada.', 'slug' => 'manual-colaborador-nivel-4'],
 	];
 
-	if($nivel === 2){
-		$manual['title'] = 'Manual do Estabelecimento';
-		$manual['subtitle'] = 'Guia da clinica/estabelecimento para gerir equipe, pacientes, agenda e assinatura.';
-		$manual['pdf_title'] = 'Manual do Estabelecimento - UTEC Saude';
-		$manual['pdf_slug'] = 'manual-estabelecimento-nivel-2';
-		$manual['who'] = [
-			'Perfil pensado para gestores da clinica, consultorio ou operacao principal.',
-			'Normalmente este usuario coordena prestadores, colaboradores e a configuracao geral da rotina.',
-		];
-		$manual['access'] = [
-			'Visualiza a operacao inteira da clinica vinculada ao seu cadastro.',
-			'Gerencia prestadores nivel 3, colaboradores nivel 4 e pacientes nivel 5 vinculados a sua estrutura.',
-			'Pode acompanhar agenda, pacientes, historico clinico, relatorios e assinatura da operacao.',
-		];
-		$manual['day_to_day'] = [
-			'Acessar `Agenda` para acompanhar atendimentos e a movimentacao do dia.',
-			'Usar `Pacientes` para cadastrar novos pacientes e revisar a base ativa da clinica.',
-			'Usar `Equipe` para organizar profissionais e colaboradores que participam da operacao.',
-			'Usar `Minha assinatura` para acompanhar cobrancas, historico de pagamento e liberar quitacao do plano.',
-		];
-		$manual['payments'] = [
-			'O plano da operacao pode ser pago por PIX ou cartao dentro da area administrativa.',
-			'O historico mostra ciclos de cobranca, pagamentos confirmados e tentativas recentes.',
-		];
-		$manual['good_practices'] = [
-			'Manter o cadastro da equipe atualizado para evitar perda de visibilidade na agenda e nos pacientes.',
-			'Centralizar o cadastro de colaboradores da clinica no nivel 4 para facilitar operacao compartilhada.',
-		];
-	}
+	$this->load->library('manual_conteudo');
 
-	if($nivel === 3){
-		$manual['title'] = 'Manual do Prestador';
-		$manual['subtitle'] = 'Guia do profissional para atender pacientes, acompanhar agenda e operar dentro da clinica.';
-		$manual['pdf_title'] = 'Manual do Prestador - UTEC Saude';
-		$manual['pdf_slug'] = 'manual-prestador-nivel-3';
-		$manual['who'] = [
-			'Perfil pensado para profissionais/prestadores que atendem pacientes e registram prontuario.',
-			'Pode atuar sozinho ou dentro de uma clinica nivel 2.',
-		];
-		$manual['access'] = [
-			'Visualiza seus pacientes, seus atendimentos e os registros compartilhados da clinica onde estiver vinculado.',
-			'Tambem enxerga o que colaboradores nivel 4 ligados a ele ou a clinica registrarem na mesma operacao.',
-			'Consegue acessar agenda, pacientes, prontuarios, exames e acompanhamento clinico.',
-		];
-		$manual['day_to_day'] = [
-			'Usar `Agenda` para iniciar, finalizar ou remarcar atendimentos.',
-			'Usar `Pacientes` para localizar pacientes ativos e abrir prontuario.',
-			'Usar `Relatorios` para acompanhar volume de atendimentos e exames da operacao visivel ao prestador.',
-		];
-		$manual['payments'] = [
-			'Quando a operacao tiver assinatura vinculada, o prestador pode acompanhar situacao comercial pela area de assinatura.',
-			'O pagamento pode ser feito sem entrar na area SaaS, usando a central de pagamento da assinatura.',
-		];
-		$manual['good_practices'] = [
-			'Registrar atendimento e status da agenda no mesmo dia para manter o historico clinico organizado.',
-			'Alinhar com a clinica e com os colaboradores o padrao de cadastro para evitar duplicidade de pacientes.',
-		];
-	}
-
-	if($nivel === 4){
-		$manual['title'] = 'Manual do Colaborador';
-		$manual['subtitle'] = 'Guia de secretaria e apoio operacional para agenda, pacientes e rotina compartilhada.';
-		$manual['pdf_title'] = 'Manual do Colaborador - UTEC Saude';
-		$manual['pdf_slug'] = 'manual-colaborador-nivel-4';
-		$manual['who'] = [
-			'Perfil pensado para secretarias, recepcao e apoio operacional.',
-			'Pode estar vinculado diretamente a uma clinica nivel 2 ou a um prestador nivel 3.',
-		];
-		$manual['access'] = [
-			'Visualiza pacientes e agendamentos da operacao a que estiver vinculado.',
-			'Quando estiver ligado a uma clinica, acompanha a base compartilhada da clinica.',
-			'Quando estiver ligado a um prestador inserido em uma clinica, tambem acompanha o contexto compartilhado dessa clinica.',
-			'Tem acesso ao que ele cadastrar e ao que a clinica ou o profissional vinculado registrarem na mesma operacao visivel.',
-		];
-		$manual['day_to_day'] = [
-			'Usar `Agenda` para confirmar, remarcar e organizar atendimentos do dia.',
-			'Usar `Pacientes` para cadastrar novos pacientes e localizar contatos rapidamente.',
-			'Usar o prontuario apenas dentro do escopo operacional liberado para a equipe vinculada.',
-		];
-		$manual['payments'] = [
-			'Se a operacao tiver assinatura vinculada, o colaborador pode consultar o status comercial quando isso fizer parte do fluxo interno da clinica.',
-			'O pagamento do plano segue pela central de assinatura, com historico e opcoes de PIX/cartao.',
-		];
-		$manual['good_practices'] = [
-			'Manter telefone e dados do paciente bem cadastrados para evitar erros de agenda e contato.',
-			'Padronizar observacoes de remarcacao e cancelamento para a equipe inteira entender o historico.',
-		];
-	}
-
-	return $manual;
+	return [
+		'level' => $nivel,
+		'title' => $titulos[$nivel]['titulo'],
+		'subtitle' => $titulos[$nivel]['subtitulo'],
+		'pdf_title' => $titulos[$nivel]['titulo'].' - UTEC Saude',
+		'pdf_slug' => $titulos[$nivel]['slug'],
+		'versao' => Manual_conteudo::VERSAO,
+		'gerado_em' => date('d/m/Y'),
+		'capitulos' => $this->manual_conteudo->capitulos_por_nivel($nivel),
+	];
 }
 
 function relatorios_clinicos(){
