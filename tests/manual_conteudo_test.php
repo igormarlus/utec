@@ -49,11 +49,11 @@ foreach ($nivel2 as $capitulo) {
 }
 assertTrue($assinaturaNivel2 !== null, 'Capitulo assinatura-pagamento deve existir para o nivel 2.');
 assertTrue(
-    in_array('A tela de assinatura mostra o historico de ciclos de cobranca, pagamentos confirmados e tentativas recentes.', $assinaturaNivel2['topicos'], true),
+    in_array('A tela de assinatura mostra o histórico de ciclos de cobrança, pagamentos confirmados e tentativas recentes.', $assinaturaNivel2['topicos'], true),
     'Topico comum (*) deve entrar na lista do nivel 2.'
 );
 assertTrue(
-    in_array('E o Estabelecimento quem normalmente acompanha e quita a assinatura da operacao, em `Minha assinatura`.', $assinaturaNivel2['topicos'], true),
+    in_array('É o Estabelecimento quem normalmente acompanha e quita a assinatura da operação, em `Minha assinatura`.', $assinaturaNivel2['topicos'], true),
     'Topico especifico do nivel 2 deve entrar na lista.'
 );
 
@@ -72,5 +72,25 @@ foreach ($nivel2 as $capitulo) {
     }
 }
 assertSameValue(null, $acessoNivel2['print'], 'Capitulo sem print cadastrado deve resolver para null.');
+
+$reflection = new ReflectionClass('Manual_conteudo');
+$metodoPrint = $reflection->getMethod('resolver_print');
+$metodoPrint->setAccessible(true);
+
+assertSameValue(
+    'nivel2.png',
+    $metodoPrint->invoke($mc, array('2' => 'nivel2.png', '*' => 'padrao.png'), 2),
+    'Print por nivel deve priorizar a chave do nivel especifico quando ela existe.'
+);
+assertSameValue(
+    'padrao.png',
+    $metodoPrint->invoke($mc, array('4' => 'nivel4.png', '*' => 'padrao.png'), 2),
+    'Print por nivel deve cair para * quando o nivel pedido nao tem chave propria.'
+);
+assertSameValue(
+    null,
+    $metodoPrint->invoke($mc, array('4' => 'nivel4.png'), 2),
+    'Print por nivel sem * e sem o nivel pedido deve resolver para null.'
+);
 
 echo "OK\n";
