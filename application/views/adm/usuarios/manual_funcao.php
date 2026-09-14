@@ -12,13 +12,16 @@
       .manual-title { font-size:34px; line-height:1.08; color:#0f172a; font-weight:700; margin:0 0 10px; }
       .manual-copy { color:#475569; font-size:15px; line-height:1.75; max-width:840px; }
       .manual-actions { display:flex; gap:12px; flex-wrap:wrap; margin-top:18px; }
-      .manual-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:18px; }
-      .manual-card { background:#fff; border:1px solid #e2e8f0; border-radius:20px; box-shadow:0 10px 24px rgba(15,23,42,.05); }
-      .manual-card-head { padding:18px 20px 0; }
-      .manual-card-body { padding:18px 20px 20px; }
+      .manual-capitulo { background:#fff; border:1px solid #e2e8f0; border-radius:20px; box-shadow:0 10px 24px rgba(15,23,42,.05); overflow:hidden; }
+      .manual-capitulo-head { padding:18px 20px 0; display:flex; align-items:center; gap:10px; }
+      .manual-capitulo-head i { font-size:20px; color:#2563eb; }
+      .manual-capitulo-body { padding:12px 20px 20px; }
+      .manual-capitulo-resumo { color:#475569; margin:6px 0 12px; }
       .manual-list { margin:0; padding-left:18px; color:#475569; }
       .manual-list li { margin-bottom:10px; line-height:1.7; }
       .manual-list li:last-child { margin-bottom:0; }
+      .manual-print { width:100%; border-radius:14px; border:1px solid #e2e8f0; margin-bottom:14px; display:block; }
+      .manual-footer-nota { color:#94a3b8; font-size:13px; text-align:center; }
     </style>
   </head>
   <body class="menu-position-side menu-side-left full-screen with-content-panel">
@@ -45,29 +48,27 @@
                   </div>
                 </div>
 
-                <div class="manual-grid">
-                  <div class="manual-card">
-                    <div class="manual-card-head"><h6 class="element-header" style="margin-bottom:0;">Quem usa este perfil</h6></div>
-                    <div class="manual-card-body"><ul class="manual-list"><? foreach($manual['who'] as $item){ ?><li><?=$item?></li><? } ?></ul></div>
+                <? foreach($manual['capitulos'] as $capitulo){ ?>
+                <div class="manual-capitulo">
+                  <div class="manual-capitulo-head">
+                    <i class="<?=$capitulo['icone']?>"></i>
+                    <h6 class="element-header" style="margin-bottom:0;"><?=$capitulo['titulo']?></h6>
                   </div>
-                  <div class="manual-card">
-                    <div class="manual-card-head"><h6 class="element-header" style="margin-bottom:0;">O que pode acessar</h6></div>
-                    <div class="manual-card-body"><ul class="manual-list"><? foreach($manual['access'] as $item){ ?><li><?=$item?></li><? } ?></ul></div>
-                  </div>
-                  <div class="manual-card">
-                    <div class="manual-card-head"><h6 class="element-header" style="margin-bottom:0;">Rotina recomendada</h6></div>
-                    <div class="manual-card-body"><ul class="manual-list"><? foreach($manual['day_to_day'] as $item){ ?><li><?=$item?></li><? } ?></ul></div>
-                  </div>
-                  <div class="manual-card">
-                    <div class="manual-card-head"><h6 class="element-header" style="margin-bottom:0;">Assinatura e pagamento</h6></div>
-                    <div class="manual-card-body"><ul class="manual-list"><? foreach($manual['payments'] as $item){ ?><li><?=$item?></li><? } ?></ul></div>
+                  <div class="manual-capitulo-body">
+                    <p class="manual-capitulo-resumo"><?=$capitulo['resumo']?></p>
+                    <? if($capitulo['print']){ ?>
+                    <img class="manual-print" src="<?=base_url().'imagens/manual/'.$capitulo['print']?>" alt="<?=$capitulo['titulo']?>">
+                    <? } ?>
+                    <ul class="manual-list">
+                      <? foreach($capitulo['topicos'] as $topico){ ?>
+                      <li><?=$topico?></li>
+                      <? } ?>
+                    </ul>
                   </div>
                 </div>
+                <? } ?>
 
-                <div class="manual-card">
-                  <div class="manual-card-head"><h6 class="element-header" style="margin-bottom:0;">Boas praticas da operacao</h6></div>
-                  <div class="manual-card-body"><ul class="manual-list"><? foreach($manual['good_practices'] as $item){ ?><li><?=$item?></li><? } ?></ul></div>
-                </div>
+                <div class="manual-footer-nota">Manual v<?=$manual['versao']?> &middot; gerado em <?=$manual['gerado_em']?></div>
               </div>
             </div>
           </div>
