@@ -540,6 +540,7 @@ Para novas migrações: adicionar método em `Dev.php`, proteger com `nivel == 1
 - [x] Árvore de escopo de acesso por nível
 - [x] Upload de arquivos de pacientes
 - [x] Confirmação de agendamento via WhatsApp (template + webhook): paciente confirma/cancela pelo botão, sistema responde por texto, atualiza a agenda e gera avisos internos (ver 10.3.1)
+- [x] Manual de ajuda ao usuário v1 (níveis 2, 3 e 4) com capítulos reaproveitáveis e PDF em mPDF — screenshots pendentes (ver seção 19)
 
 ### 15.2 Próximas Entregas (Prioridade Alta)
 
@@ -699,10 +700,54 @@ Orquestrador de triagem + 7 subagentes de domínio. Documento completo:
 | `agente-whatsapp` | Cloud API própria (confirmação, lembrete, webhook, avisos internos) e chatbot legado. |
 | `agente-seo-geo` | Landings `seo_*`, blog, keyword research, link building, sitemaps, tráfego de IA, FB CAPI. |
 | `agente-frontend` | Views admin, landing pages, `css/clicklinica-main.css`, template, UX/a11y. |
-| `agente-dev-infra` | Migrações (`adm/Dev.php`), rotas, `config/`, deploy FTP, cron. Único que publica em produção. |
+| `agente-dev-infra` | Migrações (`adm/Dev.php`), rotas, `config/`, deploy FTP, cron. Único que publica em produção — inclui checar se `Manual_conteudo.php` (ver seção 19) foi atualizado antes de fechar uma entrega com impacto visível ao usuário. |
 | `agente-produto` | Roadmap, pricing/planos, ICP, concorrentes, specs de negócio. Não edita código. |
 
 Fluxo: você descreve → `orquestrador` decompõe e roteia → sessão principal
 aciona cada agente na ordem → cada agente roda o pipeline superpowers
 (brainstorming → writing-plans → TDD → code-review → verification) →
 `agente-dev-infra` fecha com deploy. RPG é domínio dormant (sem agente).
+
+---
+
+## 19. Manual de Ajuda ao Usuário
+
+Manual por perfil (níveis 2, 3 e 4) acessível em `adm/usuarios/manual/{nivel}`
+(tela) e `adm/usuarios/manual_pdf/{nivel}` (PDF via mPDF). Substituiu o
+manual antigo, gerado em TCPDF com 5 blocos de texto genérico por nível.
+Conteúdo modelo v1: `docs/superpowers/specs/2026-09-04-manual-ajuda-v1-design.md`
+e `docs/superpowers/plans/2026-09-07-manual-ajuda-v1.md`.
+
+- **Fonte do conteúdo:** `application/libraries/Manual_conteudo.php` — array
+  estático de 12 capítulos (sem tabela no banco), filtrado por nível via
+  `capitulos_por_nivel($nivel)`. `Manual_conteudo::VERSAO` sobe só quando a
+  ESTRUTURA do array mudar, não a cada capítulo novo. Cobre WhatsApp
+  (confirmação e lembrete), avisos internos, prontuário por especialidade e
+  assinatura/pagamento — funcionalidades que o manual antigo não descrevia.
+- **PDF:** `application/libraries/M_pdf.php` (wrapper de mPDF v6,
+  `application/third_party/mpdf`) — capa, sumário automático (`<tocpagebreak>`
+  lendo os `<h2>` de cada capítulo), cabeçalho/rodapé com paginação. Views:
+  `manual_pdf_capa.php` + `manual_pdf_conteudo.php`. **mPDF v6 só roda em
+  PHP ≤ 7.x** — o construtor legado (`function mPDF(...)`, sem `__construct`)
+  falha com erro fatal em PHP 8. Use sempre um binário PHP 7.x para
+  `php -l`/testes envolvendo mPDF.
+- **Cache de fontes:** a primeira geração real de PDF com uma fonte ainda não
+  usada grava arquivos de cache em `application/third_party/mpdf/ttfontdata/`
+  (não é opcional, o mPDF sempre faz isso). Os arquivos de `dejavusans`/
+  `dejavusansB` já foram pré-gerados e commitados para o manual v1 — ao
+  adicionar uma fonte nova, rodar uma geração real localmente e commitar o
+  cache resultante evita esse custo (e risco de permissão de escrita) na
+  primeira requisição em produção.
+- **Screenshots:** `imagens/manual/*.png`, capturados em ambiente local com
+  dados de teste (nunca produção). **Pendente nesta entrega** — não havia
+  ambiente local funcional (sem WAMP instalado, sem credencial de MySQL local
+  válida) no momento da implementação; os 10 capítulos que referenciam uma
+  imagem (`Manual_conteudo::capitulos()`, chave `print`) renderizam sem ela
+  até alguém rodar a captura com um ambiente local de teste disponível.
+- **Regra de sincronização:** toda funcionalidade nova visível ao usuário
+  final (WhatsApp, SaaS, prontuário, agenda etc.) só é considerada concluída
+  quando `Manual_conteudo.php` tiver um capítulo ou tópico atualizado
+  cobrindo ela. `agente-dev-infra`, por ser o único agente que publica em
+  produção, verifica isso no fechamento de qualquer entrega com impacto
+  visível ao usuário — mesmo portão que já usa para `php -l` e healthcheck
+  pós-deploy.
