@@ -807,6 +807,14 @@ function manual_pdf($nivel=null){
 	$html_capa = $this->load->view('adm/usuarios/manual_pdf_capa', $dados, true);
 	$html_conteudo = $this->load->view('adm/usuarios/manual_pdf_conteudo', $dados, true);
 
+	// mPDF v6 (vendorizado, alvo PHP5) emite deprecations/notices em varios
+	// pontos internos (construtor "same-name", TTFontFile, otl, each()...)
+	// que o error handler do CI3 ecoa direto no corpo da resposta e corrompe
+	// o PDF. Suprime so durante a geracao; nivel de erro volta ao normal logo
+	// depois do Output().
+	$nivel_erro_anterior = error_reporting();
+	error_reporting(0);
+
 	$this->load->library('m_pdf');
 	$mpdf = $this->m_pdf->pdf;
 	$mpdf->SetTitle($manual['pdf_title']);
@@ -817,7 +825,11 @@ function manual_pdf($nivel=null){
 	$mpdf->WriteHTML($html_capa);
 	$mpdf->WriteHTML('<tocpagebreak toc-preHTML="&lt;h1&gt;Sumario&lt;/h1&gt;" links="on" />');
 	$mpdf->WriteHTML($html_conteudo);
+	// Output() e onde o mPDF monta os fontes/embute o PDF final - e exatamente
+	// onde os notices de compatibilidade PHP7 mais aparecem, entao a supressao
+	// so pode voltar ao normal DEPOIS dele, nao antes.
 	$mpdf->Output($manual['pdf_slug'].'.pdf', 'I');
+	error_reporting($nivel_erro_anterior);
 }
 
 private function manual_dados($nivel=null, $dd_user=null){
