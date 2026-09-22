@@ -817,3 +817,42 @@ if (!function_exists('utec_whatsapp_lembrete_intervalo')) {
         ];
     }
 }
+
+if (!function_exists('utec_whatsapp_template_equipe_nome')) {
+    function utec_whatsapp_template_equipe_nome($acao)
+    {
+        $acao = strtolower(trim((string)$acao));
+
+        if ($acao === 'confirmar') {
+            return 'agendamento_confirmado_equipe';
+        }
+        if ($acao === 'cancelar') {
+            return 'agendamento_cancelado_equipe';
+        }
+
+        return '';
+    }
+}
+
+if (!function_exists('utec_whatsapp_componentes_equipe_template')) {
+    function utec_whatsapp_componentes_equipe_template($contexto)
+    {
+        $dataBr = utec_whatsapp_formatar_data_br(utec_whatsapp_read($contexto, 'data_agenda', ''));
+        $horaBr = utec_whatsapp_formatar_hora_br(utec_whatsapp_read($contexto, 'hora_agenda', ''));
+        $dataHora = trim($dataBr . ' as ' . $horaBr, ' as ');
+        if ($dataBr !== '' && $horaBr !== '') {
+            $dataHora = $dataBr . ' as ' . $horaBr;
+        }
+
+        return [
+            [
+                'type' => 'body',
+                'parameters' => [
+                    ['type' => 'text', 'text' => trim((string)utec_whatsapp_read($contexto, 'paciente_nome', 'Paciente'))],
+                    ['type' => 'text', 'text' => trim((string)utec_whatsapp_read($contexto, 'prestador_nome', 'Profissional'))],
+                    ['type' => 'text', 'text' => $dataHora],
+                ],
+            ],
+        ];
+    }
+}
