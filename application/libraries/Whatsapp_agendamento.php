@@ -229,6 +229,102 @@ class Whatsapp_agendamento {
         return $resultado;
     }
 
+    public function notificar_equipe($contexto, $acao)
+    {
+        $resumo = ['enviados' => 0, 'falhas' => 0, 'detalhes' => []];
+
+        if (!$this->CI->config->item('notificar_equipe_ativo', 'whatsapp')) {
+            return $resumo;
+        }
+
+        $templateNome = utec_whatsapp_template_equipe_nome($acao);
+        if ($templateNome === '') {
+            return $resumo;
+        }
+
+        $config = $this->CI->whatsapp_model->get_configuracao_ativa();
+        if (!utec_whatsapp_config_ativa($config)) {
+            return $resumo;
+        }
+
+        $idAgendamento = (int)utec_whatsapp_read($contexto, 'id_agendamento', 0);
+        $agendamento = $this->buscar_contexto_agendamento($idAgendamento);
+        if (!$agendamento) {
+            return $resumo;
+        }
+
+        $idPrestador = (int)utec_whatsapp_read($contexto, 'id_prestador', 0);
+        $idCriador = (int)utec_whatsapp_read($contexto, 'id_user', 0);
+        $destinatarios = utec_notificacoes_destinatarios_agendamento($idCriador, $idPrestador);
+        $tipoNotificacao = $acao === 'cancelar' ? 'equipe_cancelado' : 'equipe_confirmado';
+        $componentes = utec_whatsapp_componentes_equipe_template($agendamento);
+
+        foreach ($destinatarios as $idUsuario) {
+            $ehPrestador = ($idUsuario === $idPrestador);
+            $papel = $ehPrestador ? 'profissional' : 'atendente';
+            $telefoneBruto = $ehPrestador
+                ? (isset($agendamento->prestador_telefone) ? $agendamento->prestador_telefone : '')
+                : (isset($agendamento->cadastrado_por_telefone) ? $agendamento->cadastrado_por_telefone : '');
+            $telefone = $this->normalizar_destino($telefoneBruto);
+
+            if ($telefone === '') {
+                $this->CI->whatsapp_model->registrar_log([
+                    'id_agendamento' => $idAgendamento,
+                    'tenant_id' => (int)$agendamento->tenant_id,
+                    'status_envio' => 'erro',
+                    'erro_detalhe' => 'Destino sem telefone valido para notificacao de equipe.',
+                    'status_confirmacao' => 'nao_aplicavel',
+                    'tipo_notificacao' => $tipoNotificacao,
+                ]);
+                $resumo['falhas']++;
+                $resumo['detalhes'][] = ['papel' => $papel, 'sent' => false, 'error' => 'invalid_phone'];
+                log_message('error', '[whatsapp_equipe] Telefone invalido. agendamento='.$idAgendamento.' papel='.$papel);
+                continue;
+            }
+
+            $quota = $this->validar_quota_tenant($agendamento, $telefone, $tipoNotificacao);
+            if (!$quota['ok']) {
+                $resumo['falhas']++;
+                $resumo['detalhes'][] = ['papel' => $papel, 'sent' => false, 'error' => 'quota_reached'];
+                log_message('error', '[whatsapp_equipe] '.$quota['message'].' agendamento='.$idAgendamento.' papel='.$papel);
+                continue;
+            }
+
+            $payload = $this->montar_payload($config, $agendamento, $telefone, $templateNome, $componentes);
+            $response = $this->enviar_payload($config, $payload);
+
+            $this->CI->whatsapp_model->registrar_log([
+                'id_agendamento' => $idAgendamento,
+                'tenant_id' => (int)$agendamento->tenant_id,
+                'telefone_destino' => $telefone,
+                'wamid' => $response['ok'] ? $response['wamid'] : '',
+                'status_envio' => $response['ok'] ? 'enviado' : 'erro',
+                'erro_detalhe' => $response['ok'] ? '' : $response['error'],
+                'status_confirmacao' => 'nao_aplicavel',
+                'tipo_notificacao' => $tipoNotificacao,
+            ]);
+
+            if ($response['ok']) {
+                $resumo['enviados']++;
+            } else {
+                $resumo['falhas']++;
+            }
+            $resumo['detalhes'][] = [
+                'papel' => $papel,
+                'sent' => (bool)$response['ok'],
+                'wamid' => $response['ok'] ? $response['wamid'] : '',
+                'error' => $response['ok'] ? '' : $response['error'],
+            ];
+            log_message(
+                $response['ok'] ? 'info' : 'error',
+                '[whatsapp_equipe] '.($response['ok'] ? 'enviado' : 'falha').' agendamento='.$idAgendamento.' papel='.$papel
+                    .($response['ok'] ? '' : ' erro='.$response['error'])
+            );
+        }
+
+        return $resumo;
+    }
+
     public function enviar_chatbot($telefone, $payload)
     {
         $resultado = ['sent' => false, 'reason' => 'invalid_phone', 'wamid' => '', 'error' => ''];
@@ -317,7 +413,7 @@ class Whatsapp_agendamento {
             "SELECT a.id, a.data_agenda, a.hora_agenda, a.tipo,
                     p.nome AS paciente_nome, p.telefone AS paciente_telefone,
                     pr.nome AS prestador_nome, pr.telefone AS prestador_telefone,
-                    cad.nome AS cadastrado_por_nome,
+                    cad.nome AS cadastrado_por_nome, cad.telefone AS cadastrado_por_telefone,
                     {$tenantSelect}
              FROM agendamentos a
              LEFT JOIN usuarios p ON p.id = a.id_paciente
@@ -342,7 +438,7 @@ class Whatsapp_agendamento {
         return strlen($telefone) >= 12 ? $telefone : '';
     }
 
-    protected function montar_payload($config, $agendamento, $telefone)
+    protected function montar_payload($config, $agendamento, $telefone, $templateNome = null, $componentes = null)
     {
         return [
             'messaging_product' => 'whatsapp',
@@ -350,11 +446,11 @@ class Whatsapp_agendamento {
             'to' => $telefone,
             'type' => 'template',
             'template' => [
-                'name' => trim((string)$config->template_name),
+                'name' => $templateNome !== null ? trim((string)$templateNome) : trim((string)$config->template_name),
                 'language' => [
                     'code' => trim((string)$config->template_lang),
                 ],
-                'components' => utec_whatsapp_componentes_template($agendamento, $config),
+                'components' => $componentes !== null ? $componentes : utec_whatsapp_componentes_template($agendamento, $config),
             ],
         ];
     }
