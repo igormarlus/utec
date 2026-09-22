@@ -197,8 +197,8 @@ class Manual_conteudo {
                         'É um envio único por agendamento - não gera repetição de mensagens para o paciente.',
                     ),
                 ),
-                'print' => 'whatsapp-confirmacao.png',
-                'atualizado_em' => '2026-09-07',
+                'print' => 'whatsapp-lembrete.png',
+                'atualizado_em' => '2026-09-22',
             ),
             array(
                 'slug' => 'avisos-internos',
@@ -213,7 +213,6 @@ class Manual_conteudo {
                         'Cada aviso é entregue individualmente a quem precisa saber - o prestador do agendamento e quem mais estiver na mesma operação.',
                     ),
                 ),
-                'print' => 'avisos-internos.png',
                 'atualizado_em' => '2026-09-07',
             ),
             array(
@@ -230,7 +229,6 @@ class Manual_conteudo {
                     ),
                     3 => array('Cadastra colaboradores próprios para apoio na rotina de atendimento, quando necessário.'),
                 ),
-                'print' => 'equipe.png',
                 'atualizado_em' => '2026-09-07',
             ),
             array(
@@ -249,7 +247,6 @@ class Manual_conteudo {
                     3 => array('Quando a operação tem assinatura vinculada, o prestador pode acompanhar a situação comercial pela central de pagamento, sem precisar entrar na área de gestão SaaS.'),
                     4 => array('Se fizer parte do fluxo interno da clínica, o colaborador pode consultar o status comercial da assinatura vinculada.'),
                 ),
-                'print' => 'assinatura-pagamento.png',
                 'atualizado_em' => '2026-09-07',
             ),
             array(
