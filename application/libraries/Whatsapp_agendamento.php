@@ -13,6 +13,7 @@ class Whatsapp_agendamento {
         $this->CI->load->model('Whatsapp_model', 'whatsapp_model');
         $this->CI->load->model('padrao_model');
         $this->CI->load->model('adm/Saas_model', 'saas_model');
+        $this->CI->config->load('whatsapp', TRUE);
     }
 
     public function is_disponivel()
