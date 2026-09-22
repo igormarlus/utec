@@ -155,8 +155,12 @@ class Whatsapp_model extends CI_Model {
             return null;
         }
 
+        $filtroTipo = $this->db->field_exists('tipo_notificacao', $this->log_table)
+            ? " AND tipo_notificacao NOT IN ('equipe_confirmado', 'equipe_cancelado')"
+            : '';
+
         $qr = $this->db->query(
-            "SELECT * FROM `{$this->log_table}` WHERE id_agendamento = {$id_agendamento} ORDER BY id DESC LIMIT 1"
+            "SELECT * FROM `{$this->log_table}` WHERE id_agendamento = {$id_agendamento}{$filtroTipo} ORDER BY id DESC LIMIT 1"
         );
 
         return $qr->num_rows() ? $qr->row() : null;
@@ -608,7 +612,10 @@ class Whatsapp_model extends CI_Model {
 
         $statusWhatsapp = "'' AS status_whatsapp";
         if ($this->tabela_possui_campos($this->log_table, ['id', 'id_agendamento', 'status_envio', 'status_confirmacao'])) {
-            $statusWhatsapp = "COALESCE((SELECT CONCAT_WS('/', wn.status_envio, wn.status_confirmacao) FROM `{$this->log_table}` wn WHERE wn.id_agendamento = a.id ORDER BY wn.id DESC LIMIT 1), '') AS status_whatsapp";
+            $filtroTipoChatbot = $this->db->field_exists('tipo_notificacao', $this->log_table)
+                ? " AND wn.tipo_notificacao NOT IN ('equipe_confirmado', 'equipe_cancelado')"
+                : '';
+            $statusWhatsapp = "COALESCE((SELECT CONCAT_WS('/', wn.status_envio, wn.status_confirmacao) FROM `{$this->log_table}` wn WHERE wn.id_agendamento = a.id{$filtroTipoChatbot} ORDER BY wn.id DESC LIMIT 1), '') AS status_whatsapp";
         }
         $query = $this->db->query(
             "SELECT a.id, a.id_paciente, a.id_prestador, a.id_user, a.data_agenda, a.hora_agenda, a.tipo, a.status, p.nome AS paciente_nome, pr.nome AS prestador_nome, {$statusWhatsapp} FROM `agendamentos` a LEFT JOIN `usuarios` p ON p.id = a.id_paciente LEFT JOIN `usuarios` pr ON pr.id = a.id_prestador WHERE {$where} ORDER BY a.data_agenda ASC, a.hora_agenda ASC, a.id ASC"
@@ -631,7 +638,10 @@ class Whatsapp_model extends CI_Model {
 
         $statusWhatsapp = "'' AS status_whatsapp";
         if ($this->tabela_possui_campos($this->log_table, ['id', 'id_agendamento', 'status_envio', 'status_confirmacao'])) {
-            $statusWhatsapp = "COALESCE((SELECT CONCAT_WS('/', wn.status_envio, wn.status_confirmacao) FROM `{$this->log_table}` wn WHERE wn.id_agendamento = a.id ORDER BY wn.id DESC LIMIT 1), '') AS status_whatsapp";
+            $filtroTipoChatbot = $this->db->field_exists('tipo_notificacao', $this->log_table)
+                ? " AND wn.tipo_notificacao NOT IN ('equipe_confirmado', 'equipe_cancelado')"
+                : '';
+            $statusWhatsapp = "COALESCE((SELECT CONCAT_WS('/', wn.status_envio, wn.status_confirmacao) FROM `{$this->log_table}` wn WHERE wn.id_agendamento = a.id{$filtroTipoChatbot} ORDER BY wn.id DESC LIMIT 1), '') AS status_whatsapp";
         }
         $query = $this->db->query(
             "SELECT a.id, a.id_paciente, a.id_prestador, a.id_user, a.data_agenda, a.hora_agenda, a.tipo, a.status, p.nome AS paciente_nome, pr.nome AS prestador_nome, {$statusWhatsapp} FROM `agendamentos` a LEFT JOIN `usuarios` p ON p.id = a.id_paciente LEFT JOIN `usuarios` pr ON pr.id = a.id_prestador WHERE a.id = {$id_agendamento} AND {$where} LIMIT 1"
