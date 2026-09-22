@@ -158,9 +158,18 @@ class Webhooks extends CI_Controller {
             log_message('error', '[whatsapp_webhook] Falha ao registrar avisos internos. id='.(int)$notificacao->id);
         }
 
+        // Notificacao WhatsApp para profissional e atendente. Falha aqui nao afeta o
+        // paciente nem os avisos internos ja registrados.
+        $this->load->library('whatsapp_agendamento');
+        $envioEquipe = $this->whatsapp_agendamento->notificar_equipe($contexto, $acao);
+        log_message(
+            'info',
+            '[whatsapp_webhook] Notificacao a equipe. id='.(int)$notificacao->id
+                .' enviados='.(int)$envioEquipe['enviados'].' falhas='.(int)$envioEquipe['falhas']
+        );
+
         // Resposta de texto ao paciente. Nunca faz rollback da confirmacao/cancelamento ja aplicados.
         $telefone = isset($contexto['telefone_destino']) ? $contexto['telefone_destino'] : '';
-        $this->load->library('whatsapp_agendamento');
         $envio = $this->whatsapp_agendamento->responder_interacao($telefone, $acao);
         if (!empty($envio['sent'])) {
             log_message('info', '[whatsapp_webhook] Resposta ao paciente enviada. id='.(int)$notificacao->id.' wamid='.(string)$envio['wamid']);

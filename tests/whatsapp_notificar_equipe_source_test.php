@@ -24,4 +24,10 @@ assertSource(strpos($lib, "'equipe_cancelado'") !== false && strpos($lib, "'equi
 assertSource(strpos($lib, "validar_quota_tenant(\$agendamento, \$telefone, \$tipoNotificacao)") !== false, 'notificar_equipe deve respeitar a cota do tenant.');
 assertSource(strpos($lib, "log_message('warning'") === false, 'A biblioteca nao deve usar log_message(warning).');
 
+$webhook = file_get_contents(__DIR__ . '/../application/controllers/Webhooks.php');
+
+// --- Task 4: integracao no webhook ---
+assertSource(strpos($webhook, 'notificar_equipe(') !== false, 'Webhooks.php deve chamar notificar_equipe apos os avisos internos.');
+assertSource(strpos($webhook, "log_message('warning'") === false, 'Webhooks.php nao deve usar log_message(warning).');
+
 echo "OK\n";
