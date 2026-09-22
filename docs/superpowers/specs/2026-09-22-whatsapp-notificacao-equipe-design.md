@@ -166,9 +166,15 @@ quando forem pessoas diferentes).
 
 ## Passo de publicação
 
-1. Enviar por FTP os 4 arquivos tocados: `application/config/whatsapp.php`,
+1. Enviar por FTP os 6 arquivos tocados: `application/config/whatsapp.php`,
    `application/helpers/whatsapp_agendamento_helper.php`,
-   `application/libraries/Whatsapp_agendamento.php`, `application/controllers/Webhooks.php`.
+   `application/libraries/Whatsapp_agendamento.php`, `application/controllers/Webhooks.php`,
+   `application/models/Whatsapp_model.php`, `application/controllers/adm/Atendimento.php`.
+   Os dois últimos vieram da Task 2 (exclusão de `equipe_confirmado`/`equipe_cancelado`
+   das consultas de "última resposta"); não enviar sem eles deixa a etiqueta
+   "Confirmado/Cancelado via WhatsApp" da agenda vulnerável a ser mascarada pelas
+   novas linhas de notificação de equipe — exatamente o bug que a Task 2 existe para
+   evitar.
 2. Nenhuma migração de banco necessária.
 3. Quando a Meta aprovar os dois templates, nenhuma ação adicional é necessária —
    o flag já sai ligado. Se quiser desligar temporariamente por qualquer motivo,

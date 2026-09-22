@@ -232,9 +232,14 @@ class Whatsapp_agendamento {
 
     public function notificar_equipe($contexto, $acao)
     {
+        $acao = strtolower(trim((string)$acao));
         $resumo = ['enviados' => 0, 'falhas' => 0, 'detalhes' => []];
 
         if (!$this->CI->config->item('notificar_equipe_ativo', 'whatsapp')) {
+            return $resumo;
+        }
+
+        if (!$this->CI->db->field_exists('tipo_notificacao', 'whatsapp_notificacoes')) {
             return $resumo;
         }
 
@@ -274,7 +279,7 @@ class Whatsapp_agendamento {
                     'tenant_id' => (int)$agendamento->tenant_id,
                     'status_envio' => 'erro',
                     'erro_detalhe' => 'Destino sem telefone valido para notificacao de equipe.',
-                    'status_confirmacao' => 'nao_aplicavel',
+                    'status_confirmacao' => 'nao_enviado',
                     'tipo_notificacao' => $tipoNotificacao,
                 ]);
                 $resumo['falhas']++;
@@ -301,7 +306,7 @@ class Whatsapp_agendamento {
                 'wamid' => $response['ok'] ? $response['wamid'] : '',
                 'status_envio' => $response['ok'] ? 'enviado' : 'erro',
                 'erro_detalhe' => $response['ok'] ? '' : $response['error'],
-                'status_confirmacao' => 'nao_aplicavel',
+                'status_confirmacao' => 'nao_enviado',
                 'tipo_notificacao' => $tipoNotificacao,
             ]);
 
