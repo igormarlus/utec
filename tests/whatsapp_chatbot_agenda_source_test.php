@@ -28,6 +28,8 @@ assertFonteContem('trans_begin()', $model, 'model usa transacao');
 assertFonteContem('checkdate(', $model, 'model valida data real de calendario');
 assertFonteNaoContem("NOT IN ('equipe_confirmado', 'equipe_cancelado')", $model, 'model exclui equipe_remarcado');
 assertFonteContem("NOT IN ('equipe_confirmado', 'equipe_cancelado', 'equipe_remarcado')", $model, 'model exclusao atualizada');
+assertFonteContem("status_confirmacao = 'pendente'", $model, 'model cancela confirmacoes pendentes do template antigo ao cancelar via chatbot');
+assertFonteContem("'confirmacao', 'lembrete_paciente'", $model, 'model restringe o cancelamento de pendentes aos tipos de confirmacao e lembrete');
 
 $atend = lerFonte('application/controllers/adm/Atendimento.php');
 assertFonteContem("NOT IN ('equipe_confirmado', 'equipe_cancelado', 'equipe_remarcado')", $atend, 'agenda exclusao atualizada');

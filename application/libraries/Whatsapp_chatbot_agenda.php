@@ -185,8 +185,9 @@ class Whatsapp_chatbot_agenda {
         if (!empty($r['ja_estava'])) {
             return $this->texto($perfil, 'Sua consulta já está marcada para '.utec_whatsapp_agenda_quando($novo->data_agenda, $novo->hora_agenda, $prestador).'.', (int)$agendamento->id);
         }
+        $resposta = $this->texto($perfil, utec_whatsapp_agenda_texto_remarcado($novo->data_agenda, $novo->hora_agenda, $prestador), (int)$agendamento->id);
         $this->avisar_equipe('remarcar', $agendamento, $r, '', $idEvento);
-        return $this->texto($perfil, utec_whatsapp_agenda_texto_remarcado($novo->data_agenda, $novo->hora_agenda, $prestador), (int)$agendamento->id);
+        return $resposta;
     }
 
     protected function confirmar_cancelamento($perfil, $agendamento, $idEvento)
@@ -216,8 +217,9 @@ class Whatsapp_chatbot_agenda {
         if (!empty($r['ja_estava'])) {
             return $this->texto($perfil, 'Essa consulta já está cancelada.', (int)$agendamento->id);
         }
+        $resposta = $this->texto($perfil, 'Consulta cancelada. Se quiser remarcar depois, é só chamar aqui.', (int)$agendamento->id);
         $this->avisar_equipe('cancelar', $agendamento, $r, $motivo, $idEvento);
-        return $this->texto($perfil, 'Consulta cancelada. Se quiser remarcar depois, é só chamar aqui.', (int)$agendamento->id);
+        return $resposta;
     }
 
     protected function avisar_equipe($acao, $agendamento, $r, $motivo, $idEvento)
@@ -244,12 +246,12 @@ class Whatsapp_chatbot_agenda {
         ];
         try {
             $this->CI->notificacoes_model->criar_aviso_chatbot_agenda($contexto, $acao, $dados, (int)$idEvento);
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             $this->log('aviso interno falhou: '.$e->getMessage());
         }
         try {
             $this->CI->whatsapp_agendamento->notificar_equipe($contexto, $acao);
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             $this->log('whatsapp equipe falhou: '.$e->getMessage());
         }
     }

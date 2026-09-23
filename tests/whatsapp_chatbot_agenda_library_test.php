@@ -76,8 +76,15 @@ class AgendaFakeEnvio
 {
     public $payloads = [];
     public $equipe = [];
-    public function enviar_chatbot($telefone, $payload) { $this->payloads[] = $payload; return ['sent' => true, 'reason' => 'sent', 'wamid' => 'wamid.x']; }
-    public function notificar_equipe($contexto, $acao) { $this->equipe[] = compact('contexto', 'acao'); return ['enviados' => 1, 'falhas' => 0, 'detalhes' => []]; }
+    public $ordem = [];
+    public $explodir = false;
+    public function enviar_chatbot($telefone, $payload) { $this->payloads[] = $payload; $this->ordem[] = 'texto'; return ['sent' => true, 'reason' => 'sent', 'wamid' => 'wamid.x']; }
+    public function notificar_equipe($contexto, $acao) {
+        $this->ordem[] = 'equipe';
+        if ($this->explodir) { throw new Error('boom'); }
+        $this->equipe[] = compact('contexto', 'acao');
+        return ['enviados' => 1, 'falhas' => 0, 'detalhes' => []];
+    }
 }
 
 class AgendaFakeNotificacoes
@@ -248,5 +255,23 @@ list($chatbot, $agenda, $modelo, $disp, $envio, $notif) = novoCenario();
 $chatbot->processar(eventoClique('chat:paciente:cancelar:812', 20));
 $chatbot->processar(eventoClique('chat:paciente:voltar', 21));
 assertLib(false, isset($modelo->sessoes['5581999999999']), 'voltar limpa a sessao');
+
+// 16) Remarcar: resposta ao paciente sai antes do aviso a equipe
+list($chatbot, $agenda, $modelo, $disp, $envio, $notif) = novoCenario();
+$disp->dias = [['data' => '2026-09-24', 'qtd' => 2]];
+$disp->livres['2026-09-24'] = ['08:00', '09:00'];
+$chatbot->processar(eventoClique('chat:paciente:remarcar:812', 22));
+$chatbot->processar(eventoClique('rem:812:h:202609240800', 23));
+$chatbot->processar(eventoClique('rem:812:ok:202609240800', 24));
+assertLib(['texto', 'texto', 'texto', 'equipe'], $envio->ordem, 'paciente recebe a confirmacao antes do aviso a equipe (remarcar)');
+
+// 17) Cancelar: resposta ao paciente sai antes do aviso a equipe, mesmo se notificar_equipe explodir
+list($chatbot, $agenda, $modelo, $disp, $envio, $notif) = novoCenario();
+$envio->explodir = true;
+$chatbot->processar(eventoClique('chat:paciente:cancelar:812', 25));
+$chatbot->processar(eventoClique('can:812:sem_motivo', 26));
+$chatbot->processar(eventoClique('can:812:ok', 27));
+assertLib('Consulta cancelada. Se quiser remarcar depois, é só chamar aqui.', ultimo($envio)['text']['body'], 'texto cancelado chega mesmo com falha ao avisar a equipe');
+assertLib('equipe', $envio->ordem[count($envio->ordem) - 1], 'notificar_equipe foi chamado por ultimo (e explodiu) sem quebrar a resposta');
 
 echo "OK whatsapp_chatbot_agenda_library_test\n";

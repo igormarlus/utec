@@ -739,7 +739,7 @@ class Whatsapp_model extends CI_Model {
         $this->db->where('id', (int)$atual->id);
         $this->db->update('agendamentos', $update);
 
-        $this->registrar_log([
+        $logOk = $this->registrar_log([
             'id_agendamento' => (int)$atual->id,
             'tenant_id' => (int)$atual->tenant_id,
             'telefone_destino' => utec_whatsapp_normalizar_numero($telefone),
@@ -748,7 +748,7 @@ class Whatsapp_model extends CI_Model {
             'tipo_notificacao' => 'chatbot_remarcado',
             'respondido_em' => date('Y-m-d H:i:s'),
         ]);
-        $idLog = (int)$this->db->insert_id();
+        $idLog = $logOk ? (int)$this->db->insert_id() : 0;
 
         if ($this->db->trans_status() === false || !$this->db->trans_commit()) {
             $this->db->trans_rollback();
@@ -806,7 +806,21 @@ class Whatsapp_model extends CI_Model {
         $this->db->where('id', (int)$atual->id);
         $this->db->update('agendamentos', $update);
 
-        $this->registrar_log([
+        // Cancela pendencias do template antigo: se o paciente ainda tocar "Confirmar" la,
+        // registrar_resposta_webhook() ve status anterior = cancelado e nao reabre o agendamento.
+        if ($this->tabela_possui_campos($this->log_table, ['id_agendamento', 'status_confirmacao', 'respondido_em'])) {
+            $filtroTipo = $this->db->field_exists('tipo_notificacao', $this->log_table)
+                ? " AND tipo_notificacao IN ('confirmacao', 'lembrete_paciente')"
+                : '';
+            $this->db->query(
+                "UPDATE `{$this->log_table}` SET status_confirmacao = 'cancelado', respondido_em = NOW()"
+                . " WHERE id_agendamento = " . (int)$atual->id
+                . " AND status_confirmacao = 'pendente'"
+                . $filtroTipo
+            );
+        }
+
+        $logOk = $this->registrar_log([
             'id_agendamento' => (int)$atual->id,
             'tenant_id' => (int)$atual->tenant_id,
             'telefone_destino' => utec_whatsapp_normalizar_numero($telefone),
@@ -815,7 +829,7 @@ class Whatsapp_model extends CI_Model {
             'tipo_notificacao' => 'chatbot_cancelado',
             'respondido_em' => date('Y-m-d H:i:s'),
         ]);
-        $idLog = (int)$this->db->insert_id();
+        $idLog = $logOk ? (int)$this->db->insert_id() : 0;
 
         if ($this->db->trans_status() === false || !$this->db->trans_commit()) {
             $this->db->trans_rollback();
