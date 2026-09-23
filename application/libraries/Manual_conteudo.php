@@ -116,6 +116,27 @@ class Manual_conteudo {
                 'atualizado_em' => '2026-09-07',
             ),
             array(
+                'slug' => 'horarios-atendimento',
+                'titulo' => 'Horários de atendimento',
+                'icone' => 'os-icon-clock',
+                'niveis' => array(2, 3, 4),
+                'resumo' => 'Cada profissional define em quais dias e horários atende, quanto dura cada consulta e os períodos bloqueados. A agenda usa isso para sugerir horários livres.',
+                'topicos' => array(
+                    '*' => array(
+                        'Acesse `Horários de atendimento` no menu lateral.',
+                        'Em `Duração da consulta`, escolha quanto tempo cada agendamento ocupa (ex.: 30 minutos).',
+                        'Em `Grade semanal`, marque os dias de atendimento e informe um ou mais intervalos por dia, como 08:00 às 12:00 e 14:00 às 18:00. O botão `Copiar segunda para seg–sex` repete a grade de segunda nos demais dias úteis.',
+                        'Em `Bloqueios`, cadastre férias, feriados ou qualquer período sem atendimento. Marque `Dia inteiro` para bloquear datas completas.',
+                        'Ao agendar ou remarcar, o sistema mostra os horários livres do profissional na data escolhida. Se você escolher um horário ocupado, bloqueado ou fora da grade, aparece um aviso, mas o agendamento pode ser salvo como encaixe.',
+                        'Consultas canceladas liberam o horário automaticamente.',
+                    ),
+                    2 => array('Configura os horários de todos os profissionais da clínica, escolhendo o profissional no topo da tela.'),
+                    3 => array('Configura os próprios horários, duração da consulta e bloqueios.'),
+                    4 => array('Consulta os horários dos profissionais para orientar os pacientes; alterações ficam com o profissional ou o estabelecimento.'),
+                ),
+                'atualizado_em' => '2026-09-22',
+            ),
+            array(
                 'slug' => 'pacientes-cadastro',
                 'titulo' => 'Pacientes e cadastro',
                 'icone' => 'os-icon-folder',
