@@ -675,8 +675,17 @@ class Whatsapp_model extends CI_Model {
         $data = substr(trim((string)$data), 0, 10);
         $hora = substr(trim((string)$hora), 0, 5);
         $minimoTs = strtotime((string)$minimo_datetime);
+        $dataValida = false;
+        if (preg_match('/^(\d{4})-(\d{2})-(\d{2})$/', $data, $partesData)) {
+            $dataValida = checkdate((int)$partesData[2], (int)$partesData[3], (int)$partesData[1]);
+        }
+        $horaValida = false;
+        if (preg_match('/^(\d{2}):(\d{2})$/', $hora, $partesHora)) {
+            $horaValida = (int)$partesHora[1] >= 0 && (int)$partesHora[1] <= 23
+                && (int)$partesHora[2] >= 0 && (int)$partesHora[2] <= 59;
+        }
         if ((int)$id_agendamento <= 0 || (int)$id_paciente <= 0 || $minimoTs === false
-            || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $data) || !preg_match('/^\d{2}:\d{2}$/', $hora)) {
+            || !$dataValida || !$horaValida) {
             return $resultado;
         }
         $this->load->model('Disponibilidade_model', 'disponibilidade_model');
@@ -741,12 +750,11 @@ class Whatsapp_model extends CI_Model {
         ]);
         $idLog = (int)$this->db->insert_id();
 
-        if ($this->db->trans_status() === false) {
+        if ($this->db->trans_status() === false || !$this->db->trans_commit()) {
             $this->db->trans_rollback();
             $resultado['motivo_falha'] = 'erro';
             return $resultado;
         }
-        $this->db->trans_commit();
 
         $novo = clone $atual;
         $novo->data_agenda = $data;
@@ -809,12 +817,11 @@ class Whatsapp_model extends CI_Model {
         ]);
         $idLog = (int)$this->db->insert_id();
 
-        if ($this->db->trans_status() === false) {
+        if ($this->db->trans_status() === false || !$this->db->trans_commit()) {
             $this->db->trans_rollback();
             $resultado['motivo_falha'] = 'erro';
             return $resultado;
         }
-        $this->db->trans_commit();
 
         $novo = clone $atual;
         $novo->status = 3;
@@ -830,7 +837,7 @@ class Whatsapp_model extends CI_Model {
         if (!$this->tabela_possui_campos('agendamentos', ['id', 'id_paciente', 'id_prestador', 'id_user', 'data_agenda', 'hora_agenda', 'status'])) {
             return null;
         }
-        $tenantSelect = $this->db->field_exists('tenant_id', 'usuarios') ? 'COALESCE(p.tenant_id, 0)' : '0';
+        $tenantSelect = $this->db->field_exists('tenant_id', 'usuarios') ? 'COALESCE(NULLIF(p.tenant_id, 0), pr.tenant_id, 0)' : '0';
         $query = $this->db->query(
             "SELECT a.id, a.id_paciente, a.id_prestador, a.id_user, a.data_agenda, a.hora_agenda, a.tipo, a.status,"
             ." p.nome AS paciente_nome, pr.nome AS prestador_nome, {$tenantSelect} AS tenant_id"

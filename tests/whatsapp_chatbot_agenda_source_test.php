@@ -25,6 +25,7 @@ assertFonteContem('verificar_horario(', $model, 'model revalida horario');
 assertFonteContem("'chatbot_remarcado'", $model, 'log remarcado');
 assertFonteContem("'chatbot_cancelado'", $model, 'log cancelado');
 assertFonteContem('trans_begin()', $model, 'model usa transacao');
+assertFonteContem('checkdate(', $model, 'model valida data real de calendario');
 assertFonteNaoContem("NOT IN ('equipe_confirmado', 'equipe_cancelado')", $model, 'model exclui equipe_remarcado');
 assertFonteContem("NOT IN ('equipe_confirmado', 'equipe_cancelado', 'equipe_remarcado')", $model, 'model exclusao atualizada');
 
