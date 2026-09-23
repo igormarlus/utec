@@ -263,7 +263,7 @@ class Whatsapp_agendamento {
         $idCriador = (int)utec_whatsapp_read($contexto, 'id_user', 0);
         $destinatarios = utec_notificacoes_destinatarios_agendamento($idCriador, $idPrestador);
         $tipoNotificacao = $acao === 'cancelar' ? 'equipe_cancelado' : 'equipe_confirmado';
-        $componentes = utec_whatsapp_componentes_equipe_template($agendamento);
+        $componentes = utec_whatsapp_componentes_equipe_template($agendamento, $acao);
 
         foreach ($destinatarios as $idUsuario) {
             $ehPrestador = ($idUsuario === $idPrestador);
