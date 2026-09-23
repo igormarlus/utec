@@ -123,21 +123,32 @@ class Disponibilidade_model extends CI_Model {
         return $this->db->affected_rows() > 0;
     }
 
-    private function bloqueios_do_dia($id_prestador, $data)
+    private function dia_seguinte($data)
     {
-        $dia_ini = $data.' 00:00:00';
-        $dia_fim = date('Y-m-d', strtotime('+1 day', strtotime($data))).' 00:00:00';
+        return date('Y-m-d', strtotime('+1 day', strtotime($data)));
+    }
+
+    private function bloqueios_brutos($id_prestador, $inicio_datetime, $fim_datetime)
+    {
         $qr = $this->db->query(
             "SELECT inicio, fim FROM prestador_bloqueios
              WHERE id_prestador = ".(int)$id_prestador."
-               AND inicio < ".$this->db->escape($dia_fim)."
-               AND fim > ".$this->db->escape($dia_ini)
+               AND inicio < ".$this->db->escape($fim_datetime)."
+               AND fim > ".$this->db->escape($inicio_datetime)
         );
         $brutos = array();
         foreach ($qr->result() as $row) {
             $brutos[] = array('inicio' => $row->inicio, 'fim' => $row->fim);
         }
-        return utec_disp_recortar_bloqueios_no_dia($brutos, $data);
+        return $brutos;
+    }
+
+    private function bloqueios_do_dia($id_prestador, $data)
+    {
+        return utec_disp_recortar_bloqueios_no_dia(
+            $this->bloqueios_brutos($id_prestador, $data.' 00:00:00', $this->dia_seguinte($data).' 00:00:00'),
+            $data
+        );
     }
 
     private function horas_agendadas($id_prestador, $data, $ignorar_agendamento_id)
@@ -156,7 +167,23 @@ class Disponibilidade_model extends CI_Model {
         return $horas;
     }
 
-    public function horarios_livres($id_prestador, $data, $ignorar_agendamento_id = 0)
+    private function horas_agendadas_periodo($id_prestador, $inicio, $fim, $ignorar_agendamento_id)
+    {
+        $qr = $this->db->query(
+            "SELECT data_agenda, hora_agenda FROM agendamentos
+             WHERE id_prestador = ".(int)$id_prestador."
+               AND data_agenda BETWEEN ".$this->db->escape($inicio)." AND ".$this->db->escape($fim)."
+               AND status IN (0,1,2)
+               AND id <> ".(int)$ignorar_agendamento_id
+        );
+        $mapa = array();
+        foreach ($qr->result() as $row) {
+            $mapa[substr((string)$row->data_agenda, 0, 10)][] = substr((string)$row->hora_agenda, 0, 5);
+        }
+        return $mapa;
+    }
+
+    public function horarios_livres($id_prestador, $data, $ignorar_agendamento_id = 0, $minimo_datetime = null)
     {
         $cfg = $this->get_config($id_prestador);
         $res = array('tem_grade' => $cfg['tem_grade'], 'duracao' => $cfg['duracao'], 'livres' => array());
@@ -165,17 +192,52 @@ class Disponibilidade_model extends CI_Model {
             return $res;
         }
         $dia = (int)date('w', strtotime($data));
-        $slots = utec_disp_gerar_slots($cfg['grade'][$dia], $cfg['duracao']);
-        $slots = utec_disp_remover_ocupados(
-            $slots,
+        $slots = utec_disp_livres_do_dia(
+            $cfg['grade'][$dia],
+            $cfg['duracao'],
             $this->horas_agendadas($id_prestador, $data, $ignorar_agendamento_id),
-            $this->bloqueios_do_dia($id_prestador, $data),
-            $cfg['duracao']
+            $this->bloqueios_brutos($id_prestador, $data.' 00:00:00', $this->dia_seguinte($data).' 00:00:00'),
+            $data
         );
-        if ($data === $hoje) {
+        if ($minimo_datetime !== null) {
+            $slots = utec_disp_aplicar_minimo($slots, $data, $minimo_datetime);
+        } elseif ($data === $hoje) {
             $slots = utec_disp_filtrar_apos($slots, date('H:i'));
         }
         $res['livres'] = $slots;
+        return $res;
+    }
+
+    public function dias_com_vaga($id_prestador, $minimo_datetime, $dias = 30, $limite = 10, $ignorar_agendamento_id = 0)
+    {
+        $cfg = $this->get_config($id_prestador);
+        $res = array('tem_grade' => $cfg['tem_grade'], 'duracao' => $cfg['duracao'], 'dias' => array());
+        $ts = strtotime((string)$minimo_datetime);
+        if (!$cfg['tem_grade'] || $ts === false) {
+            return $res;
+        }
+        $inicio = date('Y-m-d', $ts);
+        $fim = date('Y-m-d', strtotime('+'.((int)$dias - 1).' day', strtotime($inicio)));
+        $agendadas = $this->horas_agendadas_periodo($id_prestador, $inicio, $fim, $ignorar_agendamento_id);
+        $bloqueios = $this->bloqueios_brutos($id_prestador, $inicio.' 00:00:00', $this->dia_seguinte($fim).' 00:00:00');
+        for ($i = 0; $i < (int)$dias && count($res['dias']) < (int)$limite; $i++) {
+            $data = date('Y-m-d', strtotime('+'.$i.' day', strtotime($inicio)));
+            $dia = (int)date('w', strtotime($data));
+            if (empty($cfg['grade'][$dia])) {
+                continue;
+            }
+            $slots = utec_disp_livres_do_dia(
+                $cfg['grade'][$dia],
+                $cfg['duracao'],
+                isset($agendadas[$data]) ? $agendadas[$data] : array(),
+                $bloqueios,
+                $data
+            );
+            $slots = utec_disp_aplicar_minimo($slots, $data, $minimo_datetime);
+            if (!empty($slots)) {
+                $res['dias'][] = array('data' => $data, 'qtd' => count($slots));
+            }
+        }
         return $res;
     }
 

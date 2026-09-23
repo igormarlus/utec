@@ -16,3 +16,9 @@ $whatsapp_env_notificar_equipe = getenv('WHATSAPP_NOTIFICAR_EQUIPE');
 // cancelar. Liga por padrao; desligar so com WHATSAPP_NOTIFICAR_EQUIPE=0 (ou
 // =false) no ambiente.
 $config['notificar_equipe_ativo'] = !($whatsapp_env_notificar_equipe === '0' || $whatsapp_env_notificar_equipe === 'false');
+
+$whatsapp_env_remarcacao_equipe = getenv('WHATSAPP_NOTIFICAR_REMARCACAO_EQUIPE');
+// Aviso WhatsApp a profissional/atendente quando o paciente remarca pelo chatbot.
+// Manter FALSE ate o template 'agendamento_remarcado_equipe' ser aprovado na Meta
+// (ver docs/whatsapp-remarcacao-template-pendente.md). Ligar com =1 no ambiente.
+$config['notificar_remarcacao_equipe_ativo'] = ($whatsapp_env_remarcacao_equipe === '1' || $whatsapp_env_remarcacao_equipe === 'true');

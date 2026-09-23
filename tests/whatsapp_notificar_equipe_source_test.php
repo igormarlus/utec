@@ -44,7 +44,7 @@ $model = file_get_contents(__DIR__ . '/../application/models/Whatsapp_model.php'
 $atendimento = file_get_contents(__DIR__ . '/../application/controllers/adm/Atendimento.php');
 
 // --- Revisao final: Task 2 continua excluindo as linhas de equipe das consultas de "ultima resposta" ---
-$exclusaoEquipe = "NOT IN ('equipe_confirmado', 'equipe_cancelado')";
+$exclusaoEquipe = "NOT IN ('equipe_confirmado', 'equipe_cancelado', 'equipe_remarcado')";
 assertSource(strpos($model, $exclusaoEquipe) !== false, 'Whatsapp_model.php deve excluir equipe_confirmado/equipe_cancelado das consultas de ultima resposta.');
 assertSource(strpos($atendimento, $exclusaoEquipe) !== false, 'adm/Atendimento.php deve excluir equipe_confirmado/equipe_cancelado da consulta de status do WhatsApp na agenda.');
 

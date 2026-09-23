@@ -86,4 +86,21 @@ assertSameValue(true, utec_disp_validar_intervalos(array(array('12:00', '08:00')
 assertSameValue(true, utec_disp_validar_intervalos(array(array('8h', '9h'))) !== '', 'formato rejeitado');
 assertSameValue('', utec_disp_validar_intervalos(array()), 'dia vazio ok');
 
+// --- corte minimo (regra de antecedencia)
+$slotsDia = array('08:00', '08:30', '09:00', '09:30');
+assertSameValue(array('09:00', '09:30'), utec_disp_aplicar_minimo($slotsDia, '2026-09-25', '2026-09-25 09:00'), 'minimo no mesmo dia inclui o horario exato');
+assertSameValue(array(), utec_disp_aplicar_minimo($slotsDia, '2026-09-24', '2026-09-25 09:00'), 'dia antes do minimo fica vazio');
+assertSameValue($slotsDia, utec_disp_aplicar_minimo($slotsDia, '2026-09-26', '2026-09-25 09:00'), 'dia depois do minimo fica inteiro');
+assertSameValue($slotsDia, utec_disp_aplicar_minimo($slotsDia, '2026-09-25', 'invalido'), 'minimo invalido nao filtra');
+
+// --- livres do dia (grade + agendados + bloqueios brutos)
+assertSameValue(array('08:00', '09:30'), utec_disp_livres_do_dia(
+    array(array('08:00', '10:00')), 30, array('08:30'),
+    array(array('inicio' => '2026-09-25 09:00:00', 'fim' => '2026-09-25 09:30:00')), '2026-09-25'
+), 'livres do dia combina agendado e bloqueio');
+assertSameValue(array('08:00', '08:30', '09:00', '09:30'), utec_disp_livres_do_dia(
+    array(array('08:00', '10:00')), 30, array(),
+    array(array('inicio' => '2026-09-24 09:00:00', 'fim' => '2026-09-24 10:00:00')), '2026-09-25'
+), 'bloqueio de outro dia nao afeta');
+
 echo "OK disponibilidade_helper_test\n";

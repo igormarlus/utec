@@ -239,6 +239,10 @@ class Whatsapp_agendamento {
             return $resumo;
         }
 
+        if ($acao === 'remarcar' && !$this->CI->config->item('notificar_remarcacao_equipe_ativo', 'whatsapp')) {
+            return $resumo;
+        }
+
         if (!$this->CI->db->field_exists('tipo_notificacao', 'whatsapp_notificacoes')) {
             return $resumo;
         }
@@ -262,7 +266,11 @@ class Whatsapp_agendamento {
         $idPrestador = (int)utec_whatsapp_read($contexto, 'id_prestador', 0);
         $idCriador = (int)utec_whatsapp_read($contexto, 'id_user', 0);
         $destinatarios = utec_notificacoes_destinatarios_agendamento($idCriador, $idPrestador);
-        $tipoNotificacao = $acao === 'cancelar' ? 'equipe_cancelado' : 'equipe_confirmado';
+        $tipoNotificacao = $acao === 'cancelar' ? 'equipe_cancelado' : ($acao === 'remarcar' ? 'equipe_remarcado' : 'equipe_confirmado');
+        if ($acao === 'remarcar') {
+            $agendamento->data_anterior = utec_whatsapp_read($contexto, 'data_anterior', '');
+            $agendamento->hora_anterior = utec_whatsapp_read($contexto, 'hora_anterior', '');
+        }
         $componentes = utec_whatsapp_componentes_equipe_template($agendamento, $acao);
 
         foreach ($destinatarios as $idUsuario) {

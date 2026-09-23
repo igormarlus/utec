@@ -115,6 +115,51 @@ class Notificacoes_model extends CI_Model {
         return true;
     }
 
+    public function criar_aviso_chatbot_agenda($contexto, $acao, $dados, $id_evento)
+    {
+        $tipo = utec_notificacoes_tipo_chatbot_agenda($acao);
+        if ($tipo === '' || !$this->tabela_possui_campos([
+            'tenant_id', 'id_usuario_destino', 'id_agendamento', 'id_whatsapp_notificacao',
+            'id_whatsapp_chatbot_evento', 'tipo', 'titulo', 'mensagem', 'url', 'lida', 'criado_em'
+        ])) {
+            return false;
+        }
+
+        $idAgendamento = (int)utec_whatsapp_read($contexto, 'id_agendamento', 0);
+        $idPaciente = (int)utec_whatsapp_read($contexto, 'id_paciente', 0);
+        // Id da linha chatbot_* do log: unico por acao, evita colisao na chave (usuario, id_whatsapp_notificacao, tipo).
+        $idLog = (int)utec_whatsapp_read($contexto, 'id_whatsapp_notificacao', 0);
+        if ($idAgendamento <= 0 || $idLog <= 0) {
+            return false;
+        }
+
+        $destinatarios = utec_notificacoes_destinatarios_agendamento(
+            (int)utec_whatsapp_read($contexto, 'id_user', 0),
+            (int)utec_whatsapp_read($contexto, 'id_prestador', 0)
+        );
+        if (empty($destinatarios)) {
+            return true;
+        }
+
+        $titulo = strtolower(trim((string)$acao)) === 'remarcar' ? 'Consulta remarcada pelo paciente' : 'Consulta cancelada pelo paciente';
+        $mensagem = utec_notificacoes_mensagem_chatbot_agenda($acao, utec_whatsapp_read($contexto, 'paciente_nome', ''), $dados);
+        $url = $idPaciente > 0 ? 'adm/usuarios/prontuario/'.$idPaciente.'/'.$idAgendamento : 'adm/atendimento';
+        $tenantId = (int)utec_whatsapp_read($contexto, 'tenant_id', 0);
+
+        foreach ($destinatarios as $idUsuario) {
+            $sql = "INSERT IGNORE INTO `{$this->table}`\n"
+                . '(tenant_id, id_usuario_destino, id_agendamento, id_whatsapp_notificacao, id_whatsapp_chatbot_evento, tipo, titulo, mensagem, url, lida, criado_em) VALUES ('
+                . $tenantId.', '.(int)$idUsuario.', '.$idAgendamento.', '.$idLog.', '.(int)$id_evento.', '
+                . $this->db->escape($tipo).', '.$this->db->escape($titulo).', '
+                . $this->db->escape($mensagem).', '.$this->db->escape($url).", 0, '".date('Y-m-d H:i:s')."')";
+            if ($this->db->query($sql) === false) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     public function listar_nao_lidas($id_usuario, $limite = 8)
     {
         $idUsuario = (int)$id_usuario;
