@@ -110,6 +110,15 @@ if(!$menu_is_patient){
 	];
 
 	$menu_operacao_items[] = [
+		'label' => 'Horários de atendimento',
+		'icon' => 'os-icon-clock',
+		'url' => base_url().'adm/horarios',
+		'children' => [
+			['label' => 'Grade e bloqueios', 'url' => base_url().'adm/horarios'],
+		],
+	];
+
+	$menu_operacao_items[] = [
 		'label' => 'Pacientes',
 		'icon' => 'os-icon-user-male-circle2',
 		'url' => base_url().'adm/usuarios/rel/5',

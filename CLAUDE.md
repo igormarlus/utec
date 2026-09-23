@@ -129,6 +129,9 @@ O projeto usa **CodeIgniter 3.1.10** em produção. **Não migrar para CI4 ou ou
 - `usuarios_exames` — exames solicitados por agendamento
 - `usuarios_exames_atendimento` — exames realizados por usuário
 - `usuarios_especialidades` — catálogo de especialidades clínicas (id fixo 1–42, usado em `usuarios.especialidade` INT)
+- `prestador_horarios` — grade semanal do prestador (`id_prestador`, `dia_semana` 0=dom…6=sáb, `hora_inicio`, `hora_fim`); vários intervalos por dia
+- `prestador_bloqueios` — períodos sem atendimento (`id_prestador`, `inicio`, `fim` DATETIME, `motivo`)
+- `usuarios.duracao_atendimento_min` — duração fixa da consulta do prestador (NULL = 30 min)
 
 **Produtos e Pedidos**
 - `produtos` — catálogo de planos/serviços
@@ -236,6 +239,7 @@ Verificado por `Padrao_model::can_access_saas_module()`. O Admin (nível 1) tem 
 | `Especialidades.php` | `/adm/especialidades` | CRUD de campos extras por especialidade (nível 1 apenas) |
 | `Marketing.php` | `/adm/marketing` | Dashboard de Tráfego de IA (referral de IA + conversões) — nível 1 apenas |
 | `Whatsapp.php` | `/adm/whatsapp` | Tela de configuração da conexão WhatsApp (nível 1) — grava `whatsapp_config` |
+| `Horarios.php` | `/adm/horarios` | Grade semanal, duração e bloqueios do prestador (edita: 1, 2 no escopo, 3 o próprio; 4 só vê) + endpoint JSON `adm/horarios/livres` usado pela agenda |
 | `Notificacoes.php` | `/adm/notificacoes/abrir/{id}` | Marca o aviso interno como lido pelo destinatário logado e redireciona para a `url` da notificação |
 
 > `Atencimento.php` (com typo) foi renomeado para `.bak` — não é controller ativo.
@@ -328,6 +332,23 @@ Avisos internos em `notificacoes_usuarios`. Também guarda por `table_exists`/`f
 | `listar_nao_lidas($id_usuario, $limite = 8)` | Avisos não lidos do usuário, mais recentes primeiro |
 | `contar_nao_lidas($id_usuario)` | Contador do sino no topo |
 | `abrir_para_usuario($id, $id_usuario)` | Marca como lida se o destinatário confere; retorna a linha (com `url`) |
+
+### 7.7 `Disponibilidade_model`
+
+| Função | Descrição |
+|--------|-----------|
+| `get_config($id_prestador)` | Retorna duração + grade 0..6 + tem_grade |
+| `salvar_config($id, $duracao, $grade)` | Substitui a grade em transação e grava a duração |
+| `listar_bloqueios_futuros($id)` | Retorna bloqueios agendados |
+| `adicionar_bloqueio($id, $inicio, $fim, $motivo, $id_user_cad)` | Insere um bloqueio no período |
+| `remover_bloqueio($id_bloqueio, $id_prestador)` | Remove um bloqueio específico |
+| `horarios_livres($id, $data, $ignorar = 0)` | Retorna slots livres do dia; hoje remove horários passados |
+| `verificar_horario($id, $data, $hora, $ignorar = 0)` | Retorna: livre \| ocupado \| fora_da_grade \| bloqueado |
+| `proximos_livres($id, $a_partir_de, $limite = 10)` | Varre até 30 dias — interface prevista para o chatbot |
+
+Cálculo puro em `application/helpers/disponibilidade_helper.php` (testes em `tests/disponibilidade_*`). Ocupam vaga agendamentos `status IN (0,1,2)`. Na agenda manual é só aviso (encaixe permitido). `proximos_livres()` é a interface prevista para o chatbot de IA marcar consultas. Agendamentos existentes são contados com a duração ATUAL do profissional — trocar a duração muda como os agendamentos passados ocupam a grade. O model não tem controle de acesso por design — quem chama (controller/chatbot) precisa impor o escopo.
+
+Status de deploy (2026-09-22): implementado na branch `feat/horarios-atendimento`, pendente de FTP + execução de `adm/dev/migrar_horarios_atendimento` em produção.
 
 ---
 
@@ -501,6 +522,7 @@ Controller: `application/controllers/adm/Dev.php`
 | `adm/dev/migrar_fase2_prontuario_especialidades` | Cria `especialidades_campos_config` + `agendamentos.campos_extras` TEXT, insere config para 9 especialidades (idempotente) |
 | `adm/dev/migrar_monitoramento_ia` | Cria `ai_referrals` + `ai_conversions` (idempotente; `?desfazer=1` faz DROP) |
 | `adm/dev/migrar_lembrete_whatsapp` | Adiciona `whatsapp_notificacoes.tipo_notificacao` + índice (idempotente) |
+| `adm/dev/migrar_horarios_atendimento` | Cria `prestador_horarios` + `prestador_bloqueios` e a coluna `usuarios.duracao_atendimento_min` (idempotente) |
 | `adm/dev/testar_detector_ia` | Roda os casos mínimos do detector de tráfego de IA (PASS/FAIL) |
 | `adm/dev/purgar_monitoramento_ia` | Remove registros de IA com mais de 18 meses (`?meses=N` ajusta) |
 
@@ -546,6 +568,7 @@ Para novas migrações: adicionar método em `Dev.php`, proteger com `nivel == 1
 - [x] Upload de arquivos de pacientes
 - [x] Confirmação de agendamento via WhatsApp (template + webhook): paciente confirma/cancela pelo botão, sistema responde por texto, atualiza a agenda e gera avisos internos (ver 10.3.1)
 - [x] Manual de ajuda ao usuário v1 (níveis 2, 3 e 4) com capítulos reaproveitáveis e PDF em mPDF; v2 (2026-09-22) com redesenho visual e screenshots reais (ver seção 19)
+- [x] Horários de atendimento por profissional (grade semanal, duração, bloqueios) com sugestão de horários livres e aviso de encaixe na agenda — base para o chatbot marcar consultas
 
 ### 15.2 Próximas Entregas (Prioridade Alta)
 
