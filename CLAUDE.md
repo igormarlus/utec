@@ -545,7 +545,7 @@ Para novas migrações: adicionar método em `Dev.php`, proteger com `nivel == 1
 - [x] Árvore de escopo de acesso por nível
 - [x] Upload de arquivos de pacientes
 - [x] Confirmação de agendamento via WhatsApp (template + webhook): paciente confirma/cancela pelo botão, sistema responde por texto, atualiza a agenda e gera avisos internos (ver 10.3.1)
-- [x] Manual de ajuda ao usuário v1 (níveis 2, 3 e 4) com capítulos reaproveitáveis e PDF em mPDF — screenshots pendentes (ver seção 19)
+- [x] Manual de ajuda ao usuário v1 (níveis 2, 3 e 4) com capítulos reaproveitáveis e PDF em mPDF; v2 (2026-09-22) com redesenho visual e screenshots reais (ver seção 19)
 
 ### 15.2 Próximas Entregas (Prioridade Alta)
 
@@ -721,7 +721,11 @@ Manual por perfil (níveis 2, 3 e 4) acessível em `adm/usuarios/manual/{nivel}`
 (tela) e `adm/usuarios/manual_pdf/{nivel}` (PDF via mPDF). Substituiu o
 manual antigo, gerado em TCPDF com 5 blocos de texto genérico por nível.
 Conteúdo modelo v1: `docs/superpowers/specs/2026-09-04-manual-ajuda-v1-design.md`
-e `docs/superpowers/plans/2026-09-07-manual-ajuda-v1.md`.
+e `docs/superpowers/plans/2026-09-07-manual-ajuda-v1.md`. Redesenho visual v2
+(gradiente azul→teal, lombada, checklist, capa de página inteira — só CSS/HTML
+nas 3 views, sem mudar controller nem conteúdo):
+`docs/superpowers/specs/2026-09-22-manual-ajuda-v2-redesign-design.md` e
+`docs/superpowers/plans/2026-09-22-manual-ajuda-v2-redesign.md`.
 
 - **Fonte do conteúdo:** `application/libraries/Manual_conteudo.php` — array
   estático de 12 capítulos (sem tabela no banco), filtrado por nível via
@@ -731,8 +735,15 @@ e `docs/superpowers/plans/2026-09-07-manual-ajuda-v1.md`.
   assinatura/pagamento — funcionalidades que o manual antigo não descrevia.
 - **PDF:** `application/libraries/M_pdf.php` (wrapper de mPDF v6,
   `application/third_party/mpdf`) — capa, sumário automático (`<tocpagebreak>`
-  lendo os `<h2>` de cada capítulo), cabeçalho/rodapé com paginação. Views:
-  `manual_pdf_capa.php` + `manual_pdf_conteudo.php`. **mPDF v6 só roda em
+  alimentado por um `<tocentry>` explícito por capítulo), cabeçalho/rodapé com
+  paginação. Views: `manual_pdf_capa.php` (capa + bloco `<style>` compartilhado)
+  + `manual_pdf_conteudo.php`; tela web em `manual_funcao.php`. **Restrições do
+  mPDF v6 no layout:** o `h2toc` ignora `<h2>` dentro de célula de tabela — como
+  o título do capítulo fica na tabela do cabeçalho (lombada + gradiente), o
+  sumário depende do `<tocentry>`; sem ele o sumário sai vazio. `inline-block`
+  em `<div>` solto não renderiza (por isso o número do capítulo no PDF é texto
+  "CAPÍTULO NN", sem círculo). A numeração de página reinicia após o
+  `<tocpagebreak>` (comportamento padrão, já era assim no v1). **mPDF v6 só roda em
   PHP ≤ 7.x** — o construtor legado (`function mPDF(...)`, sem `__construct`)
   falha com erro fatal em PHP 8. Use sempre um binário PHP 7.x para
   `php -l`/testes envolvendo mPDF.
@@ -744,11 +755,18 @@ e `docs/superpowers/plans/2026-09-07-manual-ajuda-v1.md`.
   cache resultante evita esse custo (e risco de permissão de escrita) na
   primeira requisição em produção.
 - **Screenshots:** `imagens/manual/*.png`, capturados em ambiente local com
-  dados de teste (nunca produção). **Pendente nesta entrega** — não havia
-  ambiente local funcional (sem WAMP instalado, sem credencial de MySQL local
-  válida) no momento da implementação; os 10 capítulos que referenciam uma
-  imagem (`Manual_conteudo::capitulos()`, chave `print`) renderizam sem ela
-  até alguém rodar a captura com um ambiente local de teste disponível.
+  dados de teste (nunca produção). 7 imagens mapeadas em
+  `Manual_conteudo::capitulos()` (chave `print`): `boas-vindas`, `agenda`,
+  `pacientes-cadastro`, `prontuario`, `exames`, `whatsapp-confirmacao`,
+  `whatsapp-lembrete`. Os capítulos sem `print` (acesso, avisos internos,
+  equipe, assinatura, boas práticas) renderizam só com texto. **Ao publicar,
+  enviar também os PNGs** — o PDF embute via `FCPATH` e a tela via
+  `base_url()`; se o arquivo não existe no servidor a imagem some sem erro.
+- **Deploy v2 (2026-09-22):** 3 views + `Manual_conteudo.php` + 7 PNGs de
+  `imagens/manual/` enviados por FTP. No primeiro envio dos PNGs havia um
+  *arquivo* vazio `public_html/imagens/manual` bloqueando a criação da pasta
+  (`curl: (9) Server denied you to change to the given directory`) — foi
+  removido. Healthcheck OK (PNGs 200, `manual/2` e `manual_pdf/2` 302).
 - **Regra de sincronização:** toda funcionalidade nova visível ao usuário
   final (WhatsApp, SaaS, prontuário, agenda etc.) só é considerada concluída
   quando `Manual_conteudo.php` tiver um capítulo ou tópico atualizado
