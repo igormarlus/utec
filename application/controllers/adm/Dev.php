@@ -425,6 +425,39 @@ class Dev extends CI_Controller {
 		echo '</ul>';
 	}
 
+	function migrar_horarios_atendimento(){
+		if($this->session->userdata('nivel') != 1){
+			show_error('Acesso negado.', 403); return;
+		}
+		$logs = [];
+		$this->run_sql("CREATE TABLE IF NOT EXISTS `prestador_horarios` (
+			`id` INT AUTO_INCREMENT PRIMARY KEY,
+			`id_prestador` INT NOT NULL,
+			`dia_semana` TINYINT NOT NULL,
+			`hora_inicio` TIME NOT NULL,
+			`hora_fim` TIME NOT NULL,
+			`created_at` DATETIME NULL,
+			INDEX `idx_prest_dia` (`id_prestador`, `dia_semana`)
+		) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", $logs, 'tabela `prestador_horarios` verificada');
+		$this->run_sql("CREATE TABLE IF NOT EXISTS `prestador_bloqueios` (
+			`id` INT AUTO_INCREMENT PRIMARY KEY,
+			`id_prestador` INT NOT NULL,
+			`inicio` DATETIME NOT NULL,
+			`fim` DATETIME NOT NULL,
+			`motivo` VARCHAR(150) NULL,
+			`id_user_cad` INT NULL,
+			`created_at` DATETIME NULL,
+			INDEX `idx_prest_inicio` (`id_prestador`, `inicio`)
+		) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", $logs, 'tabela `prestador_bloqueios` verificada');
+		$this->ensure_column('usuarios', 'duracao_atendimento_min', "INT NULL DEFAULT NULL", $logs);
+
+		echo '<h3>Migração: horários de atendimento</h3><ul>';
+		foreach($logs as $log){
+			echo '<li>'.htmlspecialchars($log).'</li>';
+		}
+		echo '</ul>';
+	}
+
 	function criar_tabela_arquivos_paciente(){
 		$sql = "CREATE TABLE IF NOT EXISTS `pacientes_arquivos` (
 			`id`             INT AUTO_INCREMENT PRIMARY KEY,
