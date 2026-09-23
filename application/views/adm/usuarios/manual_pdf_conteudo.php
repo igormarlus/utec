@@ -1,5 +1,6 @@
 <? $primeiro = true; $numero = 0; foreach($manual['capitulos'] as $capitulo){ $numero++; ?>
 <div class="manual-pdf-capitulo"<?=$primeiro ? '' : ' style="page-break-before:always;"'?>>
+  <tocentry content="<?=htmlspecialchars($capitulo['titulo'])?>" level="0" />
   <table class="manual-pdf-cabecalho" cellspacing="0" cellpadding="0">
     <tr>
       <td class="manual-pdf-lombada"></td>
