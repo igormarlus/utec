@@ -17,6 +17,9 @@ class Whatsapp_chatbot {
         if (!isset($this->CI->whatsapp_agendamento)) {
             $this->CI->load->library('whatsapp_agendamento');
         }
+        if (!isset($this->CI->whatsapp_chatbot_agenda) && isset($this->CI->load)) {
+            $this->CI->load->library('whatsapp_chatbot_agenda');
+        }
         if (isset($this->CI->load)) {
             $this->CI->load->helper('whatsapp_agendamento');
         }
@@ -52,6 +55,13 @@ class Whatsapp_chatbot {
                 $idSessao = (int)utec_whatsapp_read($sessao, 'id', 0);
                 if ($this->sessao_motivo_aberta($sessao)) {
                     $resultado = $this->processar_sessao_motivo($perfil, $sessao, $evento, $idEvento);
+                } elseif ($this->agenda_disponivel() && $perfil['perfil'] === 'paciente'
+                    && utec_whatsapp_agenda_parse_id(utec_whatsapp_read($evento, 'payload', '')) !== null) {
+                    $resultado = $this->tratar_retorno_agenda($perfil, $this->CI->whatsapp_chatbot_agenda->processar_clique($perfil, $evento, $idEvento), $evento);
+                } elseif ($this->agenda_disponivel() && $this->sessao_agenda_motivo_aberta($sessao)
+                    && trim((string)utec_whatsapp_read($evento, 'payload', '')) === ''
+                    && !$this->extrair_comando($perfil['perfil'], $evento)) {
+                    $resultado = $this->tratar_retorno_agenda($perfil, $this->CI->whatsapp_chatbot_agenda->receber_motivo($perfil, $sessao, $evento), $evento);
                 } else {
                     $resultado = $this->processar_comando($perfil, $evento);
                 }
@@ -154,14 +164,54 @@ class Whatsapp_chatbot {
             return $this->responder_texto($perfil['telefone'], 'Consulta nao encontrada ou indisponivel para esta solicitacao.');
         }
 
+        if ($this->agenda_disponivel() && (string)utec_whatsapp_read($agendamento, 'status', '') === '0') {
+            $retorno = $this->CI->whatsapp_chatbot_agenda->iniciar($perfil, $comando['nome'], $agendamento, $evento);
+            $retorno = $this->tratar_retorno_agenda($perfil, $retorno, $evento);
+            $retorno['id_agendamento'] = $idAgendamento;
+            return $retorno;
+        }
+        return $this->iniciar_solicitacao_manual($perfil, $comando['nome'], $idAgendamento, $evento, '');
+    }
+
+    protected function iniciar_solicitacao_manual($perfil, $acao, $idAgendamento, $evento, $prefixo)
+    {
         $this->CI->whatsapp_model->salvar_sessao_chatbot(
             $perfil['telefone'], $perfil['perfil'], $perfil['id_usuario'], $perfil['tenant_id'], 'solicitacao', 'motivo',
-            ['acao' => $comando['nome'] === 'remarcar' ? 'remarcacao' : 'cancelamento', 'id_agendamento' => $idAgendamento],
+            ['acao' => $acao === 'remarcar' ? 'remarcacao' : 'cancelamento', 'id_agendamento' => (int)$idAgendamento],
             utec_whatsapp_read($evento, 'event_at', null), utec_whatsapp_read($evento, 'message_id', '')
         );
-        $resultado = $this->responder_texto($perfil['telefone'], 'Informe o motivo da solicitacao com pelo menos 3 caracteres.');
-        $resultado['id_agendamento'] = $idAgendamento;
+        $resultado = $this->responder_texto($perfil['telefone'], trim($prefixo.' Informe o motivo da solicitacao com pelo menos 3 caracteres.'));
+        $resultado['id_agendamento'] = (int)$idAgendamento;
         return $resultado;
+    }
+
+    protected function tratar_retorno_agenda($perfil, $retorno, $evento)
+    {
+        if (!empty($retorno['expirado'])) {
+            $this->CI->whatsapp_model->limpar_sessao_chatbot($perfil['telefone']);
+            $this->responder_texto($perfil['telefone'], 'Essa opção expirou. Escolha novamente no menu.');
+            return $this->responder_menu($perfil);
+        }
+        if (!empty($retorno['fallback'])) {
+            return $this->iniciar_solicitacao_manual(
+                $perfil,
+                utec_whatsapp_read($retorno, 'acao', 'remarcar'),
+                (int)utec_whatsapp_read($retorno, 'id_agendamento', 0),
+                $evento,
+                utec_whatsapp_agenda_texto_fallback($retorno['fallback'])
+            );
+        }
+        return $retorno;
+    }
+
+    protected function agenda_disponivel()
+    {
+        return isset($this->CI->whatsapp_chatbot_agenda);
+    }
+
+    protected function sessao_agenda_motivo_aberta($sessao)
+    {
+        return $sessao && utec_whatsapp_read($sessao, 'fluxo', '') === 'agenda_cancelar' && utec_whatsapp_read($sessao, 'etapa', '') === 'motivo';
     }
 
     protected function responder_agenda($perfil, $comando)
