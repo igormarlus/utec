@@ -52,4 +52,24 @@ assertContains('htmlspecialchars(', $view, 'view escapa saida');
 $menu = lerArquivo('includes/adm/menu.php');
 assertContains("adm/horarios'", $menu, 'menu aponta para horarios');
 
+// Widget JS + integracao (Task 4)
+$js = lerArquivo('js/adm/disponibilidade.js');
+assertContains('UtecDisponibilidade', $js, 'widget exportado');
+assertContains('adm/horarios/livres', $js, 'widget chama endpoint');
+assertContains('encaixe', $js, 'widget avisa encaixe');
+foreach (array('application/views/adm/atendimento/atendimento.php',
+    'application/views/adm/calendario/index.php',
+    'application/views/adm/usuarios/new/atendimentos.php') as $v) {
+    $src = lerArquivo($v);
+    assertContains('js/adm/disponibilidade.js', $src, $v . ' inclui widget');
+    assertContains('UtecDisponibilidade.attach(', $src, $v . ' inicializa widget');
+}
+assertContains('data-prestador-id=', lerArquivo('application/views/adm/usuarios/new/atendimentos.php'), 'remarcacao conhece o prestador');
+// cadastrar/remarcar continuam sem validacao de disponibilidade
+$atend = lerArquivo('application/controllers/adm/Atendimento.php');
+if (strpos($atend, 'disponibilidade') !== false) {
+    fwrite(STDERR, 'Atendimento.php nao deve validar disponibilidade no servidor (spec: so aviso).' . PHP_EOL);
+    exit(1);
+}
+
 echo "OK disponibilidade_source_test\n";

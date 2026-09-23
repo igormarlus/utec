@@ -214,6 +214,7 @@ function cal_prof_cor($id) {
               </div>
             </div>
           </div>
+          <div id="disp-criar" style="margin-bottom:12px;"></div>
           <div class="form-group">
             <label style="font-size:12px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.06em;">Tipo</label>
             <select name="tipo" class="form-control" required>
@@ -270,6 +271,7 @@ function cal_prof_cor($id) {
                 <input type="time" name="hora_agenda" id="remarcar-hora" class="form-control form-control-sm" required>
               </div>
             </div>
+            <div id="disp-remarcar"></div>
             <div style="margin-top:10px;display:flex;gap:8px;">
               <button type="submit" class="btn btn-primary btn-sm">Salvar remarcação</button>
               <button type="button" class="btn btn-secondary btn-sm" onclick="document.getElementById('remarcar-sub').style.display='none'">Fechar</button>
@@ -302,6 +304,7 @@ function cal_prof_cor($id) {
 <script src="<?=base_url()?>bower_components/fullcalendar/dist/locale/pt-br.js"></script>
 <script src="<?=base_url()?>js/demo_customizer.js?version=4.5.0"></script>
 <script src="<?=base_url()?>js/main.js?version=4.5.0"></script>
+<script src="<?=base_url()?>js/adm/disponibilidade.js?v=1"></script>
 <script>
 var BASE  = '<?=base_url()?>';
 var NIVEL = <?=(int)$nivel?>;
@@ -499,6 +502,28 @@ function calLoadDia(dateYmd, dateFmt){
 
 var _acoesEvento = null;
 
+var dispCriar = null;
+var dispRemarcar = null;
+$(function(){
+  dispCriar = UtecDisponibilidade.attach({
+    baseUrl: BASE,
+    prestador: function(){ return $('#criar-prestador').val(); },
+    prestadorEl: '#criar-prestador',
+    data: '#criar-data',
+    hora: '#criar-hora',
+    box: '#disp-criar'
+  });
+  $('#modal-criar').on('shown.bs.modal', function(){ dispCriar.atualizar(); });
+  dispRemarcar = UtecDisponibilidade.attach({
+    baseUrl: BASE,
+    prestador: function(){ return _acoesEvento ? (_acoesEvento.extendedProps || {}).prestador_id : 0; },
+    data: '#remarcar-data',
+    hora: '#remarcar-hora',
+    box: '#disp-remarcar',
+    ignorar: function(){ return _acoesEvento ? _acoesEvento.id : 0; }
+  });
+});
+
 function calAbrirAcoes(calEvent){
   calAbrirAcoesDireto({
     id: calEvent.id,
@@ -552,6 +577,7 @@ function calOpenRemarcar(){
   document.getElementById('remarcar-data').value = ep.data || (_acoesEvento.start ? _acoesEvento.start.substring(0,10) : '');
   document.getElementById('remarcar-hora').value = ep.hora || (_acoesEvento.start ? _acoesEvento.start.substring(11,16) : '');
   document.getElementById('remarcar-sub').style.display = '';
+  if (dispRemarcar) { dispRemarcar.atualizar(); }
 }
 
 function calToggleProf(chip){

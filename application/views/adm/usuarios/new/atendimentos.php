@@ -422,6 +422,7 @@
                   <div id="remarcacao-box" class="agenda-filter-card" style="display:none;margin-bottom:20px;padding:16px">
                     <form method="post" action="<?=base_url()?>adm/atendimento/remarcar_agenda">
                       <input type="hidden" name="id_agenda" id="remarcar-id-agenda">
+                      <input type="hidden" id="remarcar-prestador-id">
                       <div class="row">
                         <div class="col-md-4">
                           <label>Nova data</label>
@@ -436,6 +437,7 @@
                           <button type="button" class="btn btn-secondary" id="cancelar-remarcacao">Fechar</button>
                         </div>
                       </div>
+                      <div id="disp-remarcar"></div>
                     </form>
                   </div>
                   <div class="table-responsive">
@@ -517,7 +519,8 @@
                                   class="btn btn-sm btn-outline-primary btn-remarcar"
                                   data-id="<?=$agenda->id?>"
                                   data-data="<?=$agenda->data_agenda?>"
-                                  data-hora="<?=substr($agenda->hora_agenda,0,5)?>">
+                                  data-hora="<?=substr($agenda->hora_agenda,0,5)?>"
+                                  data-prestador-id="<?=(int)$agenda->id_prestador?>">
                                   Remarcar
                                 </button>
                                 <? if((int)$agenda->status !== 3){ ?>
@@ -595,6 +598,7 @@
          data-tipo="<?=htmlspecialchars($agenda->tipo, ENT_QUOTES)?>"
          data-status="<?=$agenda->status?>"
          data-prestador="<?=htmlspecialchars((string)$agenda->prestador_nome, ENT_QUOTES)?>"
+         data-prestador-id="<?=(int)$agenda->id_prestador?>"
          data-data="<?=$agenda->data_agenda?>"
          data-paciente-id="<?=$agenda->id_paciente?>"
          data-telefone="<?=$tel?>"
@@ -639,6 +643,7 @@
            data-tipo="<?=htmlspecialchars($agenda->tipo, ENT_QUOTES)?>"
            data-status="<?=$agenda->status?>"
            data-prestador="<?=htmlspecialchars((string)$agenda->prestador_nome, ENT_QUOTES)?>"
+           data-prestador-id="<?=(int)$agenda->id_prestador?>"
            data-data="<?=$agenda->data_agenda?>"
            data-paciente-id="<?=$agenda->id_paciente?>"
            onclick="utOpenSheet(this)">
@@ -700,6 +705,7 @@
     <script src="<?=base_url()?>bower_components/bootstrap/js/dist/popover.js"></script>
     <script src="<?=base_url()?>js/demo_customizer.js?version=4.5.0"></script>
     <script src="<?=base_url()?>js/main.js?version=4.5.0"></script>
+    <script src="<?=base_url()?>js/adm/disponibilidade.js?v=1"></script>
     <script>
       $(document).on('click', '.menu-w li.has-sub-menu > a', function(e){
         var $item = $(this).closest('li');
@@ -709,10 +715,20 @@
           $item.toggleClass('active');
         }
       });
+      window.dispRemarcar = UtecDisponibilidade.attach({
+        baseUrl: '<?=base_url()?>',
+        prestador: function(){ return $('#remarcar-prestador-id').val(); },
+        data: '#remarcar-data',
+        hora: '#remarcar-hora',
+        box: '#disp-remarcar',
+        ignorar: function(){ return $('#remarcar-id-agenda').val(); }
+      });
       $(document).on('click', '.btn-remarcar', function(){
         $('#remarcar-id-agenda').val($(this).data('id'));
         $('#remarcar-data').val($(this).data('data'));
         $('#remarcar-hora').val($(this).data('hora'));
+        $('#remarcar-prestador-id').val($(this).data('prestador-id'));
+        if (window.dispRemarcar) { window.dispRemarcar.atualizar(); }
         $('#remarcacao-box').show();
         $('html, body').animate({ scrollTop: $('#remarcacao-box').offset().top - 90 }, 250);
       });
@@ -843,6 +859,9 @@
         if (idField)   idField.value   = id;
         if (dataField) dataField.value = dataAg;
         if (horaField) horaField.value = hora;
+        var prestField = document.getElementById('remarcar-prestador-id');
+        if (prestField) prestField.value = el.getAttribute('data-prestador-id') || '';
+        if (window.dispRemarcar) window.dispRemarcar.atualizar();
         var box = document.getElementById('remarcacao-box');
         if (box) {
           box.style.display = 'block';

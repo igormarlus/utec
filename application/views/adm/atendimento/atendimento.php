@@ -195,6 +195,7 @@
                       <input type="time" name="hora_agenda" class="form-control" required>
                     </div>
                   </div>
+                  <div id="disp-novo"></div>
                   <div style="margin-top:18px;">
                     <div class="custom-control custom-checkbox">
                       <input type="checkbox" class="custom-control-input" id="enviar-whatsapp-confirmacao" name="enviar_whatsapp_confirmacao" value="1" checked>
@@ -230,5 +231,19 @@
     <script src="<?=base_url()?>bower_components/bootstrap/js/dist/popover.js"></script>
     <script src="<?=base_url()?>js/demo_customizer.js?version=4.5.0"></script>
     <script src="<?=base_url()?>js/main.js?version=4.5.0"></script>
+    <script src="<?=base_url()?>js/adm/disponibilidade.js?v=1"></script>
+    <script>
+      $(function(){
+        var disp = UtecDisponibilidade.attach({
+          baseUrl: '<?=base_url()?>',
+          prestador: function(){ return $('#form [name=id_prestador]').val(); },
+          prestadorEl: '#form [name=id_prestador]',
+          data: '#form [name=data_agenda]',
+          hora: '#form [name=hora_agenda]',
+          box: '#disp-novo'
+        });
+        disp.atualizar();
+      });
+    </script>
   </body>
 </html>
