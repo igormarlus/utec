@@ -253,3 +253,41 @@ if (!function_exists('utec_disp_normalizar_bloqueio')) {
         return array('ok' => true, 'inicio' => $inicio, 'fim' => $fim, 'erro' => '');
     }
 }
+
+if (!function_exists('utec_disp_aplicar_minimo')) {
+    // Mantem os slots do dia $data que comecam em/depois de $minimo_datetime ('Y-m-d H:i').
+    function utec_disp_aplicar_minimo($slots, $data, $minimo_datetime) {
+        $ts = strtotime((string)$minimo_datetime);
+        if ($ts === false) {
+            return array_values((array)$slots);
+        }
+        $data_minima = date('Y-m-d', $ts);
+        if ($data < $data_minima) {
+            return array();
+        }
+        if ($data > $data_minima) {
+            return array_values((array)$slots);
+        }
+        $limite = (int)date('G', $ts) * 60 + (int)date('i', $ts);
+        $saida = array();
+        foreach ((array)$slots as $slot) {
+            $m = utec_disp_min($slot);
+            if ($m !== null && $m >= $limite) {
+                $saida[] = $slot;
+            }
+        }
+        return $saida;
+    }
+}
+
+if (!function_exists('utec_disp_livres_do_dia')) {
+    function utec_disp_livres_do_dia($intervalos, $duracao_min, $horas_agendadas, $bloqueios_brutos, $data) {
+        $slots = utec_disp_gerar_slots($intervalos, $duracao_min);
+        return utec_disp_remover_ocupados(
+            $slots,
+            $horas_agendadas,
+            utec_disp_recortar_bloqueios_no_dia($bloqueios_brutos, $data),
+            $duracao_min
+        );
+    }
+}

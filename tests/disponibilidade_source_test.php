@@ -77,4 +77,10 @@ if (strpos($atend, 'disponibilidade') !== false) {
     exit(1);
 }
 
+$modelDisp = lerArquivo('application/models/Disponibilidade_model.php');
+assertContains('function dias_com_vaga(', $modelDisp, 'model: dias_com_vaga');
+assertContains('$minimo_datetime = null', $modelDisp, 'horarios_livres aceita corte minimo');
+assertContains('BETWEEN', $modelDisp, 'agendamentos do periodo em uma consulta');
+assertContains('utec_disp_livres_do_dia(', $modelDisp, 'model usa livres_do_dia');
+
 echo "OK disponibilidade_source_test\n";
