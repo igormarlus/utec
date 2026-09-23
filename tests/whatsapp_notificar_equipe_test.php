@@ -41,4 +41,26 @@ $componentesVazio = utec_whatsapp_componentes_equipe_template([]);
 assertSameValue('Paciente', $componentesVazio[0]['parameters'][0]['text'], 'Sem nome do paciente, usa o fallback Paciente.');
 assertSameValue('Profissional', $componentesVazio[0]['parameters'][1]['text'], 'Sem nome do profissional, usa o fallback Profissional.');
 
+// --- confirmar usa o corpo de 5 parametros (agendamento_confirmado_equipe ainda
+// aprovado na Meta com a versao antiga do template) ---
+$contextoConfirmar = [
+    'paciente_nome' => 'Maria Silva',
+    'prestador_nome' => 'Dr. Joao Pereira',
+    'tipo' => 'Consulta de retorno',
+    'data_agenda' => '2026-09-25',
+    'hora_agenda' => '14:30:00',
+];
+$componentesConfirmar = utec_whatsapp_componentes_equipe_template($contextoConfirmar, 'confirmar');
+assertSameValue(1, count($componentesConfirmar), 'Confirmar tambem deve ter so o componente body.');
+assertSameValue(5, count($componentesConfirmar[0]['parameters']), 'Confirmar deve ter exatamente 5 parametros (template antigo aprovado).');
+assertSameValue('Maria Silva', $componentesConfirmar[0]['parameters'][0]['text'], 'Confirmar parametro 1 e o paciente.');
+assertSameValue('Consulta de retorno', $componentesConfirmar[0]['parameters'][1]['text'], 'Confirmar parametro 2 e o tipo.');
+assertSameValue('25/09/2026', $componentesConfirmar[0]['parameters'][2]['text'], 'Confirmar parametro 3 e a data.');
+assertSameValue('14:30', $componentesConfirmar[0]['parameters'][3]['text'], 'Confirmar parametro 4 e a hora.');
+assertSameValue('Dr. Joao Pereira', $componentesConfirmar[0]['parameters'][4]['text'], 'Confirmar parametro 5 e o profissional.');
+
+// --- cancelar (explicito) continua com 3 parametros ---
+$componentesCancelar = utec_whatsapp_componentes_equipe_template($contexto, 'cancelar');
+assertSameValue(3, count($componentesCancelar[0]['parameters']), 'Cancelar continua com 3 parametros.');
+
 echo "OK\n";
