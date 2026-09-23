@@ -78,10 +78,37 @@ assertAgendaSame('Sáb 26/09', utec_whatsapp_agenda_rotulo_dia('2026-09-26'), 'r
 assertAgendaSame('Sex 25/09 às 14:30', utec_whatsapp_rotulo_data_hora('2026-09-25', '14:30:00'), 'rotulo data e hora');
 assertAgendaSame('Sex 25/09 às 08:00', utec_whatsapp_rotulo_data_hora('2026-09-25 00:00:00', '08:00'), 'rotulo data e hora com datetime');
 assertAgendaSame(true, strlen(utf8_decode(utec_whatsapp_rotulo_data_hora('2026-09-26', '14:30'))) <= 24, 'rotulo cabe no titulo de linha do WhatsApp (24)');
-assertAgendaSame('Remarcar para Sex 25/09 às 14:30 com Dra. Ana?', utec_whatsapp_agenda_texto_confirmar_remarcacao('2026-09-25', '14:30:00', 'Dra. Ana'), 'texto confirmar remarcacao');
-assertAgendaSame('Remarcar para Sex 25/09 às 14:30?', utec_whatsapp_agenda_texto_confirmar_remarcacao('2026-09-25', '14:30', ''), 'texto sem profissional');
-assertAgendaSame('Consulta remarcada para Sex 25/09 às 14:30 com Dra. Ana.', utec_whatsapp_agenda_texto_remarcado('2026-09-25', '14:30', 'Dra. Ana'), 'texto remarcado');
-assertAgendaSame('Cancelar a consulta de Sex 25/09 às 14:30 com Dra. Ana?', utec_whatsapp_agenda_texto_confirmar_cancelamento('2026-09-25', '14:30', 'Dra. Ana'), 'texto confirmar cancelamento');
+assertAgendaSame('🔄 Remarcar para Sex 25/09 às 14:30 com Dra. Ana?', utec_whatsapp_agenda_texto_confirmar_remarcacao('2026-09-25', '14:30:00', 'Dra. Ana'), 'texto confirmar remarcacao');
+assertAgendaSame('🔄 Remarcar para Sex 25/09 às 14:30?', utec_whatsapp_agenda_texto_confirmar_remarcacao('2026-09-25', '14:30', ''), 'texto sem profissional');
+assertAgendaSame('✅ Consulta remarcada para Sex 25/09 às 14:30 com Dra. Ana.', utec_whatsapp_agenda_texto_remarcado('2026-09-25', '14:30', 'Dra. Ana'), 'texto remarcado');
+assertAgendaSame('⚠️ Cancelar a consulta de Sex 25/09 às 14:30 com Dra. Ana?', utec_whatsapp_agenda_texto_confirmar_cancelamento('2026-09-25', '14:30', 'Dra. Ana'), 'texto confirmar cancelamento');
+
+// --- blocos visuais do chatbot
+$agTeste = (object)['data_agenda' => '2026-09-25', 'hora_agenda' => '14:30:00', 'prestador_nome' => 'Dra. Ana', 'paciente_nome' => 'Maria', 'status' => 0, 'status_whatsapp' => ''];
+assertAgendaSame("📅 *Sex 25/09 às 14:30*
+🩺 Dra. Ana
+⏳ pendente", utec_whatsapp_chatbot_bloco_agendamento($agTeste, 'paciente'), 'bloco do paciente mostra profissional');
+assertAgendaSame("📅 *Sex 25/09 às 14:30*
+👤 Maria
+⏳ pendente", utec_whatsapp_chatbot_bloco_agendamento($agTeste, 'profissional'), 'bloco do profissional mostra paciente');
+assertAgendaSame("📅 *Sex 25/09 às 14:30*
+👤 Maria
+🩺 Dra. Ana
+⏳ pendente", utec_whatsapp_chatbot_bloco_agendamento($agTeste, 'admin'), 'bloco do admin mostra paciente e profissional');
+$textoAgendaTeste = utec_whatsapp_chatbot_texto_agenda([$agTeste, $agTeste], 'paciente', 'proximas');
+assertAgendaSame(0, strpos($textoAgendaTeste, '📋 *Suas próximas consultas*'), 'agenda abre com titulo');
+assertAgendaSame(2, substr_count($textoAgendaTeste, "⏳ pendente
+
+📅") + substr_count($textoAgendaTeste, "*
+
+📅"), 'registros separados por linha em branco');
+assertAgendaSame('📭 Nenhum agendamento encontrado.', utec_whatsapp_chatbot_texto_agenda([], 'paciente', 'proximas'), 'agenda vazia');
+assertAgendaSame('📅 Próximas consultas', utec_whatsapp_chatbot_rotulo_comando('proximas'), 'menu proximas com icone');
+assertAgendaSame('🔙 Voltar', utec_whatsapp_chatbot_rotulo_comando('voltar'), 'menu voltar com icone');
+assertAgendaSame('Outro comando', utec_whatsapp_chatbot_rotulo_comando('outro_comando'), 'comando sem icone mapeado');
+foreach (['proximas','consulta','cancelar','remarcar','atendimento','voltar','agenda_hoje','amanha','pendencias','plano','suporte','agenda','cancelamentos'] as $cmdTeste) {
+    assertAgendaSame(true, mb_strlen(utec_whatsapp_chatbot_rotulo_comando($cmdTeste), 'UTF-8') <= 22, 'rotulo de menu cabe na linha: '.$cmdTeste);
+}
 assertAgendaSame(true, strpos(utec_whatsapp_agenda_texto_fallback('prazo'), '24 horas') !== false, 'fallback prazo');
 assertAgendaSame(true, utec_whatsapp_agenda_texto_fallback('sem_grade') !== '', 'fallback sem grade');
 assertAgendaSame(true, strpos(utec_whatsapp_agenda_texto_fallback('sem_vaga'), '30 dias') !== false, 'fallback sem vaga');

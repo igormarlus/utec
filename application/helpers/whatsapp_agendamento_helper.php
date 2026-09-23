@@ -1093,6 +1093,70 @@ if (!function_exists('utec_whatsapp_rotulo_data_hora')) {
     }
 }
 
+if (!function_exists('utec_whatsapp_chatbot_rotulo_comando')) {
+    function utec_whatsapp_chatbot_rotulo_comando($comando)
+    {
+        $rotulos = [
+            'proximas' => '📅 Próximas consultas',
+            'consulta' => '🔎 Ver consulta',
+            'cancelar' => '❌ Cancelar consulta',
+            'remarcar' => '🔄 Remarcar consulta',
+            'atendimento' => '💬 Atendimento',
+            'voltar' => '🔙 Voltar',
+            'agenda_hoje' => '📆 Agenda de hoje',
+            'amanha' => '📆 Agenda de amanhã',
+            'agenda' => '📆 Agenda',
+            'pendencias' => '⏳ Pendências',
+            'cancelamentos' => '❌ Cancelamentos',
+            'plano' => '💳 Meu plano',
+            'suporte' => '🛟 Suporte',
+        ];
+        $comando = trim((string)$comando);
+        return isset($rotulos[$comando]) ? $rotulos[$comando] : ucfirst(str_replace('_', ' ', $comando));
+    }
+}
+
+if (!function_exists('utec_whatsapp_chatbot_bloco_agendamento')) {
+    function utec_whatsapp_chatbot_bloco_agendamento($agendamento, $perfil)
+    {
+        $linhas = ['📅 *' . utec_whatsapp_rotulo_data_hora(utec_whatsapp_read($agendamento, 'data_agenda', ''), utec_whatsapp_read($agendamento, 'hora_agenda', '')) . '*'];
+        $paciente = trim((string)utec_whatsapp_read($agendamento, 'paciente_nome', ''));
+        $prestador = trim((string)utec_whatsapp_read($agendamento, 'prestador_nome', ''));
+        if ($perfil !== 'paciente' && $paciente !== '') {
+            $linhas[] = '👤 ' . $paciente;
+        }
+        if ($perfil !== 'profissional' && $prestador !== '') {
+            $linhas[] = '🩺 ' . $prestador;
+        }
+        $linhas[] = utec_whatsapp_status_chatbot($agendamento);
+        return implode("\n", $linhas);
+    }
+}
+
+if (!function_exists('utec_whatsapp_chatbot_texto_agenda')) {
+    function utec_whatsapp_chatbot_texto_agenda($agenda, $perfil, $comando)
+    {
+        $agenda = is_array($agenda) ? $agenda : [];
+        if (empty($agenda)) {
+            return '📭 Nenhum agendamento encontrado.';
+        }
+        $titulos = [
+            'proximas' => 'Suas próximas consultas',
+            'agenda_hoje' => 'Agenda de hoje',
+            'amanha' => 'Agenda de amanhã',
+            'pendencias' => 'Pendências de confirmação',
+            'pedencias' => 'Pendências de confirmação',
+            'cancelamentos' => 'Cancelamentos',
+        ];
+        $titulo = isset($titulos[$comando]) ? $titulos[$comando] : 'Agenda';
+        $blocos = ['📋 *' . $titulo . '*'];
+        foreach ($agenda as $agendamento) {
+            $blocos[] = utec_whatsapp_chatbot_bloco_agendamento($agendamento, $perfil);
+        }
+        return implode("\n\n", $blocos);
+    }
+}
+
 if (!function_exists('utec_whatsapp_agenda_quando')) {
     function utec_whatsapp_agenda_quando($data, $hora, $prestador)
     {
@@ -1105,21 +1169,21 @@ if (!function_exists('utec_whatsapp_agenda_quando')) {
 if (!function_exists('utec_whatsapp_agenda_texto_confirmar_remarcacao')) {
     function utec_whatsapp_agenda_texto_confirmar_remarcacao($data, $hora, $prestador)
     {
-        return 'Remarcar para ' . utec_whatsapp_agenda_quando($data, $hora, $prestador) . '?';
+        return '🔄 Remarcar para ' . utec_whatsapp_agenda_quando($data, $hora, $prestador) . '?';
     }
 }
 
 if (!function_exists('utec_whatsapp_agenda_texto_remarcado')) {
     function utec_whatsapp_agenda_texto_remarcado($data, $hora, $prestador)
     {
-        return 'Consulta remarcada para ' . utec_whatsapp_agenda_quando($data, $hora, $prestador) . '.';
+        return '✅ Consulta remarcada para ' . utec_whatsapp_agenda_quando($data, $hora, $prestador) . '.';
     }
 }
 
 if (!function_exists('utec_whatsapp_agenda_texto_confirmar_cancelamento')) {
     function utec_whatsapp_agenda_texto_confirmar_cancelamento($data, $hora, $prestador)
     {
-        return 'Cancelar a consulta de ' . utec_whatsapp_agenda_quando($data, $hora, $prestador) . '?';
+        return '⚠️ Cancelar a consulta de ' . utec_whatsapp_agenda_quando($data, $hora, $prestador) . '?';
     }
 }
 
@@ -1127,9 +1191,9 @@ if (!function_exists('utec_whatsapp_agenda_texto_fallback')) {
     function utec_whatsapp_agenda_texto_fallback($motivo)
     {
         $textos = [
-            'prazo' => 'Faltam menos de 24 horas para a consulta, então a equipe vai analisar seu pedido.',
-            'sem_grade' => 'Este profissional ainda não tem horários disponíveis para remarcação pelo WhatsApp.',
-            'sem_vaga' => 'Não há horários livres nos próximos 30 dias.',
+            'prazo' => '⏰ Faltam menos de 24 horas para a consulta, então a equipe vai analisar seu pedido.',
+            'sem_grade' => 'ℹ️ Este profissional ainda não tem horários disponíveis para remarcação pelo WhatsApp.',
+            'sem_vaga' => '📭 Não há horários livres nos próximos 30 dias.',
         ];
         $motivo = trim((string)$motivo);
         return isset($textos[$motivo]) ? $textos[$motivo] : '';

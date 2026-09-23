@@ -58,7 +58,7 @@ class Whatsapp_chatbot_agenda {
         );
         if ($agendamento && $clique['fluxo'] === 'cancelar' && $clique['acao'] === 'confirmar' && (string)utec_whatsapp_read($agendamento, 'status', '') === '3') {
             $this->CI->whatsapp_model->limpar_sessao_chatbot($perfil['telefone']);
-            return $this->texto($perfil, 'Essa consulta já está cancelada.', (int)$agendamento->id);
+            return $this->texto($perfil, 'ℹ️ Essa consulta já está cancelada.', (int)$agendamento->id);
         }
         if (!$this->elegivel($agendamento, $perfil)) {
             return ['expirado' => true];
@@ -85,8 +85,8 @@ class Whatsapp_chatbot_agenda {
             case 'hora':
                 $this->salvar_sessao($perfil, 'agenda_remarcar', 'confirmar', ['id_agendamento' => (int)$agendamento->id, 'data' => $clique['data'], 'hora' => $clique['hora']], $evento);
                 return $this->botoes($perfil, utec_whatsapp_agenda_texto_confirmar_remarcacao($clique['data'], $clique['hora'], utec_whatsapp_read($agendamento, 'prestador_nome', '')), [
-                    ['id' => utec_whatsapp_agenda_id_confirmar_remarcacao($agendamento->id, $clique['data'], $clique['hora']), 'title' => 'Confirmar'],
-                    ['id' => utec_whatsapp_agenda_id_outros_dias($agendamento->id), 'title' => 'Outro dia'],
+                    ['id' => utec_whatsapp_agenda_id_confirmar_remarcacao($agendamento->id, $clique['data'], $clique['hora']), 'title' => '✅ Confirmar'],
+                    ['id' => utec_whatsapp_agenda_id_outros_dias($agendamento->id), 'title' => '📅 Outro dia'],
                     ['id' => 'chat:paciente:voltar', 'title' => 'Voltar'],
                 ], (int)$agendamento->id);
             case 'confirmar':
@@ -129,12 +129,12 @@ class Whatsapp_chatbot_agenda {
             $qtd = (int)$dia['qtd'];
             $rows[] = [
                 'id' => utec_whatsapp_agenda_id_dia($agendamento->id, $dia['data']),
-                'title' => utec_whatsapp_agenda_rotulo_dia($dia['data']),
+                'title' => '📅 '.utec_whatsapp_agenda_rotulo_dia($dia['data']),
                 'description' => $qtd === 1 ? '1 horário livre' : $qtd.' horários livres',
             ];
         }
         $this->salvar_sessao($perfil, 'agenda_remarcar', 'dia', ['id_agendamento' => (int)$agendamento->id], $evento);
-        $corpo = trim($prefixo.' Escolha o novo dia da consulta.');
+        $corpo = trim($prefixo."\n\n".'📅 Escolha o novo dia da consulta.');
         return $this->lista($perfil, $corpo, 'Ver dias', $rows, (int)$agendamento->id);
     }
 
@@ -146,17 +146,17 @@ class Whatsapp_chatbot_agenda {
         $livres = isset($resposta['livres']) ? $resposta['livres'] : [];
         $paginado = utec_whatsapp_agenda_paginar_horarios($livres, $pagina);
         if (empty($paginado['itens'])) {
-            return $this->enviar_dias($perfil, $agendamento, $evento, 'Esse dia não tem mais horários livres.');
+            return $this->enviar_dias($perfil, $agendamento, $evento, '📭 Esse dia não tem mais horários livres.');
         }
         $rows = [];
         foreach ($paginado['itens'] as $hora) {
-            $rows[] = ['id' => utec_whatsapp_agenda_id_hora($agendamento->id, $data, $hora), 'title' => utec_whatsapp_rotulo_data_hora($data, $hora)];
+            $rows[] = ['id' => utec_whatsapp_agenda_id_hora($agendamento->id, $data, $hora), 'title' => '🕐 '.utec_whatsapp_rotulo_data_hora($data, $hora)];
         }
         if ($paginado['tem_mais']) {
-            $rows[] = ['id' => utec_whatsapp_agenda_id_pagina($agendamento->id, $data, (int)$pagina + 1), 'title' => 'Ver mais horários'];
+            $rows[] = ['id' => utec_whatsapp_agenda_id_pagina($agendamento->id, $data, (int)$pagina + 1), 'title' => '➕ Ver mais horários'];
         }
         $this->salvar_sessao($perfil, 'agenda_remarcar', 'hora', ['id_agendamento' => (int)$agendamento->id, 'data' => $data], $evento);
-        $corpo = trim($prefixo.' Horários livres em '.utec_whatsapp_agenda_rotulo_dia($data).'.');
+        $corpo = trim($prefixo."\n\n".'🕐 Horários livres em '.utec_whatsapp_agenda_rotulo_dia($data).'.');
         return $this->lista($perfil, $corpo, 'Ver horários', $rows, (int)$agendamento->id);
     }
 
@@ -168,13 +168,13 @@ class Whatsapp_chatbot_agenda {
         if (empty($r['ok'])) {
             $falha = (string)utec_whatsapp_read($r, 'motivo_falha', 'erro');
             if ($falha === 'ocupado') {
-                return $this->enviar_horarios($perfil, $agendamento, $clique['data'], 1, $evento, 'Esse horário acabou de ser ocupado. Escolha outro.');
+                return $this->enviar_horarios($perfil, $agendamento, $clique['data'], 1, $evento, '⚠️ Esse horário acabou de ser ocupado. Escolha outro.');
             }
             if ($falha === 'prazo') {
                 return $this->fallback('prazo', 'remarcar', $agendamento);
             }
             if ($falha === 'erro') {
-                return $this->texto($perfil, 'Não foi possível remarcar agora. Tente novamente em instantes.', (int)$agendamento->id);
+                return $this->texto($perfil, '⚠️ Não foi possível remarcar agora. Tente novamente em instantes.', (int)$agendamento->id);
             }
             return ['expirado' => true];
         }
@@ -183,7 +183,7 @@ class Whatsapp_chatbot_agenda {
         $novo = utec_whatsapp_read($r, 'agendamento', $agendamento);
         $prestador = utec_whatsapp_read($agendamento, 'prestador_nome', '');
         if (!empty($r['ja_estava'])) {
-            return $this->texto($perfil, 'Sua consulta já está marcada para '.utec_whatsapp_agenda_quando($novo->data_agenda, $novo->hora_agenda, $prestador).'.', (int)$agendamento->id);
+            return $this->texto($perfil, 'ℹ️ Sua consulta já está marcada para '.utec_whatsapp_agenda_quando($novo->data_agenda, $novo->hora_agenda, $prestador).'.', (int)$agendamento->id);
         }
         $resposta = $this->texto($perfil, utec_whatsapp_agenda_texto_remarcado($novo->data_agenda, $novo->hora_agenda, $prestador), (int)$agendamento->id);
         $this->avisar_equipe('remarcar', $agendamento, $r, '', $idEvento);
@@ -208,16 +208,16 @@ class Whatsapp_chatbot_agenda {
                 return $this->fallback('prazo', 'cancelar', $agendamento);
             }
             if ($falha === 'erro') {
-                return $this->texto($perfil, 'Não foi possível cancelar agora. Tente novamente em instantes.', (int)$agendamento->id);
+                return $this->texto($perfil, '⚠️ Não foi possível cancelar agora. Tente novamente em instantes.', (int)$agendamento->id);
             }
             return ['expirado' => true];
         }
 
         $this->CI->whatsapp_model->limpar_sessao_chatbot($perfil['telefone']);
         if (!empty($r['ja_estava'])) {
-            return $this->texto($perfil, 'Essa consulta já está cancelada.', (int)$agendamento->id);
+            return $this->texto($perfil, 'ℹ️ Essa consulta já está cancelada.', (int)$agendamento->id);
         }
-        $resposta = $this->texto($perfil, 'Consulta cancelada. Se quiser remarcar depois, é só chamar aqui.', (int)$agendamento->id);
+        $resposta = $this->texto($perfil, '❌ Consulta cancelada. Se quiser remarcar depois, é só chamar aqui.', (int)$agendamento->id);
         $this->avisar_equipe('cancelar', $agendamento, $r, $motivo, $idEvento);
         return $resposta;
     }
@@ -258,7 +258,7 @@ class Whatsapp_chatbot_agenda {
 
     protected function pedir_motivo($perfil, $agendamento)
     {
-        return $this->botoes($perfil, 'Se quiser, conte em uma mensagem o motivo do cancelamento. Ou toque em "Prefiro não informar".', [
+        return $this->botoes($perfil, '✍️ Se quiser, conte em uma mensagem o motivo do cancelamento. Ou toque em "Prefiro não informar".', [
             ['id' => utec_whatsapp_agenda_id_sem_motivo($agendamento->id), 'title' => 'Prefiro não informar'],
             ['id' => 'chat:paciente:voltar', 'title' => 'Voltar'],
         ], (int)$agendamento->id);
@@ -267,7 +267,7 @@ class Whatsapp_chatbot_agenda {
     protected function pedir_confirmacao_cancelamento($perfil, $agendamento)
     {
         return $this->botoes($perfil, utec_whatsapp_agenda_texto_confirmar_cancelamento($agendamento->data_agenda, $agendamento->hora_agenda, utec_whatsapp_read($agendamento, 'prestador_nome', '')), [
-            ['id' => utec_whatsapp_agenda_id_confirmar_cancelamento($agendamento->id), 'title' => 'Sim, cancelar'],
+            ['id' => utec_whatsapp_agenda_id_confirmar_cancelamento($agendamento->id), 'title' => '❌ Sim, cancelar'],
             ['id' => 'chat:paciente:voltar', 'title' => 'Voltar'],
         ], (int)$agendamento->id);
     }

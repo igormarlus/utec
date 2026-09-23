@@ -127,7 +127,7 @@ $disp->dias = [['data' => '2026-09-24', 'qtd' => 3], ['data' => '2026-09-25', 'q
 $chatbot->processar(eventoClique('chat:paciente:remarcar:812', 1));
 $rows = linhasLista(ultimo($envio));
 assertLib('rem:812:d:20260924', $rows[0]['id'], 'lista de dias usa id rem:d');
-assertLib('Qui 24/09', $rows[0]['title'], 'rotulo do dia');
+assertLib('📅 Qui 24/09', $rows[0]['title'], 'rotulo do dia');
 assertLib('3 horários livres', $rows[0]['description'], 'descricao plural');
 assertLib('1 horário livre', $rows[1]['description'], 'descricao singular');
 assertLib(['dias_com_vaga', 3, '2026-09-23 10:00', 812], $disp->chamadas[0], 'dias_com_vaga com minimo de 24h ignorando a propria consulta');
@@ -140,9 +140,9 @@ $chatbot->processar(eventoClique('rem:812:d:20260924', 2));
 $rows = linhasLista(ultimo($envio));
 assertLib(10, count($rows), '9 horarios + ver mais');
 assertLib('rem:812:h:202609240800', $rows[0]['id'], 'id do horario');
-assertLib('Qui 24/09 às 08:00', $rows[0]['title'], 'horario mostra data antes da hora');
+assertLib('🕐 Qui 24/09 às 08:00', $rows[0]['title'], 'horario mostra data antes da hora');
 assertLib('rem:812:p:20260924:2', $rows[9]['id'], 'id da pagina seguinte');
-assertLib('Ver mais horários', $rows[9]['title'], 'titulo ver mais');
+assertLib('➕ Ver mais horários', $rows[9]['title'], 'titulo ver mais');
 $ultimaChamada = $disp->chamadas[count($disp->chamadas) - 1];
 assertLib(['horarios_livres', 3, '2026-09-24', 812, '2026-09-23 10:00'], $ultimaChamada, 'horarios_livres com minimo');
 
@@ -155,13 +155,13 @@ assertLib(2, count($rows), 'pagina 2 com o restante');
 $chatbot->processar(eventoClique('rem:812:h:202609241430', 4));
 $p = ultimo($envio);
 assertLib(['rem:812:ok:202609241430', 'rem:812:dias', 'chat:paciente:voltar'], idsBotoes($p), 'botoes confirmar / outro dia / voltar');
-assertLib('Remarcar para Qui 24/09 às 14:30 com Dra. Ana?', $p['interactive']['body']['text'], 'texto de confirmacao');
+assertLib('🔄 Remarcar para Qui 24/09 às 14:30 com Dra. Ana?', $p['interactive']['body']['text'], 'texto de confirmacao');
 assertLib('confirmar', $modelo->sessoes['5581999999999']->etapa, 'etapa confirmar');
 
 // 5) Confirmar -> grava, avisa, limpa sessao
 $chatbot->processar(eventoClique('rem:812:ok:202609241430', 5));
 assertLib(['id' => 812, 'idPaciente' => 7, 'data' => '2026-09-24', 'hora' => '14:30', 'minimo' => '2026-09-23 10:00', 'telefone' => '5581999999999'], $modelo->remarcacoes[0], 'model recebe a remarcacao');
-assertLib('Consulta remarcada para Qui 24/09 às 14:30 com Dra. Ana.', ultimo($envio)['text']['body'], 'texto de sucesso');
+assertLib('✅ Consulta remarcada para Qui 24/09 às 14:30 com Dra. Ana.', ultimo($envio)['text']['body'], 'texto de sucesso');
 assertLib('remarcar', $notif->avisos[0]['acao'], 'aviso interno de remarcacao');
 assertLib('2026-09-25', $notif->avisos[0]['dados']['data_anterior'], 'aviso leva data anterior');
 assertLib('2026-09-24', $notif->avisos[0]['dados']['data_nova'], 'aviso leva data nova');
@@ -184,7 +184,7 @@ assertLib(0, count($notif->avisos), 'sem aviso quando falha');
 list($chatbot, $agenda, $modelo, $disp, $envio, $notif) = novoCenario();
 $modelo->resultadoRemarcar = ['ok' => true, 'ja_estava' => true, 'motivo_falha' => '', 'agendamento' => $modelo->agendamentos[812], 'anterior' => $modelo->agendamentos[812], 'id_log' => 0];
 $chatbot->processar(eventoClique('rem:812:ok:202609251400', 7));
-assertLib('Sua consulta já está marcada para Sex 25/09 às 14:00 com Dra. Ana.', ultimo($envio)['text']['body'], 'idempotente');
+assertLib('ℹ️ Sua consulta já está marcada para Sex 25/09 às 14:00 com Dra. Ana.', ultimo($envio)['text']['body'], 'idempotente');
 assertLib(0, count($notif->avisos), 'sem aviso duplicado');
 assertLib(0, count($envio->equipe), 'sem WhatsApp duplicado');
 
@@ -193,7 +193,9 @@ list($chatbot, $agenda, $modelo, $disp, $envio, $notif) = novoCenario();
 $modelo->agendamentos[812]->data_agenda = '2026-09-22';
 $modelo->agendamentos[812]->hora_agenda = '18:00:00';
 $chatbot->processar(eventoClique('chat:paciente:remarcar:812', 8));
-assertLib('Faltam menos de 24 horas para a consulta, então a equipe vai analisar seu pedido. Informe o motivo da solicitacao com pelo menos 3 caracteres.', ultimo($envio)['text']['body'], 'fallback de prazo');
+assertLib("⏰ Faltam menos de 24 horas para a consulta, então a equipe vai analisar seu pedido.
+
+✍️ Informe o motivo da solicitação com pelo menos 3 caracteres.", ultimo($envio)['text']['body'], 'fallback de prazo');
 assertLib('solicitacao', $modelo->sessoes['5581999999999']->fluxo, 'sessao antiga de solicitacao');
 assertLib(0, count($disp->chamadas), 'nao consulta disponibilidade');
 
@@ -220,11 +222,11 @@ assertLib(['can:812:sem_motivo', 'chat:paciente:voltar'], idsBotoes(ultimo($envi
 $chatbot->processar(eventoTexto('Viagem', 13));
 $p = ultimo($envio);
 assertLib(['can:812:ok', 'chat:paciente:voltar'], idsBotoes($p), 'botoes de confirmar cancelamento');
-assertLib('Cancelar a consulta de Sex 25/09 às 14:00 com Dra. Ana?', $p['interactive']['body']['text'], 'texto confirmar cancelamento');
+assertLib('⚠️ Cancelar a consulta de Sex 25/09 às 14:00 com Dra. Ana?', $p['interactive']['body']['text'], 'texto confirmar cancelamento');
 $chatbot->processar(eventoClique('can:812:ok', 14));
 assertLib(812, $modelo->cancelamentos[0]['id'], 'model recebe o cancelamento');
 assertLib('2026-09-23 10:00', $modelo->cancelamentos[0]['minimo'], 'cancelamento com minimo');
-assertLib('Consulta cancelada. Se quiser remarcar depois, é só chamar aqui.', ultimo($envio)['text']['body'], 'texto cancelado');
+assertLib('❌ Consulta cancelada. Se quiser remarcar depois, é só chamar aqui.', ultimo($envio)['text']['body'], 'texto cancelado');
 assertLib('Viagem', $notif->avisos[0]['dados']['motivo'], 'aviso leva o motivo');
 assertLib('cancelar', $envio->equipe[0]['acao'], 'equipe avisada do cancelamento');
 assertLib(false, isset($modelo->sessoes['5581999999999']), 'sessao limpa apos cancelar');
@@ -241,14 +243,14 @@ assertLib('', $notif->avisos[0]['dados']['motivo'], 'aviso sem motivo');
 list($chatbot, $agenda, $modelo, $disp, $envio, $notif) = novoCenario();
 $modelo->agendamentos[812]->status = 3;
 $chatbot->processar(eventoClique('can:812:ok', 18));
-assertLib('Essa consulta já está cancelada.', ultimo($envio)['text']['body'], 'cancelamento repetido');
+assertLib('ℹ️ Essa consulta já está cancelada.', ultimo($envio)['text']['body'], 'cancelamento repetido');
 assertLib(0, count($modelo->cancelamentos), 'nao grava de novo');
 
 // 14) Clique de consulta inexistente -> expirado + menu
 list($chatbot, $agenda, $modelo, $disp, $envio, $notif) = novoCenario();
 $chatbot->processar(eventoClique('rem:999:d:20260924', 19));
 $penultimo = $envio->payloads[count($envio->payloads) - 2];
-assertLib('Essa opção expirou. Escolha novamente no menu.', $penultimo['text']['body'], 'expirado');
+assertLib('⌛ Essa opção expirou. Escolha novamente no menu.', $penultimo['text']['body'], 'expirado');
 assertLib('list', ultimo($envio)['interactive']['type'], 'menu reenviado');
 
 // 15) Voltar durante o fluxo limpa a sessao
@@ -272,7 +274,7 @@ $envio->explodir = true;
 $chatbot->processar(eventoClique('chat:paciente:cancelar:812', 25));
 $chatbot->processar(eventoClique('can:812:sem_motivo', 26));
 $chatbot->processar(eventoClique('can:812:ok', 27));
-assertLib('Consulta cancelada. Se quiser remarcar depois, é só chamar aqui.', ultimo($envio)['text']['body'], 'texto cancelado chega mesmo com falha ao avisar a equipe');
+assertLib('❌ Consulta cancelada. Se quiser remarcar depois, é só chamar aqui.', ultimo($envio)['text']['body'], 'texto cancelado chega mesmo com falha ao avisar a equipe');
 assertLib('equipe', $envio->ordem[count($envio->ordem) - 1], 'notificar_equipe foi chamado por ultimo (e explodiu) sem quebrar a resposta');
 
 echo "OK whatsapp_chatbot_agenda_library_test\n";

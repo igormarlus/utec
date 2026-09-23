@@ -92,13 +92,13 @@ class Whatsapp_chatbot {
             return $this->responder_menu($perfil);
         }
         if ($comando['nome'] === 'suporte') {
-            return $this->responder_texto($perfil['telefone'], utec_whatsapp_chatbot_texto_suporte().' '.utec_whatsapp_chatbot_url_suporte());
+            return $this->responder_texto($perfil['telefone'], '🛟 '.utec_whatsapp_chatbot_texto_suporte().' '.utec_whatsapp_chatbot_url_suporte());
         }
         if ($comando['nome'] === 'plano') {
             return $this->responder_plano($perfil);
         }
         if ($comando['nome'] === 'atendimento') {
-            return $this->responder_texto($perfil['telefone'], 'Para assuntos sobre atendimento, fale com o dev. '.utec_whatsapp_chatbot_url_suporte());
+            return $this->responder_texto($perfil['telefone'], '💬 Para assuntos sobre atendimento, fale com o dev. '.utec_whatsapp_chatbot_url_suporte());
         }
         if (in_array($comando['nome'], ['cancelar', 'remarcar'], true)) {
             return $this->iniciar_solicitacao($perfil, $comando, $evento);
@@ -117,12 +117,12 @@ class Whatsapp_chatbot {
             return $this->responder_menu($perfil);
         }
         if ($comando) {
-            return $this->responder_texto($perfil['telefone'], 'Envie o motivo com pelo menos 3 caracteres ou escolha Voltar.');
+            return $this->responder_texto($perfil['telefone'], '✍️ Envie o motivo com pelo menos 3 caracteres ou escolha Voltar.');
         }
 
         $motivo = trim((string)utec_whatsapp_read($evento, 'text', ''));
         if ($this->tamanho_texto($motivo) < 3) {
-            return $this->responder_texto($perfil['telefone'], 'Informe um motivo com pelo menos 3 caracteres.');
+            return $this->responder_texto($perfil['telefone'], '✍️ Informe um motivo com pelo menos 3 caracteres.');
         }
 
         $dados = json_decode((string)utec_whatsapp_read($sessao, 'dados_json', '{}'), true);
@@ -132,7 +132,7 @@ class Whatsapp_chatbot {
         $agendamento = $this->CI->whatsapp_model->obter_agendamento_chatbot($idAgendamento, $perfil['perfil'], $perfil['id_usuario'], $perfil['tenant_id']);
         if (!$this->agendamento_paciente_valido($agendamento, $perfil['perfil'])) {
             $this->CI->whatsapp_model->limpar_sessao_chatbot($perfil['telefone']);
-            return $this->responder_texto($perfil['telefone'], 'Nao foi possivel localizar uma consulta elegivel. Escolha outra opcao no menu.');
+            return $this->responder_texto($perfil['telefone'], '⚠️ Não foi possível localizar uma consulta elegível. Escolha outra opção no menu.');
         }
 
         $contexto = [
@@ -144,11 +144,11 @@ class Whatsapp_chatbot {
             'paciente_nome' => utec_whatsapp_read($agendamento, 'paciente_nome', ''),
         ];
         if (!$this->CI->notificacoes_model->criar_solicitacao_chatbot($contexto, $acao, $motivo, $idEvento)) {
-            return $this->responder_texto($perfil['telefone'], 'Nao foi possivel registrar sua solicitacao. Tente novamente mais tarde.');
+            return $this->responder_texto($perfil['telefone'], '⚠️ Não foi possível registrar sua solicitação. Tente novamente mais tarde.');
         }
 
         $this->CI->whatsapp_model->limpar_sessao_chatbot($perfil['telefone']);
-        $resultado = $this->responder_texto($perfil['telefone'], 'Recebemos sua solicitacao. A equipe vai analisar o pedido.');
+        $resultado = $this->responder_texto($perfil['telefone'], '✅ Recebemos sua solicitação. A equipe vai analisar o pedido.');
         $resultado['id_agendamento'] = (int)$agendamento->id;
         return $resultado;
     }
@@ -161,7 +161,7 @@ class Whatsapp_chatbot {
         }
         $agendamento = $this->CI->whatsapp_model->obter_agendamento_chatbot($idAgendamento, $perfil['perfil'], $perfil['id_usuario'], $perfil['tenant_id']);
         if (!$this->agendamento_paciente_valido($agendamento, $perfil['perfil'])) {
-            return $this->responder_texto($perfil['telefone'], 'Consulta nao encontrada ou indisponivel para esta solicitacao.');
+            return $this->responder_texto($perfil['telefone'], '⚠️ Consulta não encontrada ou indisponível para esta solicitação.');
         }
 
         if ($this->agenda_disponivel() && (string)utec_whatsapp_read($agendamento, 'status', '') === '0') {
@@ -180,7 +180,7 @@ class Whatsapp_chatbot {
             ['acao' => $acao === 'remarcar' ? 'remarcacao' : 'cancelamento', 'id_agendamento' => (int)$idAgendamento],
             utec_whatsapp_read($evento, 'event_at', null), utec_whatsapp_read($evento, 'message_id', '')
         );
-        $resultado = $this->responder_texto($perfil['telefone'], trim($prefixo.' Informe o motivo da solicitacao com pelo menos 3 caracteres.'));
+        $resultado = $this->responder_texto($perfil['telefone'], trim($prefixo."\n\n".'✍️ Informe o motivo da solicitação com pelo menos 3 caracteres.'));
         $resultado['id_agendamento'] = (int)$idAgendamento;
         return $resultado;
     }
@@ -189,7 +189,7 @@ class Whatsapp_chatbot {
     {
         if (!empty($retorno['expirado'])) {
             $this->CI->whatsapp_model->limpar_sessao_chatbot($perfil['telefone']);
-            $this->responder_texto($perfil['telefone'], 'Essa opção expirou. Escolha novamente no menu.');
+            $this->responder_texto($perfil['telefone'], '⌛ Essa opção expirou. Escolha novamente no menu.');
             return $this->responder_menu($perfil);
         }
         if (!empty($retorno['fallback'])) {
@@ -217,12 +217,7 @@ class Whatsapp_chatbot {
     protected function responder_agenda($perfil, $comando)
     {
         $agenda = $this->filtrar_agenda($this->CI->whatsapp_model->listar_agendamentos_chatbot($perfil['perfil'], $perfil['id_usuario'], $perfil['tenant_id']), $comando);
-        $linhas = [];
-        foreach (array_slice($agenda, 0, 10) as $agendamento) {
-            $nome = $perfil['perfil'] === 'paciente' ? utec_whatsapp_read($agendamento, 'prestador_nome', '') : utec_whatsapp_read($agendamento, 'paciente_nome', '');
-            $linhas[] = utec_whatsapp_rotulo_data_hora(utec_whatsapp_read($agendamento, 'data_agenda', ''), utec_whatsapp_read($agendamento, 'hora_agenda', '')).' - '.trim((string)$nome).' - '.utec_whatsapp_status_chatbot($agendamento);
-        }
-        return $this->responder_texto($perfil['telefone'], empty($linhas) ? 'Nenhum agendamento encontrado.' : implode("\n", $linhas));
+        return $this->responder_texto($perfil['telefone'], utec_whatsapp_chatbot_texto_agenda(array_slice($agenda, 0, 10), $perfil['perfil'], $comando));
     }
 
     protected function responder_lista_consultas($perfil, $acao)
@@ -233,12 +228,12 @@ class Whatsapp_chatbot {
             if (!$this->agendamento_paciente_valido($agendamento, $perfil['perfil'])) {
                 continue;
             }
-            $rows[] = ['id' => 'chat:paciente:'.$acao.':'.(int)$agendamento->id, 'title' => utec_whatsapp_rotulo_data_hora($agendamento->data_agenda, $agendamento->hora_agenda), 'description' => trim(utec_whatsapp_read($agendamento, 'prestador_nome', '').' - '.utec_whatsapp_status_chatbot($agendamento), ' -')];
+            $rows[] = ['id' => 'chat:paciente:'.$acao.':'.(int)$agendamento->id, 'title' => '📅 '.utec_whatsapp_rotulo_data_hora($agendamento->data_agenda, $agendamento->hora_agenda), 'description' => '🩺 '.utec_whatsapp_read($agendamento, 'prestador_nome', '').' · '.utec_whatsapp_status_chatbot($agendamento)];
         }
         if (empty($rows)) {
-            return $this->responder_texto($perfil['telefone'], 'Nenhuma consulta elegivel foi encontrada.');
+            return $this->responder_texto($perfil['telefone'], '📭 Nenhuma consulta disponível foi encontrada.');
         }
-        return $this->responder_payload($perfil['telefone'], utec_whatsapp_payload_lista('', 'Consultas', 'Escolha uma consulta.', 'Ver consultas', [['rows' => $rows]]));
+        return $this->responder_payload($perfil['telefone'], utec_whatsapp_payload_lista('', 'Consultas', '📋 Escolha a consulta:', 'Ver consultas', [['rows' => $rows]]));
     }
 
     protected function responder_consulta($perfil, $idAgendamento)
@@ -248,9 +243,9 @@ class Whatsapp_chatbot {
         }
         $agendamento = $this->CI->whatsapp_model->obter_agendamento_chatbot($idAgendamento, $perfil['perfil'], $perfil['id_usuario'], $perfil['tenant_id']);
         if (!$this->agendamento_paciente_valido($agendamento, $perfil['perfil'])) {
-            return $this->responder_texto($perfil['telefone'], 'Consulta nao encontrada.');
+            return $this->responder_texto($perfil['telefone'], '⚠️ Consulta não encontrada.');
         }
-        $texto = utec_whatsapp_rotulo_data_hora($agendamento->data_agenda, $agendamento->hora_agenda).' - '.utec_whatsapp_read($agendamento, 'prestador_nome', '').' - '.utec_whatsapp_status_chatbot($agendamento);
+        $texto = "🔎 *Detalhes da consulta*\n\n".utec_whatsapp_chatbot_bloco_agendamento($agendamento, 'paciente');
         $resultado = $this->responder_texto($perfil['telefone'], $texto);
         $resultado['id_agendamento'] = (int)$agendamento->id;
         return $resultado;
@@ -263,24 +258,24 @@ class Whatsapp_chatbot {
         }
         $plano = $this->CI->whatsapp_model->obter_plano_chatbot($perfil['perfil'], $perfil['id_usuario'], $perfil['tenant_id']);
         if (!$plano) {
-            return $this->responder_texto($perfil['telefone'], 'Nenhuma informacao de plano esta disponivel.');
+            return $this->responder_texto($perfil['telefone'], 'ℹ️ Nenhuma informação de plano está disponível.');
         }
-        return $this->responder_texto($perfil['telefone'], 'Plano: '.utec_whatsapp_read($plano, 'modelo', 'Ativo')."\nStatus: ".utec_whatsapp_read($plano, 'status', ''));
+        return $this->responder_texto($perfil['telefone'], '💳 *Plano:* '.utec_whatsapp_read($plano, 'modelo', 'Ativo')."\n📌 *Status:* ".utec_whatsapp_read($plano, 'status', ''));
     }
 
     protected function responder_menu($perfil)
     {
         $rows = [];
         foreach ($this->comandos_permitidos($perfil['perfil']) as $comando) {
-            $rows[] = ['id' => 'chat:'.$perfil['perfil'].':'.$comando, 'title' => ucfirst(str_replace('_', ' ', $comando))];
+            $rows[] = ['id' => 'chat:'.$perfil['perfil'].':'.$comando, 'title' => utec_whatsapp_chatbot_rotulo_comando($comando)];
         }
-        return $this->responder_payload($perfil['telefone'], utec_whatsapp_payload_lista('', 'Atendimento', 'Escolha uma opcao.', 'Menu', [['title' => 'Opcoes', 'rows' => $rows]]));
+        return $this->responder_payload($perfil['telefone'], utec_whatsapp_payload_lista('', 'Atendimento', '👋 Olá! Escolha uma opção abaixo.', 'Menu', [['title' => 'Opções', 'rows' => $rows]]));
     }
 
     protected function responder_nao_cadastrado($telefone)
     {
         $url = function_exists('base_url') ? base_url() : 'https://utecnologia.com.br/';
-        return $this->responder_texto($telefone, 'Seu numero nao esta cadastrado. Acesse '.$url.' para entrar em contato.');
+        return $this->responder_texto($telefone, '👋 Seu número não está cadastrado. Acesse '.$url.' para entrar em contato.');
     }
 
     protected function responder_texto($telefone, $texto)
