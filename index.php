@@ -53,7 +53,10 @@
  *
  * NOTE: If you change these, also change the error_reporting() code below
  */
-	define('ENVIRONMENT', isset($_SERVER['CI_ENV']) ? $_SERVER['CI_ENV'] : 'development');
+	// Sem CI_ENV definido no servidor: producao quando roda no dominio utecnologia.com.br.
+	$utec_env = isset($_SERVER['CI_ENV']) ? $_SERVER['CI_ENV']
+		: ((isset($_SERVER['HTTP_HOST']) && stripos($_SERVER['HTTP_HOST'], 'utecnologia.com.br') !== false) ? 'production' : 'development');
+	define('ENVIRONMENT', $utec_env);
 
 /*
  *---------------------------------------------------------------
