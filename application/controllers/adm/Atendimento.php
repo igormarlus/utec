@@ -67,7 +67,7 @@ function Index(){
 	$whatsapp_join = "";
 	if($this->db->table_exists('whatsapp_notificacoes')){
 		$filtro_tipo_equipe = $this->db->field_exists('tipo_notificacao', 'whatsapp_notificacoes')
-			? " WHERE tipo_notificacao NOT IN ('equipe_confirmado', 'equipe_cancelado')"
+			? " WHERE tipo_notificacao NOT IN ('equipe_confirmado', 'equipe_cancelado', 'equipe_remarcado')"
 			: "";
 		$whatsapp_select = ", wr.status_confirmacao AS whatsapp_status, wr.respondido_em AS whatsapp_respondido_em";
 		$whatsapp_join = "

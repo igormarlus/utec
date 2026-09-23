@@ -156,7 +156,7 @@ class Whatsapp_model extends CI_Model {
         }
 
         $filtroTipo = $this->db->field_exists('tipo_notificacao', $this->log_table)
-            ? " AND tipo_notificacao NOT IN ('equipe_confirmado', 'equipe_cancelado')"
+            ? " AND tipo_notificacao NOT IN ('equipe_confirmado', 'equipe_cancelado', 'equipe_remarcado')"
             : '';
 
         $qr = $this->db->query(
@@ -613,7 +613,7 @@ class Whatsapp_model extends CI_Model {
         $statusWhatsapp = "'' AS status_whatsapp";
         if ($this->tabela_possui_campos($this->log_table, ['id', 'id_agendamento', 'status_envio', 'status_confirmacao'])) {
             $filtroTipoChatbot = $this->db->field_exists('tipo_notificacao', $this->log_table)
-                ? " AND wn.tipo_notificacao NOT IN ('equipe_confirmado', 'equipe_cancelado')"
+                ? " AND wn.tipo_notificacao NOT IN ('equipe_confirmado', 'equipe_cancelado', 'equipe_remarcado')"
                 : '';
             $statusWhatsapp = "COALESCE((SELECT CONCAT_WS('/', wn.status_envio, wn.status_confirmacao) FROM `{$this->log_table}` wn WHERE wn.id_agendamento = a.id{$filtroTipoChatbot} ORDER BY wn.id DESC LIMIT 1), '') AS status_whatsapp";
         }
@@ -639,7 +639,7 @@ class Whatsapp_model extends CI_Model {
         $statusWhatsapp = "'' AS status_whatsapp";
         if ($this->tabela_possui_campos($this->log_table, ['id', 'id_agendamento', 'status_envio', 'status_confirmacao'])) {
             $filtroTipoChatbot = $this->db->field_exists('tipo_notificacao', $this->log_table)
-                ? " AND wn.tipo_notificacao NOT IN ('equipe_confirmado', 'equipe_cancelado')"
+                ? " AND wn.tipo_notificacao NOT IN ('equipe_confirmado', 'equipe_cancelado', 'equipe_remarcado')"
                 : '';
             $statusWhatsapp = "COALESCE((SELECT CONCAT_WS('/', wn.status_envio, wn.status_confirmacao) FROM `{$this->log_table}` wn WHERE wn.id_agendamento = a.id{$filtroTipoChatbot} ORDER BY wn.id DESC LIMIT 1), '') AS status_whatsapp";
         }
@@ -665,6 +665,177 @@ class Whatsapp_model extends CI_Model {
         $dataSelect = $this->db->field_exists('current_period_end', 'saas_subscriptions') ? 's.current_period_end' : 'NULL';
         $query = $this->db->query(
             "SELECT p.modelo, s.status, {$dataSelect} AS data FROM `saas_subscriptions` s INNER JOIN `produtos` p ON p.id = s.plano_id WHERE s.tenant_id = ".(int)$contexto->tenant_id." ORDER BY s.id DESC LIMIT 1"
+        );
+        return $query && $query->num_rows() ? $query->row() : null;
+    }
+
+    public function remarcar_agendamento_chatbot($id_agendamento, $id_paciente, $data, $hora, $minimo_datetime, $telefone = '')
+    {
+        $resultado = ['ok' => false, 'ja_estava' => false, 'motivo_falha' => 'indisponivel', 'agendamento' => null, 'anterior' => null, 'id_log' => 0];
+        $data = substr(trim((string)$data), 0, 10);
+        $hora = substr(trim((string)$hora), 0, 5);
+        $minimoTs = strtotime((string)$minimo_datetime);
+        if ((int)$id_agendamento <= 0 || (int)$id_paciente <= 0 || $minimoTs === false
+            || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $data) || !preg_match('/^\d{2}:\d{2}$/', $hora)) {
+            return $resultado;
+        }
+        $this->load->model('Disponibilidade_model', 'disponibilidade_model');
+
+        $this->db->trans_begin();
+        $atual = $this->agendamento_chatbot_travado($id_agendamento, $id_paciente);
+        if (!$atual) {
+            $this->db->trans_rollback();
+            return $resultado;
+        }
+        $resultado['anterior'] = $atual;
+        $dataAtual = substr((string)$atual->data_agenda, 0, 10);
+        $horaAtual = substr((string)$atual->hora_agenda, 0, 5);
+
+        if ((int)$atual->status === 0 && $dataAtual === $data && $horaAtual === $hora) {
+            $this->db->trans_rollback();
+            $resultado['ok'] = true;
+            $resultado['ja_estava'] = true;
+            $resultado['motivo_falha'] = '';
+            $resultado['agendamento'] = $atual;
+            return $resultado;
+        }
+        if ((int)$atual->status !== 0) {
+            $this->db->trans_rollback();
+            return $resultado;
+        }
+        if (strtotime($dataAtual.' '.$horaAtual) < $minimoTs) {
+            $this->db->trans_rollback();
+            $resultado['motivo_falha'] = 'prazo';
+            return $resultado;
+        }
+        if (strtotime($data.' '.$hora) < $minimoTs) {
+            $this->db->trans_rollback();
+            $resultado['motivo_falha'] = 'ocupado';
+            return $resultado;
+        }
+
+        // Serializa remarcacoes do chatbot por profissional.
+        $this->db->query("SELECT id FROM `usuarios` WHERE id = ".(int)$atual->id_prestador." FOR UPDATE");
+        $verificacao = $this->disponibilidade_model->verificar_horario((int)$atual->id_prestador, $data, $hora, (int)$atual->id);
+        if (empty($verificacao['tem_grade']) || $verificacao['situacao'] !== 'livre') {
+            $this->db->trans_rollback();
+            $resultado['motivo_falha'] = 'ocupado';
+            return $resultado;
+        }
+
+        $update = ['data_agenda' => $data, 'hora_agenda' => $hora, 'data_hora_agenda' => $data.' '.$hora, 'status' => 0];
+        if ($this->db->field_exists('id_user_alt', 'agendamentos')) {
+            $update['id_user_alt'] = (int)$id_paciente;
+        }
+        $this->db->where('id', (int)$atual->id);
+        $this->db->update('agendamentos', $update);
+
+        $this->registrar_log([
+            'id_agendamento' => (int)$atual->id,
+            'tenant_id' => (int)$atual->tenant_id,
+            'telefone_destino' => utec_whatsapp_normalizar_numero($telefone),
+            'status_envio' => 'enviado',
+            'status_confirmacao' => 'confirmado',
+            'tipo_notificacao' => 'chatbot_remarcado',
+            'respondido_em' => date('Y-m-d H:i:s'),
+        ]);
+        $idLog = (int)$this->db->insert_id();
+
+        if ($this->db->trans_status() === false) {
+            $this->db->trans_rollback();
+            $resultado['motivo_falha'] = 'erro';
+            return $resultado;
+        }
+        $this->db->trans_commit();
+
+        $novo = clone $atual;
+        $novo->data_agenda = $data;
+        $novo->hora_agenda = $hora;
+        $resultado['ok'] = true;
+        $resultado['motivo_falha'] = '';
+        $resultado['agendamento'] = $novo;
+        $resultado['id_log'] = $idLog;
+        return $resultado;
+    }
+
+    public function cancelar_agendamento_chatbot($id_agendamento, $id_paciente, $minimo_datetime, $telefone = '')
+    {
+        $resultado = ['ok' => false, 'ja_estava' => false, 'motivo_falha' => 'indisponivel', 'agendamento' => null, 'anterior' => null, 'id_log' => 0];
+        $minimoTs = strtotime((string)$minimo_datetime);
+        if ((int)$id_agendamento <= 0 || (int)$id_paciente <= 0 || $minimoTs === false) {
+            return $resultado;
+        }
+
+        $this->db->trans_begin();
+        $atual = $this->agendamento_chatbot_travado($id_agendamento, $id_paciente);
+        if (!$atual) {
+            $this->db->trans_rollback();
+            return $resultado;
+        }
+        $resultado['anterior'] = $atual;
+        if ((int)$atual->status === 3) {
+            $this->db->trans_rollback();
+            $resultado['ok'] = true;
+            $resultado['ja_estava'] = true;
+            $resultado['motivo_falha'] = '';
+            $resultado['agendamento'] = $atual;
+            return $resultado;
+        }
+        if ((int)$atual->status !== 0) {
+            $this->db->trans_rollback();
+            return $resultado;
+        }
+        if (strtotime(substr((string)$atual->data_agenda, 0, 10).' '.substr((string)$atual->hora_agenda, 0, 5)) < $minimoTs) {
+            $this->db->trans_rollback();
+            $resultado['motivo_falha'] = 'prazo';
+            return $resultado;
+        }
+
+        $update = ['status' => 3];
+        if ($this->db->field_exists('id_user_alt', 'agendamentos')) {
+            $update['id_user_alt'] = (int)$id_paciente;
+        }
+        $this->db->where('id', (int)$atual->id);
+        $this->db->update('agendamentos', $update);
+
+        $this->registrar_log([
+            'id_agendamento' => (int)$atual->id,
+            'tenant_id' => (int)$atual->tenant_id,
+            'telefone_destino' => utec_whatsapp_normalizar_numero($telefone),
+            'status_envio' => 'enviado',
+            'status_confirmacao' => 'cancelado',
+            'tipo_notificacao' => 'chatbot_cancelado',
+            'respondido_em' => date('Y-m-d H:i:s'),
+        ]);
+        $idLog = (int)$this->db->insert_id();
+
+        if ($this->db->trans_status() === false) {
+            $this->db->trans_rollback();
+            $resultado['motivo_falha'] = 'erro';
+            return $resultado;
+        }
+        $this->db->trans_commit();
+
+        $novo = clone $atual;
+        $novo->status = 3;
+        $resultado['ok'] = true;
+        $resultado['motivo_falha'] = '';
+        $resultado['agendamento'] = $novo;
+        $resultado['id_log'] = $idLog;
+        return $resultado;
+    }
+
+    private function agendamento_chatbot_travado($id_agendamento, $id_paciente)
+    {
+        if (!$this->tabela_possui_campos('agendamentos', ['id', 'id_paciente', 'id_prestador', 'id_user', 'data_agenda', 'hora_agenda', 'status'])) {
+            return null;
+        }
+        $tenantSelect = $this->db->field_exists('tenant_id', 'usuarios') ? 'COALESCE(p.tenant_id, 0)' : '0';
+        $query = $this->db->query(
+            "SELECT a.id, a.id_paciente, a.id_prestador, a.id_user, a.data_agenda, a.hora_agenda, a.tipo, a.status,"
+            ." p.nome AS paciente_nome, pr.nome AS prestador_nome, {$tenantSelect} AS tenant_id"
+            ." FROM `agendamentos` a LEFT JOIN `usuarios` p ON p.id = a.id_paciente LEFT JOIN `usuarios` pr ON pr.id = a.id_prestador"
+            ." WHERE a.id = ".(int)$id_agendamento." AND a.id_paciente = ".(int)$id_paciente." LIMIT 1 FOR UPDATE"
         );
         return $query && $query->num_rows() ? $query->row() : null;
     }
