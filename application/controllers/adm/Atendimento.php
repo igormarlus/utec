@@ -603,13 +603,20 @@ function remarcar_agenda(){
 		return;
 	}
 	$this->db->where('id', $id_agenda);
-	$this->db->update('agendamentos', [
+	$atualizado = $this->db->update('agendamentos', [
 		'data_agenda' => $data_agenda,
 		'hora_agenda' => $hora_agenda,
 		'data_hora_agenda' => $data_agenda.' '.$hora_agenda,
 		'status' => 0,
 		'id_user_alt' => $this->session->userdata('id')
 	]);
+
+	if($atualizado){
+		// Nova data/hora exige nova confirmacao do paciente — mesma regra de disparo da criacao.
+		$whatsapp_result = $this->whatsapp_agendamento->notificar_agendamento($id_agenda, true);
+		$this->session->set_flashdata('whatsapp_status', utec_whatsapp_resumo_envio($whatsapp_result));
+	}
+
 	redirect('adm/atendimento?data_agenda='.$data_agenda);
 }
 
