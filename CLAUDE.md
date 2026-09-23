@@ -348,7 +348,7 @@ Avisos internos em `notificacoes_usuarios`. Também guarda por `table_exists`/`f
 
 Cálculo puro em `application/helpers/disponibilidade_helper.php` (testes em `tests/disponibilidade_*`). Ocupam vaga agendamentos `status IN (0,1,2)`. Na agenda manual é só aviso (encaixe permitido). `proximos_livres()` é a interface prevista para o chatbot de IA marcar consultas. Agendamentos existentes são contados com a duração ATUAL do profissional — trocar a duração muda como os agendamentos passados ocupam a grade. O model não tem controle de acesso por design — quem chama (controller/chatbot) precisa impor o escopo.
 
-Status de deploy (2026-09-22): implementado na branch `feat/horarios-atendimento`, pendente de FTP + execução de `adm/dev/migrar_horarios_atendimento` em produção.
+Status de deploy (2026-09-22): merge em `main` (`cc95198`) e 11 arquivos runtime enviados por FTP; healthcheck OK (home/`admin` 200, rotas `adm/*` 302 para login). **Pendente:** executar `adm/dev/migrar_horarios_atendimento` logado como nível 1 — até lá a agenda funciona como antes e `adm/horarios` avisa que as tabelas não existem. Nota de deploy: a extensão FTP Sync do VS Code criou no servidor um *arquivo* `application/views/adm/horarios` (com o caminho local dentro) no lugar da pasta; foi apagado antes do upload — se uma pasta nova falhar com `curl: (9)`, conferir isso.
 
 ---
 
