@@ -164,7 +164,7 @@ assertChatbotSame('wamid.chatbot', $resultadoAgenda['wamid'], 'Resultado do chat
 assertChatbotSame('encontrado', $resultadoAgenda['perfil_status'], 'Resultado do chatbot deve informar que o perfil foi localizado.');
 assertChatbotSame(1, count($envio->payloads), 'Chatbot deve enviar uma resposta pelo dispatcher de agendamento.');
 $textoAgenda = $envio->payloads[0]['payload']['text']['body'];
-assertChatbotSame(true, strpos($textoAgenda, '08:00 - Dra. Ana - ⏳ pendente') !== false, 'Agenda do paciente deve expor somente horario, profissional e status.');
+assertChatbotSame(true, strpos($textoAgenda, utec_whatsapp_agenda_rotulo_dia($hojeTeste).' às 08:00 - Dra. Ana - ⏳ pendente') !== false, 'Agenda do paciente deve mostrar data antes da hora, profissional e status.');
 assertChatbotSame(false, strpos($textoAgenda, 'Paciente 0') !== false, 'Agenda do paciente nao deve expor outro dado sensivel.');
 assertChatbotSame(10, substr_count($textoAgenda, '⏳ pendente'), 'Agenda deve limitar a dez linhas.');
 assertChatbotSame(1, count($modelo->eventosFinalizados), 'Evento processado deve ser finalizado.');
@@ -195,6 +195,33 @@ $chatbot->processar([
     'event_at' => '2026-09-02 10:01:00',
 ]);
 assertChatbotSame('motivo', $modelo->sessoes['5581999999999']->etapa, 'Cancelar consulta valida deve abrir sessao de motivo.');
+
+list($chatbotLista, $modeloLista, $envioLista) = novoChatbotDeTeste([
+    'telefone' => '5581999999999',
+    'perfil' => 'paciente',
+    'id_usuario' => 7,
+    'tenant_id' => 2,
+], [(object)[
+    'id' => 72,
+    'data_agenda' => $amanhaTeste,
+    'hora_agenda' => '14:30:00',
+    'prestador_nome' => 'Dra. Ana',
+    'id_user' => 9,
+    'id_prestador' => 3,
+    'status' => 0,
+    'status_whatsapp' => '',
+]]);
+$chatbotLista->processar([
+    'message_id' => 'wamid.chat.lista',
+    'from' => '5581999999999',
+    'message_type' => 'interactive',
+    'payload' => 'chat:paciente:cancelar',
+    'text' => '',
+    'event_at' => '2026-09-02 10:01:30',
+]);
+$linhaLista = $envioLista->payloads[0]['payload']['interactive']['action']['sections'][0]['rows'][0];
+assertChatbotSame(utec_whatsapp_agenda_rotulo_dia($amanhaTeste).' às 14:30', $linhaLista['title'], 'Lista de consultas deve mostrar data antes da hora no titulo.');
+assertChatbotSame('Dra. Ana - ⏳ pendente', $linhaLista['description'], 'Lista de consultas deve mostrar profissional e status na descricao.');
 
 $chatbot->processar([
     'message_id' => 'wamid.chat.3',

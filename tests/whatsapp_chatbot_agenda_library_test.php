@@ -140,6 +140,7 @@ $chatbot->processar(eventoClique('rem:812:d:20260924', 2));
 $rows = linhasLista(ultimo($envio));
 assertLib(10, count($rows), '9 horarios + ver mais');
 assertLib('rem:812:h:202609240800', $rows[0]['id'], 'id do horario');
+assertLib('Qui 24/09 às 08:00', $rows[0]['title'], 'horario mostra data antes da hora');
 assertLib('rem:812:p:20260924:2', $rows[9]['id'], 'id da pagina seguinte');
 assertLib('Ver mais horários', $rows[9]['title'], 'titulo ver mais');
 $ultimaChamada = $disp->chamadas[count($disp->chamadas) - 1];

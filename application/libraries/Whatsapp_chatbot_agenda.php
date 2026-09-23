@@ -150,7 +150,7 @@ class Whatsapp_chatbot_agenda {
         }
         $rows = [];
         foreach ($paginado['itens'] as $hora) {
-            $rows[] = ['id' => utec_whatsapp_agenda_id_hora($agendamento->id, $data, $hora), 'title' => $hora];
+            $rows[] = ['id' => utec_whatsapp_agenda_id_hora($agendamento->id, $data, $hora), 'title' => utec_whatsapp_rotulo_data_hora($data, $hora)];
         }
         if ($paginado['tem_mais']) {
             $rows[] = ['id' => utec_whatsapp_agenda_id_pagina($agendamento->id, $data, (int)$pagina + 1), 'title' => 'Ver mais horários'];

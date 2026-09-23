@@ -220,7 +220,7 @@ class Whatsapp_chatbot {
         $linhas = [];
         foreach (array_slice($agenda, 0, 10) as $agendamento) {
             $nome = $perfil['perfil'] === 'paciente' ? utec_whatsapp_read($agendamento, 'prestador_nome', '') : utec_whatsapp_read($agendamento, 'paciente_nome', '');
-            $linhas[] = utec_whatsapp_formatar_hora_br(utec_whatsapp_read($agendamento, 'hora_agenda', '')).' - '.trim((string)$nome).' - '.utec_whatsapp_status_chatbot($agendamento);
+            $linhas[] = utec_whatsapp_rotulo_data_hora(utec_whatsapp_read($agendamento, 'data_agenda', ''), utec_whatsapp_read($agendamento, 'hora_agenda', '')).' - '.trim((string)$nome).' - '.utec_whatsapp_status_chatbot($agendamento);
         }
         return $this->responder_texto($perfil['telefone'], empty($linhas) ? 'Nenhum agendamento encontrado.' : implode("\n", $linhas));
     }
@@ -233,7 +233,7 @@ class Whatsapp_chatbot {
             if (!$this->agendamento_paciente_valido($agendamento, $perfil['perfil'])) {
                 continue;
             }
-            $rows[] = ['id' => 'chat:paciente:'.$acao.':'.(int)$agendamento->id, 'title' => utec_whatsapp_formatar_hora_br($agendamento->hora_agenda).' - '.utec_whatsapp_read($agendamento, 'prestador_nome', ''), 'description' => utec_whatsapp_status_chatbot($agendamento)];
+            $rows[] = ['id' => 'chat:paciente:'.$acao.':'.(int)$agendamento->id, 'title' => utec_whatsapp_rotulo_data_hora($agendamento->data_agenda, $agendamento->hora_agenda), 'description' => trim(utec_whatsapp_read($agendamento, 'prestador_nome', '').' - '.utec_whatsapp_status_chatbot($agendamento), ' -')];
         }
         if (empty($rows)) {
             return $this->responder_texto($perfil['telefone'], 'Nenhuma consulta elegivel foi encontrada.');
@@ -250,7 +250,7 @@ class Whatsapp_chatbot {
         if (!$this->agendamento_paciente_valido($agendamento, $perfil['perfil'])) {
             return $this->responder_texto($perfil['telefone'], 'Consulta nao encontrada.');
         }
-        $texto = utec_whatsapp_formatar_data_br($agendamento->data_agenda).' '.utec_whatsapp_formatar_hora_br($agendamento->hora_agenda).' - '.utec_whatsapp_read($agendamento, 'prestador_nome', '').' - '.utec_whatsapp_status_chatbot($agendamento);
+        $texto = utec_whatsapp_rotulo_data_hora($agendamento->data_agenda, $agendamento->hora_agenda).' - '.utec_whatsapp_read($agendamento, 'prestador_nome', '').' - '.utec_whatsapp_status_chatbot($agendamento);
         $resultado = $this->responder_texto($perfil['telefone'], $texto);
         $resultado['id_agendamento'] = (int)$agendamento->id;
         return $resultado;

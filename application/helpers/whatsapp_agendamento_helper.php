@@ -1086,6 +1086,13 @@ if (!function_exists('utec_whatsapp_agenda_rotulo_dia')) {
     }
 }
 
+if (!function_exists('utec_whatsapp_rotulo_data_hora')) {
+    function utec_whatsapp_rotulo_data_hora($data, $hora)
+    {
+        return trim(utec_whatsapp_agenda_rotulo_dia($data) . ' às ' . utec_whatsapp_formatar_hora_br($hora));
+    }
+}
+
 if (!function_exists('utec_whatsapp_agenda_quando')) {
     function utec_whatsapp_agenda_quando($data, $hora, $prestador)
     {
