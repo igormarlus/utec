@@ -42,6 +42,8 @@ assertContains('utec_disp_validar_intervalos(', $ctrl, 'controller valida interv
 assertContains('utec_disp_normalizar_bloqueio(', $ctrl, 'controller normaliza bloqueio');
 assertContains('get_visible_prestador_ids(', $ctrl, 'controller usa escopo de prestadores');
 assertContains("set_status_header(403)", $ctrl, 'endpoint livres responde 403');
+// nivel 3 pode ver a agenda de colegas do escopo, mas so edita a propria
+assertContains('=== (int)$this->usuario->id', $ctrl, 'pode_editar restringe nivel 3 ao proprio id');
 
 // View e menu
 $view = lerArquivo('application/views/adm/horarios/index.php');
@@ -66,6 +68,9 @@ foreach (array('application/views/adm/atendimento/atendimento.php',
 }
 assertContains('data-prestador-id=', lerArquivo('application/views/adm/usuarios/new/atendimentos.php'), 'remarcacao conhece o prestador');
 // cadastrar/remarcar continuam sem validacao de disponibilidade
+// (temporario: remover esta checagem quando a validacao server-side /
+// agendamento via chatbot for implementada e Atendimento.php passar a
+// consultar disponibilidade de propósito)
 $atend = lerArquivo('application/controllers/adm/Atendimento.php');
 if (strpos($atend, 'disponibilidade') !== false) {
     fwrite(STDERR, 'Atendimento.php nao deve validar disponibilidade no servidor (spec: so aviso).' . PHP_EOL);

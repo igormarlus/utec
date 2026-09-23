@@ -505,23 +505,23 @@ var _acoesEvento = null;
 var dispCriar = null;
 var dispRemarcar = null;
 $(function(){
-  dispCriar = UtecDisponibilidade.attach({
+  dispCriar = window.UtecDisponibilidade ? UtecDisponibilidade.attach({
     baseUrl: BASE,
     prestador: function(){ return $('#criar-prestador').val(); },
     prestadorEl: '#criar-prestador',
     data: '#criar-data',
     hora: '#criar-hora',
     box: '#disp-criar'
-  });
-  $('#modal-criar').on('shown.bs.modal', function(){ dispCriar.atualizar(); });
-  dispRemarcar = UtecDisponibilidade.attach({
+  }) : null;
+  $('#modal-criar').on('shown.bs.modal', function(){ if (dispCriar) { dispCriar.atualizar(); } });
+  dispRemarcar = window.UtecDisponibilidade ? UtecDisponibilidade.attach({
     baseUrl: BASE,
     prestador: function(){ return _acoesEvento ? (_acoesEvento.extendedProps || {}).prestador_id : 0; },
     data: '#remarcar-data',
     hora: '#remarcar-hora',
     box: '#disp-remarcar',
     ignorar: function(){ return _acoesEvento ? _acoesEvento.id : 0; }
-  });
+  }) : null;
 });
 
 function calAbrirAcoes(calEvent){

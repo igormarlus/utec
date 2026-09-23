@@ -149,7 +149,7 @@
                   <div class="col-md-8"><label>Motivo (opcional)</label><input type="text" name="motivo" maxlength="150" class="form-control" placeholder="Ex.: férias, congresso"></div>
                   <div class="col-md-4 d-flex align-items-end"><button type="submit" class="btn btn-primary">Adicionar bloqueio</button></div>
                 </div>
-                <small class="text-muted">Deixe a data fim vazia para bloquear só a data de início.</small>
+                <small class="text-muted">Deixe a data fim vazia para bloquear só a data de início. Com horas e datas diferentes, o bloqueio vale do início ao fim de forma contínua.</small>
               </form>
               <? } ?>
             </div>

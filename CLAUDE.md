@@ -346,7 +346,9 @@ Avisos internos em `notificacoes_usuarios`. Também guarda por `table_exists`/`f
 | `verificar_horario($id, $data, $hora, $ignorar = 0)` | Retorna: livre \| ocupado \| fora_da_grade \| bloqueado |
 | `proximos_livres($id, $a_partir_de, $limite = 10)` | Varre até 30 dias — interface prevista para o chatbot |
 
-Cálculo puro em `application/helpers/disponibilidade_helper.php` (testes em `tests/disponibilidade_*`). Ocupam vaga agendamentos `status IN (0,1,2)`. Na agenda manual é só aviso (encaixe permitido). `proximos_livres()` é a interface prevista para o chatbot de IA marcar consultas.
+Cálculo puro em `application/helpers/disponibilidade_helper.php` (testes em `tests/disponibilidade_*`). Ocupam vaga agendamentos `status IN (0,1,2)`. Na agenda manual é só aviso (encaixe permitido). `proximos_livres()` é a interface prevista para o chatbot de IA marcar consultas. Agendamentos existentes são contados com a duração ATUAL do profissional — trocar a duração muda como os agendamentos passados ocupam a grade. O model não tem controle de acesso por design — quem chama (controller/chatbot) precisa impor o escopo.
+
+Status de deploy (2026-09-22): implementado na branch `feat/horarios-atendimento`, pendente de FTP + execução de `adm/dev/migrar_horarios_atendimento` em produção.
 
 ---
 

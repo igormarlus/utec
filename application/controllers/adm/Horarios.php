@@ -29,13 +29,16 @@ class Horarios extends CI_Controller {
 
     private function prestadores_visiveis()
     {
-        if ($this->nivel() === 3) {
-            return $this->db->query("SELECT id, nome FROM usuarios WHERE id = ".(int)$this->usuario->id." LIMIT 1")->result();
-        }
         if ($this->nivel() === 1) {
             return $this->db->query("SELECT id, nome FROM usuarios WHERE nivel = 3 ORDER BY nome ASC")->result();
         }
         $ids = $this->padrao_model->get_visible_prestador_ids($this->usuario);
+        if ($this->nivel() === 3) {
+            // Nível 3 sempre enxerga a própria agenda, mesmo que não apareça
+            // no escopo retornado por get_visible_prestador_ids().
+            $ids[] = (int)$this->usuario->id;
+            $ids = array_unique($ids);
+        }
         if (empty($ids)) {
             return array();
         }
@@ -83,7 +86,11 @@ class Horarios extends CI_Controller {
         $prestadores = $this->prestadores_visiveis();
         $id_prestador = (int)$this->input->get('id_prestador');
         if (!$this->pode_ver($id_prestador)) {
-            $id_prestador = !empty($prestadores) ? (int)$prestadores[0]->id : 0;
+            if ($this->nivel() === 3) {
+                $id_prestador = (int)$this->usuario->id;
+            } else {
+                $id_prestador = !empty($prestadores) ? (int)$prestadores[0]->id : 0;
+            }
         }
 
         $dados['prestadores'] = $prestadores;
@@ -129,6 +136,14 @@ class Horarios extends CI_Controller {
                 $fim = isset($fins[$k]) ? trim((string)$fins[$k]) : '';
                 if ($ini === '' && $fim === '') {
                     continue;
+                }
+                $iniMin = utec_disp_min($ini);
+                if ($iniMin !== null) {
+                    $ini = utec_disp_hhmm($iniMin);
+                }
+                $fimMin = utec_disp_min($fim);
+                if ($fimMin !== null) {
+                    $fim = utec_disp_hhmm($fimMin);
                 }
                 $grade[$d][] = array($ini, $fim);
             }

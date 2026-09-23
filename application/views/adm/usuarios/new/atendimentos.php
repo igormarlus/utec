@@ -715,14 +715,14 @@
           $item.toggleClass('active');
         }
       });
-      window.dispRemarcar = UtecDisponibilidade.attach({
+      window.dispRemarcar = window.UtecDisponibilidade ? UtecDisponibilidade.attach({
         baseUrl: '<?=base_url()?>',
         prestador: function(){ return $('#remarcar-prestador-id').val(); },
         data: '#remarcar-data',
         hora: '#remarcar-hora',
         box: '#disp-remarcar',
         ignorar: function(){ return $('#remarcar-id-agenda').val(); }
-      });
+      }) : null;
       $(document).on('click', '.btn-remarcar', function(){
         $('#remarcar-id-agenda').val($(this).data('id'));
         $('#remarcar-data').val($(this).data('data'));

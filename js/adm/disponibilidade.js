@@ -51,6 +51,8 @@
             .on('click', function () { $hora.val(h).trigger('change'); })
             .appendTo($lista);
         });
+      }).fail(function () {
+        if (seq === seqLista) { $lista.empty(); }
       });
     }
 
@@ -62,6 +64,8 @@
       buscar(h).done(function (r) {
         if (seq !== seqHora || !r || !r.tem_grade || !r.situacao || r.situacao === 'livre') { return; }
         $alerta.text((MENSAGENS[r.situacao] || 'Horário fora da disponibilidade.') + ' Você pode salvar mesmo assim (encaixe).').show();
+      }).fail(function () {
+        if (seq === seqHora) { $alerta.hide(); }
       });
     }
 

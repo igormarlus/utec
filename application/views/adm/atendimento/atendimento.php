@@ -234,15 +234,15 @@
     <script src="<?=base_url()?>js/adm/disponibilidade.js?v=1"></script>
     <script>
       $(function(){
-        var disp = UtecDisponibilidade.attach({
+        var disp = window.UtecDisponibilidade ? UtecDisponibilidade.attach({
           baseUrl: '<?=base_url()?>',
           prestador: function(){ return $('#form [name=id_prestador]').val(); },
           prestadorEl: '#form [name=id_prestador]',
           data: '#form [name=data_agenda]',
           hora: '#form [name=hora_agenda]',
           box: '#disp-novo'
-        });
-        disp.atualizar();
+        }) : null;
+        if (disp) { disp.atualizar(); }
       });
     </script>
   </body>
