@@ -8,19 +8,25 @@
     <link href="<?=base_url()?>css/clicklinica-main.css" rel="stylesheet">
     <style>
       .manual-shell { display:grid; gap:24px; }
-      .manual-hero { background:linear-gradient(135deg, rgba(37,99,235,.10), rgba(15,118,110,.10)); border:1px solid #dbe7f3; border-radius:24px; padding:24px; box-shadow:0 14px 30px rgba(15,23,42,.05); }
-      .manual-title { font-size:34px; line-height:1.08; color:#0f172a; font-weight:700; margin:0 0 10px; }
-      .manual-copy { color:#475569; font-size:15px; line-height:1.75; max-width:840px; }
-      .manual-actions { display:flex; gap:12px; flex-wrap:wrap; margin-top:18px; }
-      .manual-capitulo { background:#fff; border:1px solid #e2e8f0; border-radius:20px; box-shadow:0 10px 24px rgba(15,23,42,.05); overflow:hidden; }
-      .manual-capitulo-head { padding:18px 20px 0; display:flex; align-items:center; gap:10px; }
-      .manual-capitulo-head i { font-size:20px; color:#2563eb; }
-      .manual-capitulo-body { padding:12px 20px 20px; }
-      .manual-capitulo-resumo { color:#475569; margin:6px 0 12px; }
-      .manual-list { margin:0; padding-left:18px; color:#475569; }
-      .manual-list li { margin-bottom:10px; line-height:1.7; }
-      .manual-list li:last-child { margin-bottom:0; }
-      .manual-print { width:100%; border-radius:14px; border:1px solid #e2e8f0; margin-bottom:14px; display:block; }
+      .manual-hero { background:linear-gradient(135deg,#047bf8,#20c997); border-radius:24px; padding:36px 32px; color:#fff; box-shadow:0 20px 40px rgba(4,123,248,.18); }
+      .manual-hero-label { font-size:11px; letter-spacing:.14em; text-transform:uppercase; opacity:.85; font-weight:700; margin-bottom:10px; }
+      .manual-title { font-size:34px; line-height:1.1; font-weight:800; margin:0 0 10px; color:#fff; }
+      .manual-copy { color:rgba(255,255,255,.92); font-size:15px; line-height:1.7; max-width:640px; }
+      .manual-actions { display:flex; gap:12px; flex-wrap:wrap; margin-top:20px; }
+      .manual-actions .btn-primary { background:#fff; color:#047bf8; border:none; font-weight:700; }
+      .manual-actions .btn-outline-secondary { border-color:rgba(255,255,255,.5); color:#fff; }
+
+      .manual-capitulo { background:#fff; border-radius:20px; overflow:hidden; box-shadow:0 10px 24px rgba(15,23,42,.06); }
+      .manual-capitulo-head { background:linear-gradient(135deg,#047bf8,#20c997); display:flex; align-items:center; gap:14px; padding:18px 22px; color:#fff; border-left:10px solid #047bf8; }
+      .manual-capitulo-badge { width:34px; height:34px; min-width:34px; border-radius:50%; background:rgba(255,255,255,.22); display:flex; align-items:center; justify-content:center; font-weight:800; font-size:13px; }
+      .manual-capitulo-head h6 { margin:0; font-size:16px; font-weight:800; color:#fff; }
+      .manual-capitulo-body { padding:20px 22px 22px; }
+      .manual-capitulo-resumo { color:#475569; margin:0 0 14px; line-height:1.7; }
+      .manual-print { width:100%; border-radius:12px; border:1px solid #e2e8f0; margin-bottom:16px; display:block; }
+      .manual-checklist { list-style:none; margin:0; padding:0; color:#334155; }
+      .manual-checklist li { display:flex; align-items:flex-start; gap:10px; margin-bottom:11px; line-height:1.6; }
+      .manual-checklist li:last-child { margin-bottom:0; }
+      .manual-check { width:18px; height:18px; min-width:18px; border-radius:50%; background:#20c997; color:#fff; display:flex; align-items:center; justify-content:center; font-size:11px; margin-top:2px; }
       .manual-footer-nota { color:#94a3b8; font-size:13px; text-align:center; }
     </style>
   </head>
@@ -39,7 +45,7 @@
             <div class="content-box">
               <div class="manual-shell">
                 <div class="manual-hero">
-                  <div class="label">Ajuda permanente</div>
+                  <div class="manual-hero-label">Ajuda permanente</div>
                   <h1 class="manual-title"><?=$manual['title']?></h1>
                   <div class="manual-copy"><?=$manual['subtitle']?></div>
                   <div class="manual-actions">
@@ -48,20 +54,20 @@
                   </div>
                 </div>
 
-                <? foreach($manual['capitulos'] as $capitulo){ ?>
+                <? $numero = 0; foreach($manual['capitulos'] as $capitulo){ $numero++; ?>
                 <div class="manual-capitulo">
                   <div class="manual-capitulo-head">
-                    <i class="<?=$capitulo['icone']?>"></i>
-                    <h6 class="element-header" style="margin-bottom:0;"><?=$capitulo['titulo']?></h6>
+                    <div class="manual-capitulo-badge"><?=sprintf('%02d', $numero)?></div>
+                    <h6><?=$capitulo['titulo']?></h6>
                   </div>
                   <div class="manual-capitulo-body">
                     <p class="manual-capitulo-resumo"><?=$capitulo['resumo']?></p>
                     <? if($capitulo['print']){ ?>
                     <img class="manual-print" src="<?=base_url().'imagens/manual/'.$capitulo['print']?>" alt="<?=$capitulo['titulo']?>">
                     <? } ?>
-                    <ul class="manual-list">
+                    <ul class="manual-checklist">
                       <? foreach($capitulo['topicos'] as $topico){ ?>
-                      <li><?=$topico?></li>
+                      <li><span class="manual-check">&#10003;</span><span><?=$topico?></span></li>
                       <? } ?>
                     </ul>
                   </div>
