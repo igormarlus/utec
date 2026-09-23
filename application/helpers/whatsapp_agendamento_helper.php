@@ -829,6 +829,9 @@ if (!function_exists('utec_whatsapp_template_equipe_nome')) {
         if ($acao === 'cancelar') {
             return 'agendamento_cancelado_equipe';
         }
+        if ($acao === 'remarcar') {
+            return 'agendamento_remarcado_equipe';
+        }
 
         return '';
     }
@@ -858,6 +861,24 @@ if (!function_exists('utec_whatsapp_componentes_equipe_template')) {
             ];
         }
 
+        if ($acao === 'remarcar') {
+            $anterior = utec_whatsapp_formatar_data_br(utec_whatsapp_read($contexto, 'data_anterior', ''))
+                . ' as ' . utec_whatsapp_formatar_hora_br(utec_whatsapp_read($contexto, 'hora_anterior', ''));
+            $nova = utec_whatsapp_formatar_data_br(utec_whatsapp_read($contexto, 'data_agenda', ''))
+                . ' as ' . utec_whatsapp_formatar_hora_br(utec_whatsapp_read($contexto, 'hora_agenda', ''));
+            return [
+                [
+                    'type' => 'body',
+                    'parameters' => [
+                        ['type' => 'text', 'text' => trim((string)utec_whatsapp_read($contexto, 'paciente_nome', 'Paciente'))],
+                        ['type' => 'text', 'text' => trim((string)utec_whatsapp_read($contexto, 'prestador_nome', 'Profissional'))],
+                        ['type' => 'text', 'text' => $anterior],
+                        ['type' => 'text', 'text' => $nova],
+                    ],
+                ],
+            ];
+        }
+
         $dataBr = utec_whatsapp_formatar_data_br(utec_whatsapp_read($contexto, 'data_agenda', ''));
         $horaBr = utec_whatsapp_formatar_hora_br(utec_whatsapp_read($contexto, 'hora_agenda', ''));
         $dataHora = trim($dataBr . ' as ' . $horaBr, ' as ');
@@ -875,5 +896,267 @@ if (!function_exists('utec_whatsapp_componentes_equipe_template')) {
                 ],
             ],
         ];
+    }
+}
+
+/*
+ * Remarcacao / cancelamento automaticos pelo chatbot (perfil paciente).
+ * Funcoes puras: ids dos cliques, regra de antecedencia, paginacao e textos.
+ */
+
+if (!function_exists('utec_whatsapp_agenda_antecedencia_horas')) {
+    function utec_whatsapp_agenda_antecedencia_horas()
+    {
+        return 24;
+    }
+}
+
+if (!function_exists('utec_whatsapp_agenda_minimo_datetime')) {
+    function utec_whatsapp_agenda_minimo_datetime($agora_ts)
+    {
+        $ts = (int)$agora_ts + utec_whatsapp_agenda_antecedencia_horas() * 3600;
+        $ts = (int)(ceil($ts / 60) * 60);
+        return date('Y-m-d H:i', $ts);
+    }
+}
+
+if (!function_exists('utec_whatsapp_agenda_antecedencia_ok')) {
+    function utec_whatsapp_agenda_antecedencia_ok($data, $hora, $agora_ts)
+    {
+        $data = substr(trim((string)$data), 0, 10);
+        $hora = substr(trim((string)$hora), 0, 5);
+        if ($data === '' || $hora === '') {
+            return false;
+        }
+        $ts = strtotime($data . ' ' . $hora);
+        if ($ts === false) {
+            return false;
+        }
+        return $ts - (int)$agora_ts >= utec_whatsapp_agenda_antecedencia_horas() * 3600;
+    }
+}
+
+if (!function_exists('utec_whatsapp_agenda_ymd')) {
+    function utec_whatsapp_agenda_ymd($data)
+    {
+        return str_replace('-', '', substr(trim((string)$data), 0, 10));
+    }
+}
+
+if (!function_exists('utec_whatsapp_agenda_hi')) {
+    function utec_whatsapp_agenda_hi($hora)
+    {
+        return str_replace(':', '', substr(trim((string)$hora), 0, 5));
+    }
+}
+
+if (!function_exists('utec_whatsapp_agenda_id_dia')) {
+    function utec_whatsapp_agenda_id_dia($id, $data)
+    {
+        return 'rem:' . (int)$id . ':d:' . utec_whatsapp_agenda_ymd($data);
+    }
+}
+
+if (!function_exists('utec_whatsapp_agenda_id_pagina')) {
+    function utec_whatsapp_agenda_id_pagina($id, $data, $pagina)
+    {
+        return 'rem:' . (int)$id . ':p:' . utec_whatsapp_agenda_ymd($data) . ':' . (int)$pagina;
+    }
+}
+
+if (!function_exists('utec_whatsapp_agenda_id_hora')) {
+    function utec_whatsapp_agenda_id_hora($id, $data, $hora)
+    {
+        return 'rem:' . (int)$id . ':h:' . utec_whatsapp_agenda_ymd($data) . utec_whatsapp_agenda_hi($hora);
+    }
+}
+
+if (!function_exists('utec_whatsapp_agenda_id_confirmar_remarcacao')) {
+    function utec_whatsapp_agenda_id_confirmar_remarcacao($id, $data, $hora)
+    {
+        return 'rem:' . (int)$id . ':ok:' . utec_whatsapp_agenda_ymd($data) . utec_whatsapp_agenda_hi($hora);
+    }
+}
+
+if (!function_exists('utec_whatsapp_agenda_id_outros_dias')) {
+    function utec_whatsapp_agenda_id_outros_dias($id)
+    {
+        return 'rem:' . (int)$id . ':dias';
+    }
+}
+
+if (!function_exists('utec_whatsapp_agenda_id_sem_motivo')) {
+    function utec_whatsapp_agenda_id_sem_motivo($id)
+    {
+        return 'can:' . (int)$id . ':sem_motivo';
+    }
+}
+
+if (!function_exists('utec_whatsapp_agenda_id_confirmar_cancelamento')) {
+    function utec_whatsapp_agenda_id_confirmar_cancelamento($id)
+    {
+        return 'can:' . (int)$id . ':ok';
+    }
+}
+
+if (!function_exists('utec_whatsapp_agenda_data_de_ymd')) {
+    function utec_whatsapp_agenda_data_de_ymd($ymd)
+    {
+        if (!preg_match('/^(\d{4})(\d{2})(\d{2})$/', (string)$ymd, $m) || !checkdate((int)$m[2], (int)$m[3], (int)$m[1])) {
+            return '';
+        }
+        return $m[1] . '-' . $m[2] . '-' . $m[3];
+    }
+}
+
+if (!function_exists('utec_whatsapp_agenda_hora_de_hi')) {
+    function utec_whatsapp_agenda_hora_de_hi($hi)
+    {
+        if (!preg_match('/^(\d{2})(\d{2})$/', (string)$hi, $m) || (int)$m[1] > 23 || (int)$m[2] > 59) {
+            return '';
+        }
+        return $m[1] . ':' . $m[2];
+    }
+}
+
+if (!function_exists('utec_whatsapp_agenda_parse_id')) {
+    function utec_whatsapp_agenda_parse_id($payload)
+    {
+        $p = trim((string)$payload);
+        $base = ['fluxo' => '', 'acao' => '', 'id_agendamento' => 0, 'data' => '', 'hora' => '', 'pagina' => 0];
+
+        if (preg_match('/^rem:(\d+):d:(\d{8})$/', $p, $m)) {
+            $r = array_merge($base, ['fluxo' => 'remarcar', 'acao' => 'dia', 'id_agendamento' => (int)$m[1], 'data' => utec_whatsapp_agenda_data_de_ymd($m[2])]);
+            return ($r['id_agendamento'] > 0 && $r['data'] !== '') ? $r : null;
+        }
+        if (preg_match('/^rem:(\d+):p:(\d{8}):(\d{1,2})$/', $p, $m)) {
+            $r = array_merge($base, ['fluxo' => 'remarcar', 'acao' => 'pagina', 'id_agendamento' => (int)$m[1], 'data' => utec_whatsapp_agenda_data_de_ymd($m[2]), 'pagina' => (int)$m[3]]);
+            return ($r['id_agendamento'] > 0 && $r['data'] !== '' && $r['pagina'] >= 1) ? $r : null;
+        }
+        if (preg_match('/^rem:(\d+):(h|ok):(\d{8})(\d{4})$/', $p, $m)) {
+            $r = array_merge($base, [
+                'fluxo' => 'remarcar',
+                'acao' => $m[2] === 'h' ? 'hora' : 'confirmar',
+                'id_agendamento' => (int)$m[1],
+                'data' => utec_whatsapp_agenda_data_de_ymd($m[3]),
+                'hora' => utec_whatsapp_agenda_hora_de_hi($m[4]),
+            ]);
+            return ($r['id_agendamento'] > 0 && $r['data'] !== '' && $r['hora'] !== '') ? $r : null;
+        }
+        if (preg_match('/^rem:(\d+):dias$/', $p, $m)) {
+            $r = array_merge($base, ['fluxo' => 'remarcar', 'acao' => 'dias', 'id_agendamento' => (int)$m[1]]);
+            return $r['id_agendamento'] > 0 ? $r : null;
+        }
+        if (preg_match('/^can:(\d+):(sem_motivo|ok)$/', $p, $m)) {
+            $r = array_merge($base, ['fluxo' => 'cancelar', 'acao' => $m[2] === 'ok' ? 'confirmar' : 'sem_motivo', 'id_agendamento' => (int)$m[1]]);
+            return $r['id_agendamento'] > 0 ? $r : null;
+        }
+        return null;
+    }
+}
+
+if (!function_exists('utec_whatsapp_agenda_paginar_horarios')) {
+    function utec_whatsapp_agenda_paginar_horarios($horas, $pagina)
+    {
+        $horas = array_values((array)$horas);
+        $pagina = max(1, (int)$pagina);
+        $offset = 0;
+        for ($p = 1; $p < $pagina; $p++) {
+            if (count($horas) - $offset <= 10) {
+                return ['itens' => [], 'tem_mais' => false];
+            }
+            $offset += 9;
+        }
+        if (count($horas) - $offset <= 10) {
+            return ['itens' => array_slice($horas, $offset), 'tem_mais' => false];
+        }
+        return ['itens' => array_slice($horas, $offset, 9), 'tem_mais' => true];
+    }
+}
+
+if (!function_exists('utec_whatsapp_agenda_rotulo_dia')) {
+    function utec_whatsapp_agenda_rotulo_dia($data)
+    {
+        $ts = strtotime(substr(trim((string)$data), 0, 10));
+        if ($ts === false) {
+            return '';
+        }
+        $nomes = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+        return $nomes[(int)date('w', $ts)] . ' ' . date('d/m', $ts);
+    }
+}
+
+if (!function_exists('utec_whatsapp_agenda_quando')) {
+    function utec_whatsapp_agenda_quando($data, $hora, $prestador)
+    {
+        $texto = utec_whatsapp_agenda_rotulo_dia($data) . ' às ' . substr(trim((string)$hora), 0, 5);
+        $prestador = trim((string)$prestador);
+        return $prestador !== '' ? $texto . ' com ' . $prestador : $texto;
+    }
+}
+
+if (!function_exists('utec_whatsapp_agenda_texto_confirmar_remarcacao')) {
+    function utec_whatsapp_agenda_texto_confirmar_remarcacao($data, $hora, $prestador)
+    {
+        return 'Remarcar para ' . utec_whatsapp_agenda_quando($data, $hora, $prestador) . '?';
+    }
+}
+
+if (!function_exists('utec_whatsapp_agenda_texto_remarcado')) {
+    function utec_whatsapp_agenda_texto_remarcado($data, $hora, $prestador)
+    {
+        return 'Consulta remarcada para ' . utec_whatsapp_agenda_quando($data, $hora, $prestador) . '.';
+    }
+}
+
+if (!function_exists('utec_whatsapp_agenda_texto_confirmar_cancelamento')) {
+    function utec_whatsapp_agenda_texto_confirmar_cancelamento($data, $hora, $prestador)
+    {
+        return 'Cancelar a consulta de ' . utec_whatsapp_agenda_quando($data, $hora, $prestador) . '?';
+    }
+}
+
+if (!function_exists('utec_whatsapp_agenda_texto_fallback')) {
+    function utec_whatsapp_agenda_texto_fallback($motivo)
+    {
+        $textos = [
+            'prazo' => 'Faltam menos de 24 horas para a consulta, então a equipe vai analisar seu pedido.',
+            'sem_grade' => 'Este profissional ainda não tem horários disponíveis para remarcação pelo WhatsApp.',
+            'sem_vaga' => 'Não há horários livres nos próximos 30 dias.',
+        ];
+        $motivo = trim((string)$motivo);
+        return isset($textos[$motivo]) ? $textos[$motivo] : '';
+    }
+}
+
+if (!function_exists('utec_notificacoes_tipo_chatbot_agenda')) {
+    function utec_notificacoes_tipo_chatbot_agenda($acao)
+    {
+        $acao = strtolower(trim((string)$acao));
+        if ($acao === 'remarcar') {
+            return 'whatsapp_chatbot_remarcado';
+        }
+        if ($acao === 'cancelar') {
+            return 'whatsapp_chatbot_cancelado';
+        }
+        return '';
+    }
+}
+
+if (!function_exists('utec_notificacoes_mensagem_chatbot_agenda')) {
+    function utec_notificacoes_mensagem_chatbot_agenda($acao, $paciente_nome, $dados)
+    {
+        $nome = trim((string)$paciente_nome);
+        $nome = $nome !== '' ? $nome : 'O paciente';
+        $anterior = utec_whatsapp_formatar_data_br(utec_whatsapp_read($dados, 'data_anterior', ''))
+            . ' às ' . utec_whatsapp_formatar_hora_br(utec_whatsapp_read($dados, 'hora_anterior', ''));
+        if (strtolower(trim((string)$acao)) === 'remarcar') {
+            $nova = utec_whatsapp_formatar_data_br(utec_whatsapp_read($dados, 'data_nova', ''))
+                . ' às ' . utec_whatsapp_formatar_hora_br(utec_whatsapp_read($dados, 'hora_nova', ''));
+            return $nome . ' remarcou a consulta de ' . $anterior . ' para ' . $nova . ' pelo WhatsApp.';
+        }
+        $motivo = trim((string)utec_whatsapp_read($dados, 'motivo', ''));
+        $sufixo = $motivo !== '' ? ' Motivo: ' . utec_whatsapp_truncar_texto($motivo, 300) : ' Sem motivo informado.';
+        return $nome . ' cancelou a consulta de ' . $anterior . ' pelo WhatsApp.' . $sufixo;
     }
 }
