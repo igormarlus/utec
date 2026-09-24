@@ -677,6 +677,11 @@ class Home extends CI_Controller {
 		$this->load->view('public/seo/confirmacao-de-consulta-por-whatsapp');
 	}
 
+	public function seo_casos_de_uso()
+	{
+		$this->load->view('public/seo/casos-de-uso');
+	}
+
 	public function sobre()
 	{
 		$this->load->view('public/sobre');

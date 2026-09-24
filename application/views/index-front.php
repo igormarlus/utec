@@ -719,6 +719,10 @@
                         <span class="dd-icon">📲</span>
                         <span class="dd-text"><span class="dd-label">Confirmação por WhatsApp</span><span class="dd-desc">Lembrete e confirmação de consulta</span></span>
                     </a>
+                    <a href="<?=base_url()?>casos-de-uso">
+                        <span class="dd-icon">🧩</span>
+                        <span class="dd-text"><span class="dd-label">Casos de uso</span><span class="dd-desc">Como clínicas usam o sistema</span></span>
+                    </a>
                     <div class="nav-divider"></div>
                     <a href="<?=base_url()?>sistema-gratuito-para-clinicas">
                         <span class="dd-icon">🎁</span>
@@ -1280,6 +1284,7 @@
             <a href="<?=base_url()?>software-para-clinicas">Software para Clínicas</a>
             <a href="<?=base_url()?>software-para-medicos">Software para Médicos</a>
             <a href="<?=base_url()?>confirmacao-de-consulta-por-whatsapp">Confirmação por WhatsApp</a>
+            <a href="<?=base_url()?>casos-de-uso">Casos de uso</a>
             <a href="<?=base_url()?>sistema-gratuito-para-clinicas">Trial Gratuito</a>
             <a href="<?=base_url()?>assinar">Ver Planos</a>
         </div>
