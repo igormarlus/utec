@@ -1389,7 +1389,7 @@
   "@type": "Organization",
   "name": "UTecnologia Saúde",
   "url": "https://utecnologia.com.br",
-  "logo": "https://utecnologia.com.br/imagens/logo-utec.png",
+  "logo": "https://utecnologia.com.br/img/logo-w.png",
   "description": "Sistema de gestão clínica SaaS para clínicas médicas e profissionais de saúde.",
   "contactPoint": {
     "@type": "ContactPoint",

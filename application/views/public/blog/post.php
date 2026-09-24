@@ -221,7 +221,7 @@
   "publisher": {
     "@type": "Organization",
     "name": "UTecnologia Saúde",
-    "logo": {"@type": "ImageObject", "url": "https://utecnologia.com.br/imagens/logo.png"}
+    "logo": {"@type": "ImageObject", "url": "https://utecnologia.com.br/img/logo-w.png"}
   },
   "datePublished": "<?=$pub_iso?>",
   "dateModified": "<?=$upd_iso?>",
@@ -235,6 +235,27 @@
   }
 }
 </script>
+<?php
+  // FAQPage automatico: perguntas H3 + resposta P logo apos o H2 "Perguntas frequentes" do conteudo.
+  $faq_ld = array();
+  if (preg_match('/<h2>\s*Perguntas frequentes\s*<\/h2>(.*)$/isu', (string)$post->conteudo, $faq_bloco)) {
+      if (preg_match_all('/<h3>(.*?)<\/h3>\s*<p>(.*?)<\/p>/isu', $faq_bloco[1], $faq_pares, PREG_SET_ORDER)) {
+          foreach ($faq_pares as $faq_par) {
+              $faq_q = trim(html_entity_decode(strip_tags($faq_par[1]), ENT_QUOTES, 'UTF-8'));
+              $faq_a = trim(html_entity_decode(strip_tags($faq_par[2]), ENT_QUOTES, 'UTF-8'));
+              if ($faq_q !== '' && $faq_a !== '') {
+                  $faq_ld[] = array('@type' => 'Question', 'name' => $faq_q, 'acceptedAnswer' => array('@type' => 'Answer', 'text' => $faq_a));
+              }
+          }
+      }
+  }
+  if (count($faq_ld) >= 2):
+?>
+<script type="application/ld+json">
+<?=json_encode(array('@context' => 'https://schema.org', '@type' => 'FAQPage', 'mainEntity' => $faq_ld), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG)?>
+
+</script>
+<?php endif; ?>
 
 <script>
 /* Gerar sumário automaticamente dos H2 do artigo */
