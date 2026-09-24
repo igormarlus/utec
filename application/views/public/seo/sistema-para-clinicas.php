@@ -381,6 +381,15 @@
     </div>
 </section>
 
+<section class="section" style="padding-top:48px;padding-bottom:48px;">
+    <div class="wrap" style="max-width:820px;">
+        <p class="section-label">WhatsApp para clínicas</p>
+        <h2 style="text-align:center;margin-bottom:14px;">Menos faltas na agenda da clínica</h2>
+        <p style="font-size:16px;color:var(--muted);line-height:1.75;text-align:center;">O sistema confirma cada consulta por WhatsApp e envia um lembrete automático antes do horário; o paciente responde por botão e a agenda se atualiza sozinha. Com 24 horas ou mais de antecedência, ele também remarca ou cancela pelo chatbot, e a recepção e o profissional são avisados. Profissionais e atendentes consultam a agenda de hoje e de amanhã pelo mesmo WhatsApp.</p>
+        <p style="text-align:center;margin-top:16px;"><a href="<?=base_url()?>confirmacao-de-consulta-por-whatsapp#chatbot-whatsapp" style="font-weight:700;color:var(--teal);">Ver como funciona a confirmação e o chatbot por WhatsApp →</a></p>
+    </div>
+</section>
+
 <section class="section">
     <div class="wrap">
         <div class="section-label">Perguntas frequentes</div>

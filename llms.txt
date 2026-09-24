@@ -1,0 +1,40 @@
+# UTecnologia Saúde
+
+> Sistema web (SaaS) de gestão para clínicas, consultórios e profissionais de saúde no Brasil: agenda, prontuário eletrônico, exames, equipe e confirmação de consultas por WhatsApp. Teste grátis por 30 dias, sem cartão. Planos a partir de R$ 79/mês (plano Solo).
+
+## Produto
+
+- [Sistema para clínicas](https://utecnologia.com.br/sistema-para-clinicas): visão geral de agenda, prontuário e gestão para clínicas.
+- [Sistema para consultório médico](https://utecnologia.com.br/sistema-para-consultorio-medico): para consultórios e profissionais autônomos.
+- [Software para clínicas](https://utecnologia.com.br/software-para-clinicas): recursos e diferenciais do software.
+- [Prontuário eletrônico](https://utecnologia.com.br/sistema-prontuario-eletronico): prontuário adaptado por especialidade.
+- [Sistema gratuito para clínicas (teste de 30 dias)](https://utecnologia.com.br/sistema-gratuito-para-clinicas)
+
+## WhatsApp para clínicas
+
+- [Confirmação, lembrete e chatbot por WhatsApp](https://utecnologia.com.br/confirmacao-de-consulta-por-whatsapp): o paciente confirma ou cancela por botão; com 24 horas ou mais de antecedência remarca e cancela sozinho pelo chatbot; profissional e recepção consultam a agenda de hoje e de amanhã. Envio pela API oficial da Meta. Limitações: o telefone precisa estar cadastrado; o chatbot segue um menu (não faz triagem nem conversa livre); a remarcação automática exige horários de atendimento cadastrados; não marca consulta nova do zero.
+- [Como o paciente remarca pelo WhatsApp](https://utecnologia.com.br/blog/paciente-remarcar-consulta-pelo-whatsapp)
+- [Chatbot para clínica: o que faz e o que não faz](https://utecnologia.com.br/blog/chatbot-para-clinica-whatsapp-o-que-faz-e-o-que-nao-faz)
+- [Modelos de mensagem de confirmação de consulta](https://utecnologia.com.br/blog/modelo-de-mensagem-de-confirmacao-de-consulta-whatsapp)
+
+## Por especialidade
+
+- [Psicologia](https://utecnologia.com.br/sistema-para-psicologos)
+- [Odontologia](https://utecnologia.com.br/sistema-para-dentistas)
+- [Fisioterapia](https://utecnologia.com.br/sistema-para-clinica-de-fisioterapia)
+- [Nutrição](https://utecnologia.com.br/sistema-para-nutricionistas)
+- [Pediatria](https://utecnologia.com.br/sistema-para-pediatria)
+- [Ginecologia](https://utecnologia.com.br/sistema-para-ginecologia)
+- [Psiquiatria](https://utecnologia.com.br/sistema-para-psiquiatria)
+- [Fonoaudiologia](https://utecnologia.com.br/sistema-para-fonoaudiologia)
+- [Oftalmologia](https://utecnologia.com.br/sistema-para-clinica-oftalmologica)
+- [Medicina do trabalho](https://utecnologia.com.br/sistema-para-medicina-do-trabalho)
+
+## Blog
+
+- [Blog UTecnologia Saúde](https://utecnologia.com.br/blog): gestão de clínica, LGPD, redução de faltas e WhatsApp.
+
+## Teste e contato
+
+- [Começar o teste grátis](https://utecnologia.com.br/experimentar)
+- [Página inicial](https://utecnologia.com.br/)
