@@ -327,7 +327,7 @@
                 </div>
             </div>
             <a class="btn-primary" href="<?=base_url()?>experimentar">Testar o sistema por 30 dias</a>
-            <p class="chatbot-note">O telefone precisa estar cadastrado. Quando o mesmo número pertence a mais de um perfil, a pessoa escolhe como deseja acessar. Para assuntos fora do fluxo, o atendimento humano continua disponível.</p>
+            <p class="chatbot-note">O telefone precisa estar cadastrado. Se o mesmo número estiver cadastrado em mais de um usuário, o acesso é recusado por segurança até o cadastro ser corrigido. Para assuntos fora do fluxo, o atendimento humano continua disponível.</p>
         </div>
         <div class="chatbot-flow">
             <img src="<?=base_url()?>img/seo/chatbot-whatsapp-perfis.svg" alt="Fluxo do chatbot WhatsApp com escolha de perfil entre paciente e profissional" width="760" height="420" loading="lazy">
@@ -378,7 +378,7 @@
                     Como o sistema sabe se a mensagem é de paciente ou profissional?
                     <span class="faq-chevron">▾</span>
                 </button>
-                <div class="faq-a" id="faq-a-perfil" hidden>O chatbot identifica o telefone cadastrado e apresenta as opções permitidas para aquele perfil. Se o mesmo número estiver registrado em mais de um perfil distinto, a pessoa escolhe como deseja acessar antes de abrir o menu.</div>
+                <div class="faq-a" id="faq-a-perfil" hidden>O chatbot identifica o telefone cadastrado e apresenta as opções permitidas para aquele perfil. Se o mesmo número estiver registrado em mais de um usuário, o acesso é recusado por segurança até a clínica corrigir o cadastro.</div>
             </div>
             <div class="faq-item">
                 <button class="faq-q" type="button" aria-expanded="false" aria-controls="faq-a-recepcao">
@@ -498,7 +498,7 @@ document.querySelectorAll('.faq-q').forEach(function(button) {
     {"@type": "Question", "name": "O paciente consegue reagendar pela mensagem?", "acceptedAnswer": {"@type": "Answer", "text": "Sim, quando faltam 24 horas ou mais e o profissional tem os horários de atendimento cadastrados. O chatbot mostra os dias e horários livres do mesmo profissional, o paciente escolhe, confirma e a agenda é atualizada na hora; a equipe e o profissional são avisados. Com menos de 24 horas, sem horários cadastrados ou sem vaga nos próximos 30 dias, o paciente informa o motivo e a equipe define o novo horário."}},
     {"@type": "Question", "name": "Quantas mensagens posso enviar no teste grátis?", "acceptedAnswer": {"@type": "Answer", "text": "Durante o teste, sem uma assinatura ativa, o envio é limitado a 3 disparos por clínica — o suficiente para ver o fluxo completo funcionando. Com o plano ativo, o limite acompanha o seu volume de agendamentos."}},
     {"@type": "Question", "name": "O que o paciente consegue resolver pelo chatbot no WhatsApp?", "acceptedAnswer": {"@type": "Answer", "text": "Além de confirmar a consulta e receber lembretes, o paciente pode ver as próximas consultas e remarcar ou cancelar sozinho quando faltam 24 horas ou mais. Nos demais casos, o pedido segue para a equipe. A disponibilidade das opções depende do telefone cadastrado."}},
-    {"@type": "Question", "name": "Como o sistema sabe se a mensagem é de paciente ou profissional?", "acceptedAnswer": {"@type": "Answer", "text": "O chatbot identifica o telefone cadastrado e apresenta as opções permitidas para aquele perfil. Se o mesmo número estiver registrado em mais de um perfil distinto, a pessoa escolhe como deseja acessar antes de abrir o menu."}},
+    {"@type": "Question", "name": "Como o sistema sabe se a mensagem é de paciente ou profissional?", "acceptedAnswer": {"@type": "Answer", "text": "O chatbot identifica o telefone cadastrado e apresenta as opções permitidas para aquele perfil. Se o mesmo número estiver registrado em mais de um usuário, o acesso é recusado por segurança até a clínica corrigir o cadastro."}},
     {"@type": "Question", "name": "O chatbot substitui a recepção da clínica?", "acceptedAnswer": {"@type": "Answer", "text": "Não. Ele agiliza tarefas objetivas, como confirmação, consulta de agenda e solicitações registradas no sistema. Assuntos fora dessas opções ou que precisem de análise continuam com o atendimento humano."}},
     {"@type": "Question", "name": "Funciona para consultório com um profissional só?", "acceptedAnswer": {"@type": "Answer", "text": "Sim. O plano Solo (R$ 79/mês) já inclui a confirmação e o lembrete por WhatsApp, com 1 profissional e 2 colaboradores. A recepção recebe os avisos de resposta mesmo em operação pequena."}}
   ]

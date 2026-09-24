@@ -358,6 +358,15 @@
     </div>
 </section>
 
+<section class="section" style="padding-top:48px;padding-bottom:48px;">
+    <div class="wrap" style="max-width:820px;">
+        <p class="section-label">WhatsApp para clínicas</p>
+        <h2 style="text-align:center;margin-bottom:14px;">WhatsApp integrado ao software da clínica</h2>
+        <p style="font-size:16px;color:var(--muted);line-height:1.75;text-align:center;">Confirmação, lembrete automático e chatbot por perfil fazem parte do mesmo sistema da agenda e do prontuário. O paciente vê as próximas consultas e remarca ou cancela sozinho (com 24 horas ou mais de antecedência); a equipe acompanha tudo pelo sino de avisos e pela etiqueta "Confirmado/Cancelado via WhatsApp" na agenda.</p>
+        <p style="text-align:center;margin-top:16px;"><a href="<?=base_url()?>confirmacao-de-consulta-por-whatsapp#chatbot-whatsapp" style="font-weight:700;color:var(--teal);">Ver como funciona a confirmação e o chatbot por WhatsApp →</a></p>
+    </div>
+</section>
+
 <section class="section" style="background:var(--white);">
     <div class="wrap">
         <div class="section-label">Perguntas frequentes</div>
