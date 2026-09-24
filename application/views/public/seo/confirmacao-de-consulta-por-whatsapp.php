@@ -119,11 +119,27 @@
     .feature-icon{width:44px;height:44px;background:var(--teal-lt);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:16px;}
     .feature-card h3{font-family:var(--ff-display);font-size:16px;font-weight:600;margin-bottom:8px;color:var(--ink);}
     .feature-card p{font-size:14px;color:var(--muted);line-height:1.65;}
+    .chatbot-section{padding:84px 0;background:linear-gradient(135deg,#e0f4f8 0%,#f5f8fb 58%,#fff 100%);border-top:1px solid var(--teal-md);border-bottom:1px solid var(--border);}
+    .chatbot-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(360px,.95fr);gap:48px;align-items:center;}
+    .chatbot-copy h2{max-width:580px;line-height:1.12;}
+    .chatbot-copy h2 em{color:var(--teal);font-style:italic;}
+    .chatbot-copy > p:not(.section-label):not(.chatbot-note){font-size:17px;color:var(--muted);line-height:1.75;margin:0 0 24px;}
+    .chatbot-profiles{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:28px 0;}
+    .chatbot-profile-card{background:rgba(255,255,255,.86);border:1px solid var(--border);border-radius:12px;padding:16px 14px;box-shadow:0 8px 22px rgba(10,37,64,.06);}
+    .chatbot-profile-card strong{display:block;font-size:13px;color:var(--navy);margin-bottom:6px;}
+    .chatbot-profile-card span{display:block;font-size:12px;color:var(--muted);line-height:1.5;}
+    .chatbot-note{font-size:13px!important;color:var(--muted)!important;border-left:3px solid var(--green);padding:10px 0 10px 14px;margin:20px 0 0!important;}
+    .chatbot-flow{background:var(--white);border:1px solid var(--border);border-radius:20px;padding:14px;box-shadow:var(--shadow-lg);}
+    .chatbot-flow img{width:100%;height:auto;display:block;border-radius:10px;}
+    .chatbot-links{grid-column:1 / -1;display:flex;gap:18px;flex-wrap:wrap;padding-top:2px;}
+    .chatbot-links a{font-size:14px;font-weight:700;color:var(--teal);}
+    .chatbot-links a:hover{text-decoration:underline;}
     .steps-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;max-width:900px;margin:0 auto;}
     .faq-list{max-width:720px;margin:0 auto;display:flex;flex-direction:column;gap:10px;}
     .faq-item{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;}
-    .faq-q{font-size:15px;font-weight:600;color:var(--ink);padding:18px 24px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;user-select:none;}
+    .faq-q{appearance:none;background:none;border:0;width:100%;font:inherit;font-size:15px;font-weight:600;color:var(--ink);padding:18px 24px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;text-align:left;}
     .faq-q:hover{color:var(--teal);}
+    .faq-q:focus-visible{outline:3px solid rgba(0,127,163,.35);outline-offset:-3px;}
     .faq-chevron{color:var(--subtle);font-size:18px;transition:transform .25s;flex-shrink:0;}
     .faq-item.open .faq-chevron{transform:rotate(180deg);}
     .faq-a{font-size:14px;color:var(--muted);line-height:1.7;padding:0 24px;max-height:0;overflow:hidden;transition:max-height .35s ease,padding .25s;}
@@ -143,8 +159,8 @@
     .funciona-strip{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px;}
     .funciona-chip{font-size:12px;font-weight:600;color:var(--teal);background:var(--teal-lt);border:1px solid var(--teal-md);padding:5px 12px;border-radius:999px;}
     .funciona-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--subtle);align-self:center;}
-    @media(max-width:900px){.hero-inner{grid-template-columns:1fr;}.features-grid{grid-template-columns:1fr 1fr;}.steps-grid{grid-template-columns:1fr;}h1{font-size:34px;}h2{font-size:28px;}}
-    @media(max-width:600px){.features-grid{grid-template-columns:1fr;}.nav-links{display:none;}h1{font-size:28px;}.fm-grid2{grid-template-columns:1fr;}.cta-wrap{padding:40px 24px;}}
+    @media(max-width:900px){.hero-inner,.chatbot-grid{grid-template-columns:1fr;}.features-grid{grid-template-columns:1fr 1fr;}.steps-grid{grid-template-columns:1fr;}h1{font-size:34px;}h2{font-size:28px;}.chatbot-copy h2{text-align:left;}.chatbot-flow{max-width:680px;}}
+    @media(max-width:600px){.features-grid,.chatbot-profiles{grid-template-columns:1fr;}.nav-links{display:none;}h1{font-size:28px;}.fm-grid2{grid-template-columns:1fr;}.cta-wrap{padding:40px 24px;}.chatbot-section{padding:60px 0;}.chatbot-links{gap:12px;flex-direction:column;}}
     </style>
 </head>
 <body>
@@ -256,7 +272,7 @@
             <div class="feature-card">
                 <div class="feature-icon">⏰</div>
                 <h3>Lembrete automático</h3>
-                <p>Um processo roda de hora em hora e envia o lembrete nas janelas que você escolher: véspera e/ou manhã da consulta.</p>
+                <p>Um processo roda de hora em hora e envia um lembrete único ao paciente poucas horas antes da consulta, se ela ainda não foi confirmada nem cancelada.</p>
             </div>
             <div class="feature-card">
                 <div class="feature-icon">👆</div>
@@ -281,11 +297,45 @@
         </div>
         <p class="hero-text" style="font-size:15px;background:#fff;border:1px solid var(--border);border-radius:12px;padding:16px 18px;max-width:680px;margin:40px auto 0;">
             <strong>Em resumo:</strong> o UTecnologia Saúde confirma a consulta no momento do agendamento
-            e envia lembretes automáticos por WhatsApp na véspera e no dia. O paciente responde pelos
-            botões da própria mensagem e a agenda se atualiza sem ninguém digitar nada. O que ainda é
-            manual: reagendar (o paciente confirma ou cancela, mas não escolhe outro horário sozinho)
-            e qualquer conversa fora do modelo aprovado pela Meta.
+            e envia um lembrete automático por WhatsApp poucas horas antes. O paciente responde pelos
+            botões da própria mensagem e a agenda se atualiza sem ninguém digitar nada. Com 24 horas
+            ou mais de antecedência, ele também remarca ou cancela sozinho pelo chatbot. O que ainda
+            é manual: pedidos com menos de 24 horas, profissional sem horários cadastrados e qualquer
+            assunto que precise de análise da equipe.
         </p>
+    </div>
+</section>
+
+<section class="chatbot-section" id="chatbot-whatsapp">
+    <div class="wrap chatbot-grid">
+        <div class="chatbot-copy">
+            <p class="section-label" style="text-align:left">Autoatendimento por WhatsApp</p>
+            <h2 style="text-align:left">Do lembrete ao <em>autoatendimento</em> pelo WhatsApp</h2>
+            <p>Depois da confirmação, uma mensagem de texto abre opções compatíveis com o cadastro. Pacientes consultam próximas consultas e, com pelo menos 24 horas de antecedência, remarcam ou cancelam sozinhos, escolhendo entre os horários livres do mesmo profissional. Profissionais e atendentes acessam agenda e pendências conforme o perfil registrado.</p>
+            <div class="chatbot-profiles" aria-label="Opções do chatbot por perfil">
+                <div class="chatbot-profile-card">
+                    <strong>Paciente</strong>
+                    <span>Próximas consultas, remarcação e cancelamento com 24h ou mais de antecedência.</span>
+                </div>
+                <div class="chatbot-profile-card">
+                    <strong>Profissional e atendente</strong>
+                    <span>Agenda e pendências disponíveis para o perfil cadastrado.</span>
+                </div>
+                <div class="chatbot-profile-card">
+                    <strong>Administrador</strong>
+                    <span>Agenda, pendências, plano e suporte dentro das permissões.</span>
+                </div>
+            </div>
+            <a class="btn-primary" href="<?=base_url()?>experimentar">Testar o sistema por 30 dias</a>
+            <p class="chatbot-note">O telefone precisa estar cadastrado. Quando o mesmo número pertence a mais de um perfil, a pessoa escolhe como deseja acessar. Para assuntos fora do fluxo, o atendimento humano continua disponível.</p>
+        </div>
+        <div class="chatbot-flow">
+            <img src="<?=base_url()?>img/seo/chatbot-whatsapp-perfis.svg" alt="Fluxo do chatbot WhatsApp com escolha de perfil entre paciente e profissional" width="760" height="420" loading="lazy">
+        </div>
+        <div class="chatbot-links" aria-label="Conheça também">
+            <a href="<?=base_url()?>sistema-para-clinicas">Conheça o sistema para clínicas</a>
+            <a href="<?=base_url()?>sistema-para-consultorio-medico">Veja recursos para consultório médico</a>
+        </div>
     </div>
 </section>
 
@@ -296,39 +346,53 @@
         <p class="section-sub" style="margin-bottom:40px;"></p>
         <div class="faq-list">
             <div class="faq-item open">
-                <div class="faq-q" onclick="this.closest('.faq-item').classList.toggle('open')">
+                <button class="faq-q" type="button" aria-expanded="true" aria-controls="faq-a-api">
                     Preciso do WhatsApp Business API para usar?
                     <span class="faq-chevron">▾</span>
-                </div>
-                <div class="faq-a">O envio é feito pela WhatsApp Cloud API, a versão oficial da Meta para empresas. A conexão é configurada uma vez na área de administração (número, token e modelo de mensagem aprovado). Não funciona com o WhatsApp comum do celular.</div>
+                </button>
+                <div class="faq-a" id="faq-a-api">O envio é feito pela WhatsApp Cloud API, a versão oficial da Meta para empresas. A conexão é configurada uma vez na área de administração (número, token e modelo de mensagem aprovado). Não funciona com o WhatsApp comum do celular.</div>
             </div>
             <div class="faq-item">
-                <div class="faq-q" onclick="this.closest('.faq-item').classList.toggle('open')">
+                <button class="faq-q" type="button" aria-expanded="false" aria-controls="faq-a-remarcacao">
                     O paciente consegue reagendar pela mensagem?
                     <span class="faq-chevron">▾</span>
-                </div>
-                <div class="faq-a">Não. A mensagem tem dois botões: confirmar e cancelar. Se o paciente cancela, o horário fica livre e a recepção remarca pelo sistema ou combina um novo horário com o paciente. Escolher outro horário pelo próprio WhatsApp não faz parte do recurso.</div>
+                </button>
+                <div class="faq-a" id="faq-a-remarcacao" hidden>Sim, quando faltam 24 horas ou mais e o profissional tem os horários de atendimento cadastrados. O chatbot mostra os dias e horários livres do mesmo profissional, o paciente escolhe, confirma e a agenda é atualizada na hora; a equipe e o profissional são avisados. Com menos de 24 horas, sem horários cadastrados ou sem vaga nos próximos 30 dias, o paciente informa o motivo e a equipe define o novo horário.</div>
             </div>
             <div class="faq-item">
-                <div class="faq-q" onclick="this.closest('.faq-item').classList.toggle('open')">
+                <button class="faq-q" type="button" aria-expanded="false" aria-controls="faq-a-teste">
                     Quantas mensagens posso enviar no teste grátis?
                     <span class="faq-chevron">▾</span>
-                </div>
-                <div class="faq-a">Durante o teste, sem uma assinatura ativa, o envio é limitado a 3 disparos por clínica — o suficiente para ver o fluxo completo funcionando. Com o plano ativo, o limite acompanha o seu volume de agendamentos.</div>
+                </button>
+                <div class="faq-a" id="faq-a-teste" hidden>Durante o teste, sem uma assinatura ativa, o envio é limitado a 3 disparos por clínica — o suficiente para ver o fluxo completo funcionando. Com o plano ativo, o limite acompanha o seu volume de agendamentos.</div>
             </div>
             <div class="faq-item">
-                <div class="faq-q" onclick="this.closest('.faq-item').classList.toggle('open')">
-                    Isso é um chatbot de atendimento?
+                <button class="faq-q" type="button" aria-expanded="false" aria-controls="faq-a-paciente">
+                    O que o paciente consegue resolver pelo chatbot no WhatsApp?
                     <span class="faq-chevron">▾</span>
-                </div>
-                <div class="faq-a">Não. O recurso serve para confirmar e lembrar consultas agendadas. Ele não responde dúvidas livres, não faz triagem e não conduz conversa aberta — o paciente confirma, cancela ou recebe a mensagem de texto automática.</div>
+                </button>
+                <div class="faq-a" id="faq-a-paciente" hidden>Além de confirmar a consulta e receber lembretes, o paciente pode ver as próximas consultas e remarcar ou cancelar sozinho quando faltam 24 horas ou mais. Nos demais casos, o pedido segue para a equipe. A disponibilidade das opções depende do telefone cadastrado.</div>
             </div>
             <div class="faq-item">
-                <div class="faq-q" onclick="this.closest('.faq-item').classList.toggle('open')">
+                <button class="faq-q" type="button" aria-expanded="false" aria-controls="faq-a-perfil">
+                    Como o sistema sabe se a mensagem é de paciente ou profissional?
+                    <span class="faq-chevron">▾</span>
+                </button>
+                <div class="faq-a" id="faq-a-perfil" hidden>O chatbot identifica o telefone cadastrado e apresenta as opções permitidas para aquele perfil. Se o mesmo número estiver registrado em mais de um perfil distinto, a pessoa escolhe como deseja acessar antes de abrir o menu.</div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-q" type="button" aria-expanded="false" aria-controls="faq-a-recepcao">
+                    O chatbot substitui a recepção da clínica?
+                    <span class="faq-chevron">▾</span>
+                </button>
+                <div class="faq-a" id="faq-a-recepcao" hidden>Não. Ele agiliza tarefas objetivas, como confirmação, consulta de agenda e solicitações registradas no sistema. Assuntos fora dessas opções ou que precisem de análise continuam com o atendimento humano.</div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-q" type="button" aria-expanded="false" aria-controls="faq-a-solo">
                     Funciona para consultório com um profissional só?
                     <span class="faq-chevron">▾</span>
-                </div>
-                <div class="faq-a">Sim. O plano Solo (R$ 79/mês) já inclui a confirmação e o lembrete por WhatsApp, com 1 profissional e 2 colaboradores. A recepção recebe os avisos de resposta mesmo em operação pequena.</div>
+                </button>
+                <div class="faq-a" id="faq-a-solo" hidden>Sim. O plano Solo (R$ 79/mês) já inclui a confirmação e o lembrete por WhatsApp, com 1 profissional e 2 colaboradores. A recepção recebe os avisos de resposta mesmo em operação pequena.</div>
             </div>
         </div>
     </div>
@@ -389,6 +453,19 @@
     </div>
 </footer>
 
+<script>
+document.querySelectorAll('.faq-q').forEach(function(button) {
+    button.addEventListener('click', function() {
+        var item = button.closest('.faq-item');
+        var expanded = !item.classList.contains('open');
+        var answer = document.getElementById(button.getAttribute('aria-controls'));
+        item.classList.toggle('open', expanded);
+        button.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+        answer.hidden = !expanded;
+    });
+});
+</script>
+
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -397,7 +474,7 @@
   "applicationCategory": "HealthApplication",
   "operatingSystem": "Web",
   "url": "https://utecnologia.com.br/confirmacao-de-consulta-por-whatsapp",
-  "description": "Confirmação e lembrete de consulta por WhatsApp para clínicas e consultórios, com resposta do paciente por botão e atualização automática da agenda.",
+  "description": "Confirmação, lembrete e autoatendimento por WhatsApp para clínicas e consultórios, com opções por perfil cadastrado e atualização da agenda.",
   "offers": {"@type": "Offer", "price": "79", "priceCurrency": "BRL"}
 }
 </script>
@@ -417,11 +494,13 @@
   "@context": "https://schema.org",
   "@type": "FAQPage",
   "mainEntity": [
-    {"@type": "Question", "name": "Preciso do WhatsApp Business API para usar?", "acceptedAnswer": {"@type": "Answer", "text": "O envio é feito pela WhatsApp Cloud API, a versão oficial da Meta para empresas. A conexão é configurada uma vez na área de administração e não funciona com o WhatsApp comum do celular."}},
-    {"@type": "Question", "name": "O paciente consegue reagendar pela mensagem?", "acceptedAnswer": {"@type": "Answer", "text": "Não. A mensagem tem dois botões: confirmar e cancelar. Se o paciente cancela, o horário fica livre e a recepção remarca pelo sistema. Escolher outro horário pelo próprio WhatsApp não faz parte do recurso."}},
-    {"@type": "Question", "name": "Quantas mensagens posso enviar no teste grátis?", "acceptedAnswer": {"@type": "Answer", "text": "Durante o teste, sem assinatura ativa, o envio é limitado a 3 disparos por clínica. Com o plano ativo, o limite acompanha o volume de agendamentos."}},
-    {"@type": "Question", "name": "Isso é um chatbot de atendimento?", "acceptedAnswer": {"@type": "Answer", "text": "Não. O recurso confirma e lembra consultas agendadas. Não responde dúvidas livres, não faz triagem e não conduz conversa aberta."}},
-    {"@type": "Question", "name": "Funciona para consultório com um profissional só?", "acceptedAnswer": {"@type": "Answer", "text": "Sim. O plano Solo (R$ 79/mês) já inclui a confirmação e o lembrete por WhatsApp, com 1 profissional e 2 colaboradores."}}
+    {"@type": "Question", "name": "Preciso do WhatsApp Business API para usar?", "acceptedAnswer": {"@type": "Answer", "text": "O envio é feito pela WhatsApp Cloud API, a versão oficial da Meta para empresas. A conexão é configurada uma vez na área de administração (número, token e modelo de mensagem aprovado). Não funciona com o WhatsApp comum do celular."}},
+    {"@type": "Question", "name": "O paciente consegue reagendar pela mensagem?", "acceptedAnswer": {"@type": "Answer", "text": "Sim, quando faltam 24 horas ou mais e o profissional tem os horários de atendimento cadastrados. O chatbot mostra os dias e horários livres do mesmo profissional, o paciente escolhe, confirma e a agenda é atualizada na hora; a equipe e o profissional são avisados. Com menos de 24 horas, sem horários cadastrados ou sem vaga nos próximos 30 dias, o paciente informa o motivo e a equipe define o novo horário."}},
+    {"@type": "Question", "name": "Quantas mensagens posso enviar no teste grátis?", "acceptedAnswer": {"@type": "Answer", "text": "Durante o teste, sem uma assinatura ativa, o envio é limitado a 3 disparos por clínica — o suficiente para ver o fluxo completo funcionando. Com o plano ativo, o limite acompanha o seu volume de agendamentos."}},
+    {"@type": "Question", "name": "O que o paciente consegue resolver pelo chatbot no WhatsApp?", "acceptedAnswer": {"@type": "Answer", "text": "Além de confirmar a consulta e receber lembretes, o paciente pode ver as próximas consultas e remarcar ou cancelar sozinho quando faltam 24 horas ou mais. Nos demais casos, o pedido segue para a equipe. A disponibilidade das opções depende do telefone cadastrado."}},
+    {"@type": "Question", "name": "Como o sistema sabe se a mensagem é de paciente ou profissional?", "acceptedAnswer": {"@type": "Answer", "text": "O chatbot identifica o telefone cadastrado e apresenta as opções permitidas para aquele perfil. Se o mesmo número estiver registrado em mais de um perfil distinto, a pessoa escolhe como deseja acessar antes de abrir o menu."}},
+    {"@type": "Question", "name": "O chatbot substitui a recepção da clínica?", "acceptedAnswer": {"@type": "Answer", "text": "Não. Ele agiliza tarefas objetivas, como confirmação, consulta de agenda e solicitações registradas no sistema. Assuntos fora dessas opções ou que precisem de análise continuam com o atendimento humano."}},
+    {"@type": "Question", "name": "Funciona para consultório com um profissional só?", "acceptedAnswer": {"@type": "Answer", "text": "Sim. O plano Solo (R$ 79/mês) já inclui a confirmação e o lembrete por WhatsApp, com 1 profissional e 2 colaboradores. A recepção recebe os avisos de resposta mesmo em operação pequena."}}
   ]
 }
 </script>

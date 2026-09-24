@@ -328,6 +328,26 @@
         }
         .feature-card h4 { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
         .feature-card p { font-size: 14px; color: var(--muted); line-height: 1.65; }
+        .feature-card--whatsapp {
+            background: linear-gradient(145deg, #ecfdf5 0%, #f8fafc 64%);
+            border-color: #a7f3d0;
+        }
+        .feature-card--whatsapp:hover { border-color: #34d399; }
+        .feature-card__link { display: block; height: 100%; }
+        .feature-card__link:focus-visible {
+            outline: 3px solid var(--brand-blue);
+            outline-offset: 5px;
+            border-radius: var(--radius-sm);
+        }
+        .feature-card__image {
+            display: block; width: 100%; max-width: 238px;
+            margin: 0 0 18px; border-radius: 10px;
+        }
+        .feature-card__more {
+            display: inline-block; margin-top: 14px;
+            color: #047857; font-size: 13px; font-weight: 700;
+        }
+        .feature-card__link:hover .feature-card__more { text-decoration: underline; }
 
         /* ── HOW IT WORKS ── */
         .how-section { padding: 88px 20px; background: var(--paper); }
@@ -895,6 +915,14 @@
                 <h4>Agenda Inteligente</h4>
                 <p>Controle de consultas por profissional, com visão diária, semanal e mensal. Cancele e remarque diretamente na agenda sem retrabalho.</p>
             </div>
+            <div class="feature-card feature-card--whatsapp">
+                <a class="feature-card__link" href="<?=base_url()?>confirmacao-de-consulta-por-whatsapp" aria-label="Conheça a confirmação de consulta e o atendimento pelo WhatsApp">
+                    <img class="feature-card__image" src="<?=base_url()?>img/seo/chatbot-whatsapp-resumo.svg" alt="Ilustração: paciente ou profissional envia uma mensagem no WhatsApp, escolhe uma opção adequada ao seu perfil e conclui uma ação." width="440" height="230" loading="lazy">
+                    <h4>WhatsApp que atende por voce</h4>
+                    <p>Pacientes e profissionais recebem opções adequadas ao seu perfil para confirmar consultas, consultar informações e seguir o atendimento pelo WhatsApp.</p>
+                    <span class="feature-card__more">Conhecer o recurso →</span>
+                </a>
+            </div>
             <div class="feature-card">
                 <div class="feature-icon" style="background:#fefce8;">🔬</div>
                 <h4>Exames e Documentos</h4>
@@ -1340,6 +1368,7 @@
   "featureList": [
     "Prontuário eletrônico",
     "Agenda inteligente",
+    "Confirmação de consultas e opções de atendimento por perfil no WhatsApp",
     "Gestão de pacientes",
     "Exames e documentos integrados",
     "Relatórios clínicos",
