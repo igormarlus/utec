@@ -253,8 +253,11 @@ $route['webhooks/mercadopago'] = 'adm/saas/webhook_mercadopago';
 $route['webhooks/whatsapp'] = 'webhooks/whatsapp';
 $route['adm/whatsapp'] = 'adm/whatsapp/index';
 $route['adm/whatsapp/salvar'] = 'adm/whatsapp/salvar';
+$route['acesso/senha/(:any)'] = 'home/definir_senha/$1';
+$route['acesso/senha']        = 'home/definir_senha';
+$route['acesso/salvar']       = 'home/salvar_senha';
 $route['acesso/esqueci'] = 'home/esqueci_senha';
-$route['acesso/esqueci/enviar'] = 'home/esqueci_senha_enviar';
+$route['acesso/esqueci/enviar'] = 'home/enviar_redefinicao';
 ```
 
 > `adm/notificacoes/abrir/{id}` usa o roteamento padrão do CI (sem rota explícita).
@@ -490,7 +493,7 @@ Fluxo próprio, independente do chatbot legado. Config em `adm/whatsapp`, tabela
 
 ### Notas da Migração de Senhas
 
-- **Login:** `password_verify()` primeiro; se falhar, compara texto puro e rehasha. Aceita e-mail como alternativa de usuário: busca por `login` primeiro; se não encontrar e o input for e-mail válido, busca por `LOWER(email)` (login bem-sucedido apenas se exatamente 1 usuário).
+- **Login:** `password_verify()` primeiro; se falhar, compara texto puro e rehasha. Aceita e-mail como alternativa de usuário: busca por `login` primeiro; se não encontrar e o input for e-mail válido, busca por `LOWER(email)` (login bem-sucedido apenas se exatamente 1 usuário). Login inválido mostra flash "Usuário ou senha inválidos." com link para "Esqueci minha senha" em `/admin`.
 - **Cadastro/edição:** `password_hash()` direto
 - **Troca de senha (`alterar()`):** `password_verify()` + aceita texto puro em fallback
 - **"Acessar como":** apenas admin nível 1 via `/admin/logar_como/{id}`
