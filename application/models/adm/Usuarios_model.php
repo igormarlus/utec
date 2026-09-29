@@ -23,6 +23,19 @@ class Usuarios_model extends CI_Model{
 		$this->db->where('login', $login);
 		$qr_login = $this->db->get('usuarios');
 
+		if($qr_login->num_rows() === 0){
+			$this->load->helper('acesso');
+			if(utec_acesso_email_valido($login)){
+				$por_email = $this->db->query(
+					"SELECT * FROM usuarios WHERE LOWER(email) = ? LIMIT 2",
+					[strtolower($login)]
+				)->result();
+				if(count($por_email) === 1){
+					$qr_login = $this->db->query("SELECT * FROM usuarios WHERE id = ?", [(int)$por_email[0]->id]);
+				}
+			}
+		}
+
 		if($qr_login->num_rows() > 0){
 			$dd_user   = $qr_login->row();
 			$senha_ok  = false;
@@ -48,7 +61,7 @@ class Usuarios_model extends CI_Model{
 				'id'    => $dd_user->id,
 				'nome'  => $dd_user->nome,
 				'nivel' => $dd_user->nivel,
-				'login' => $login
+				'login' => $dd_user->login
 			);
 			$this->session->set_userdata($dd_session);
 

@@ -73,4 +73,7 @@ assertSrc(substr_count($front, 'acesso/esqueci') >= 2, 'Landing deve linkar aces
 $view = src('application/views/public/esqueci-senha.php');
 assertSrc(strpos($view, 'acesso/esqueci/enviar') !== false && strpos($view, 'name="identificacao"') !== false, 'View esqueci-senha incompleta.');
 
+assertSrc(strpos($um, 'LOWER(email) = ?') !== false, 'logar() deve aceitar e-mail quando o login nao existe.');
+assertSrc(strpos($um, 'num_rows() === 1') !== false || strpos($um, 'count($por_email) === 1') !== false, 'Fallback por e-mail so pode entrar com exatamente 1 usuario.');
+
 echo "OK\n";
