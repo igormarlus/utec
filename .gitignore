@@ -36,3 +36,7 @@ python
 .idea
 .superpowers
 .worktrees/
+
+# Screenshots locais e backup do mPDF (fora do versionamento)
+prints/
+application/third_party/mpdf/includes.zip
