@@ -81,6 +81,8 @@ class Manual_conteudo {
                 'topicos' => array(
                     '*' => array(
                         'Você só vê pacientes, agendamentos e prontuários vinculados à sua própria estrutura - nunca dados de outra clínica ou profissional fora da sua árvore.',
+                        'Primeiro acesso: a senha é criada por você no cadastro, ou pelo link "Definir minha senha" que chega no seu e-mail quando alguém da clínica cadastra você. Guarde o e-mail de boas-vindas - ele traz seu login.',
+                        'Esqueceu a senha? Na tela de login, clique em `Esqueci minha senha`, informe seu e-mail ou usuário e use o link que chega no e-mail (vale por 1 hora). Se não chegar, confira a caixa de spam.',
                     ),
                     2 => array(
                         'Visualiza a operação inteira vinculada ao seu cadastro: prestadores, colaboradores e pacientes.',
@@ -95,7 +97,7 @@ class Manual_conteudo {
                         'Tem acesso ao que você mesmo cadastrar e ao que a clínica ou profissional vinculado registrar na mesma operação visível.',
                     ),
                 ),
-                'atualizado_em' => '2026-09-07',
+                'atualizado_em' => '2026-09-28',
             ),
             array(
                 'slug' => 'agenda',
@@ -245,14 +247,17 @@ class Manual_conteudo {
                 'niveis' => array(2, 3),
                 'resumo' => 'A tela de Equipe organiza quem faz parte da operação: prestadores e colaboradores vinculados à clínica ou ao profissional.',
                 'topicos' => array(
-                    '*' => array('Acesse `Equipe` para cadastrar ou revisar prestadores e colaboradores.'),
+                    '*' => array(
+                        'Acesse `Equipe` para cadastrar ou revisar prestadores e colaboradores.',
+                        'Ao cadastrar alguém com e-mail, o sistema envia o acesso automaticamente: com a senha que você digitou ou, se deixar a senha em branco, com um link para a própria pessoa criar a senha (vale por 7 dias).',
+                    ),
                     2 => array(
                         'Organiza todos os profissionais e colaboradores que participam da operação da clínica.',
                         'Manter o cadastro da equipe atualizado evita perda de visibilidade na agenda e nos pacientes.',
                     ),
                     3 => array('Cadastra colaboradores próprios para apoio na rotina de atendimento, quando necessário.'),
                 ),
-                'atualizado_em' => '2026-09-07',
+                'atualizado_em' => '2026-09-28',
             ),
             array(
                 'slug' => 'assinatura-pagamento',
