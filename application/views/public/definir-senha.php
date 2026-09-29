@@ -76,7 +76,7 @@
             <button type="submit" class="btn">Salvar senha e entrar →</button>
         </form>
 
-        <p class="note">Prefere entrar com a senha provisória? <a href="<?=base_url()?>admin">Ir para o login</a></p>
+        <p class="note"><a href="<?=base_url()?>admin">Voltar para o login</a></p>
     </div>
 
     <script>

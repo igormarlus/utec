@@ -49,7 +49,7 @@ function __construct()
 	}
 
 	function esqueceuSenha(){
-		$this->load->view('adm/esqueceu-senha');
+		redirect('acesso/esqueci');
 	}
 	
 	

@@ -482,8 +482,8 @@ class Home extends CI_Controller {
 	{
 		$token = preg_replace('/[^a-f0-9]/i', '', (string)$token);
 		if(strlen($token) !== 64){
-			$this->session->set_flashdata('operational_trial_error', 'Link de definição de senha inválido ou expirado.');
-			redirect('experimentar');
+			$this->session->set_flashdata('operational_trial_error', 'Link de definição de senha inválido ou expirado. Peça um novo em "Esqueci minha senha".');
+			redirect('admin');
 			return;
 		}
 		$user = $this->db->query(
@@ -493,7 +493,7 @@ class Home extends CI_Controller {
 			 LIMIT 1"
 		)->row();
 		if(!$user){
-			$this->session->set_flashdata('operational_trial_error', 'Este link de definição de senha já foi usado ou expirou. Faça login normalmente.');
+			$this->session->set_flashdata('operational_trial_error', 'Este link já foi usado ou expirou. Peça um novo em "Esqueci minha senha".');
 			redirect('admin');
 			return;
 		}
@@ -506,22 +506,19 @@ class Home extends CI_Controller {
 
 	public function salvar_senha()
 	{
+		$this->load->helper('acesso');
 		$token  = preg_replace('/[^a-f0-9]/i', '', (string)$this->input->post('token'));
 		$nova   = (string)$this->input->post('nova_senha');
 		$conf   = (string)$this->input->post('confirmar_senha');
 
 		if(strlen($token) !== 64){
-			$this->session->set_flashdata('operational_trial_error', 'Token inválido.');
-			redirect('experimentar');
+			$this->session->set_flashdata('operational_trial_error', 'Link inválido. Peça um novo em "Esqueci minha senha".');
+			redirect('admin');
 			return;
 		}
-		if(strlen($nova) < 6){
-			$this->session->set_flashdata('definir_senha_error', 'A senha precisa ter pelo menos 6 caracteres.');
-			redirect('acesso/senha/'.$token);
-			return;
-		}
-		if($nova !== $conf){
-			$this->session->set_flashdata('definir_senha_error', 'As senhas não coincidem. Tente novamente.');
+		$validacao = utec_acesso_validar_senha($nova, $conf);
+		if(!$validacao['ok']){
+			$this->session->set_flashdata('definir_senha_error', $validacao['msg']);
 			redirect('acesso/senha/'.$token);
 			return;
 		}
@@ -533,7 +530,7 @@ class Home extends CI_Controller {
 			 LIMIT 1"
 		)->row();
 		if(!$user){
-			$this->session->set_flashdata('operational_trial_error', 'Link expirado. Faça login normalmente e redefina sua senha nas configurações.');
+			$this->session->set_flashdata('operational_trial_error', 'Link expirado. Peça um novo em "Esqueci minha senha".');
 			redirect('admin');
 			return;
 		}
@@ -545,19 +542,76 @@ class Home extends CI_Controller {
 			'senha_token_expires' => null,
 		]);
 
-		// Garante sessão ativa
-		if(!$this->session->userdata('id')){
-			$this->session->set_userdata([
-				'id'    => $user->id,
-				'nome'  => $user->nome,
-				'nivel' => $user->nivel,
-				'login' => $user->login,
-				'usr'   => $user,
-			]);
-		}
+		// Sempre entra como o dono do token (outra sessão aberta no navegador é substituída)
+		$this->session->set_userdata([
+			'usr'   => true,
+			'id'    => $user->id,
+			'nome'  => $user->nome,
+			'nivel' => $user->nivel,
+			'login' => $user->login,
+		]);
 
 		$this->session->set_flashdata('operational_trial_ok', 'Senha definida com sucesso! Bem-vindo(a) ao sistema.');
-		redirect('adm/atendimento');
+		$nivel = (int)$user->nivel;
+		redirect(($nivel >= 2 && $nivel <= 4) ? 'adm/atendimento' : 'adm/usuarios');
+	}
+
+	// ── ESQUECI MINHA SENHA ─────────────────────────────────────────────
+
+	public function esqueci_senha()
+	{
+		$dados['flash_ok']    = $this->session->flashdata('esqueci_ok');
+		$dados['flash_error'] = $this->session->flashdata('esqueci_error');
+		$this->load->view('public/esqueci-senha', $dados);
+	}
+
+	public function enviar_redefinicao()
+	{
+		$this->load->helper('acesso');
+		$esqueci_msg_generica = 'Se houver uma conta com esses dados, enviamos um link para o e-mail cadastrado. O link vale por 1 hora.';
+		$identificacao = trim((string)$this->input->post('identificacao'));
+
+		if($identificacao === ''){
+			$this->session->set_flashdata('esqueci_error', 'Informe seu e-mail ou usuário.');
+			redirect('acesso/esqueci');
+			return;
+		}
+
+		if($this->db->field_exists('senha_token', 'usuarios') && $this->db->field_exists('senha_token_expires', 'usuarios')){
+			$usuarios = $this->db->query(
+				"SELECT id, nome, login, email,
+				        TIMESTAMPDIFF(SECOND, NOW(), senha_token_expires) AS segundos_restantes
+				   FROM usuarios
+				  WHERE nivel BETWEEN 1 AND 4
+				    AND (login = ? OR LOWER(email) = ?)
+				  LIMIT 5",
+				[$identificacao, strtolower($identificacao)]
+			)->result();
+
+			if(count($usuarios)){
+				$this->load->library('email_acesso');
+			}
+			foreach($usuarios as $u){
+				if(!utec_acesso_email_valido($u->email)){ continue; }
+				if(!utec_acesso_pode_reenviar($u->segundos_restantes, 60, 2)){ continue; }
+				$token = utec_acesso_gerar_token();
+				$this->db->set('senha_token', $token);
+				$this->db->set('senha_token_expires', 'DATE_ADD(NOW(), INTERVAL 60 MINUTE)', false);
+				$this->db->where('id', (int)$u->id);
+				$this->db->update('usuarios');
+				$this->email_acesso->redefinicao([
+					'email' => trim((string)$u->email),
+					'nome'  => $u->nome,
+					'login' => $u->login,
+					'token' => $token,
+				]);
+			}
+		}else{
+			log_message('error', 'esqueci_senha: colunas senha_token/senha_token_expires ausentes em usuarios');
+		}
+
+		$this->session->set_flashdata('esqueci_ok', $esqueci_msg_generica);
+		redirect('acesso/esqueci');
 	}
 
 	// ── SEO LANDING PAGES ───────────────────────────────────────────────

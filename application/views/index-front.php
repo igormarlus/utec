@@ -674,7 +674,7 @@
                     <input type="checkbox" name="lembrar" value="1" style="width:14px;height:14px;">
                     Lembrar-me
                 </label>
-                <div class="forgot"><a href="#">Esqueci minha senha</a></div>
+                <div class="forgot"><a href="<?=base_url()?>acesso/esqueci">Esqueci minha senha</a></div>
             </div>
             <button type="submit" class="btn-login">Entrar no sistema</button>
             <p class="login-footer-note">Ainda não tem conta? <a href="<?=base_url()?>experimentar">Experimente 30 dias grátis</a></p>
@@ -1232,7 +1232,7 @@
                             <input type="checkbox" name="lembrar" value="1" style="width:14px;height:14px;">
                             Lembrar-me
                         </label>
-                        <div class="forgot"><a href="#">Esqueci minha senha</a></div>
+                        <div class="forgot"><a href="<?=base_url()?>acesso/esqueci">Esqueci minha senha</a></div>
                     </div>
                     <button type="submit" class="btn-login">Entrar no sistema</button>
                     <p class="login-footer-note">
