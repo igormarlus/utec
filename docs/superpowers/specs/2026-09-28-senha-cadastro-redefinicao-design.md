@@ -75,8 +75,9 @@ Paciente (nível 5) fica fora — não tem portal.
 
 - Rotas: `acesso/esqueci` (GET, formulário) e `acesso/esqueci/enviar` (POST) →
   `Home::esqueci_senha()` / `Home::enviar_redefinicao()`.
-- Formulário pede **e-mail ou login**. Busca usuário `status = 1` com
-  `login = X OR email = X` (trim + lowercase no e-mail). Só age se o usuário tiver
+- Formulário pede **e-mail ou login**. Busca usuário com
+  `login = X OR email = X` (trim + lowercase no e-mail). Não filtra por `status`,
+  porque `logar()` também não filtra — quem consegue entrar consegue redefinir. Só age se o usuário tiver
   e-mail válido e nível 1–4.
 - **Mais de um usuário** para o mesmo e-mail: envia um e-mail por usuário (cada um com
   seu token), cada e-mail mostra o login correspondente. Limite: 5 usuários.
