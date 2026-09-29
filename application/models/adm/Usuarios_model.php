@@ -27,7 +27,7 @@ class Usuarios_model extends CI_Model{
 			$this->load->helper('acesso');
 			if(utec_acesso_email_valido($login)){
 				$por_email = $this->db->query(
-					"SELECT * FROM usuarios WHERE LOWER(email) = ? LIMIT 2",
+					"SELECT * FROM usuarios WHERE LOWER(email) = ? AND nivel BETWEEN 1 AND 4 LIMIT 2",
 					[strtolower($login)]
 				)->result();
 				if(count($por_email) === 1){
@@ -63,6 +63,7 @@ class Usuarios_model extends CI_Model{
 				'nivel' => $dd_user->nivel,
 				'login' => $dd_user->login
 			);
+			$this->session->sess_regenerate(true);
 			$this->session->set_userdata($dd_session);
 
 			if($dd_user->nivel == 2 || $dd_user->nivel == 3 || $dd_user->nivel == 4){

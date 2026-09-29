@@ -594,7 +594,7 @@ class Saas_model extends CI_Model {
 
 		$qr_email = $this->db->query("SELECT id FROM usuarios WHERE email = ".$this->db->escape($email)." OR login = ".$this->db->escape($email)." LIMIT 1");
 		if($qr_email->num_rows()){
-			return ['ok' => false, 'msg' => 'Ja existe um usuario com este e-mail. Use outro e-mail ou recupere seu acesso.'];
+			return ['ok' => false, 'msg' => 'Ja existe um usuario com este e-mail. Use outro e-mail ou recupere seu acesso. Se a conta é sua, use "Esqueci minha senha" na tela de login.'];
 		}
 
 		$agora = date('Y-m-d H:i:s');
@@ -775,7 +775,7 @@ class Saas_model extends CI_Model {
 
 		$qr_email = $this->db->query("SELECT id FROM usuarios WHERE email = ".$this->db->escape($email)." OR login = ".$this->db->escape($email)." LIMIT 1");
 		if($qr_email->num_rows()){
-			return ['ok' => false, 'msg' => 'Ja existe um usuario com este e-mail. Use outro e-mail ou recupere seu acesso.'];
+			return ['ok' => false, 'msg' => 'Ja existe um usuario com este e-mail. Use outro e-mail ou recupere seu acesso. Se a conta é sua, use "Esqueci minha senha" na tela de login.'];
 		}
 
 		$agora = date('Y-m-d H:i:s');

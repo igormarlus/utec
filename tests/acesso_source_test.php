@@ -118,4 +118,10 @@ $atendView = src('application/views/adm/usuarios/new/atendimentos.php');
 assertSrc(strpos($atendView, "flashdata('cadastro_aviso')") !== false && strpos($atendView, "flashdata('cadastro_ok')") !== false, 'Agenda deve exibir os avisos do cadastro (redirect do onboarding do prestador).');
 assertSrc(strpos($cad, "set_flashdata('cadastro_aviso'") > strpos($cad, "\$this->db->insert('usuarios', \$dd)"), 'Aviso de cadastro sem acesso so pode ser gravado apos o insert.');
 
+assertSrc(strpos($cad, 'WHERE login = ?') !== false, 'cadastrar() deve checar login duplicado.');
+assertSrc(strpos(src('application/libraries/Email_acesso.php'), 'catch (Throwable') !== false, 'Email_acesso::enviar deve capturar Throwable.');
+assertSrc(strpos($um, 'nivel BETWEEN 1 AND 4') !== false, 'Fallback por e-mail deve restringir aos niveis 1-4.');
+assertSrc(strpos(corpoFuncao(src('application/controllers/Home.php'), 'public function salvar_senha('), 'sess_regenerate(true)') !== false, 'salvar_senha deve regenerar a sessao.');
+assertSrc(strpos($um, 'sess_regenerate(true)') !== false, 'logar() deve regenerar a sessao.');
+assertSrc(strpos(src('application/models/adm/Saas_model.php'), 'Esqueci minha senha') !== false, 'Erro de e-mail existente deve orientar a recuperar acesso.');
 echo "OK\n";

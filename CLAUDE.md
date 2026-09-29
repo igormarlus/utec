@@ -501,6 +501,7 @@ Fluxo próprio, independente do chatbot legado. Config em `adm/whatsapp`, tabela
 - **Cadastro:** trial e assinatura pedem senha + confirmação; o e-mail de boas-vindas (`Email_acesso::boas_vindas`) leva login + senha escolhida; e-mail interno "Novo cadastro" sem senha.
 - **Equipe:** `adm/usuarios/cadastrar` envia login+senha por e-mail, ou convite com token de 7 dias se a senha ficar em branco. Flashes `cadastro_ok` / `cadastro_aviso` são exibidos em `adm/usuarios/new/edicao.php` e em `adm/usuarios/new/atendimentos.php`.
 - **Esqueci minha senha:** `acesso/esqueci` → token de 60 min em `usuarios.senha_token` (expiração calculada no MySQL), resposta genérica, throttle de 2 min. Helper `acesso_helper.php`, testes `tests/acesso_*`.
+- **Login único na equipe:** `adm/usuarios/cadastrar` rejeita (flash `cadastro_error`) login já em uso, inclusive o default derivado do e-mail; o fallback de login por e-mail só considera níveis 1–4; sessão é regenerada ao logar/definir senha.
 
 ---
 

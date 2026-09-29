@@ -254,8 +254,20 @@ function cadastrar() {
 		$this->load->helper('acesso');
 		$email_novo = trim((string)$this->input->post('email'));
 		$login_novo = trim((string)$this->input->post('login'));
+		$login_do_email = false;
 		if($login_novo === '' && utec_acesso_email_valido($email_novo)){
 			$login_novo = strtolower($email_novo);
+			$login_do_email = true;
+		}
+		if($login_novo !== ''){
+			$login_existe = $this->db->query("SELECT id FROM usuarios WHERE login = ? LIMIT 1", [$login_novo])->row();
+			if($login_existe){
+				$this->session->set_flashdata('cadastro_error', $login_do_email
+					? 'Já existe um usuário com o login '.$login_novo.'. Informe um login diferente no campo Login.'
+					: 'O login '.$login_novo.' já está em uso. Escolha outro.');
+				redirect('adm/usuarios/cadastro/'.$nivel);
+				return;
+			}
 		}
 		$dd['login'] = $login_novo;
 		$senha_nova  = (string)$this->input->post('senha');
@@ -276,6 +288,9 @@ function cadastrar() {
 			$aviso_sem_acesso = 'Usuário criado sem senha — defina uma senha aqui na edição para que ele consiga entrar.';
 		}else{
 			$aviso_sem_acesso = 'Usuário criado sem e-mail e sem senha — ele não conseguirá entrar até você definir uma senha aqui na edição.';
+		}
+		if($senha_nova !== '' && $login_novo === ''){
+			$aviso_sem_acesso = 'Usuário criado sem login — defina um login aqui na edição para que ele consiga entrar.';
 		}
 	}
 

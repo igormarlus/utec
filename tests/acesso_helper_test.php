@@ -93,6 +93,8 @@ $rd = utec_acesso_email_redefinicao(array(
     'nome' => 'Ana', 'login' => 'ana@clinica.com.br', 'link' => 'https://x/acesso/senha/TOK', 'validade_min' => 60,
 ));
 assertTrue(strpos($rd['html'], 'https://x/acesso/senha/TOK') !== false, 'redefinicao tem link');
+assertTrue(strpos($rd['html'], 'background-color:#0f766e') !== false, 'redefinicao tem fallback solido p/ Outlook');
+assertTrue(substr_count($rd['html'], 'https://x/acesso/senha/TOK') >= 2, 'redefinicao mostra o link como texto');
 assertTrue(strpos($rd['html'], '1 hora') !== false, 'redefinicao informa validade');
 assertTrue(strpos($rd['html'], 'Senha:') === false, 'redefinicao nunca mostra senha');
 assertTrue(strpos($rd['html'], 'ana@clinica.com.br') !== false, 'redefinicao mostra login');

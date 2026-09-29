@@ -89,7 +89,7 @@ class Email_acesso {
                 return true;
             }
             log_message('error', 'email_acesso '.$tipo.' falhou para '.$para.': '.$this->CI->email->print_debugger(array('headers')));
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             log_message('error', 'email_acesso '.$tipo.' excecao para '.$para.': '.$e->getMessage());
         }
         return false;

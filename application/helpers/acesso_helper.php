@@ -81,9 +81,13 @@ if (!function_exists('utec_acesso_botao')) {
     function utec_acesso_botao($url, $texto, $primario = true)
     {
         $estilo = $primario
-            ? 'display:inline-block;padding:14px 28px;background:linear-gradient(90deg,#0f766e,#f97316);color:#fff;font-size:15px;font-weight:700;border-radius:999px;text-decoration:none;'
+            ? 'display:inline-block;padding:14px 28px;background-color:#0f766e;background:linear-gradient(90deg,#0f766e,#f97316);color:#fff;font-size:15px;font-weight:700;border-radius:999px;text-decoration:none;'
             : 'display:inline-block;padding:12px 24px;background:#fff;border:1px solid #d1d5db;color:#374151;font-size:14px;font-weight:600;border-radius:999px;text-decoration:none;';
-        return '<p style="margin:20px 0;"><a href="'.utec_acesso_h($url).'" style="'.$estilo.'">'.utec_acesso_h($texto).'</a></p>';
+        $link = '<p style="margin:20px 0;"><a href="'.utec_acesso_h($url).'" style="'.$estilo.'">'.utec_acesso_h($texto).'</a></p>';
+        if ($primario) {
+            $link .= '<p style="margin:6px 0 0;font-size:12px;color:#64748b;word-break:break-all;">Se o botão não funcionar, copie e cole este endereço no navegador:<br>'.utec_acesso_h($url).'</p>';
+        }
+        return $link;
     }
 }
 
@@ -93,7 +97,7 @@ if (!function_exists('utec_acesso_email_layout')) {
         return '<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"></head><body style="margin:0;padding:0;background:#f6f8fb;font-family:system-ui,sans-serif;">
 <table width="100%" cellpadding="0" cellspacing="0" style="background:#f6f8fb;padding:40px 20px;"><tr><td align="center">
 <table width="600" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,.08);">
-  <tr><td style="background:linear-gradient(90deg,#0f766e,#f97316);padding:32px 40px;">
+  <tr><td style="background-color:#0f766e;background:linear-gradient(90deg,#0f766e,#f97316);padding:32px 40px;">
     <p style="margin:0;font-size:13px;letter-spacing:.15em;text-transform:uppercase;color:rgba(255,255,255,.8);font-weight:700;">UTecnologia Saúde</p>
     <h1 style="margin:10px 0 0;color:#fff;font-size:24px;font-weight:800;">'.utec_acesso_h($titulo).'</h1>
   </td></tr>

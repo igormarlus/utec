@@ -565,6 +565,7 @@ class Home extends CI_Controller {
 		]);
 
 		// Sempre entra como o dono do token (outra sessão aberta no navegador é substituída)
+		$this->session->sess_regenerate(true);
 		$this->session->set_userdata([
 			'usr'   => true,
 			'id'    => $user->id,
