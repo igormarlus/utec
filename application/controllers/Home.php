@@ -102,6 +102,8 @@ class Home extends CI_Controller {
 			'documento'        => $this->input->post('documento'),
 			'observacoes'      => $this->input->post('observacoes'),
 			'especialidade_id' => ($tenant_tipo === 'profissional') ? (int)$this->input->post('especialidade_id') : 0,
+			'senha'             => (string)$this->input->post('senha'),
+			'senha_confirmacao' => (string)$this->input->post('senha_confirmacao'),
 		];
 
 		$result = $this->saas_model->create_operational_trial_signup($signup_data);
@@ -120,12 +122,21 @@ class Home extends CI_Controller {
 				'nome'  => $user->nome,
 				'nivel' => $user->nivel,
 				'login' => $user->login,
-				'usr'   => $user,
+				'usr'   => true,
 			]);
 		}
 
-		// Envia e-mail de boas-vindas com credenciais e link de definição de senha
-		$this->_enviar_email_boas_vindas($result);
+		// E-mail de boas-vindas com login + a senha escolhida (lembrete para a 2ª visita)
+		$this->load->library('email_acesso');
+		$this->email_acesso->boas_vindas([
+			'nome'        => $result['nome_responsavel'],
+			'login'       => $result['login'],
+			'senha'       => $result['senha'],
+			'tenant_nome' => $result['tenant_nome'],
+			'trial_fim'   => !empty($result['trial_ends_at']) ? date('d/m/Y', strtotime($result['trial_ends_at'])) : '',
+			'plano_nome'  => $result['plano_nome'],
+			'origem'      => 'trial',
+		]);
 
 		// Atribuicao de trafego de IA — trial criado
 		$this->padrao_model->mark_ai_conversion('trial', null, 'trial_'.(int)$result['subscription_id'], 'plano:'.(string)$this->input->post('plano_id'));
@@ -197,6 +208,17 @@ class Home extends CI_Controller {
 			redirect('assinar');
 			return;
 		}
+
+		$this->load->library('email_acesso');
+		$this->email_acesso->boas_vindas([
+			'nome'        => $result['nome_responsavel'],
+			'login'       => $result['login'],
+			'senha'       => $result['senha'],
+			'tenant_nome' => $result['tenant_nome'],
+			'trial_fim'   => !empty($result['trial_ends_at']) ? date('d/m/Y', strtotime($result['trial_ends_at'])) : '',
+			'plano_nome'  => $result['plano_nome'],
+			'origem'      => 'assinatura',
+		]);
 
 		// CAPI Subscribe — assinatura iniciada (tenant + subscription criados)
 		$email    = trim((string)$this->input->post('email'));
@@ -774,75 +796,4 @@ class Home extends CI_Controller {
 	{
 		$this->load->view('public/politica-de-privacidade');
 	}
-
-	// ── E-MAIL BOAS-VINDAS ───────────────────────────────────────────────
-
-	private function _enviar_email_boas_vindas($result)
-	{
-		try {
-			$this->config->load('email');
-			$this->load->library('email');
-			$this->email->initialize($this->config->config);
-
-			$nome_clinica  = htmlspecialchars((string)$result['tenant_nome']);
-			$login         = htmlspecialchars((string)$result['login']);
-			$senha         = htmlspecialchars((string)$result['senha_gerada']);
-			$token         = (string)$result['token'];
-			$link_senha    = base_url().'acesso/senha/'.$token;
-			$link_sistema  = base_url().'admin';
-			$trial_fim     = isset($result['trial_ends_at'])
-				? date('d/m/Y', strtotime($result['trial_ends_at']))
-				: date('d/m/Y', strtotime('+30 days'));
-
-			$body = '<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"></head><body style="margin:0;padding:0;background:#f6f8fb;font-family:system-ui,sans-serif;">
-<table width="100%" cellpadding="0" cellspacing="0" style="background:#f6f8fb;padding:40px 20px;">
-<tr><td align="center">
-<table width="600" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,.08);">
-  <tr><td style="background:linear-gradient(90deg,#0f766e,#f97316);padding:32px 40px;">
-    <p style="margin:0;font-size:13px;letter-spacing:.15em;text-transform:uppercase;color:rgba(255,255,255,.8);font-weight:700;">UTecnologia Saúde</p>
-    <h1 style="margin:10px 0 0;color:#fff;font-size:26px;font-weight:800;">Seu acesso está pronto! 🎉</h1>
-  </td></tr>
-  <tr><td style="padding:36px 40px;">
-    <p style="font-size:16px;color:#334155;line-height:1.7;">Olá, <strong>'.htmlspecialchars((string)$result['login']).'</strong>!</p>
-    <p style="font-size:15px;color:#475569;line-height:1.7;">
-      O ambiente <strong>'.$nome_clinica.'</strong> foi criado com sucesso.
-      Você já pode entrar no sistema e começar a usar a agenda, prontuários e atendimentos pelos próximos 30 dias sem nenhum custo.
-    </p>
-    <table width="100%" cellpadding="0" cellspacing="0" style="background:#f1fdf9;border:1px solid #a7f3d0;border-radius:14px;padding:20px;margin:24px 0;">
-      <tr><td>
-        <p style="margin:0 0 10px;font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#0f766e;">Seus dados de acesso</p>
-        <p style="margin:4px 0;font-size:15px;color:#172033;"><strong>E-mail:</strong> '.$login.'</p>
-        <p style="margin:4px 0;font-size:15px;color:#172033;"><strong>Senha provisória:</strong> <code style="background:#e0f2fe;padding:2px 8px;border-radius:6px;font-size:15px;">'.$senha.'</code></p>
-        <p style="margin:10px 0 0;font-size:13px;color:#64748b;">Trial ativo até: <strong>'.$trial_fim.'</strong></p>
-      </td></tr>
-    </table>
-    <p style="font-size:14px;color:#475569;line-height:1.7;">Recomendamos que você defina uma senha personalizada clicando no botão abaixo:</p>
-    <p style="margin:24px 0;">
-      <a href="'.$link_senha.'" style="display:inline-block;padding:14px 28px;background:linear-gradient(90deg,#0f766e,#f97316);color:#fff;font-size:15px;font-weight:700;border-radius:999px;text-decoration:none;">Definir minha senha →</a>
-    </p>
-    <p style="margin:16px 0;">
-      <a href="'.$link_sistema.'" style="display:inline-block;padding:12px 24px;background:#fff;border:1px solid #d1d5db;color:#374151;font-size:14px;font-weight:600;border-radius:999px;text-decoration:none;">Entrar no sistema com senha provisória</a>
-    </p>
-    <p style="font-size:13px;color:#94a3b8;border-top:1px solid #e2e8f0;padding-top:20px;margin-top:28px;">
-      Dúvidas? Responda este e-mail ou acesse <a href="https://wa.me/5581983276882" style="color:#0f766e;">WhatsApp</a>.<br>
-      UTecnologia Saúde — utecnologia.com.br
-    </p>
-  </td></tr>
-</table>
-</td></tr></table>
-</body></html>';
-
-			$this->email->from('suporte@utecnologia.com.br', 'UTecnologia Saúde');
-			$this->email->to($result['login']);
-			$this->email->bcc('igor_marlus@yahoo.com.br');
-			$this->email->subject('Seu acesso UTecnologia Saúde está pronto — '.$nome_clinica);
-			$this->email->message($body);
-			$this->email->send();
-		} catch (Exception $e) {
-			log_message('error', 'Email boas-vindas falhou: '.$e->getMessage());
-		}
-	}
-
-
-
 }

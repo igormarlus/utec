@@ -449,7 +449,14 @@
                                 <? } ?>
                             </select>
                         </div>
-                        <input type="hidden" name="senha" value="">
+                        <div class="field">
+                            <label for="trial-senha">Crie sua senha</label>
+                            <input type="password" id="trial-senha" name="senha" required minlength="6" autocomplete="new-password" placeholder="Mínimo 6 caracteres">
+                        </div>
+                        <div class="field">
+                            <label for="trial-senha-conf">Confirme a senha</label>
+                            <input type="password" id="trial-senha-conf" name="senha_confirmacao" required minlength="6" autocomplete="new-password" placeholder="Repita a senha">
+                        </div>
                         <input type="hidden" name="documento" value="">
                         <input type="hidden" name="observacoes" value="">
                     </div>
@@ -457,7 +464,7 @@
                     <div class="submit-row">
                         <button class="btn-submit" type="submit">Começar 30 dias grátis →</button>
                     </div>
-                    <p style="font-size:12px;color:#667085;margin-top:12px;text-align:center;">Sem cartão de crédito · Acesso imediato · Você receberá as credenciais por e-mail</p>
+                    <p style="font-size:12px;color:#667085;margin-top:12px;text-align:center;">Sem cartão de crédito · Acesso imediato · Você entra com seu e-mail e a senha que criou aqui</p>
                 </form>
             </div>
         </div>
@@ -536,6 +543,16 @@
             if(msg) msg.remove();
         });
     }
+})();
+</script>
+<script>
+(function(){
+    var s = document.getElementById('trial-senha');
+    var c = document.getElementById('trial-senha-conf');
+    if(!s || !c) return;
+    function checar(){ c.setCustomValidity(c.value !== s.value ? 'As senhas não coincidem.' : ''); }
+    s.addEventListener('input', checar);
+    c.addEventListener('input', checar);
 })();
 </script>
 </body>

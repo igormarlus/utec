@@ -338,8 +338,12 @@
                             </select>
                         </div>
                         <div class="field">
-                            <label>Senha inicial</label>
-                            <input type="password" name="senha" required minlength="6">
+                            <label for="ass-senha">Crie sua senha</label>
+                            <input type="password" id="ass-senha" name="senha" required minlength="6" autocomplete="new-password" placeholder="Mínimo 6 caracteres">
+                        </div>
+                        <div class="field">
+                            <label for="ass-senha-conf">Confirme a senha</label>
+                            <input type="password" id="ass-senha-conf" name="senha_confirmacao" required minlength="6" autocomplete="new-password" placeholder="Repita a senha">
                         </div>
                         <div class="field field-wide">
                             <label>Observacoes comerciais</label>
@@ -442,6 +446,16 @@
             });
         })();
     </script>
+<script>
+(function(){
+    var s = document.getElementById('ass-senha');
+    var c = document.getElementById('ass-senha-conf');
+    if(!s || !c) return;
+    function checar(){ c.setCustomValidity(c.value !== s.value ? 'As senhas não coincidem.' : ''); }
+    s.addEventListener('input', checar);
+    c.addEventListener('input', checar);
+})();
+</script>
 </body>
 </html>
 

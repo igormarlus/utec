@@ -76,4 +76,27 @@ assertSrc(strpos($view, 'acesso/esqueci/enviar') !== false && strpos($view, 'nam
 assertSrc(strpos($um, 'LOWER(email) = ?') !== false, 'logar() deve aceitar e-mail quando o login nao existe.');
 assertSrc(strpos($um, 'num_rows() === 1') !== false || strpos($um, 'count($por_email) === 1') !== false, 'Fallback por e-mail so pode entrar com exatamente 1 usuario.');
 
+// --- Task 4: trial e assinatura
+$exp = src('application/views/public/experimentar.php');
+assertSrc(strpos($exp, '<input type="hidden" name="senha"') === false, 'experimentar.php nao pode mais mandar senha oculta.');
+assertSrc(strpos($exp, 'name="senha"') !== false && strpos($exp, 'name="senha_confirmacao"') !== false, 'experimentar.php precisa de senha + confirmacao.');
+
+$ass = src('application/views/public/assinar.php');
+assertSrc(strpos($ass, 'name="senha_confirmacao"') !== false, 'assinar.php precisa de confirmacao de senha.');
+
+$saas = src('application/models/adm/Saas_model.php');
+$trial = corpoFuncao($saas, 'function create_operational_trial_signup(');
+assertSrc(strpos($trial, 'random_int(') === false, 'Trial nao pode mais gerar senha aleatoria.');
+assertSrc(strpos($trial, 'utec_acesso_validar_senha(') !== false, 'Trial deve validar a senha do usuario.');
+assertSrc(strpos($trial, "'senha_gerada'") === false, 'Trial nao retorna mais senha_gerada.');
+$pub = corpoFuncao($saas, 'function create_public_tenant_signup(');
+assertSrc(strpos($pub, 'utec_acesso_validar_senha(') !== false, 'Assinatura deve validar senha + confirmacao.');
+assertSrc(strpos($pub, "'plano_nome'") !== false, 'Assinatura deve retornar plano_nome para o e-mail.');
+
+$home = src('application/controllers/Home.php');
+assertSrc(strpos($home, '_enviar_email_boas_vindas') === false, 'E-mail de boas-vindas deve usar a library Email_acesso.');
+assertSrc(strpos(corpoFuncao($home, 'public function iniciar_experiencia()'), 'email_acesso->boas_vindas(') !== false, 'Trial deve enviar boas-vindas.');
+assertSrc(strpos(corpoFuncao($home, 'public function contratar()'), 'email_acesso->boas_vindas(') !== false, 'Assinatura deve enviar boas-vindas.');
+assertSrc(strpos(corpoFuncao($home, 'public function iniciar_experiencia()'), "'senha_confirmacao'") !== false, 'Trial deve repassar senha_confirmacao ao model.');
+
 echo "OK\n";

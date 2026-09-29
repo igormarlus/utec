@@ -567,7 +567,8 @@ class Saas_model extends CI_Model {
 		$telefone = trim((string)$data['telefone']);
 		$documento = trim((string)$data['documento']);
 		$plano_id = (int)$data['plano_id'];
-		$senha = (string)$data['senha'];
+		$senha = isset($data['senha']) ? (string)$data['senha'] : '';
+		$senha_confirmacao = isset($data['senha_confirmacao']) ? (string)$data['senha_confirmacao'] : '';
 		$observacoes = trim((string)$data['observacoes']);
 
 		if($nome_responsavel === '' || $tenant_nome === '' || $email === '' || $plano_id <= 0 || $senha === ''){
@@ -576,8 +577,10 @@ class Saas_model extends CI_Model {
 		if(!filter_var($email, FILTER_VALIDATE_EMAIL)){
 			return ['ok' => false, 'msg' => 'Informe um e-mail valido para continuar.'];
 		}
-		if(strlen($senha) < 6){
-			return ['ok' => false, 'msg' => 'A senha precisa ter pelo menos 6 caracteres.'];
+		$this->load->helper('acesso');
+		$validacao_senha = utec_acesso_validar_senha($senha, $senha_confirmacao);
+		if(!$validacao_senha['ok']){
+			return ['ok' => false, 'msg' => $validacao_senha['msg']];
 		}
 
 		$plano_where = "id = ".$plano_id." AND status = 1";
@@ -720,6 +723,10 @@ class Saas_model extends CI_Model {
 			'user_id' => $owner_id,
 			'login' => $email,
 			'tenant_nome' => $tenant_nome,
+			'nome_responsavel' => $nome_responsavel,
+			'senha' => $senha,
+			'plano_nome' => isset($plano->modelo) ? (string)$plano->modelo : '',
+			'trial_ends_at' => $trial_ends_at,
 		];
 	}
 
@@ -737,6 +744,8 @@ class Saas_model extends CI_Model {
 		$tenant_tipo = !empty($data['tenant_tipo']) ? trim((string)$data['tenant_tipo']) : 'clinica';
 		$observacoes = trim((string)isset($data['observacoes']) ? $data['observacoes'] : '');
 		$especialidade_id = isset($data['especialidade_id']) ? (int)$data['especialidade_id'] : 0;
+		$senha = isset($data['senha']) ? (string)$data['senha'] : '';
+		$senha_confirmacao = isset($data['senha_confirmacao']) ? (string)$data['senha_confirmacao'] : '';
 
 		if($nome_responsavel === '' || $tenant_nome === '' || $email === '' || $plano_id <= 0){
 			return ['ok' => false, 'msg' => 'Preencha nome, nome da clínica, e-mail e plano.'];
@@ -748,14 +757,12 @@ class Saas_model extends CI_Model {
 			return ['ok' => false, 'msg' => 'Informe um e-mail válido para continuar.'];
 		}
 
-		// Senha gerada no servidor — não exigimos que o usuário defina no cadastro
-		$chars = 'abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-		$senha = '';
-		for($i = 0; $i < 10; $i++) $senha .= $chars[random_int(0, strlen($chars)-1)];
-
-		// Token para definição de senha posterior (expira em 7 dias)
-		$token = bin2hex(random_bytes(32));
-		$token_expires = date('Y-m-d H:i:s', strtotime('+7 days'));
+		// Senha escolhida pelo próprio usuário no formulário
+		$this->load->helper('acesso');
+		$validacao_senha = utec_acesso_validar_senha($senha, $senha_confirmacao);
+		if(!$validacao_senha['ok']){
+			return ['ok' => false, 'msg' => $validacao_senha['msg']];
+		}
 
 		$plano_where = "id = ".$plano_id." AND status = 1";
 		if($this->db->field_exists('saas_publicado', 'produtos')){
@@ -802,12 +809,6 @@ class Saas_model extends CI_Model {
 		}
 		if($this->db->field_exists('onboarding_status', 'usuarios')){
 			$user_insert['onboarding_status'] = 'ativo';
-		}
-		if($this->db->field_exists('senha_token', 'usuarios')){
-			$user_insert['senha_token'] = $token;
-		}
-		if($this->db->field_exists('senha_token_expires', 'usuarios')){
-			$user_insert['senha_token_expires'] = $token_expires;
 		}
 		$this->db->insert('usuarios', $user_insert);
 		$owner_id = (int)$this->db->insert_id();
@@ -910,8 +911,9 @@ class Saas_model extends CI_Model {
 			'tenant_nome' => $tenant_nome,
 			'trial_ends_at' => $trial_ends_at,
 			'plano_valor' => $valor,
-			'senha_gerada' => $senha,
-			'token' => $token,
+			'nome_responsavel' => $nome_responsavel,
+			'senha' => $senha,
+			'plano_nome' => isset($plano->modelo) ? (string)$plano->modelo : '',
 		];
 	}
 
