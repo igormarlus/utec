@@ -69,6 +69,13 @@
                 <div class="row">
                   <div class="col-lg-12">
                     <div class="element-wrapper">
+                      <?php $cadastro_ok = $this->session->flashdata('cadastro_ok'); $cadastro_aviso = $this->session->flashdata('cadastro_aviso'); ?>
+                      <?php if($cadastro_ok){ ?>
+                        <div class="alert alert-success"><?=htmlspecialchars((string)$cadastro_ok)?></div>
+                      <?php } ?>
+                      <?php if($cadastro_aviso){ ?>
+                        <div class="alert alert-warning"><?=htmlspecialchars((string)$cadastro_aviso)?></div>
+                      <?php } ?>
                       <h6 class="element-header">
                         Minhas informações
                       </h6>

@@ -99,4 +99,19 @@ assertSrc(strpos(corpoFuncao($home, 'public function iniciar_experiencia()'), 'e
 assertSrc(strpos(corpoFuncao($home, 'public function contratar()'), 'email_acesso->boas_vindas(') !== false, 'Assinatura deve enviar boas-vindas.');
 assertSrc(strpos(corpoFuncao($home, 'public function iniciar_experiencia()'), "'senha_confirmacao'") !== false, 'Trial deve repassar senha_confirmacao ao model.');
 
+// --- Task 5: usuarios criados pela equipe
+$usu = src('application/controllers/adm/Usuarios.php');
+$cad = corpoFuncao($usu, 'function cadastrar() {');
+assertSrc($cad !== '', 'Usuarios::cadastrar() nao encontrado.');
+assertSrc(strpos($cad, 'email_acesso->acesso_equipe(') !== false, 'cadastrar() deve enviar e-mail de acesso a equipe.');
+assertSrc(strpos($cad, 'DATE_ADD(NOW(), INTERVAL 7 DAY)') !== false, 'Convite deve expirar em 7 dias pelo relogio do MySQL.');
+assertSrc(strpos($cad, 'utec_acesso_senha_aleatoria(') !== false, 'Convite sem senha deve gravar senha aleatoria interna.');
+assertSrc(strpos($cad, "'cadastro_aviso'") !== false, 'Sem e-mail e sem senha deve avisar quem cadastrou.');
+assertSrc(strpos($cad, "'DATE_ADD(NOW(), INTERVAL 7 DAY)'") > strpos($cad, 'get_usuario_tenant_id('), 'set() do convite deve ficar depois das consultas intermediarias (logo antes do insert).');
+
+$cadView = src('application/views/adm/usuarios/new/cadastro.php');
+assertSrc(strpos($cadView, 'Deixe em branco para o próprio usuário criar a senha') !== false, 'Formulario deve explicar a senha em branco.');
+$edView = src('application/views/adm/usuarios/new/edicao.php');
+assertSrc(strpos($edView, "flashdata('cadastro_aviso')") !== false && strpos($edView, "flashdata('cadastro_ok')") !== false, 'Edicao deve exibir flashes do cadastro.');
+
 echo "OK\n";
