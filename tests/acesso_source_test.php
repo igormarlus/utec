@@ -114,4 +114,8 @@ assertSrc(strpos($cadView, 'Deixe em branco para o próprio usuário criar a sen
 $edView = src('application/views/adm/usuarios/new/edicao.php');
 assertSrc(strpos($edView, "flashdata('cadastro_aviso')") !== false && strpos($edView, "flashdata('cadastro_ok')") !== false, 'Edicao deve exibir flashes do cadastro.');
 
+$atendView = src('application/views/adm/usuarios/new/atendimentos.php');
+assertSrc(strpos($atendView, "flashdata('cadastro_aviso')") !== false && strpos($atendView, "flashdata('cadastro_ok')") !== false, 'Agenda deve exibir os avisos do cadastro (redirect do onboarding do prestador).');
+assertSrc(strpos($cad, "set_flashdata('cadastro_aviso'") > strpos($cad, "\$this->db->insert('usuarios', \$dd)"), 'Aviso de cadastro sem acesso so pode ser gravado apos o insert.');
+
 echo "OK\n";

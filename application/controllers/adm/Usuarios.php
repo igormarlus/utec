@@ -249,6 +249,7 @@ function cadastrar() {
 
 	// Acesso do novo usuário (níveis 1-4): e-mail com a senha informada ou convite para definir
 	$enviar_acesso = null;
+	$aviso_sem_acesso = '';
 	if($nivel < 5){
 		$this->load->helper('acesso');
 		$email_novo = trim((string)$this->input->post('email'));
@@ -271,8 +272,10 @@ function cadastrar() {
 			$dd['senha_token'] = $token;
 			// A expiração é gravada logo antes do insert (ver abaixo)
 			$enviar_acesso = ['senha' => '', 'token' => $token, 'expira_convite' => true];
+		}elseif(utec_acesso_email_valido($email_novo)){
+			$aviso_sem_acesso = 'Usuário criado sem senha — defina uma senha aqui na edição para que ele consiga entrar.';
 		}else{
-			$this->session->set_flashdata('cadastro_aviso', 'Usuário criado sem e-mail e sem senha — ele não conseguirá entrar até você definir uma senha aqui na edição.');
+			$aviso_sem_acesso = 'Usuário criado sem e-mail e sem senha — ele não conseguirá entrar até você definir uma senha aqui na edição.';
 		}
 	}
 
@@ -326,6 +329,9 @@ function cadastrar() {
 	if ($this->db->insert('usuarios', $dd)) {
 		$new_id    = $this->db->insert_id();
 		$nivel_int = (int)$nivel;
+		if ($aviso_sem_acesso !== '') {
+			$this->session->set_flashdata('cadastro_aviso', $aviso_sem_acesso);
+		}
 		if ($enviar_acesso) {
 			$this->load->library('email_acesso');
 			$enviado = $this->email_acesso->acesso_equipe([

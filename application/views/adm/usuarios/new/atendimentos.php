@@ -282,6 +282,13 @@
           </div>
           <div class="content-i">
             <div class="content-box">
+              <?php $cadastro_ok = $this->session->flashdata('cadastro_ok'); $cadastro_aviso = $this->session->flashdata('cadastro_aviso'); ?>
+              <?php if($cadastro_ok){ ?>
+                <div class="alert alert-success"><?=htmlspecialchars((string)$cadastro_ok)?></div>
+              <?php } ?>
+              <?php if($cadastro_aviso){ ?>
+                <div class="alert alert-warning"><?=htmlspecialchars((string)$cadastro_aviso)?></div>
+              <?php } ?>
               <div class="element-wrapper">
                 <div class="element-actions">
                   <a href="<?=base_url()?>adm/usuarios/rel/5" class="btn btn-outline-primary btn-sm">Ver pacientes</a>
