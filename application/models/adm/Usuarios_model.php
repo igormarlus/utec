@@ -10,19 +10,40 @@ class Usuarios_model extends CI_Model{
 	
 	function logar(){
 
-		$login       = $this->input->post('login');
-		$senha_input = $this->input->post('senha');
+		$login       = trim((string)$this->input->post('login'));
+		$senha_input = (string)$this->input->post('senha');
+		$msg_erro    = 'Usuário ou senha inválidos.';
+
+		if($login === '' || $senha_input === ''){
+			$this->session->set_flashdata('login_error', $msg_erro);
+			redirect('admin');
+			return;
+		}
 
 		$this->db->where('login', $login);
 		$qr_login = $this->db->get('usuarios');
 
+		if($qr_login->num_rows() === 0){
+			$this->load->helper('acesso');
+			if(utec_acesso_email_valido($login)){
+				$por_email = $this->db->query(
+					"SELECT * FROM usuarios WHERE LOWER(email) = ? AND nivel BETWEEN 1 AND 4 LIMIT 2",
+					[strtolower($login)]
+				)->result();
+				if(count($por_email) === 1){
+					$qr_login = $this->db->query("SELECT * FROM usuarios WHERE id = ?", [(int)$por_email[0]->id]);
+				}
+			}
+		}
+
 		if($qr_login->num_rows() > 0){
 			$dd_user   = $qr_login->row();
 			$senha_ok  = false;
+			$senha_db  = (string)$dd_user->senha;
 
-			if(password_verify($senha_input, $dd_user->senha)){
+			if($senha_db !== '' && password_verify($senha_input, $senha_db)){
 				$senha_ok = true;
-			} elseif($dd_user->senha === $senha_input) {
+			} elseif($senha_db !== '' && $senha_db === $senha_input) {
 				// migração: senha ainda em texto puro → rehasha silenciosamente
 				$this->db->where('id', $dd_user->id);
 				$this->db->update('usuarios', ['senha' => password_hash($senha_input, PASSWORD_DEFAULT)]);
@@ -30,7 +51,9 @@ class Usuarios_model extends CI_Model{
 			}
 
 			if(!$senha_ok){
+				$this->session->set_flashdata('login_error', $msg_erro);
 				redirect('admin');
+				return;
 			}
 
 			$dd_session = array(
@@ -38,8 +61,9 @@ class Usuarios_model extends CI_Model{
 				'id'    => $dd_user->id,
 				'nome'  => $dd_user->nome,
 				'nivel' => $dd_user->nivel,
-				'login' => $login
+				'login' => $dd_user->login
 			);
+			$this->session->sess_regenerate(true);
 			$this->session->set_userdata($dd_session);
 
 			if($dd_user->nivel == 2 || $dd_user->nivel == 3 || $dd_user->nivel == 4){
@@ -49,6 +73,7 @@ class Usuarios_model extends CI_Model{
 			redirect('adm/usuarios');
 
 		}else{
+			$this->session->set_flashdata('login_error', $msg_erro);
 			redirect('admin');
 		}
 

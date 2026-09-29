@@ -247,11 +247,50 @@ function cadastrar() {
 		$dd['afiliacoes'] = $this->input->post('afiliacoes');
 	}
 
+	// Acesso do novo usuário (níveis 1-4): e-mail com a senha informada ou convite para definir
+	$enviar_acesso = null;
+	$aviso_sem_acesso = '';
 	if($nivel < 5){
-		$dd['login'] = $this->input->post('login');
-		$senha_nova  = $this->input->post('senha');
-		if($senha_nova){
+		$this->load->helper('acesso');
+		$email_novo = trim((string)$this->input->post('email'));
+		$login_novo = trim((string)$this->input->post('login'));
+		$login_do_email = false;
+		if($login_novo === '' && utec_acesso_email_valido($email_novo)){
+			$login_novo = strtolower($email_novo);
+			$login_do_email = true;
+		}
+		if($login_novo !== ''){
+			$login_existe = $this->db->query("SELECT id FROM usuarios WHERE login = ? LIMIT 1", [$login_novo])->row();
+			if($login_existe){
+				$this->session->set_flashdata('cadastro_error', $login_do_email
+					? 'Já existe um usuário com o login '.$login_novo.'. Informe um login diferente no campo Login.'
+					: 'O login '.$login_novo.' já está em uso. Escolha outro.');
+				redirect('adm/usuarios/cadastro/'.$nivel);
+				return;
+			}
+		}
+		$dd['login'] = $login_novo;
+		$senha_nova  = (string)$this->input->post('senha');
+		$tem_token   = $this->db->field_exists('senha_token', 'usuarios') && $this->db->field_exists('senha_token_expires', 'usuarios');
+
+		if($senha_nova !== ''){
 			$dd['senha'] = password_hash($senha_nova, PASSWORD_DEFAULT);
+			if(utec_acesso_email_valido($email_novo)){
+				$enviar_acesso = ['senha' => $senha_nova, 'token' => ''];
+			}
+		}elseif(utec_acesso_email_valido($email_novo) && $tem_token){
+			$token = utec_acesso_gerar_token();
+			$dd['senha'] = password_hash(utec_acesso_senha_aleatoria(16), PASSWORD_DEFAULT);
+			$dd['senha_token'] = $token;
+			// A expiração é gravada logo antes do insert (ver abaixo)
+			$enviar_acesso = ['senha' => '', 'token' => $token, 'expira_convite' => true];
+		}elseif(utec_acesso_email_valido($email_novo)){
+			$aviso_sem_acesso = 'Usuário criado sem senha — defina uma senha aqui na edição para que ele consiga entrar.';
+		}else{
+			$aviso_sem_acesso = 'Usuário criado sem e-mail e sem senha — ele não conseguirá entrar até você definir uma senha aqui na edição.';
+		}
+		if($senha_nova !== '' && $login_novo === ''){
+			$aviso_sem_acesso = 'Usuário criado sem login — defina um login aqui na edição para que ele consiga entrar.';
 		}
 	}
 
@@ -299,9 +338,33 @@ function cadastrar() {
 	}
 
 	
+	if ($enviar_acesso && !empty($enviar_acesso['expira_convite'])) {
+		$this->db->set('senha_token_expires', 'DATE_ADD(NOW(), INTERVAL 7 DAY)', false);
+	}
 	if ($this->db->insert('usuarios', $dd)) {
 		$new_id    = $this->db->insert_id();
 		$nivel_int = (int)$nivel;
+		if ($aviso_sem_acesso !== '') {
+			$this->session->set_flashdata('cadastro_aviso', $aviso_sem_acesso);
+		}
+		if ($enviar_acesso) {
+			$this->load->library('email_acesso');
+			$enviado = $this->email_acesso->acesso_equipe([
+				'email'          => trim((string)$dd['email']),
+				'nome'           => $dd['nome'],
+				'login'          => $dd['login'],
+				'senha'          => $enviar_acesso['senha'],
+				'token'          => $enviar_acesso['token'],
+				'cadastrado_por' => isset($dd_user->nome) ? $dd_user->nome : 'Sua clínica',
+			]);
+			if ($enviado) {
+				$this->session->set_flashdata('cadastro_ok', $enviar_acesso['token'] !== ''
+					? 'Enviamos para '.trim((string)$dd['email']).' um link para o usuário criar a própria senha (vale por 7 dias).'
+					: 'Enviamos o login e a senha para '.trim((string)$dd['email']).'.');
+			} else {
+				$this->session->set_flashdata('cadastro_aviso', 'Usuário criado, mas não conseguimos enviar o e-mail de acesso. Informe o login e a senha ao usuário ou peça para ele usar "Esqueci minha senha".');
+			}
+		}
 		if ($nivel_int === 5) {
 			redirect('adm/usuarios/prontuario/'.$new_id);
 			return;

@@ -276,7 +276,7 @@
                                 <div class="form-group">
                                     <label class="mws-form-label">Login</label>
                                     <div class="mws-form-item">
-                                        <input type="text" name="login"  class="form-control" placeholder="Login de acesso" value="<?php #echo $usuario->login; ?>">
+                                        <input type="text" name="login"  class="form-control" placeholder="Login de acesso (em branco = usa o e-mail)" value="<?php #echo $usuario->login; ?>">
                                     </div>
                                 </div>    
                               </div>
@@ -286,7 +286,8 @@
                                 <div class="form-group">
                                     <label class="mws-form-label">Senha</label>
                                     <div class="mws-form-item">
-                                        <input type="password" name="senha"  class="form-control" placeholder="Senha de acesso" value="<?php #echo $usuario->login; ?>">
+                                        <input type="password" name="senha"  class="form-control" placeholder="Senha de acesso" autocomplete="new-password" value="">
+                                        <small class="form-text text-muted">Deixe em branco para o próprio usuário criar a senha pelo link enviado ao e-mail. Se preencher, enviaremos o login e a senha para o e-mail informado.</small>
                                     </div>
                                 </div>    
 

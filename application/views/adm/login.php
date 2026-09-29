@@ -149,6 +149,24 @@ body {
     font-weight: 700;
     text-decoration: none;
 }
+.login-alert {
+    border-radius: 12px;
+    padding: 12px 14px;
+    font-size: 14px;
+    line-height: 1.5;
+    margin-bottom: 16px;
+}
+.login-alert-error { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+.login-alert-ok { background: #ecfdf3; color: #166534; border: 1px solid #bbf7d0; }
+.login-forgot {
+    display: block;
+    text-align: right;
+    margin: -4px 0 16px;
+    font-size: 13px;
+    color: #0ea5e9;
+    font-weight: 600;
+    text-decoration: none;
+}
 @media (max-width: 860px) {
     .login-card {
         grid-template-columns: 1fr;
@@ -177,15 +195,29 @@ body {
       <div class="login-form">
         <h2>Acessar plataforma</h2>
         <p>Entre com suas credenciais para continuar na UTecnologia Saude.</p>
+        <?php
+          $login_error = $this->session->flashdata('login_error');
+          $token_error = $this->session->flashdata('operational_trial_error');
+          $flash_ok    = $this->session->flashdata('operational_trial_ok');
+        ?>
+        <?php if($login_error || $token_error){ ?>
+          <div class="login-alert login-alert-error" role="alert">
+            <?=htmlspecialchars((string)($login_error ?: $token_error))?>
+            <?php if($login_error){ ?> <a href="<?=base_url()?>acesso/esqueci">Esqueci minha senha</a><?php } ?>
+          </div>
+        <?php } elseif($flash_ok){ ?>
+          <div class="login-alert login-alert-ok"><?=htmlspecialchars((string)$flash_ok)?></div>
+        <?php } ?>
         <form action="<?=base_url()?>admin/logar" method="post">
           <div class="form-group">
-            <label for="login">Usuario</label>
-            <input id="login" type="text" name="login" placeholder="Digite seu usuario">
+            <label for="login">E-mail ou usuario</label>
+            <input id="login" type="text" name="login" placeholder="Digite seu e-mail ou usuario" required autocomplete="username">
           </div>
           <div class="form-group">
             <label for="senha">Senha</label>
-            <input id="senha" type="password" name="senha" placeholder="Digite sua senha">
+            <input id="senha" type="password" name="senha" placeholder="Digite sua senha" required autocomplete="current-password">
           </div>
+          <a class="login-forgot" href="<?=base_url()?>acesso/esqueci">Esqueci minha senha</a>
           <button type="submit" class="btn-login">Entrar</button>
         </form>
         <div class="login-note">

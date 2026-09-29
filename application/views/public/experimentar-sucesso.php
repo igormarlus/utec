@@ -89,8 +89,7 @@
             <h1>Bem-vindo(a) ao UTecnologia Saúde!</h1>
             <p>
                 Seu ambiente está pronto. Você já está logado e pode começar a usar a agenda, cadastrar pacientes
-                e registrar atendimentos agora mesmo. Também enviamos suas credenciais e um link para definir sua
-                senha personalizada para o e-mail cadastrado.
+                e registrar atendimentos agora mesmo. Também enviamos seu login e a senha que você criou para o e-mail cadastrado — guarde-o para entrar da próxima vez.
             </p>
 
             <? if($flash_ok){ ?><div class="alert alert-ok"><?=$flash_ok?></div><? } ?>
@@ -110,7 +109,7 @@
                 <div class="card">
                     <div class="label">Login principal</div>
                     <div class="value" style="font-size:18px;"><?=$detail['owner']->email?></div>
-                    <div class="copy">Credenciais e link de acesso enviados para este e-mail.</div>
+                    <div class="copy">Login e senha enviados para este e-mail.</div>
                 </div>
                 <div class="card">
                     <div class="label">Fim do trial</div>

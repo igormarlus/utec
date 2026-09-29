@@ -222,7 +222,7 @@ Verificado por `Padrao_model::can_access_saas_module()`. O Admin (nível 1) tem 
 
 | Arquivo | Rota | Função |
 |---------|------|--------|
-| `Home.php` | `/` | Landing page pública |
+| `Home.php` | `/` | Landing page pública; `acesso/senha/{token}` (definir senha), `acesso/esqueci` (redefinição por link, token 1h) |
 | `Admin.php` | `/admin` | Login + `logar_como/{id}` (admin nível 1) |
 | `User.php` | `/user` | Carrinho, pedidos, MP legado |
 | `Webhooks.php` | `/webhooks/whatsapp` | Verificação (GET) + recepção (POST) do WhatsApp Cloud API: valida assinatura HMAC, processa status de entrega e respostas de botão (confirmar/cancelar) |
@@ -253,6 +253,11 @@ $route['webhooks/mercadopago'] = 'adm/saas/webhook_mercadopago';
 $route['webhooks/whatsapp'] = 'webhooks/whatsapp';
 $route['adm/whatsapp'] = 'adm/whatsapp/index';
 $route['adm/whatsapp/salvar'] = 'adm/whatsapp/salvar';
+$route['acesso/senha/(:any)'] = 'home/definir_senha/$1';
+$route['acesso/senha']        = 'home/definir_senha';
+$route['acesso/salvar']       = 'home/salvar_senha';
+$route['acesso/esqueci'] = 'home/esqueci_senha';
+$route['acesso/esqueci/enviar'] = 'home/enviar_redefinicao';
 ```
 
 > `adm/notificacoes/abrir/{id}` usa o roteamento padrão do CI (sem rota explícita).
@@ -488,11 +493,15 @@ Fluxo próprio, independente do chatbot legado. Config em `adm/whatsapp`, tabela
 
 ### Notas da Migração de Senhas
 
-- **Login:** `password_verify()` primeiro; se falhar, compara texto puro e rehasha
+- **Login:** `password_verify()` primeiro; se falhar, compara texto puro e rehasha. Aceita e-mail como alternativa de usuário: busca por `login` primeiro; se não encontrar e o input for e-mail válido, busca por `LOWER(email)` (login bem-sucedido apenas se exatamente 1 usuário). Login inválido mostra flash "Usuário ou senha inválidos." com link para "Esqueci minha senha" em `/admin`.
 - **Cadastro/edição:** `password_hash()` direto
 - **Troca de senha (`alterar()`):** `password_verify()` + aceita texto puro em fallback
 - **"Acessar como":** apenas admin nível 1 via `/admin/logar_como/{id}`
 - **Campo senha na edição:** se vazio, não atualiza a senha existente
+- **Cadastro:** trial e assinatura pedem senha + confirmação; o e-mail de boas-vindas (`Email_acesso::boas_vindas`) leva login + senha escolhida; e-mail interno "Novo cadastro" sem senha.
+- **Equipe:** `adm/usuarios/cadastrar` envia login+senha por e-mail, ou convite com token de 7 dias se a senha ficar em branco. Flashes `cadastro_ok` / `cadastro_aviso` são exibidos em `adm/usuarios/new/edicao.php` e em `adm/usuarios/new/atendimentos.php`.
+- **Esqueci minha senha:** `acesso/esqueci` → token de 60 min em `usuarios.senha_token` (expiração calculada no MySQL), resposta genérica, throttle de 2 min. Helper `acesso_helper.php`, testes `tests/acesso_*`.
+- **Login único na equipe:** `adm/usuarios/cadastrar` rejeita (flash `cadastro_error`) login já em uso, inclusive o default derivado do e-mail; o fallback de login por e-mail só considera níveis 1–4; sessão é regenerada ao logar/definir senha.
 
 ---
 
