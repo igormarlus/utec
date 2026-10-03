@@ -59,4 +59,16 @@ assertContains('adm/rotulos/paciente/', $pront, 'form aplicar rotulos');
 assertContains('name="rotulos[]"', $pront, 'checkboxes de rotulos');
 assertContains("flashdata('rotulos_ok')", $pront, 'flash de rotulos');
 
+// Lista
+$lista = lerArquivo('application/views/adm/usuarios/new/lista.php');
+assertContains('rotulos_de_pacientes(', $lista, 'lista carrega rotulos em lote');
+assertContains('data-rotulos=', $lista, 'linha com data-rotulos');
+assertContains('id="ul-filter-rotulo"', $lista, 'select de filtro');
+assertContains('function ulFiltrar()', $lista, 'filtro combinado nome + rotulo');
+
+// Agenda
+$agenda = lerArquivo('application/views/adm/usuarios/new/atendimentos.php');
+assertContains('rotulos_de_pacientes(', $agenda, 'agenda carrega rotulos em lote');
+assertContains('utec_rotulos_chips_html($ut_alertas_paciente[(int)$agenda->id_paciente], true)', $agenda, 'agenda mostra so alertas');
+
 echo "OK\n";
