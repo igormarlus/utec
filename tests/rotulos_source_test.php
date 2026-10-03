@@ -77,4 +77,7 @@ assertContains('Rótulos', $manual, 'manual cobre rotulos');
 $claude = lerArquivo('CLAUDE.md');
 assertContains('migrar_rotulos_pacientes', $claude, 'CLAUDE.md documenta migracao');
 
+assertContains('WHERE v.id_paciente = ? AND r.id_conta = ? AND r.status = 1', $model, 'salvar preserva vinculos de rotulos inativos');
+assertContains('(int)$alvo->nivel !== 5', $ctl, 'so aplica em paciente');
+assertContains('if($conta <= 0)', $ctl, 'guarda conta invalida');
 echo "OK\n";

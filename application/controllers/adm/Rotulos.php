@@ -75,7 +75,7 @@ class Rotulos extends CI_Controller {
 		$r = $this->rotulos_model->salvar_rotulo(
 			$conta,
 			(int)$this->input->post('id'),
-			(string)$this->input->post('nome', true),
+			(string)$this->input->post('nome'),
 			(string)$this->input->post('cor', true),
 			(int)$this->input->post('alerta') === 1,
 			(int)$this->usuario->id
@@ -105,7 +105,14 @@ class Rotulos extends CI_Controller {
 			show_error('Acesso negado ao paciente selecionado.', 403);
 			return;
 		}
+		$alvo = $this->db->query('SELECT nivel FROM usuarios WHERE id = ? LIMIT 1', array($id_paciente))->row();
+		if(!$alvo || (int)$alvo->nivel !== 5){ show_404(); return; }
 		$conta = $this->rotulos_model->conta_raiz($id_paciente);
+		if($conta <= 0){
+			$this->session->set_flashdata('rotulos_erro', 'Paciente sem clínica vinculada.');
+			redirect('adm/atendimento/prontuario/'.$id_paciente);
+			return;
+		}
 		$ids_catalogo = array();
 		foreach($this->rotulos_model->catalogo($conta, true) as $r){
 			$ids_catalogo[] = (int)$r->id;

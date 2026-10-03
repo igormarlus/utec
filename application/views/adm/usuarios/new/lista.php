@@ -243,10 +243,9 @@
       }
       .ut-rotulo { display:inline-block; border:1px solid; border-radius:999px; padding:0 8px; font-size:11px; font-weight:700; background:#fff; margin:2px 4px 0 0; }
       .ut-rotulo-alerta { background:#fef2f2; }
-      .ul-rotulo-select { max-width:220px; margin-left:8px; }
       .ul-search-wrap { display:flex; align-items:center; }
       .ul-search-wrap .ul-search-input { flex:1 1 auto; width:auto; min-width:0; }
-      .ul-rotulo-select { flex:0 0 auto; width:auto; max-width:45%; }
+      .ul-rotulo-select { flex:0 0 auto; width:auto; max-width:220px; margin-left:8px; }
     </style>
   </head>
   <body class="menu-position-side menu-side-left full-screen with-content-panel">

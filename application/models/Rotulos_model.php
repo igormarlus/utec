@@ -110,7 +110,7 @@ class Rotulos_model extends CI_Model {
 		$this->db->query(
 			"DELETE v FROM pacientes_rotulos_vinculos v
 			INNER JOIN pacientes_rotulos r ON r.id = v.id_rotulo
-			WHERE v.id_paciente = ? AND r.id_conta = ?",
+			WHERE v.id_paciente = ? AND r.id_conta = ? AND r.status = 1",
 			array((int)$id_paciente, (int)$id_conta)
 		);
 		foreach($ids_rotulo as $id_rotulo){

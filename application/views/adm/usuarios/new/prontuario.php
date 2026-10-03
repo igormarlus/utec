@@ -481,7 +481,7 @@
                               <button type="submit" class="btn btn-sm btn-primary btn-block" style="margin-top:8px;">Salvar rótulos</button>
                             </form>
                             <?php if($ut_rot_gerencia){ ?>
-                              <a href="<?=base_url('adm/rotulos')?>" style="display:block;font-size:12px;margin-top:8px;">Gerenciar rótulos</a>
+                              <a href="<?=base_url('adm/rotulos'.((int)$this->session->userdata('nivel') === 1 ? '?conta='.(int)$ut_rot_conta : ''))?>" style="display:block;font-size:12px;margin-top:8px;">Gerenciar rótulos</a>
                             <?php } ?>
                           </div>
                         </details>
