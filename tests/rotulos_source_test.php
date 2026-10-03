@@ -30,4 +30,25 @@ assertContains("table_exists('pacientes_rotulos_vinculos')", $model, 'model guar
 assertContains('trans_start', $model, 'definir em transacao');
 assertContains('utec_rotulos_resolver_raiz(', $model, 'raiz via helper');
 
+// Controller
+$ctl = lerArquivo('application/controllers/adm/Rotulos.php');
+assertContains('class Rotulos extends CI_Controller', $ctl, 'controller existe');
+assertContains('verSession()', $ctl, 'exige sessao');
+assertContains('if($nivel < 1 || $nivel > 4)', $ctl, 'bloqueia nivel 5');
+assertContains('function conta_gerenciada()', $ctl, 'regra de quem gerencia');
+assertContains('can_access_usuario($id_paciente)', $ctl, 'aplica so no escopo');
+assertContains('utec_rotulos_ids_validos(', $ctl, 'filtra ids pelo catalogo do paciente');
+assertContains("input->method() !== 'post'", $ctl, 'escritas so via POST');
+assertContains("preg_match('#^adm/[a-z0-9_/]+$#i'", $ctl, 'redirect de volta restrito ao admin');
+
+// View catálogo
+$vcat = lerArquivo('application/views/adm/rotulos/index.php');
+assertContains('adm/rotulos/salvar', $vcat, 'form salvar');
+assertContains('adm/rotulos/status/', $vcat, 'form status');
+assertContains('htmlspecialchars', $vcat, 'view escapa');
+
+// Menu
+$menu = lerArquivo('includes/adm/menu.php');
+assertContains("base_url().'adm/rotulos'", $menu, 'item de menu');
+
 echo "OK\n";
