@@ -71,4 +71,10 @@ $agenda = lerArquivo('application/views/adm/usuarios/new/atendimentos.php');
 assertContains('rotulos_de_pacientes(', $agenda, 'agenda carrega rotulos em lote');
 assertContains('utec_rotulos_chips_html($ut_alertas_paciente[(int)$agenda->id_paciente], true)', $agenda, 'agenda mostra so alertas');
 
+// Manual
+$manual = lerArquivo('application/libraries/Manual_conteudo.php');
+assertContains('Rótulos', $manual, 'manual cobre rotulos');
+$claude = lerArquivo('CLAUDE.md');
+assertContains('migrar_rotulos_pacientes', $claude, 'CLAUDE.md documenta migracao');
+
 echo "OK\n";

@@ -133,6 +133,8 @@ O projeto usa **CodeIgniter 3.1.10** em produção. **Não migrar para CI4 ou ou
 - `prestador_bloqueios` — períodos sem atendimento (`id_prestador`, `inicio`, `fim` DATETIME, `motivo`)
 - `usuarios.duracao_atendimento_min` — duração fixa da consulta do prestador (NULL = 30 min)
 - `prontuario_exportacoes` — auditoria de exportação (`id_usuario`, `id_paciente`, `formato`, período, `ip_hash`)
+- `pacientes_rotulos` — catálogo de rótulos por conta (`id_conta` = raiz da árvore id_user), cor da paleta fixa, `alerta`
+- `pacientes_rotulos_vinculos` — paciente ↔ rótulo (PK composta)
 
 **Produtos e Pedidos**
 - `produtos` — catálogo de planos/serviços
@@ -242,6 +244,7 @@ Verificado por `Padrao_model::can_access_saas_module()`. O Admin (nível 1) tem 
 | `Whatsapp.php` | `/adm/whatsapp` | Tela de configuração da conexão WhatsApp (nível 1) — grava `whatsapp_config` |
 | `Horarios.php` | `/adm/horarios` | Grade semanal, duração e bloqueios do prestador (edita: 1, 2 no escopo, 3 o próprio; 4 só vê) + endpoint JSON `adm/horarios/livres` usado pela agenda |
 | `Notificacoes.php` | `/adm/notificacoes/abrir/{id}` | Marca o aviso interno como lido pelo destinatário logado e redireciona para a `url` da notificação |
+| `Rotulos.php` | `/adm/rotulos` | Catálogo de rótulos da clínica (níveis 1, 2 e 3 autônomo) + `paciente/{id}` (POST) para aplicar rótulos (níveis 1–4, escopo) |
 
 > `Atencimento.php` (com typo) foi renomeado para `.bak` — não é controller ativo.
 
@@ -537,6 +540,7 @@ Controller: `application/controllers/adm/Dev.php`
 | `adm/dev/migrar_lembrete_whatsapp` | Adiciona `whatsapp_notificacoes.tipo_notificacao` + índice (idempotente) |
 | `adm/dev/migrar_horarios_atendimento` | Cria `prestador_horarios` + `prestador_bloqueios` e a coluna `usuarios.duracao_atendimento_min` (idempotente) |
 | `adm/dev/migrar_prontuario_exportacoes` | Cria `prontuario_exportacoes` (idempotente) |
+| `adm/dev/migrar_rotulos_pacientes` | Cria `pacientes_rotulos` + `pacientes_rotulos_vinculos` (idempotente) |
 | `adm/dev/testar_detector_ia` | Roda os casos mínimos do detector de tráfego de IA (PASS/FAIL) |
 | `adm/dev/purgar_monitoramento_ia` | Remove registros de IA com mais de 18 meses (`?meses=N` ajusta) |
 
@@ -583,6 +587,7 @@ Para novas migrações: adicionar método em `Dev.php`, proteger com `nivel == 1
 - [x] Confirmação de agendamento via WhatsApp (template + webhook): paciente confirma/cancela pelo botão, sistema responde por texto, atualiza a agenda e gera avisos internos (ver 10.3.1)
 - [x] Manual de ajuda ao usuário v1 (níveis 2, 3 e 4) com capítulos reaproveitáveis e PDF em mPDF; v2 (2026-09-22) com redesenho visual e screenshots reais (ver seção 19)
 - [x] Horários de atendimento por profissional (grade semanal, duração, bloqueios) com sugestão de horários livres e aviso de encaixe na agenda — base para o chatbot marcar consultas
+- [x] Rótulos de pacientes (organização + alertas) com catálogo por clínica — prontuário, lista com filtro e alertas na agenda (`rotulos_helper.php`, `Rotulos_model`)
 - [x] Exportar prontuário por paciente (PDF/CSV/XLSX) com período e auditoria — helper `prontuario_export_helper.php`, `Xlsx_simples`, `Prontuario_export_model`. Deploy 2026-10-03: 8 arquivos runtime por FTP, `adm/dev/migrar_prontuario_exportacoes` executada e teste online OK (níveis 3/4). Nota: antes do deploy a view nova já estava no servidor sem o helper (prontuário quebrado em produção) — origem do upload não identificada; ao subir view que depende de helper novo, conferir o servidor antes.
 
 ### 15.2 Próximas Entregas (Prioridade Alta)
