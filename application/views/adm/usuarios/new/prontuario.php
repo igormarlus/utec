@@ -400,6 +400,42 @@
                       <div class="timeline-actions" style="margin-top:0">
                         <a href="<?=base_url()?>adm/atendimento" class="btn btn-secondary">Voltar</a>
                         <a href="<?=base_url()?>adm/atendimento/novo/<?=$paciente->id?>" class="btn btn-success">Novo agendamento</a>
+                        <?php if(in_array((int)$this->session->userdata('nivel'), array(1, 2, 3), true)){
+                          $url_exp = base_url('adm/atendimento/exportar_prontuario/'.(int)$paciente->id.'/');
+                          $formatos_exp = array('pdf' => 'PDF', 'csv' => 'CSV');
+                          if(class_exists('ZipArchive')){ $formatos_exp['xlsx'] = 'Excel (XLSX)'; }
+                        ?>
+                        <details class="pront-export" style="display:inline-block;position:relative;">
+                          <summary class="btn btn-outline-primary" style="list-style:none;cursor:pointer;">Exportar</summary>
+                          <div style="position:absolute;right:0;z-index:20;background:#fff;border:1px solid #dbe3ef;border-radius:8px;padding:12px;min-width:250px;box-shadow:0 8px 24px rgba(15,76,129,.12);">
+                            <div style="font-size:12px;color:#5f708c;margin-bottom:6px;">Período (opcional)</div>
+                            <div class="d-flex" style="gap:6px;margin-bottom:10px;">
+                              <input type="date" class="form-control form-control-sm pront-exp-de" aria-label="Data inicial">
+                              <input type="date" class="form-control form-control-sm pront-exp-ate" aria-label="Data final">
+                            </div>
+                            <?php foreach($formatos_exp as $fmt => $rotulo_fmt){ ?>
+                              <a class="btn btn-sm btn-light btn-block text-left pront-exp-link" data-base="<?=htmlspecialchars($url_exp.$fmt)?>" href="<?=htmlspecialchars($url_exp.$fmt)?>"><?=$rotulo_fmt?></a>
+                            <?php } ?>
+                            <div style="font-size:11px;color:#8a99b3;margin-top:8px;">Documento confidencial. A exportação fica registrada.</div>
+                          </div>
+                        </details>
+                        <script>
+                          (function(){
+                            var box = document.currentScript.previousElementSibling;
+                            function atualizar(){
+                              var de = box.querySelector('.pront-exp-de').value;
+                              var ate = box.querySelector('.pront-exp-ate').value;
+                              var qs = [];
+                              if(de){ qs.push('de=' + encodeURIComponent(de)); }
+                              if(ate){ qs.push('ate=' + encodeURIComponent(ate)); }
+                              box.querySelectorAll('.pront-exp-link').forEach(function(a){
+                                a.href = a.getAttribute('data-base') + (qs.length ? '?' + qs.join('&') : '');
+                              });
+                            }
+                            box.querySelectorAll('input[type=date]').forEach(function(i){ i.addEventListener('change', atualizar); });
+                          })();
+                        </script>
+                        <?php } ?>
                       </div>
                     </div>
                     <div class="patient-summary-grid">

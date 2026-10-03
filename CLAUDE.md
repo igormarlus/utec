@@ -132,6 +132,7 @@ O projeto usa **CodeIgniter 3.1.10** em produção. **Não migrar para CI4 ou ou
 - `prestador_horarios` — grade semanal do prestador (`id_prestador`, `dia_semana` 0=dom…6=sáb, `hora_inicio`, `hora_fim`); vários intervalos por dia
 - `prestador_bloqueios` — períodos sem atendimento (`id_prestador`, `inicio`, `fim` DATETIME, `motivo`)
 - `usuarios.duracao_atendimento_min` — duração fixa da consulta do prestador (NULL = 30 min)
+- `prontuario_exportacoes` — auditoria de exportação (`id_usuario`, `id_paciente`, `formato`, período, `ip_hash`)
 
 **Produtos e Pedidos**
 - `produtos` — catálogo de planos/serviços
@@ -232,7 +233,7 @@ Verificado por `Padrao_model::can_access_saas_module()`. O Admin (nível 1) tem 
 | Arquivo | Rota | Função |
 |---------|------|--------|
 | `Usuarios.php` | `/adm/usuarios` | CRUD usuários, prontuários, upload fotos |
-| `Atendimento.php` | `/adm/atendimento` | Agendamentos, prontuários, exames, status |
+| `Atendimento.php` | `/adm/atendimento` | Agendamentos, prontuários, exames, status + `exportar_prontuario/{id}/{pdf\|csv\|xlsx}?de=&ate=` (níveis 1–3, auditado) |
 | `Produtos.php` | `/adm/produtos` | CRUD planos, tipos de plano, assinaturas legadas |
 | `Saas.php` | `/adm/saas` | Tenants, assinaturas, checkout MP, webhook |
 | `Dev.php` | `/adm/dev` | Migrações e utilitários de desenvolvimento |
@@ -535,6 +536,7 @@ Controller: `application/controllers/adm/Dev.php`
 | `adm/dev/migrar_monitoramento_ia` | Cria `ai_referrals` + `ai_conversions` (idempotente; `?desfazer=1` faz DROP) |
 | `adm/dev/migrar_lembrete_whatsapp` | Adiciona `whatsapp_notificacoes.tipo_notificacao` + índice (idempotente) |
 | `adm/dev/migrar_horarios_atendimento` | Cria `prestador_horarios` + `prestador_bloqueios` e a coluna `usuarios.duracao_atendimento_min` (idempotente) |
+| `adm/dev/migrar_prontuario_exportacoes` | Cria `prontuario_exportacoes` (idempotente) |
 | `adm/dev/testar_detector_ia` | Roda os casos mínimos do detector de tráfego de IA (PASS/FAIL) |
 | `adm/dev/purgar_monitoramento_ia` | Remove registros de IA com mais de 18 meses (`?meses=N` ajusta) |
 
@@ -581,6 +583,7 @@ Para novas migrações: adicionar método em `Dev.php`, proteger com `nivel == 1
 - [x] Confirmação de agendamento via WhatsApp (template + webhook): paciente confirma/cancela pelo botão, sistema responde por texto, atualiza a agenda e gera avisos internos (ver 10.3.1)
 - [x] Manual de ajuda ao usuário v1 (níveis 2, 3 e 4) com capítulos reaproveitáveis e PDF em mPDF; v2 (2026-09-22) com redesenho visual e screenshots reais (ver seção 19)
 - [x] Horários de atendimento por profissional (grade semanal, duração, bloqueios) com sugestão de horários livres e aviso de encaixe na agenda — base para o chatbot marcar consultas
+- [x] Exportar prontuário por paciente (PDF/CSV/XLSX) com período e auditoria — helper `prontuario_export_helper.php`, `Xlsx_simples`, `Prontuario_export_model`
 
 ### 15.2 Próximas Entregas (Prioridade Alta)
 

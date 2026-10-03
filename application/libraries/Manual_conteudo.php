@@ -167,12 +167,21 @@ class Manual_conteudo {
                         'Especialidades como Fisioterapia, Psicologia, Odontologia, Psiquiatria, Nutrição e Pediatria têm rótulos e exemplos de preenchimento adaptados - por exemplo, Fisioterapia mostra "Queixa / Avaliação Postural" onde a Clínica Médica mostra "Queixa Principal".',
                         'O conteúdo digitado continua sendo texto livre; o que muda por especialidade é apenas o rótulo e o texto de apoio (placeholder) de cada campo.',
                     ),
-                    3 => array('É o prestador quem preenche o prontuário durante o atendimento - registrar no mesmo dia mantém o histórico clínico organizado.'),
-                    2 => array('Acompanha o prontuário dos prestadores vinculados à clínica pela ficha do paciente ou pelos relatórios clínicos.'),
-                    4 => array('Acessa o prontuário apenas dentro do escopo operacional liberado para a equipe vinculada.'),
+                    3 => array(
+                        'É o prestador quem preenche o prontuário durante o atendimento - registrar no mesmo dia mantém o histórico clínico organizado.',
+                        'Para entregar uma cópia ao paciente ou analisar em planilha, use o botão `Exportar` no topo do prontuário: escolha um período (opcional) e o formato - PDF, CSV ou Excel (XLSX). Cada exportação fica registrada.',
+                    ),
+                    2 => array(
+                        'Acompanha o prontuário dos prestadores vinculados à clínica pela ficha do paciente ou pelos relatórios clínicos.',
+                        'Também pode exportar o prontuário pelo botão `Exportar` (PDF, CSV ou Excel), com período opcional. As exportações ficam registradas para auditoria.',
+                    ),
+                    4 => array(
+                        'Acessa o prontuário apenas dentro do escopo operacional liberado para a equipe vinculada.',
+                        'A exportação do prontuário é restrita ao estabelecimento e ao profissional, por se tratar de conteúdo clínico sigiloso.',
+                    ),
                 ),
                 'print' => 'prontuario.png',
-                'atualizado_em' => '2026-09-07',
+                'atualizado_em' => '2026-10-03',
             ),
             array(
                 'slug' => 'exames',

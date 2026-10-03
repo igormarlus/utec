@@ -53,4 +53,13 @@ $pdf = lerArquivo('application/views/adm/usuarios/prontuario_pdf.php');
 assertContains('htmlspecialchars', $pdf, 'pdf escapa conteudo');
 assertContains('dejavusans', $pdf, 'pdf usa fonte com cache commitado');
 
+// Botão na tela
+assertContains('exportar_prontuario/', $view = lerArquivo('application/views/adm/usuarios/new/prontuario.php'), 'botao exportar na view');
+assertContains("in_array((int)\$this->session->userdata('nivel'), array(1, 2, 3), true)", $view, 'botao so para niveis 1-3');
+assertContains("class_exists('ZipArchive')", $view, 'xlsx oculto sem ZipArchive');
+
+// Manual (regra de sincronização da seção 19 do CLAUDE.md)
+$manual = lerArquivo('application/libraries/Manual_conteudo.php');
+assertContains('Exportar', $manual, 'manual cobre exportacao');
+
 echo "OK\n";
