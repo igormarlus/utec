@@ -40,7 +40,7 @@ class Xlsx_simples {
 
 	public static function xml($v){
 		$v = (string)$v;
-		$limpo = preg_replace('/[^\x{9}\x{A}\x{D}\x{20}-\x{D7FF}\x{E000}-\x{FFFD}]/u', '', $v);
+		$limpo = preg_replace('/[^\x{9}\x{A}\x{D}\x{20}-\x{D7FF}\x{E000}-\x{FFFD}\x{10000}-\x{10FFFF}]/u', '', $v);
 		if($limpo === null){
 			// UTF-8 inválido: remove bytes de controle no modo byte
 			$limpo = preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F]/', '', $v);

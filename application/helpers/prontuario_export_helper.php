@@ -117,7 +117,7 @@ if(!function_exists('utec_pront_status_exame_texto')){
 
 if(!function_exists('utec_pront_data_valida')){
 	function utec_pront_data_valida($ymd){
-		if(!preg_match('/^(\d{4})-(\d{2})-(\d{2})$/', (string)$ymd, $m)){ return false; }
+		if(!preg_match('/^(\d{4})-(\d{2})-(\d{2})$/D', (string)$ymd, $m)){ return false; }
 		return checkdate((int)$m[2], (int)$m[3], (int)$m[1]);
 	}
 }

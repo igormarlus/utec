@@ -40,6 +40,7 @@ assertSameValue(array('2026-01-01', '2026-02-01'), utec_pront_normalizar_periodo
 assertSameValue(array('', '2026-02-01'), utec_pront_normalizar_periodo('01/01/2026', '2026-02-01'), 'de invalido vira vazio');
 assertSameValue(array('', ''), utec_pront_normalizar_periodo(null, ''), 'periodo vazio');
 assertSameValue(array('', ''), utec_pront_normalizar_periodo('2026-02-31', ''), 'data inexistente');
+assertSameValue(array('', ''), utec_pront_normalizar_periodo("2026-01-01\n", ''), 'data com quebra de linha final rejeitada');
 
 // --- extras
 $labels = array('eva' => 'Escala EVA', 'regiao' => 'Região');

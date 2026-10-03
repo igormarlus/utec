@@ -94,7 +94,7 @@ class Prontuario_export_model extends CI_Model {
 			$qr = $this->db->query("SELECT tenant_id FROM usuarios WHERE id = ? LIMIT 1", array((int)$id_usuario));
 			if($qr->num_rows() > 0 && (int)$qr->row()->tenant_id > 0){ $tenant_id = (int)$qr->row()->tenant_id; }
 		}
-		return (bool)$this->db->insert('prontuario_exportacoes', array(
+		$ok = $this->db->insert('prontuario_exportacoes', array(
 			'id_usuario' => (int)$id_usuario,
 			'id_paciente' => (int)$id_paciente,
 			'tenant_id' => $tenant_id,
@@ -104,6 +104,10 @@ class Prontuario_export_model extends CI_Model {
 			'ip_hash' => $ip !== '' ? hash('sha256', $ip.$app_key) : null,
 			'criado_em' => date('Y-m-d H:i:s'),
 		));
+		if(!$ok){
+			log_message('error', 'exportar_prontuario: falha ao registrar auditoria (usuario '.(int)$id_usuario.', formato '.$formato.')');
+		}
+		return (bool)$ok;
 	}
 
 	private function labels_campos_extras(array $rows){

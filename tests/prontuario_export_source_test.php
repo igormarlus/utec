@@ -62,4 +62,6 @@ assertContains("class_exists('ZipArchive')", $view, 'xlsx oculto sem ZipArchive'
 $manual = lerArquivo('application/libraries/Manual_conteudo.php');
 assertContains('Exportar', $manual, 'manual cobre exportacao');
 
+assertContains('falha ao registrar auditoria', $model, 'falha de auditoria e logada');
+
 echo "OK\n";

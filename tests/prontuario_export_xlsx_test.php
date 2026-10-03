@@ -9,7 +9,7 @@ if (!Xlsx_simples::disponivel()) { falha('ZipArchive indisponivel neste PHP — 
 $x = new Xlsx_simples();
 $x->adicionar_aba('Atendimentos', array(
     array('Data', 'Texto'),
-    array('01/10/2026', 'A & B <c> "d"'),
+    array('01/10/2026', 'A & B <c> "d"', 'Paciente 😀 ok'),
     array('02/10/2026', "linha1\nlinha2 \x01 controle"),
 ));
 $x->adicionar_aba('Exames/[x]:?', array(array('Exame'), array('Raio-X')));
@@ -31,6 +31,7 @@ foreach ($partes as $p) {
 }
 $s1 = $zip->getFromName('xl/worksheets/sheet1.xml');
 if (strpos($s1, 'A &amp; B &lt;c&gt; &quot;d&quot;') === false) { falha('texto nao escapado'); }
+if (strpos($s1, "😀") === false) { falha('emoji removido'); }
 if (strpos($s1, "\x01") !== false) { falha('caractere de controle nao removido'); }
 if (strpos($s1, 'r="B3"') === false) { falha('referencia de celula B3 ausente'); }
 if (strpos($s1, 's="1"') === false) { falha('cabecalho sem estilo negrito'); }
