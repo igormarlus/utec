@@ -583,7 +583,7 @@ Para novas migrações: adicionar método em `Dev.php`, proteger com `nivel == 1
 - [x] Confirmação de agendamento via WhatsApp (template + webhook): paciente confirma/cancela pelo botão, sistema responde por texto, atualiza a agenda e gera avisos internos (ver 10.3.1)
 - [x] Manual de ajuda ao usuário v1 (níveis 2, 3 e 4) com capítulos reaproveitáveis e PDF em mPDF; v2 (2026-09-22) com redesenho visual e screenshots reais (ver seção 19)
 - [x] Horários de atendimento por profissional (grade semanal, duração, bloqueios) com sugestão de horários livres e aviso de encaixe na agenda — base para o chatbot marcar consultas
-- [x] Exportar prontuário por paciente (PDF/CSV/XLSX) com período e auditoria — helper `prontuario_export_helper.php`, `Xlsx_simples`, `Prontuario_export_model`
+- [x] Exportar prontuário por paciente (PDF/CSV/XLSX) com período e auditoria — helper `prontuario_export_helper.php`, `Xlsx_simples`, `Prontuario_export_model`. Deploy 2026-10-03: 8 arquivos runtime por FTP, `adm/dev/migrar_prontuario_exportacoes` executada e teste online OK (níveis 3/4). Nota: antes do deploy a view nova já estava no servidor sem o helper (prontuário quebrado em produção) — origem do upload não identificada; ao subir view que depende de helper novo, conferir o servidor antes.
 
 ### 15.2 Próximas Entregas (Prioridade Alta)
 
