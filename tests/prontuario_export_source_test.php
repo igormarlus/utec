@@ -39,4 +39,18 @@ assertContains("table_exists('prontuario_exportacoes')", $model, 'auditoria guar
 assertContains('get_scope_user_ids', $model, 'model aplica escopo dos agendamentos');
 assertContains('utec_pront_rotulos(', $model, 'model usa rotulos do helper');
 
+// Controller
+$ctl = lerArquivo('application/controllers/adm/Atendimento.php');
+assertContains('function exportar_prontuario(', $ctl, 'endpoint existe');
+assertContains("array(1, 2, 3)", $ctl, 'restrito a niveis 1-3');
+assertContains('can_access_usuario($id_paciente)', $ctl, 'checa escopo do paciente');
+assertContains('registrar_exportacao(', $ctl, 'grava auditoria');
+assertContains('Xlsx_simples::disponivel()', $ctl, 'xlsx guardado por ZipArchive');
+assertContains("error_reporting(0)", $ctl, 'suprime notices do mPDF');
+
+// View PDF
+$pdf = lerArquivo('application/views/adm/usuarios/prontuario_pdf.php');
+assertContains('htmlspecialchars', $pdf, 'pdf escapa conteudo');
+assertContains('dejavusans', $pdf, 'pdf usa fonte com cache commitado');
+
 echo "OK\n";
