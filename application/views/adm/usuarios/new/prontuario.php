@@ -400,6 +400,42 @@
                       <div class="timeline-actions" style="margin-top:0">
                         <a href="<?=base_url()?>adm/atendimento" class="btn btn-secondary">Voltar</a>
                         <a href="<?=base_url()?>adm/atendimento/novo/<?=$paciente->id?>" class="btn btn-success">Novo agendamento</a>
+                        <?php if(in_array((int)$this->session->userdata('nivel'), array(1, 2, 3), true)){
+                          $url_exp = base_url('adm/atendimento/exportar_prontuario/'.(int)$paciente->id.'/');
+                          $formatos_exp = array('pdf' => 'PDF', 'csv' => 'CSV');
+                          if(class_exists('ZipArchive')){ $formatos_exp['xlsx'] = 'Excel (XLSX)'; }
+                        ?>
+                        <details class="pront-export" style="display:inline-block;position:relative;">
+                          <summary class="btn btn-outline-primary" style="list-style:none;cursor:pointer;">Exportar</summary>
+                          <div style="position:absolute;right:0;z-index:20;background:#fff;border:1px solid #dbe3ef;border-radius:8px;padding:12px;min-width:250px;box-shadow:0 8px 24px rgba(15,76,129,.12);">
+                            <div style="font-size:12px;color:#5f708c;margin-bottom:6px;">Período (opcional)</div>
+                            <div class="d-flex" style="gap:6px;margin-bottom:10px;">
+                              <input type="date" class="form-control form-control-sm pront-exp-de" aria-label="Data inicial">
+                              <input type="date" class="form-control form-control-sm pront-exp-ate" aria-label="Data final">
+                            </div>
+                            <?php foreach($formatos_exp as $fmt => $rotulo_fmt){ ?>
+                              <a class="btn btn-sm btn-light btn-block text-left pront-exp-link" data-base="<?=htmlspecialchars($url_exp.$fmt)?>" href="<?=htmlspecialchars($url_exp.$fmt)?>"><?=$rotulo_fmt?></a>
+                            <?php } ?>
+                            <div style="font-size:11px;color:#8a99b3;margin-top:8px;">Documento confidencial. A exportação fica registrada.</div>
+                          </div>
+                        </details>
+                        <script>
+                          (function(){
+                            var box = document.currentScript.previousElementSibling;
+                            function atualizar(){
+                              var de = box.querySelector('.pront-exp-de').value;
+                              var ate = box.querySelector('.pront-exp-ate').value;
+                              var qs = [];
+                              if(de){ qs.push('de=' + encodeURIComponent(de)); }
+                              if(ate){ qs.push('ate=' + encodeURIComponent(ate)); }
+                              box.querySelectorAll('.pront-exp-link').forEach(function(a){
+                                a.href = a.getAttribute('data-base') + (qs.length ? '?' + qs.join('&') : '');
+                              });
+                            }
+                            box.querySelectorAll('input[type=date]').forEach(function(i){ i.addEventListener('change', atualizar); });
+                          })();
+                        </script>
+                        <?php } ?>
                       </div>
                     </div>
                     <div class="patient-summary-grid">
@@ -448,98 +484,9 @@
               </div>
 
               <?php
-              // ── Labels dinâmicos por especialidade (Fase 1) ─────────────────
-              $lbl = [
-                'atendimento_inicial' => 'Atendimento Inicial',
-                'avaliacao'           => 'Avaliação',
-                'reavaliacao'         => 'Reavaliação',
-                'ph_inicial'  => 'Descreva a queixa principal, contexto e primeiros registros.',
-                'ph_avaliacao'=> 'Registre avaliação clínica, hipóteses e condutas adotadas.',
-                'ph_reav'     => 'Registre evolução, retorno ou observações complementares.',
-              ];
-              $esp = isset($prestador_esp_id) ? (int)$prestador_esp_id : 0;
-              switch($esp){
-                case 10: // Fisioterapia
-                  $lbl['atendimento_inicial'] = 'Queixa / Avaliação Postural';
-                  $lbl['avaliacao']           = 'Evolução da Sessão / Técnicas Aplicadas';
-                  $lbl['reavaliacao']         = 'Resposta ao Tratamento / Próxima Sessão';
-                  $lbl['ph_inicial']   = 'Queixa principal, intensidade de dor, limitações funcionais e achados posturais.';
-                  $lbl['ph_avaliacao'] = 'Técnicas aplicadas (RPG, PNF, eletroterapia, hidroterapia...), exercícios realizados.';
-                  $lbl['ph_reav']      = 'Resposta do paciente, evolução do quadro, plano e objetivos para a próxima sessão.';
-                  break;
-                case 36: // Psicologia
-                  $lbl['atendimento_inicial'] = 'Demanda Apresentada';
-                  $lbl['avaliacao']           = 'Evolução da Sessão';
-                  $lbl['reavaliacao']         = 'Observações / Encaminhamentos';
-                  $lbl['ph_inicial']   = 'Demanda e contexto trazidos pelo paciente nesta sessão.';
-                  $lbl['ph_avaliacao'] = 'Registro clínico da sessão e intervenções realizadas.';
-                  $lbl['ph_reav']      = 'Observações, encaminhamentos ou pontos para a próxima sessão.';
-                  break;
-                case 28: // Odontologia
-                  $lbl['atendimento_inicial'] = 'Queixa / Motivo da Consulta';
-                  $lbl['avaliacao']           = 'Procedimento(s) Realizado(s)';
-                  $lbl['reavaliacao']         = 'Prescrição / Retorno';
-                  $lbl['ph_inicial']   = 'Queixa principal, dente(s) envolvido(s), histórico relevante.';
-                  $lbl['ph_avaliacao'] = 'Procedimento realizado, dente(s) — numeração FDI, anestesia e material utilizado.';
-                  $lbl['ph_reav']      = 'Medicação prescrita, orientações pós-operatórias, data de retorno.';
-                  break;
-                case 37: // Psiquiatria
-                  $lbl['atendimento_inicial'] = 'Queixa Principal / Estado Mental';
-                  $lbl['avaliacao']           = 'Avaliação / Hipótese Diagnóstica';
-                  $lbl['reavaliacao']         = 'Conduta / Ajuste Terapêutico';
-                  $lbl['ph_inicial']   = 'Queixa principal, humor, sono, apetite, pensamento e comportamento.';
-                  $lbl['ph_avaliacao'] = 'Hipótese diagnóstica (CID), exame do estado mental, raciocínio clínico.';
-                  $lbl['ph_reav']      = 'Conduta adotada, ajuste de medicação, orientações, retorno.';
-                  break;
-                case 27: // Nutrição
-                  $lbl['atendimento_inicial'] = 'Queixa / Anamnese Alimentar';
-                  $lbl['avaliacao']           = 'Avaliação Nutricional / Condutas';
-                  $lbl['reavaliacao']         = 'Evolução / Plano Alimentar';
-                  $lbl['ph_inicial']   = 'Queixa principal, hábitos alimentares, intolerâncias, histórico de saúde.';
-                  $lbl['ph_avaliacao'] = 'Avaliação antropométrica, diagnóstico nutricional, condutas adotadas.';
-                  $lbl['ph_reav']      = 'Evolução do quadro, ajustes no plano alimentar, metas para o próximo retorno.';
-                  break;
-                case 33: // Pediatria
-                  $lbl['atendimento_inicial'] = 'Queixa / Dados do Responsável';
-                  $lbl['avaliacao']           = 'Exame Físico / Hipóteses';
-                  $lbl['reavaliacao']         = 'Conduta / Retorno';
-                  $lbl['ph_inicial']   = 'Queixa relatada pelo responsável, histórico de saúde e desenvolvimento da criança.';
-                  $lbl['ph_avaliacao'] = 'Exame físico, curva de crescimento, hipóteses diagnósticas.';
-                  $lbl['ph_reav']      = 'Conduta, prescrição, orientações ao responsável, data de retorno.';
-                  break;
-                case 14: // Ginecologia e Obstetrícia
-                  $lbl['atendimento_inicial'] = 'Queixa / Anamnese Ginecológica';
-                  $lbl['avaliacao']           = 'Exame Físico / Hipóteses';
-                  $lbl['reavaliacao']         = 'Conduta / Retorno';
-                  $lbl['ph_inicial']   = 'Queixa principal, ciclo menstrual, DUM, histórico obstétrico.';
-                  $lbl['ph_avaliacao'] = 'Exame físico, hipóteses diagnósticas, exames solicitados.';
-                  $lbl['ph_reav']      = 'Conduta, prescrição, orientações, retorno.';
-                  break;
-                case 11: // Fonoaudiologia
-                  $lbl['atendimento_inicial'] = 'Queixa / Avaliação Fonoaudiológica';
-                  $lbl['avaliacao']           = 'Evolução da Sessão / Técnicas';
-                  $lbl['reavaliacao']         = 'Resposta / Próxima Sessão';
-                  $lbl['ph_inicial']   = 'Queixa principal, histórico de linguagem, deglutição ou voz.';
-                  $lbl['ph_avaliacao'] = 'Técnicas aplicadas, exercícios realizados, progresso observado.';
-                  $lbl['ph_reav']      = 'Resposta do paciente, orientações, plano para próxima sessão.';
-                  break;
-                case 3: // Cardiologia
-                  $lbl['atendimento_inicial'] = 'Queixa Cardiovascular';
-                  $lbl['avaliacao']           = 'Exame Físico / Hipóteses';
-                  $lbl['reavaliacao']         = 'Conduta / Ajuste Terapêutico';
-                  $lbl['ph_inicial']   = 'Queixa principal (dor torácica, dispneia, palpitações...), PA, FC.';
-                  $lbl['ph_avaliacao'] = 'Ausculta, hipóteses, ECG, exames solicitados.';
-                  $lbl['ph_reav']      = 'Conduta, ajuste de medicação, exames de retorno.';
-                  break;
-                case 29: // Oftalmologia
-                  $lbl['atendimento_inicial'] = 'Queixa / Motivo da Consulta';
-                  $lbl['avaliacao']           = 'Exame Ocular / Achados';
-                  $lbl['reavaliacao']         = 'Conduta / Prescrição / Retorno';
-                  $lbl['ph_inicial']   = 'Queixa principal, tempo de evolução, antecedentes oculares e sistêmicos relevantes.';
-                  $lbl['ph_avaliacao'] = 'Acuidade visual, biomicroscopia, fundoscopia, PIO e demais achados.';
-                  $lbl['ph_reav']      = 'Conduta adotada, prescrição de óculos/lentes, medicação ocular, orientações e retorno.';
-                  break;
-              }
+              // ── Labels dinâmicos por especialidade (Fase 1) — fonte única em prontuario_export_helper ──
+              if(!function_exists('utec_pront_rotulos')){ $this->load->helper('prontuario_export'); }
+              $lbl = utec_pront_rotulos(isset($prestador_esp_id) ? (int)$prestador_esp_id : 0);
               // ── fim labels ───────────────────────────────────────────────────
               ?>
 

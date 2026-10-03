@@ -429,6 +429,68 @@ function prontuario($id_user=1,$id_agenda=0){
 
 } // x fn
 
+function exportar_prontuario($id_paciente=0, $formato=''){
+	$id_paciente = (int)$id_paciente;
+	$formato = strtolower((string)$formato);
+	if($id_paciente <= 1 || !in_array($formato, array('pdf', 'csv', 'xlsx'), true)){
+		show_404(); return;
+	}
+	$dd_user = $this->padrao_model->get_usuario_logado();
+	if(!$dd_user || !in_array((int)$dd_user->nivel, array(1, 2, 3), true)){
+		show_error('Acesso negado à exportação do prontuário.', 403); return;
+	}
+	if(!$this->padrao_model->can_access_usuario($id_paciente)){
+		show_error('Acesso negado ao prontuario selecionado.', 403); return;
+	}
+	$this->load->helper(array('prontuario_export', 'download'));
+	$this->load->library('xlsx_simples');
+	if($formato === 'xlsx' && !Xlsx_simples::disponivel()){
+		show_404(); return;
+	}
+
+	list($de, $ate) = utec_pront_normalizar_periodo($this->input->get('de', true), $this->input->get('ate', true));
+	$this->load->model('Prontuario_export_model', 'prontuario_export_model');
+	$dados = $this->prontuario_export_model->coletar($id_paciente, $de, $ate, $dd_user);
+	if(!$dados){ show_404(); return; }
+
+	$this->prontuario_export_model->registrar_exportacao(
+		(int)$dd_user->id, $id_paciente, $formato, $de, $ate, (string)$this->input->ip_address()
+	);
+	$nome = utec_pront_nome_arquivo($id_paciente, $formato, date('Y-m-d'));
+
+	if($formato === 'csv'){
+		force_download($nome, utec_pront_csv(utec_pront_linhas_tabulares($dados)), TRUE);
+		return;
+	}
+
+	if($formato === 'xlsx'){
+		foreach(utec_pront_linhas_tabulares($dados) as $aba => $linhas){
+			$this->xlsx_simples->adicionar_aba($aba, $linhas);
+		}
+		$bin = $this->xlsx_simples->gerar();
+		if($bin === false){
+			log_message('error', 'exportar_prontuario: falha ao gerar XLSX do paciente '.$id_paciente);
+			show_error('Não foi possível gerar o arquivo. Tente novamente.', 500); return;
+		}
+		force_download($nome, $bin, TRUE);
+		return;
+	}
+
+	// PDF — mesmo cuidado de Usuarios::manual_pdf(): o mPDF v6 emite notices que corrompem o PDF
+	$html = $this->load->view('adm/usuarios/prontuario_pdf', array('exp' => $dados), true);
+	$nivel_erro_anterior = error_reporting();
+	error_reporting(0);
+	$this->load->library('m_pdf');
+	$mpdf = $this->m_pdf->pdf;
+	$mpdf->SetTitle('Prontuario - '.$dados['paciente']->nome);
+	$mpdf->SetAuthor('UTec Saude');
+	$mpdf->SetHTMLHeader('<div style="text-align:right;font-size:8pt;color:#64748b;border-bottom:0.5pt solid #e2e8f0;padding-bottom:4px;">Prontuário — '.htmlspecialchars($dados['paciente']->nome).'</div>');
+	$mpdf->SetHTMLFooter('<div style="text-align:center;font-size:8pt;color:#94a3b8;border-top:0.5pt solid #e2e8f0;padding-top:4px;">Documento confidencial &middot; gerado por '.htmlspecialchars($dados['meta']['gerado_por']).' em '.$dados['meta']['gerado_em'].' &middot; página {PAGENO} de {nb}</div>');
+	$mpdf->WriteHTML($html);
+	$mpdf->Output($nome, 'D');
+	error_reporting($nivel_erro_anterior);
+} // x fn
+
 function exames($id_user=1){
 	$id_user = (int)$id_user;
 	if($id_user == 1){ return; }

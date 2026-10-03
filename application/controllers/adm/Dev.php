@@ -458,6 +458,32 @@ class Dev extends CI_Controller {
 		echo '</ul>';
 	}
 
+	function migrar_prontuario_exportacoes(){
+		if($this->session->userdata('nivel') != 1){
+			show_error('Acesso negado.', 403); return;
+		}
+		$logs = [];
+		$this->run_sql("CREATE TABLE IF NOT EXISTS `prontuario_exportacoes` (
+			`id` INT AUTO_INCREMENT PRIMARY KEY,
+			`id_usuario` INT NOT NULL,
+			`id_paciente` INT NOT NULL,
+			`tenant_id` INT NULL DEFAULT NULL,
+			`formato` VARCHAR(8) NOT NULL,
+			`periodo_de` DATE NULL DEFAULT NULL,
+			`periodo_ate` DATE NULL DEFAULT NULL,
+			`ip_hash` CHAR(64) NULL DEFAULT NULL,
+			`criado_em` DATETIME NOT NULL,
+			INDEX `idx_pront_exp_paciente` (`id_paciente`),
+			INDEX `idx_pront_exp_usuario` (`id_usuario`)
+		) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", $logs, 'tabela `prontuario_exportacoes` verificada');
+
+		echo '<h3>Migração: auditoria de exportação de prontuário</h3><ul>';
+		foreach($logs as $log){
+			echo '<li>'.htmlspecialchars($log).'</li>';
+		}
+		echo '</ul>';
+	}
+
 	function criar_tabela_arquivos_paciente(){
 		$sql = "CREATE TABLE IF NOT EXISTS `pacientes_arquivos` (
 			`id`             INT AUTO_INCREMENT PRIMARY KEY,
