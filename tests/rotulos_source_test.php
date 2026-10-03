@@ -51,4 +51,12 @@ assertContains('htmlspecialchars', $vcat, 'view escapa');
 $menu = lerArquivo('includes/adm/menu.php');
 assertContains("base_url().'adm/rotulos'", $menu, 'item de menu');
 
+// Prontuário
+$pront = lerArquivo('application/views/adm/usuarios/new/prontuario.php');
+assertContains("load->model('Rotulos_model', 'rotulos_model')", $pront, 'prontuario carrega model');
+assertContains('rotulos_model->disponivel()', $pront, 'prontuario guarda sem migracao');
+assertContains('adm/rotulos/paciente/', $pront, 'form aplicar rotulos');
+assertContains('name="rotulos[]"', $pront, 'checkboxes de rotulos');
+assertContains("flashdata('rotulos_ok')", $pront, 'flash de rotulos');
+
 echo "OK\n";

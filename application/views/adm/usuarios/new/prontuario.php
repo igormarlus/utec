@@ -319,6 +319,9 @@
         border-color: var(--ut-green-600) !important;
         color: var(--ut-green-600) !important;
       }
+      .ut-rotulo { display:inline-block; border:1px solid; border-radius:999px; padding:1px 10px; font-size:12px; font-weight:700; background:#fff; margin:2px 4px 2px 0; }
+      .ut-rotulo-alerta { background:#fef2f2; }
+      .ut-rotulos-linha { margin-top:8px; }
     </style>
     
   </head>
@@ -389,6 +392,30 @@
               <?php if($whatsapp_status && isset($whatsapp_status['message'])){ ?>
                 <div class="alert alert-<?=htmlspecialchars($whatsapp_status['type'])?>" style="margin-bottom:20px;"><?=htmlspecialchars($whatsapp_status['message'])?></div>
               <?php } ?>
+              <?php
+              $ut_rot_ok = false; $ut_rot_paciente = array(); $ut_rot_catalogo = array(); $ut_rot_marcados = array(); $ut_rot_gerencia = false;
+              $ut_ci =& get_instance();
+              $ut_ci->load->model('Rotulos_model', 'rotulos_model');
+              if($ut_ci->rotulos_model->disponivel()){
+                $ut_rot_ok = true;
+                $ut_rot_conta = $ut_ci->rotulos_model->conta_raiz((int)$paciente->id);
+                $ut_rot_catalogo = $ut_ci->rotulos_model->catalogo($ut_rot_conta, true);
+                if(empty($ut_rot_catalogo) && $ut_rot_conta > 0){
+                  $ut_ci->rotulos_model->garantir_sugestoes($ut_rot_conta, (int)$this->session->userdata('id'));
+                  $ut_rot_catalogo = $ut_ci->rotulos_model->catalogo($ut_rot_conta, true);
+                }
+                $ut_rot_paciente = $ut_ci->rotulos_model->rotulos_do_paciente((int)$paciente->id, true);
+                foreach($ut_rot_paciente as $ut_r){ $ut_rot_marcados[(int)$ut_r->id] = true; }
+                $ut_nivel_logado = (int)$this->session->userdata('nivel');
+                $ut_id_logado = (int)$this->session->userdata('id');
+                $ut_rot_gerencia = $ut_nivel_logado === 1 || $ut_nivel_logado === 2
+                  || ($ut_nivel_logado === 3 && $ut_ci->rotulos_model->conta_raiz($ut_id_logado) === $ut_id_logado);
+              }
+              $ut_rot_flash_ok = $this->session->flashdata('rotulos_ok');
+              $ut_rot_flash_erro = $this->session->flashdata('rotulos_erro');
+              ?>
+              <?php if($ut_rot_flash_ok){ ?><div class="alert alert-success" style="margin-bottom:20px;"><?=htmlspecialchars($ut_rot_flash_ok)?></div><?php } ?>
+              <?php if($ut_rot_flash_erro){ ?><div class="alert alert-danger" style="margin-bottom:20px;"><?=htmlspecialchars($ut_rot_flash_erro)?></div><?php } ?>
               <div class="row">
                 <div class="col-sm-12">
                   <div class="patient-summary-card">
@@ -396,6 +423,9 @@
                       <div>
                         <div class="section-heading" style="margin-bottom:6px"><?=$paciente->nome?></div>
                         <p style="margin:0;color:#5f708c">Prontuário com histórico de atendimentos, evolução clínica e arquivos do paciente.</p>
+                        <?php if($ut_rot_ok && !empty($ut_rot_paciente)){ ?>
+                          <div class="ut-rotulos-linha" aria-label="Rótulos do paciente"><?=utec_rotulos_chips_html($ut_rot_paciente)?></div>
+                        <?php } ?>
                       </div>
                       <div class="timeline-actions" style="margin-top:0">
                         <a href="<?=base_url()?>adm/atendimento" class="btn btn-secondary">Voltar</a>
@@ -435,6 +465,26 @@
                             box.querySelectorAll('input[type=date]').forEach(function(i){ i.addEventListener('change', atualizar); });
                           })();
                         </script>
+                        <?php } ?>
+                        <?php if($ut_rot_ok && in_array((int)$this->session->userdata('nivel'), array(1, 2, 3, 4), true) && (!empty($ut_rot_catalogo) || $ut_rot_gerencia)){ ?>
+                        <details class="pront-rotulos" style="display:inline-block;position:relative;">
+                          <summary class="btn btn-outline-secondary" style="list-style:none;cursor:pointer;">Rótulos</summary>
+                          <div style="position:absolute;right:0;z-index:20;background:#fff;border:1px solid #dbe3ef;border-radius:8px;padding:12px;min-width:250px;box-shadow:0 8px 24px rgba(15,76,129,.12);">
+                            <form method="post" action="<?=base_url('adm/rotulos/paciente/'.(int)$paciente->id)?>">
+                              <input type="hidden" name="voltar" value="<?=htmlspecialchars($this->uri->uri_string(), ENT_QUOTES, 'UTF-8')?>">
+                              <?php foreach($ut_rot_catalogo as $ut_r){ ?>
+                                <div class="form-check">
+                                  <input class="form-check-input" type="checkbox" name="rotulos[]" value="<?=(int)$ut_r->id?>" id="ut-rot-<?=(int)$ut_r->id?>" <?=isset($ut_rot_marcados[(int)$ut_r->id]) ? 'checked' : ''?>>
+                                  <label class="form-check-label" for="ut-rot-<?=(int)$ut_r->id?>"><?=utec_rotulos_chips_html(array($ut_r))?></label>
+                                </div>
+                              <?php } ?>
+                              <button type="submit" class="btn btn-sm btn-primary btn-block" style="margin-top:8px;">Salvar rótulos</button>
+                            </form>
+                            <?php if($ut_rot_gerencia){ ?>
+                              <a href="<?=base_url('adm/rotulos')?>" style="display:block;font-size:12px;margin-top:8px;">Gerenciar rótulos</a>
+                            <?php } ?>
+                          </div>
+                        </details>
                         <?php } ?>
                       </div>
                     </div>
