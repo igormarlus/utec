@@ -857,7 +857,8 @@ Atualizar `'atualizado_em'` dos dois capítulos para `'2026-10-05'`. Não mudar 
 ---
 
 ## Deploy (depois da revisão e do ok do usuário)
-1. Baixar do servidor `Dev.php`, `Manual_conteudo.php`, `prontuario.php` e comparar com a branch/`main`; conferir que `application/views/adm/ficha` não existe como *arquivo*.
-2. Ordem: `ficha_paciente_helper.php` → `Ficha_paciente_model.php` → `views/adm/ficha/paciente.php` → `controllers/adm/Ficha.php` → `Dev.php` → `Manual_conteudo.php` → `prontuario.php` (por último).
-3. Baixar de novo e `cmp`; healthcheck (home/`admin` 200; `adm/ficha/paciente/2` sem sessão 302).
-4. Rodar `adm/dev/migrar_ficha_pacientes`; testar: nível 3 preenche tudo (inclusive CPF inválido → erro); nível 4 edita convênio e vê saúde só leitura; alergias aparecem no topo do prontuário.
+1. Pré-requisito: `prontuario.php` desta branch já contém o bloco de rótulos (`feat/rotulos-pacientes`). Os arquivos dos rótulos já estão em produção desde 2026-10-03 (deploy da branch de rótulos); confirmar antes de subir que `rotulos_helper.php` e `Rotulos_model.php` existem no servidor. Comparar os arquivos baixados com a branch `feat/ficha-paciente` (e não com `main`).
+2. Baixar do servidor `Dev.php`, `Manual_conteudo.php`, `prontuario.php` e comparar com a branch `feat/ficha-paciente`; conferir que `application/views/adm/ficha` não existe como *arquivo*.
+3. Ordem: `ficha_paciente_helper.php` → `Ficha_paciente_model.php` → `views/adm/ficha/paciente.php` → `controllers/adm/Ficha.php` → `Dev.php` → `Manual_conteudo.php` → `prontuario.php` (por último).
+4. Baixar de novo e `cmp`; healthcheck (home/`admin` 200; `adm/ficha/paciente/2` sem sessão 302).
+5. Rodar `adm/dev/migrar_ficha_pacientes`; testar: nível 3 preenche tudo (inclusive CPF inválido → erro); nível 4 edita convênio e vê saúde só leitura; alergias aparecem no topo do prontuário.

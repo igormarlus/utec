@@ -428,7 +428,7 @@
               $ut_ficha_ok = false; $ut_ficha = array();
               $ut_ci_ficha =& get_instance();
               $ut_ci_ficha->load->model('Ficha_paciente_model', 'ficha_model');
-              if($ut_ci_ficha->ficha_model->disponivel()){
+              if($ut_ci_ficha->ficha_model->disponivel() && (int)$paciente->nivel === 5 && in_array((int)$this->session->userdata('nivel'), array(1, 2, 3, 4), true)){
                 $ut_ficha_ok = true;
                 $ut_ficha = $ut_ci_ficha->ficha_model->obter((int)$paciente->id);
               }
@@ -450,7 +450,7 @@
                           $ut_alg = str_replace("\n", ' · ', $ut_ficha['alergias']);
                           if(function_exists('mb_strlen') && mb_strlen($ut_alg, 'UTF-8') > 160){ $ut_alg = mb_substr($ut_alg, 0, 160, 'UTF-8').'…'; }
                         ?>
-                          <div class="ut-ficha-alergia" role="alert">&#9888; Alergias: <?=htmlspecialchars($ut_alg, ENT_QUOTES, 'UTF-8')?></div>
+                          <div class="ut-ficha-alergia" role="note">&#9888; Alergias: <?=htmlspecialchars($ut_alg, ENT_QUOTES, 'UTF-8')?></div>
                         <?php } ?>
                       </div>
                       <div class="timeline-actions" style="margin-top:0">

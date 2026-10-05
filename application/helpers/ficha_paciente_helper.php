@@ -91,7 +91,14 @@ if(!function_exists('utec_ficha_normalizar')){
 			'convenio_nome' => 80, 'convenio_plano' => 80, 'convenio_carteirinha' => 40,
 		);
 		foreach($curtos as $k => $max){ $dados[$k] = utec_ficha_texto_curto($g($k), $max); }
-		foreach(array('responsavel_telefone', 'emergencia_telefone') as $k){ $dados[$k] = utec_ficha_telefone($g($k)); }
+		$tel_msgs = array(
+			'responsavel_telefone' => 'Telefone do responsável inválido.',
+			'emergencia_telefone' => 'Telefone do contato de emergência inválido.',
+		);
+		foreach($tel_msgs as $k => $msg){
+			$dados[$k] = utec_ficha_telefone($g($k));
+			if($dados[$k] === '' && preg_match('/\d/', $g($k))){ $erros[] = $msg; }
+		}
 
 		$dados['sexo'] = array_key_exists($g('sexo'), utec_ficha_opcoes_sexo()) ? $g('sexo') : '';
 		$dados['estado_civil'] = array_key_exists($g('estado_civil'), utec_ficha_opcoes_estado_civil()) ? $g('estado_civil') : '';

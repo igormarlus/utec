@@ -48,8 +48,12 @@ class Ficha extends CI_Controller {
 			}
 			$r = utec_ficha_normalizar($this->input->post(), $pode_saude);
 			if(!empty($r['erros'])){
-				$this->session->set_flashdata('ficha_erro', implode(' ', $r['erros']));
-				redirect('adm/ficha/paciente/'.$id);
+				// Sem redirect e sem flash/sessao: dados de saude nao podem ir para arquivos de sessao.
+				$ficha = array_merge($this->ficha_model->obter($id), $r['dados']);
+				foreach(array('responsavel_cpf', 'responsavel_telefone', 'emergencia_telefone') as $k){
+					if($ficha[$k] === ''){ $ficha[$k] = (string)$this->input->post($k); }
+				}
+				$this->load->view('adm/ficha/paciente', $this->dados_formulario($alvo, $ficha, implode(' ', $r['erros'])));
 				return;
 			}
 			$antes = $this->ficha_model->obter($id);
@@ -64,16 +68,20 @@ class Ficha extends CI_Controller {
 			return;
 		}
 
-		$dados = array(
+		$this->load->view('adm/ficha/paciente', $this->dados_formulario($alvo, $this->ficha_model->obter($id), $this->session->flashdata('ficha_erro')));
+	}
+
+	private function dados_formulario($alvo, $ficha, $flash_erro)
+	{
+		return array(
 			'paciente' => $alvo,
-			'ficha' => $this->ficha_model->obter($id),
+			'ficha' => $ficha,
 			'schema_ok' => $this->ficha_model->disponivel(),
-			'pode_editar_saude' => $pode_saude,
+			'pode_editar_saude' => $this->pode_editar_saude(),
 			'opcoes_sexo' => utec_ficha_opcoes_sexo(),
 			'opcoes_estado_civil' => utec_ficha_opcoes_estado_civil(),
 			'opcoes_tipo_sanguineo' => utec_ficha_opcoes_tipo_sanguineo(),
-			'flash_erro' => $this->session->flashdata('ficha_erro'),
+			'flash_erro' => $flash_erro,
 		);
-		$this->load->view('adm/ficha/paciente', $dados);
 	}
 }

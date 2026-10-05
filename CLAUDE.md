@@ -135,6 +135,7 @@ O projeto usa **CodeIgniter 3.1.10** em produção. **Não migrar para CI4 ou ou
 - `prontuario_exportacoes` — auditoria de exportação (`id_usuario`, `id_paciente`, `formato`, período, `ip_hash`)
 - `pacientes_rotulos` — catálogo de rótulos por conta (`id_conta` = raiz da árvore id_user), cor da paleta fixa, `alerta`
 - `pacientes_rotulos_vinculos` — paciente ↔ rótulo (PK composta)
+- `pacientes_ficha` — ficha 1:1 do paciente (pessoal/responsável, saúde básica com `saude_atualizado_por/em`, convênio)
 
 **Produtos e Pedidos**
 - `produtos` — catálogo de planos/serviços
@@ -150,9 +151,6 @@ O projeto usa **CodeIgniter 3.1.10** em produção. **Não migrar para CI4 ou ou
 **Arquivos de Pacientes**
 - `pacientes_arquivos` — arquivos enviados (id_paciente, id_agendamento, arquivo, tipo, descricao)
 - Armazenados em `uploads/pacientes/` com nome encriptado
-
-**Ficha do Paciente**
-- `pacientes_ficha` — ficha 1:1 do paciente (pessoal/responsável, saúde básica com `saude_atualizado_por/em`, convênio)
 
 **SaaS / Multi-tenant**
 - `saas_tenants` — cadastro do tenant (clínica/consultório)
@@ -398,6 +396,8 @@ application/views/
     │   ├── index.php                 # Dashboard operacional SaaS
     │   ├── tenant.php                # Detalhe do tenant, assinatura e equipe
     │   └── bloqueado.php             # Tela de tenant bloqueado por inadimplência
+    ├── ficha/
+    │   └── paciente.php              # Ficha do paciente (adm/ficha/paciente/{id})
     ├── marketing/
     │   └── trafego_ia.php            # Dashboard de Tráfego de IA (cards + Chart.js + tabelas)
     └── atendimento/

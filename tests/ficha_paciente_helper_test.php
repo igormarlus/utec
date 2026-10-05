@@ -38,7 +38,7 @@ $post = array(
     'responsavel_cpf' => '529.982.247-25',
     'emergencia_nome' => 'João',
     'emergencia_parentesco' => 'Pai',
-    'emergencia_telefone' => '123',
+    'emergencia_telefone' => '',
     'tipo_sanguineo' => 'O-',
     'alergias' => "Dipirona\r\nPenicilina  ",
     'medicamentos' => str_repeat('é', 2100),
@@ -59,7 +59,7 @@ assertSameValue('', $d['estado_civil'], 'opcao invalida vira vazio');
 assertSameValue(120, mb_strlen($d['responsavel_nome'], 'UTF-8'), 'corta em 120');
 assertSameValue('81999990000', $d['responsavel_telefone'], 'telefone so digitos');
 assertSameValue('52998224725', $d['responsavel_cpf'], 'cpf so digitos');
-assertSameValue('', $d['emergencia_telefone'], 'telefone curto vira vazio');
+assertSameValue('', $d['emergencia_telefone'], 'telefone vazio permanece vazio');
 assertSameValue('O-', $d['tipo_sanguineo'], 'tipo sanguineo');
 assertSameValue("Dipirona\nPenicilina", $d['alergias'], 'quebras normalizadas e trim');
 assertSameValue(2000, mb_strlen($d['medicamentos'], 'UTF-8'), 'texto longo cortado em 2000');
@@ -103,5 +103,15 @@ assertSameValue('(81) 3333-0000', utec_ficha_telefone_fmt('8133330000'), 'fmt fi
 assertSameValue('', utec_ficha_telefone_fmt('12'), 'fmt invalido');
 assertSameValue('31/12/2027', utec_ficha_data_br('2027-12-31'), 'data br');
 assertSameValue('', utec_ficha_data_br(''), 'data br vazia');
+
+
+// --- telefone invalido gera erro (nao apaga em silencio)
+$r4 = utec_ficha_normalizar(array('emergencia_telefone' => '123'), true);
+assertSameValue(array('Telefone do contato de emergência inválido.'), $r4['erros'], 'erro telefone emergencia');
+assertSameValue('', $r4['dados']['emergencia_telefone'], 'telefone invalido nao gravado');
+$r5 = utec_ficha_normalizar(array('responsavel_telefone' => '9999'), true);
+assertSameValue(array('Telefone do responsável inválido.'), $r5['erros'], 'erro telefone responsavel');
+$r6 = utec_ficha_normalizar(array('responsavel_telefone' => '', 'emergencia_telefone' => '  '), true);
+assertSameValue(array(), $r6['erros'], 'telefone vazio sem erro');
 
 echo "OK\n";

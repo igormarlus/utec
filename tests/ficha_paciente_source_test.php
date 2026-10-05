@@ -53,4 +53,7 @@ assertContains('Editar ficha', $manual, 'manual cobre ficha');
 $claude = lerArquivo('CLAUDE.md');
 assertContains('migrar_ficha_pacientes', $claude, 'CLAUDE.md documenta migracao');
 
+assertContains('function dados_formulario(', $ctl, 'helper de dados do formulario');
+assertContains("(int)\$paciente->nivel === 5", $pront, 'ficha so para paciente');
+
 echo "OK\n";
