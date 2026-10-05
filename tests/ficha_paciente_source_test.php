@@ -40,4 +40,12 @@ assertContains('name="convenio_validade"', $vf, 'campo validade');
 assertContains('$pode_editar_saude', $vf, 'saude condicionada');
 assertContains('htmlspecialchars', $vf, 'view escapa');
 
+$pront = lerArquivo('application/views/adm/usuarios/new/prontuario.php');
+assertContains("load->model('Ficha_paciente_model', 'ficha_model')", $pront, 'prontuario carrega ficha');
+assertContains('ficha_model->disponivel()', $pront, 'guarda sem migracao');
+assertContains('class="ut-ficha-alergia"', $pront, 'alergias em destaque');
+assertContains('class="ut-ficha-card"', $pront, 'card da ficha');
+assertContains('adm/ficha/paciente/', $pront, 'link editar ficha');
+assertContains("flashdata('ficha_ok')", $pront, 'flash da ficha');
+
 echo "OK\n";
