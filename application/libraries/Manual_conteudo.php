@@ -150,6 +150,7 @@ class Manual_conteudo {
                         'Acesse `Pacientes` para cadastrar um novo paciente ou localizar um já existente.',
                         'Mantenha telefone (com WhatsApp) e nome completo atualizados - são usados no envio de confirmação de agendamento.',
                         'Use `Rótulos` no topo do prontuário para marcar o paciente com etiquetas como VIP, Convênio ou Retorno pendente. Rótulos de alerta (ex.: Gestante, Alérgico) aparecem em destaque no prontuário e na agenda do dia. Na lista de pacientes, filtre por rótulo ao lado da busca.',
+                        'No prontuário, use `Editar ficha` para registrar nome social, responsável legal, contato de emergência, convênio (plano, carteirinha e validade) e dados de saúde: tipo sanguíneo, alergias, medicamentos em uso e comorbidades.',
                     ),
                     2 => array(
                         'Revisa a base ativa de pacientes de toda a clínica.',
@@ -159,10 +160,11 @@ class Manual_conteudo {
                     4 => array(
                         'Cadastra novos pacientes e localiza contatos rapidamente durante o atendimento telefônico ou presencial.',
                         'Aplica e remove rótulos dos pacientes pelo prontuário; a lista de rótulos é definida pela clínica.',
+                        'Preenche os dados pessoais e de convênio da ficha; os dados de saúde ficam visíveis, mas só o estabelecimento e o profissional podem alterá-los.',
                     ),
                 ),
                 'print' => 'pacientes-cadastro.png',
-                'atualizado_em' => '2026-10-03',
+                'atualizado_em' => '2026-10-05',
             ),
             array(
                 'slug' => 'prontuario',
@@ -175,6 +177,7 @@ class Manual_conteudo {
                         'Abra o prontuário a partir do agendamento em andamento, na Agenda ou na ficha do paciente.',
                         'Especialidades como Fisioterapia, Psicologia, Odontologia, Psiquiatria, Nutrição e Pediatria têm rótulos e exemplos de preenchimento adaptados - por exemplo, Fisioterapia mostra "Queixa / Avaliação Postural" onde a Clínica Médica mostra "Queixa Principal".',
                         'O conteúdo digitado continua sendo texto livre; o que muda por especialidade é apenas o rótulo e o texto de apoio (placeholder) de cada campo.',
+                        'Alergias registradas na ficha do paciente aparecem em destaque (⚠) no topo do prontuário.',
                     ),
                     3 => array(
                         'É o prestador quem preenche o prontuário durante o atendimento - registrar no mesmo dia mantém o histórico clínico organizado.',
@@ -190,7 +193,7 @@ class Manual_conteudo {
                     ),
                 ),
                 'print' => 'prontuario.png',
-                'atualizado_em' => '2026-10-03',
+                'atualizado_em' => '2026-10-05',
             ),
             array(
                 'slug' => 'exames',

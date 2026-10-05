@@ -48,4 +48,9 @@ assertContains('class="ut-ficha-card"', $pront, 'card da ficha');
 assertContains('adm/ficha/paciente/', $pront, 'link editar ficha');
 assertContains("flashdata('ficha_ok')", $pront, 'flash da ficha');
 
+$manual = lerArquivo('application/libraries/Manual_conteudo.php');
+assertContains('Editar ficha', $manual, 'manual cobre ficha');
+$claude = lerArquivo('CLAUDE.md');
+assertContains('migrar_ficha_pacientes', $claude, 'CLAUDE.md documenta migracao');
+
 echo "OK\n";

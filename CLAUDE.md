@@ -151,6 +151,9 @@ O projeto usa **CodeIgniter 3.1.10** em produção. **Não migrar para CI4 ou ou
 - `pacientes_arquivos` — arquivos enviados (id_paciente, id_agendamento, arquivo, tipo, descricao)
 - Armazenados em `uploads/pacientes/` com nome encriptado
 
+**Ficha do Paciente**
+- `pacientes_ficha` — ficha 1:1 do paciente (pessoal/responsável, saúde básica com `saude_atualizado_por/em`, convênio)
+
 **SaaS / Multi-tenant**
 - `saas_tenants` — cadastro do tenant (clínica/consultório)
 - `saas_subscriptions` — assinatura principal do tenant
@@ -245,6 +248,7 @@ Verificado por `Padrao_model::can_access_saas_module()`. O Admin (nível 1) tem 
 | `Horarios.php` | `/adm/horarios` | Grade semanal, duração e bloqueios do prestador (edita: 1, 2 no escopo, 3 o próprio; 4 só vê) + endpoint JSON `adm/horarios/livres` usado pela agenda |
 | `Notificacoes.php` | `/adm/notificacoes/abrir/{id}` | Marca o aviso interno como lido pelo destinatário logado e redireciona para a `url` da notificação |
 | `Rotulos.php` | `/adm/rotulos` | Catálogo de rótulos da clínica (níveis 1, 2 e 3 autônomo) + `paciente/{id}` (POST) para aplicar rótulos (níveis 1–4, escopo) |
+| `Ficha.php` | `/adm/ficha/paciente/{id}` | Ficha do paciente (GET/POST): níveis 1–4 veem e editam pessoal/convênio; saúde só 1–3 |
 
 > `Atencimento.php` (com typo) foi renomeado para `.bak` — não é controller ativo.
 
@@ -541,6 +545,7 @@ Controller: `application/controllers/adm/Dev.php`
 | `adm/dev/migrar_horarios_atendimento` | Cria `prestador_horarios` + `prestador_bloqueios` e a coluna `usuarios.duracao_atendimento_min` (idempotente) |
 | `adm/dev/migrar_prontuario_exportacoes` | Cria `prontuario_exportacoes` (idempotente) |
 | `adm/dev/migrar_rotulos_pacientes` | Cria `pacientes_rotulos` + `pacientes_rotulos_vinculos` (idempotente) |
+| `adm/dev/migrar_ficha_pacientes` | Cria `pacientes_ficha` (idempotente) |
 | `adm/dev/testar_detector_ia` | Roda os casos mínimos do detector de tráfego de IA (PASS/FAIL) |
 | `adm/dev/purgar_monitoramento_ia` | Remove registros de IA com mais de 18 meses (`?meses=N` ajusta) |
 
@@ -589,6 +594,7 @@ Para novas migrações: adicionar método em `Dev.php`, proteger com `nivel == 1
 - [x] Horários de atendimento por profissional (grade semanal, duração, bloqueios) com sugestão de horários livres e aviso de encaixe na agenda — base para o chatbot marcar consultas
 - [x] Rótulos de pacientes (organização + alertas) com catálogo por clínica — prontuário, lista com filtro e alertas na agenda (`rotulos_helper.php`, `Rotulos_model`)
 - [x] Exportar prontuário por paciente (PDF/CSV/XLSX) com período e auditoria — helper `prontuario_export_helper.php`, `Xlsx_simples`, `Prontuario_export_model`. Deploy 2026-10-03: 8 arquivos runtime por FTP, `adm/dev/migrar_prontuario_exportacoes` executada e teste online OK (níveis 3/4). Nota: antes do deploy a view nova já estava no servidor sem o helper (prontuário quebrado em produção) — origem do upload não identificada; ao subir view que depende de helper novo, conferir o servidor antes.
+- [x] Ficha do paciente (pessoal/responsável, saúde básica, convênio) com alergias em destaque no prontuário (`ficha_paciente_helper.php`, `Ficha_paciente_model`). Entrega B (campos configuráveis por clínica) pendente.
 
 ### 15.2 Próximas Entregas (Prioridade Alta)
 
