@@ -518,6 +518,45 @@ class Dev extends CI_Controller {
 		echo '</ul>';
 	}
 
+	function migrar_ficha_pacientes(){
+		if($this->session->userdata('nivel') != 1){
+			show_error('Acesso negado.', 403); return;
+		}
+		$logs = [];
+		$this->run_sql("CREATE TABLE IF NOT EXISTS `pacientes_ficha` (
+			`id_paciente` INT NOT NULL PRIMARY KEY,
+			`nome_social` VARCHAR(120) NULL,
+			`sexo` VARCHAR(20) NULL,
+			`estado_civil` VARCHAR(20) NULL,
+			`responsavel_nome` VARCHAR(120) NULL,
+			`responsavel_parentesco` VARCHAR(40) NULL,
+			`responsavel_telefone` VARCHAR(20) NULL,
+			`responsavel_cpf` VARCHAR(14) NULL,
+			`emergencia_nome` VARCHAR(120) NULL,
+			`emergencia_parentesco` VARCHAR(40) NULL,
+			`emergencia_telefone` VARCHAR(20) NULL,
+			`tipo_sanguineo` VARCHAR(3) NULL,
+			`alergias` TEXT NULL,
+			`medicamentos` TEXT NULL,
+			`comorbidades` TEXT NULL,
+			`obs_saude` TEXT NULL,
+			`saude_atualizado_por` INT NULL,
+			`saude_atualizado_em` DATETIME NULL,
+			`convenio_nome` VARCHAR(80) NULL,
+			`convenio_plano` VARCHAR(80) NULL,
+			`convenio_carteirinha` VARCHAR(40) NULL,
+			`convenio_validade` DATE NULL,
+			`atualizado_por` INT NULL,
+			`atualizado_em` DATETIME NULL
+		) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", $logs, 'tabela `pacientes_ficha` verificada');
+
+		echo '<h3>Migração: ficha do paciente</h3><ul>';
+		foreach($logs as $log){
+			echo '<li>'.htmlspecialchars($log).'</li>';
+		}
+		echo '</ul>';
+	}
+
 	function criar_tabela_arquivos_paciente(){
 		$sql = "CREATE TABLE IF NOT EXISTS `pacientes_arquivos` (
 			`id`             INT AUTO_INCREMENT PRIMARY KEY,
