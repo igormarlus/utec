@@ -24,5 +24,20 @@ assertContains('function salvar(', $model, 'salvar');
 assertContains("table_exists('pacientes_ficha')", $model, 'guarda table_exists');
 assertContains('ON DUPLICATE KEY UPDATE', $model, 'upsert');
 assertContains('array_keys(utec_ficha_vazia())', $model, 'colunas por whitelist');
+$ctl = lerArquivo('application/controllers/adm/Ficha.php');
+assertContains('class Ficha extends CI_Controller', $ctl, 'controller existe');
+assertContains('verSession()', $ctl, 'exige sessao');
+assertContains('if($nivel < 1 || $nivel > 4)', $ctl, 'bloqueia nivel 5');
+assertContains('can_access_usuario($id)', $ctl, 'escopo do paciente');
+assertContains('(int)$alvo->nivel !== 5', $ctl, 'so pacientes');
+assertContains('utec_ficha_normalizar($this->input->post(), $pode_saude)', $ctl, 'descarta saude sem permissao');
+assertContains('array(1, 2, 3)', $ctl, 'saude so 1-3');
+
+$vf = lerArquivo('application/views/adm/ficha/paciente.php');
+assertContains('name="alergias"', $vf, 'campo alergias');
+assertContains('name="responsavel_cpf"', $vf, 'campo cpf responsavel');
+assertContains('name="convenio_validade"', $vf, 'campo validade');
+assertContains('$pode_editar_saude', $vf, 'saude condicionada');
+assertContains('htmlspecialchars', $vf, 'view escapa');
 
 echo "OK\n";
