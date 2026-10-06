@@ -195,6 +195,12 @@
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
+  <url>
+    <loc>https://utecnologia.com.br/chatbot-para-clinicas</loc>
+    <lastmod>2026-10-06</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
 
   <!-- Páginas institucionais — E-A-T / Google YMYL health signals -->
   <url>

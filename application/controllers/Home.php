@@ -759,6 +759,11 @@ class Home extends CI_Controller {
 		$this->load->view('public/seo/casos-de-uso');
 	}
 
+	public function seo_chatbot_para_clinicas()
+	{
+		$this->load->view('public/seo/chatbot-para-clinicas');
+	}
+
 	public function sobre()
 	{
 		$this->load->view('public/sobre');
