@@ -367,6 +367,13 @@
     </div>
 </section>
 
+<section class="section">
+    <div class="wrap">
+        <div class="section-label">Funcionalidades relacionadas</div>
+        <?php $this->load->view('public/partials/funcionalidades', array('func_formato' => 'grade', 'func_ids' => array('tempo_espera', 'rotulos', 'relatorios', 'whatsapp_confirmacao', 'equipe'), 'func_agrupar' => false, 'func_titulo' => '')); ?>
+    </div>
+</section>
+
 <section class="section" style="background:var(--white);">
     <div class="wrap">
         <div class="section-label">Perguntas frequentes</div>
@@ -414,6 +421,13 @@
                     <span class="faq-chevron">▾</span>
                 </div>
                 <div class="faq-a">O Plano Solo custa R$ 79/mês (1 profissional, 2 colaboradores). O Plano Clínica R$ 199/mês (até 5 profissionais). O Plano Pro R$ 399/mês (até 20 profissionais). Sem taxa de adesão nos planos mensais e sem fidelidade contratual.</div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-q" onclick="this.closest('.faq-item').classList.toggle('open')">
+                    Dá para medir o tempo de espera dos pacientes?
+                    <span class="faq-chevron">▾</span>
+                </div>
+                <div class="faq-a">Sim. A recepção marca a chegada do paciente com um clique na agenda e o sistema registra o início e o fim do atendimento. Em Relatórios clínicos aparecem a espera média, o atraso em relação ao horário marcado e a duração média das consultas, por profissional e por período.</div>
             </div>
         </div>
     </div>
@@ -484,6 +498,11 @@
       "@type": "Question",
       "name": "É possível testar o software antes de contratar?",
       "acceptedAnswer": {"@type": "Answer", "text": "Sim. O trial de 30 dias é gratuito e sem cartão de crédito. Você usa todas as funcionalidades com dados reais. Só assina se gostar."}
+    },
+    {
+      "@type": "Question",
+      "name": "Dá para medir o tempo de espera dos pacientes?",
+      "acceptedAnswer": {"@type": "Answer", "text": "Sim. A recepção marca a chegada do paciente com um clique na agenda e o sistema registra o início e o fim do atendimento. Em Relatórios clínicos aparecem a espera média, o atraso em relação ao horário marcado e a duração média das consultas, por profissional e por período."}
     }
   ]
 }

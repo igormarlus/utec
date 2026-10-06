@@ -425,6 +425,13 @@
     </div>
 </section>
 
+<section class="section">
+    <div class="wrap">
+        <div class="section-label">Funcionalidades relacionadas</div>
+        <?php $this->load->view('public/partials/funcionalidades', array('func_formato' => 'grade', 'func_ids' => array('tempo_espera', 'ficha_paciente', 'whatsapp_confirmacao', 'chatbot', 'horarios'), 'func_agrupar' => false, 'func_titulo' => '')); ?>
+    </div>
+</section>
+
 <section class="section" style="background:var(--paper);">
     <div class="wrap">
         <div class="section-label">Perguntas frequentes</div>
@@ -458,6 +465,10 @@
             <div class="faq-item">
                 <div class="faq-q">E se eu crescer e precisar adicionar mais médicos depois?</div>
                 <div class="faq-a">Basta migrar para o plano Clínica (R$ 199/mês, até 5 médicos) ou Pro (R$ 399/mês, até 20 médicos). Todos os dados do consultório são preservados na migração — pacientes, prontuários, histórico de atendimentos e exames.</div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-q">O paciente consegue remarcar sozinho?</div>
+                <div class="faq-a">Sim, pelo WhatsApp. Com 24 horas ou mais de antecedência, o paciente escolhe um novo dia e horário livres do mesmo profissional, ou cancela, direto no chatbot. Para isso o telefone precisa estar cadastrado e o profissional precisa ter os horários de atendimento configurados.</div>
             </div>
         </div>
     </div>
@@ -545,6 +556,11 @@
       "@type": "Question",
       "name": "E se eu crescer e precisar adicionar mais médicos depois?",
       "acceptedAnswer": {"@type": "Answer", "text": "Basta migrar para o plano Clínica (R$ 199/mês, até 5 médicos) ou Pro (R$ 399/mês, até 20 médicos). Todos os dados são preservados na migração."}
+    },
+    {
+      "@type": "Question",
+      "name": "O paciente consegue remarcar sozinho?",
+      "acceptedAnswer": {"@type": "Answer", "text": "Sim, pelo WhatsApp. Com 24 horas ou mais de antecedência, o paciente escolhe um novo dia e horário livres do mesmo profissional, ou cancela, direto no chatbot. Para isso o telefone precisa estar cadastrado e o profissional precisa ter os horários de atendimento configurados."}
     }
   ]
 }

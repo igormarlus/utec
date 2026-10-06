@@ -319,6 +319,13 @@
     </div>
 </section>
 
+<section class="section">
+    <div class="wrap">
+        <div class="section-label">Funcionalidades relacionadas</div>
+        <?php $this->load->view('public/partials/funcionalidades', array('func_formato' => 'grade', 'func_ids' => array('prontuario_especialidade', 'ficha_paciente', 'exportar_prontuario', 'rotulos', 'exames'), 'func_agrupar' => false, 'func_titulo' => '')); ?>
+    </div>
+</section>
+
 <section class="section" style="background:var(--teal-lt);">
     <div class="wrap">
         <div class="section-label">Perguntas frequentes</div>
@@ -352,6 +359,20 @@
                     <span class="faq-chevron">▾</span>
                 </div>
                 <div class="faq-a">Sim. O sistema é multi-profissional. Cada médico, psicólogo, dentista ou terapeuta gerencia os prontuários dos seus próprios pacientes, com controle hierárquico de acesso.</div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-q" onclick="this.closest('.faq-item').classList.toggle('open')">
+                    Consigo exportar o prontuário do paciente?
+                    <span class="faq-chevron">▾</span>
+                </div>
+                <div class="faq-a">Sim. No prontuário de cada paciente há o botão Exportar, que gera o histórico em PDF, Excel ou CSV, completo ou de um período. Cada exportação fica registrada (quem exportou, quando e de qual paciente), como pede a LGPD. A exportação é feita pela clínica e pelos profissionais.</div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-q" onclick="this.closest('.faq-item').classList.toggle('open')">
+                    O sistema avisa quando o paciente tem alergia?
+                    <span class="faq-chevron">▾</span>
+                </div>
+                <div class="faq-a">Sim. As alergias registradas na ficha do paciente aparecem em destaque no topo do prontuário. A clínica também pode marcar o paciente com rótulos de alerta, como Alérgico ou Gestante, que aparecem no prontuário e na agenda do dia.</div>
             </div>
         </div>
     </div>
@@ -411,7 +432,9 @@
   "mainEntity": [
     {"@type": "Question", "name": "O prontuário eletrônico tem validade legal no Brasil?", "acceptedAnswer": {"@type": "Answer", "text": "Sim. A Resolução CFM 1.821/2007 regulamenta o uso de prontuário eletrônico para médicos no Brasil. Demais profissionais devem consultar o respectivo conselho de classe."}},
     {"@type": "Question", "name": "Posso migrar meu histórico de prontuários em papel?", "acceptedAnswer": {"@type": "Answer", "text": "Você pode cadastrar pacientes e criar o prontuário digital a partir da próxima consulta, inserindo um resumo do histórico anterior, e também anexar documentos escaneados."}},
-    {"@type": "Question", "name": "Posso ter prontuários de vários profissionais na mesma clínica?", "acceptedAnswer": {"@type": "Answer", "text": "Sim. O sistema é multi-profissional, com controle hierárquico de acesso. Cada profissional gerencia os prontuários dos seus próprios pacientes."}}
+    {"@type": "Question", "name": "Posso ter prontuários de vários profissionais na mesma clínica?", "acceptedAnswer": {"@type": "Answer", "text": "Sim. O sistema é multi-profissional, com controle hierárquico de acesso. Cada profissional gerencia os prontuários dos seus próprios pacientes."}},
+    {"@type": "Question", "name": "Consigo exportar o prontuário do paciente?", "acceptedAnswer": {"@type": "Answer", "text": "Sim. No prontuário de cada paciente há o botão Exportar, que gera o histórico em PDF, Excel ou CSV, completo ou de um período. Cada exportação fica registrada (quem exportou, quando e de qual paciente), como pede a LGPD. A exportação é feita pela clínica e pelos profissionais."}},
+    {"@type": "Question", "name": "O sistema avisa quando o paciente tem alergia?", "acceptedAnswer": {"@type": "Answer", "text": "Sim. As alergias registradas na ficha do paciente aparecem em destaque no topo do prontuário. A clínica também pode marcar o paciente com rótulos de alerta, como Alérgico ou Gestante, que aparecem no prontuário e na agenda do dia."}}
   ]
 }
 </script>

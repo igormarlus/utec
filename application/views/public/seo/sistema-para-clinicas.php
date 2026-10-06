@@ -392,6 +392,13 @@
 
 <section class="section">
     <div class="wrap">
+        <div class="section-label">Funcionalidades relacionadas</div>
+        <?php $this->load->view('public/partials/funcionalidades', array('func_formato' => 'grade', 'func_ids' => array('tempo_espera', 'rotulos', 'relatorios', 'whatsapp_confirmacao', 'equipe'), 'func_agrupar' => false, 'func_titulo' => '')); ?>
+    </div>
+</section>
+
+<section class="section">
+    <div class="wrap">
         <div class="section-label">Perguntas frequentes</div>
         <h2>Dúvidas sobre o sistema para clínicas</h2>
         <p class="section-sub" style="margin-bottom:40px;"></p>
@@ -437,6 +444,13 @@
                     <span class="faq-chevron">▾</span>
                 </div>
                 <div class="faq-a">Sim. O UTecnologia Saúde usa arquitetura multi-tenant com dados completamente isolados por clínica. Cada clínica tem seu próprio ambiente — os dados dos seus pacientes não são acessíveis por outros usuários ou outras clínicas na plataforma.</div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-q" onclick="this.closest('.faq-item').classList.toggle('open')">
+                    Dá para medir o tempo de espera dos pacientes?
+                    <span class="faq-chevron">▾</span>
+                </div>
+                <div class="faq-a">Sim. A recepção marca a chegada do paciente com um clique na agenda e o sistema registra o início e o fim do atendimento. Em Relatórios clínicos aparecem a espera média, o atraso em relação ao horário marcado e a duração média das consultas, por profissional e por período.</div>
             </div>
         </div>
     </div>
@@ -496,7 +510,8 @@
   "mainEntity": [
     {"@type": "Question", "name": "O sistema funciona para clínicas com vários profissionais de saúde?", "acceptedAnswer": {"@type": "Answer", "text": "Sim. O Plano Clínica suporta até 5 profissionais e 10 colaboradores. O Plano Pro suporta até 20 profissionais."}},
     {"@type": "Question", "name": "O sistema funciona para diferentes especialidades médicas?", "acceptedAnswer": {"@type": "Answer", "text": "Sim. Suporta clínica médica, psicologia, odontologia, fisioterapia, nutrição, pediatria, oftalmologia e outras especialidades."}},
-    {"@type": "Question", "name": "Qual o custo após o trial gratuito?", "acceptedAnswer": {"@type": "Answer", "text": "O Plano Solo custa R$ 79/mês, o Plano Clínica R$ 199/mês e o Plano Pro R$ 399/mês. Todos com pacientes ilimitados e cancelamento a qualquer momento."}}
+    {"@type": "Question", "name": "Qual o custo após o trial gratuito?", "acceptedAnswer": {"@type": "Answer", "text": "O Plano Solo custa R$ 79/mês, o Plano Clínica R$ 199/mês e o Plano Pro R$ 399/mês. Todos com pacientes ilimitados e cancelamento a qualquer momento."}},
+    {"@type": "Question", "name": "Dá para medir o tempo de espera dos pacientes?", "acceptedAnswer": {"@type": "Answer", "text": "Sim. A recepção marca a chegada do paciente com um clique na agenda e o sistema registra o início e o fim do atendimento. Em Relatórios clínicos aparecem a espera média, o atraso em relação ao horário marcado e a duração média das consultas, por profissional e por período."}}
   ]
 }
 </script>

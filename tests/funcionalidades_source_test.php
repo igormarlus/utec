@@ -21,5 +21,23 @@ tem('feature-card--whatsapp', $home, 'card do whatsapp mantido');
 tem('experimentar#funcionalidades', $home, 'link ver todas');
 naoTem('Exporte para PDF e tenha visão gerencial', $home, 'card antigo de relatorios removido');
 
-echo "OK
-";
+$landings = array(
+    'sistema-prontuario-eletronico' => array('Consigo exportar o prontuário do paciente?', 'O sistema avisa quando o paciente tem alergia?'),
+    'sistema-para-clinicas' => array('Dá para medir o tempo de espera dos pacientes?'),
+    'software-para-clinicas' => array('Dá para medir o tempo de espera dos pacientes?'),
+    'sistema-para-consultorio-medico' => array('O paciente consegue remarcar sozinho?'),
+    'casos-de-uso' => array(),
+);
+foreach ($landings as $slug => $perguntas) {
+    $html = ler('application/views/public/seo/' . $slug . '.php');
+    tem("load->view('public/partials/funcionalidades'", $html, $slug . ' usa partial');
+    tem('Funcionalidades relacionadas', $html, $slug . ' bloco');
+    foreach ($perguntas as $q) {
+        if (substr_count($html, $q) < 2) { falha($slug . ' — pergunta deve estar no HTML e no JSON-LD: ' . $q); }
+    }
+    if (preg_match_all('#<script type="application/ld\+json">(.*?)</script>#s', $html, $m)) {
+        foreach ($m[1] as $json) { if (json_decode($json) === null) { falha($slug . ' — JSON-LD invalido'); } }
+    }
+}
+
+echo "OK\n";
