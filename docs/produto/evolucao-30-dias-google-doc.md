@@ -14,15 +14,15 @@ Legenda:
 - ✅ Exportar Prontuário (PDF, XLS, CSV) — em produção desde 03/10/2026
 - ✅ Rótulos dos pacientes — publicado em 03/10/2026, aguardando validação online
 - ✅ Informações adicionais do paciente (Ficha do paciente) — publicado em 05/10/2026, aguardando validação online
-- 🟢 Tempo médio de espera — pronto e revisado em 06/10/2026, aguardando publicação
+- ✅ Tempo médio de espera — publicado em 06/10/2026, aguardando validação online
 - ⏳ Próximos da Onda 1: Lista de espera/Encaixe, Gráficos de exames
 
 ---
 
 ## Atendimento
 
-### Tempo médio de espera — 🟢 Pronto, aguardando publicação
-- Desenvolvido e revisado em 06/10/2026; falta publicar e validar online.
+### Tempo médio de espera — ✅ Concluído
+- Desenvolvido, revisado e publicado em 06/10/2026. Falta a validação online (teste em produção) para fechar.
 - Como vai funcionar: a recepção marca "Chegou" na agenda (check-in). O sistema registra automaticamente o horário de início e de fim do atendimento quando o profissional muda o status.
 - Na agenda, cada paciente mostra algo como: "Chegou 14:05 · esperou 18 min · consulta 32 min".
 - Em Relatórios clínicos: espera média, atraso médio (em relação ao horário marcado) e duração média, com filtro por período e por profissional, mais uma tabela por profissional.
@@ -118,3 +118,4 @@ Legenda:
 - 06/10/2026 — Documento criado com o andamento até aqui (Exportar prontuário, Rótulos, Ficha do paciente, Tempo de espera).
 - 06/10/2026 — Ficha do paciente marcada como publicada (05/10); Rótulos e Ficha aguardando validação online; Tempo de espera entrou em desenvolvimento.
 - 06/10/2026 — Tempo médio de espera concluído e revisado (check-in, horários de início/fim, médias em Relatórios clínicos); aguardando publicação.
+- 06/10/2026 — Tempo médio de espera publicado em produção. Rótulos, Ficha do paciente e Tempo de espera integrados à versão principal do sistema; os três aguardam validação online.
