@@ -557,6 +557,23 @@ class Dev extends CI_Controller {
 		echo '</ul>';
 	}
 
+	function migrar_tempos_atendimento(){
+		if($this->session->userdata('nivel') != 1){
+			show_error('Acesso negado.', 403); return;
+		}
+		$logs = [];
+		$this->ensure_column('agendamentos', 'chegada_em', "DATETIME NULL", $logs);
+		$this->ensure_column('agendamentos', 'chegada_por', "INT NULL", $logs);
+		$this->ensure_column('agendamentos', 'inicio_atendimento_em', "DATETIME NULL", $logs);
+		$this->ensure_column('agendamentos', 'fim_atendimento_em', "DATETIME NULL", $logs);
+
+		echo '<h3>Migração: tempos de atendimento</h3><ul>';
+		foreach($logs as $log){
+			echo '<li>'.htmlspecialchars($log).'</li>';
+		}
+		echo '</ul>';
+	}
+
 	function criar_tabela_arquivos_paciente(){
 		$sql = "CREATE TABLE IF NOT EXISTS `pacientes_arquivos` (
 			`id`             INT AUTO_INCREMENT PRIMARY KEY,
