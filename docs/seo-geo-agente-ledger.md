@@ -1,10 +1,10 @@
 # Ledger do agente SEO/GEO — UTecnologia Saúde
 
-Última atualização: 2026-10-06 (ciclo semanal, bloco 2 — ver `docs/seo-geo-agente-relatorio-2026-10-06.md`)
+Última atualização: 2026-10-06 (ciclo semanal, blocos 2 e 3 — ver `docs/seo-geo-agente-relatorio-2026-10-06.md`)
 
-Rodízio (passo 2 do `SKILL.md`): último bloco coberto = **2. Concorrentes** (2026-10-06, incluindo o espaço chatbot/automação de WhatsApp). Próxima execução deve cobrir o bloco **3. Variações semânticas e GEO**.
+Rodízio (passo 2 do `SKILL.md`): último bloco coberto = **3. Variações semânticas e GEO** (2026-10-06, 2ª rodada do dia, a pedido do Igor). Próxima execução deve cobrir o bloco **1. Especialidades sem landing** (sobram as não testadas: alergologia, infectologia, cirurgia geral/cardiovascular, hematologia, MFC, medicina do esporte/intensiva/legal, nefrologia, neurocirurgia, proctologia, radiologia, vascular).
 
-Histórico do rodízio: bloco 1 em 2026-08-20 · bloco 2 em 2026-10-06.
+Histórico do rodízio: bloco 1 em 2026-08-20 · bloco 2 em 2026-10-06 · bloco 3 em 2026-10-06.
 
 ---
 
@@ -29,8 +29,18 @@ Histórico do rodízio: bloco 1 em 2026-08-20 · bloco 2 em 2026-10-06.
 | `sistema para medicina do trabalho`, `software para medicina do trabalho`, `sistema para clinica de medicina do trabalho`, `software para medicina e segurança do trabalho` | 2026-08-20 | **Demanda forte confirmada** — sugestões incluem marcas concorrentes (SOC, ESO, Senior) | Landing criada — ver seção 2 |
 | `sistema para clinica ocupacional` | 2026-08-20 | Sinal fraco (só eco do termo) | 2026-09-17 |
 | `confirmação de consulta por whatsapp`, `mensagem de confirmação de consulta`, `lembrete de consulta`, `mensagem de lembrete de consulta`, `sistema de agendamento com whatsapp`, `whatsapp para clínicas`, `mensagem de confirmação de consulta odontológica` | 2026-08-31 | **Demanda confirmada** — clusters informacionais fortes (mensagem/lembrete/modelo) + intenção de ferramenta (`sistema de agendamento com whatsapp` + grátis/via/integrado). Landing + 7 artigos criados — ver seção 2. Sem sinal: "reduzir faltas", "no-show", "disparo de whatsapp", "confirmação de consulta automática" (usados só no corpo) | 2026-11-30 |
+| `programa para clinica/consultorio` (+ medica, odontologica, psicologia, fisioterapia, gratuito/gratis, "melhor programa para consultorio medico") | 2026-10-06 | **Demanda confirmada**, mas é sinônimo de "sistema" — não justifica landing nova (canibaliza `sistema-*`). Recomendado incluir "programa" em title/H1/FAQ das landings existentes | 2027-01-06 |
+| `sistema para clinica gratis/gratuito` (+ medica, odontologica, fisioterapia, "sistema de agenda para clinica gratuito") | 2026-10-06 | Demanda confirmada — já coberta pela landing `sistema-gratuito-para-clinicas` | 2027-01-06 |
+| `sistema para clinica na nuvem`, `sistema para clinica online`, `sistema web para clinica` | 2026-10-06 | Vazio / eco trivial | 2027-01-06 |
+| `como migrar de planilha para sistema`, `quanto custa um sistema para clinica`, `quanto custa um software medico`, `valor sistema para clinica` | 2026-10-06 | Vazio — os artigos da fase 1 de 2026-08-20 sobre esses temas (ainda não aplicados, 404 em produção) miram termos sem demanda; ver relatório | 2027-01-06 |
+| `planilha para clinica`, `planilha de controle de pacientes` (+ excel grátis, psicologia grátis, modelo, dentista), `planilha de agendamento de pacientes`, `planilha financeira para clinica` (+ medica/odontologica), `planilha para clinica odontologica` | 2026-10-06 | **Demanda forte** — artigo `planilha-de-controle-de-pacientes` criado. "Planilha financeira" fica como recomendação (produto não tem módulo financeiro) | 2027-01-06 |
+| `modelo de prontuario` (+ psicologico crp/cfp/pdf/word, medico, odontologico, fisioterapia) | 2026-10-06 | **Demanda forte** — artigos `modelo-de-prontuario-psicologico` e `modelo-de-prontuario-medico` criados. Odontológico e fisioterapia ficam para a próxima rodada | 2027-01-06 |
+| `quanto tempo guardar prontuario` (+ medico, odontologico, psicologico, de paciente) | 2026-10-06 | **Demanda forte** — artigo `quanto-tempo-guardar-prontuario` criado | 2027-01-06 |
+| `prontuario eletronico cfm` | 2026-10-06 | Sinal fraco e navegacional ("login", "gratuito cfm") | 2027-01-06 |
+| `prontuario eletronico obrigatorio` | 2026-10-06 | Vazio | 2027-01-06 |
+| `ficha de anamnese` | 2026-10-06 | Demanda forte, mas dominada por estética/personal/massoterapia; recortes de saúde: fisioterapia, psicológica pdf — avaliar artigo em rodada futura | 2027-01-06 |
+| `software para clinica ocupacional`, `software exame admissional`, `sistema esocial medicina do trabalho` | 2026-10-06 | Vazio / eco ("software historia clinica ocupacional") | 2027-01-06 |
 | `infectologia`, `alergologia e imunologia` | — | **Não testado ainda** (lote interrompido por timeout) | Próxima execução do bloco 1 |
-| `software para clinica ocupacional`, `software exame admissional`, `sistema esocial medicina do trabalho` | — | **Não testado ainda** (lote interrompido por timeout) | Próxima execução do bloco 1 ou 3 |
 
 ## 2. Páginas e artigos existentes
 
@@ -49,7 +59,9 @@ Gerados como `.sql` pendente de aplicação:
 - `docs/seo-geo-agente-blog-2026-08-20.sql` → "Software médico: como escolher para consultório ou clínica" (slug `software-medico-como-escolher-consultorio-clinica`) — **pendente de aplicação**
 - `docs/seo-geo-blog-whatsapp-confirmacao-2026-08-31.sql` → 7 artigos do cluster "confirmação/lembrete por WhatsApp" (slugs: `modelo-de-mensagem-de-confirmacao-de-consulta-whatsapp`, `mensagem-de-lembrete-de-consulta-quando-enviar`, `como-fazer-mensagem-de-confirmacao-de-consulta-no-whatsapp`, `confirmacao-de-consulta-manual-ou-automatica`, `como-reduzir-faltas-de-pacientes-no-consultorio`, `o-que-fazer-quando-paciente-nao-confirma-consulta`, `mensagem-de-confirmacao-de-consulta-odontologica`) — **aplicado em produção 2026-09-02; landing + menu + rodapé + sitemaps no ar, sitemaps reenviados ao Google**
 - `docs/seo-geo-blog-chatbot-whatsapp-2026-09-23.sql` → 5 artigos do cluster chatbot/automação WhatsApp (slugs: `chatbot-para-clinica-whatsapp-o-que-faz-e-o-que-nao-faz`, `sistema-de-agendamento-com-whatsapp-o-que-da-para-automatizar`, `enviar-mensagem-para-paciente-whatsapp-lgpd`, `paciente-remarcar-consulta-pelo-whatsapp`, `agenda-do-dia-pelo-whatsapp-para-medicos-e-clinicas`) — no `sitemap-blog.xml` segundo a auditoria de 2026-09-24 (inventário acrescentado em 2026-10-06)
-- `docs/seo-geo-agente-blog-fase-1-2026-08-20.sql` → `como-migrar-da-planilha-para-sistema-clinico`, `quanto-custa-um-software-para-clinica`, `software-gratuito-para-clinicas-trial-vs-gratuito` — status de aplicação não registrado; conferir
+- `docs/seo-geo-agente-blog-2026-10-06.sql` → 4 artigos do bloco 3 (slugs: `planilha-de-controle-de-pacientes`, `modelo-de-prontuario-psicologico`, `quanto-tempo-guardar-prontuario`, `modelo-de-prontuario-medico`) — **pendente de aplicação**; entradas de `sitemap-blog.xml` e `llms.txt` preparadas na branch `seo/bloco3-2026-10-06` para subir só depois do SQL
+- No ar e fora deste inventário até 2026-10-06 (conferido no `sitemap-blog.xml` de produção): `melhor-software-para-clinicas-como-avaliar`, `como-organizar-prontuarios-eletronicos`, `prontuario-para-oftalmologista-o-que-registrar-em-cada-consulta`, `software-medico-como-escolher-para-consultorio-ou-clinica`, `software-para-clinica-odontologica-como-escolher`
+- `docs/seo-geo-agente-blog-fase-1-2026-08-20.sql` → `como-migrar-da-planilha-para-sistema-clinico`, `quanto-custa-um-software-para-clinica`, `software-gratuito-para-clinicas-trial-vs-gratuito` — **não aplicados** (404 em produção em 2026-10-06)
 
 ## 3. Descartes (avaliado e rejeitado)
 
@@ -68,4 +80,4 @@ Gerados como `.sql` pendente de aplicação:
 
 > **Feito em 2026-10-06:** espaço chatbot/automação de WhatsApp auditado (landing `chatbot-para-clinicas` criada); os 2 artigos da "próxima leva" já tinham saído em 2026-09-23.
 >
-> **Para a próxima rodada (bloco 3 — variações semânticas e GEO):** testar `programa para clinica/consultorio`, `sistema para clinica gratis/gratuito`, `sistema para clinica na nuvem/web`, `como migrar de planilha`, `quanto custa sistema para clinica`, além dos itens ainda não testados `software para clinica ocupacional`, `software exame admissional`, `sistema esocial medicina do trabalho`.
+> **Bloco 3 feito em 2026-10-06** (4 artigos). Próximas pautas com demanda já confirmada: `modelo de prontuario odontologico`, `modelo de prontuario fisioterapia`, `ficha de anamnese fisioterapia/psicologica`, `planilha de agendamento de pacientes`.
