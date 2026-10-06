@@ -111,6 +111,7 @@ $route['sistema-para-fonoaudiologia']      = 'home/seo_sistema_fonoaudiologia';
 $route['sistema-para-medicina-do-trabalho'] = 'home/seo_sistema_medicina_trabalho';
 $route['confirmacao-de-consulta-por-whatsapp'] = 'home/seo_confirmacao_whatsapp';
 $route['casos-de-uso'] = 'home/seo_casos_de_uso';
+$route['chatbot-para-clinicas'] = 'home/seo_chatbot_para_clinicas';
 
 // Blog público
 $route['blog']        = 'blog/index';
