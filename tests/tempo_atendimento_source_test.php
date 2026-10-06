@@ -27,4 +27,11 @@ assertContains("input->method() !== 'post'", $ctl, 'checkin so POST');
 assertContains('can_access_agendamento($id_agenda)', $ctl, 'checkin respeita escopo');
 assertContains("preg_match('#^adm/[a-z0-9_/]*$#i', \$voltar)", $ctl, 'voltar restrito');
 
+$usr = lerArquivo('application/controllers/adm/Usuarios.php');
+assertContains("utec_tempo_sql_agregados('a')", $usr, 'relatorio usa agregacao');
+assertContains("\$dados['tempos']", $usr, 'relatorio passa tempos');
+$rel = lerArquivo('application/views/adm/relatorios/clinicos.php');
+assertContains('Espera média', $rel, 'card espera');
+assertContains('Tempos por profissional', $rel, 'tabela por profissional');
+
 echo "OK\n";
