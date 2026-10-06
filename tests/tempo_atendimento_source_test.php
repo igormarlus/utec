@@ -42,4 +42,9 @@ assertContains("flashdata('tempo_ok')", $ag, 'flash de tempo');
 assertContains("field_exists('chegada_em', 'agendamentos')", $ag, 'guarda sem migracao');
 if (substr_count($ag, 'utec_tempo_resumo_agenda($agenda)') !== 4) { fwrite(STDERR, "resumo deve aparecer 4x\n"); exit(1); }
 
+$manual = lerArquivo('application/libraries/Manual_conteudo.php');
+assertContains('Chegou', $manual, 'manual cobre check-in');
+$claude = lerArquivo('CLAUDE.md');
+assertContains('migrar_tempos_atendimento', $claude, 'CLAUDE.md documenta migracao');
+
 echo "OK\n";
