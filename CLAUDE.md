@@ -823,3 +823,19 @@ nas 3 views, sem mudar controller nem conteúdo):
   produção, verifica isso no fechamento de qualquer entrega com impacto
   visível ao usuário — mesmo portão que já usa para `php -l` e healthcheck
   pós-deploy.
+
+---
+
+## 20. Acompanhamento do Planejamento de Aceleração (Google Doc)
+
+O planejamento com o Marcos vive no Google Doc "Planajemento Aceleração UTEC - Marcos e Igor"
+(`1LkUBYF2gxZ5ltzzjBjIJWn5QeuqQ-Mz_0SRnIrwOkO0`); priorização técnica em
+`docs/produto/2026-10-03-roadmap-aceleracao-utec.md`.
+
+- **Arquivo de andamento:** `docs/produto/evolucao-30-dias-google-doc.md` — texto em linguagem de
+  negócio (sem nomes de função/tabela), feito para o Igor copiar e colar no Google Doc.
+- **Regra:** toda vez que uma demanda do planejamento muda de estado (spec/plano prontos, implementação
+  concluída e revisada, publicada em produção), atualizar esse arquivo no mesmo fechamento: status do
+  item (✅ / 🟢 / 🔄 / ⏳ / 💤), comentários do que foi entregue, quem pode usar, o que ficou de fora,
+  bloco "Resumo", data "Atualizado em" e uma linha nova em "Histórico de atualizações". Mesmo portão
+  da regra do manual (seção 19).
