@@ -7,7 +7,7 @@ class Atendimento extends CI_Controller {
 	{
 		parent::__construct();
 		$this->load->library('session');
-		$this->load->helper(array('form','url','whatsapp_agendamento'));
+		$this->load->helper(array('form','url','whatsapp_agendamento','tempo_atendimento'));
 		$this->load->library('Whatsapp_agendamento');
 		$this->load->model('adm/usuarios_model');
 		$this->load->model('padrao_model');
@@ -269,9 +269,9 @@ function set() {
 	#return false;
 	#Array  [id_agenda] => 3 [atendimento_inicial] => atendimentoasd asd asd [avaliacao] => avaliaçãoasd asdas dasd
 
-	$id_agenda = $this->input->post('id_agenda');
+	$id_agenda = (int)$this->input->post('id_agenda');
 
-	$qr_agenda = $this->db->query("SELECT * FROM agendamentos where id = $id_agenda ");
+	$qr_agenda = $this->db->query("SELECT * FROM agendamentos WHERE id = ? LIMIT 1", array($id_agenda));
 
 	if($qr_agenda->num_rows() == 0){ echo "Falha 114"; return; }
 
@@ -310,6 +310,9 @@ function set() {
 		'reavaliacao' => $this->input->post('reavaliacao'),
 		'status' => $status_destino
 	);
+	if($this->tem_colunas_tempo()){
+		$dd = array_merge($dd, utec_tempo_campos_transicao((int)$dd_agenda->status, $status_destino, date('Y-m-d H:i:s')));
+	}
 
 	$ce_post = $this->input->post('campos_extras');
 	if(is_array($ce_post)){
@@ -628,7 +631,17 @@ function set_status_agenda($id_agenda,$status){
 		$new_status = 0;
 	}
 
+	if(!isset($new_status)){ show_404(); return; }
+	if((int)$dd->status !== $status){
+		$this->session->set_flashdata('tempo_erro', 'O atendimento mudou de situação. Recarregue a página e tente de novo.');
+		redirect(str_replace(base_url(), '', (string)$refer));
+		return;
+	}
+
 	$dd_status = array('status' => $new_status);
+	if($this->tem_colunas_tempo()){
+		$dd_status = array_merge($dd_status, utec_tempo_campos_transicao((int)$status, $new_status, date('Y-m-d H:i:s')));
+	}
 	$this->db->where('id',$id_agenda);
 	$this->db->update('agendamentos',$dd_status);
 	#print_r($dd_status);
@@ -665,13 +678,17 @@ function remarcar_agenda(){
 		return;
 	}
 	$this->db->where('id', $id_agenda);
-	$atualizado = $this->db->update('agendamentos', [
+	$upd_remarcar = [
 		'data_agenda' => $data_agenda,
 		'hora_agenda' => $hora_agenda,
 		'data_hora_agenda' => $data_agenda.' '.$hora_agenda,
 		'status' => 0,
 		'id_user_alt' => $this->session->userdata('id')
-	]);
+	];
+	if($this->tem_colunas_tempo()){
+		$upd_remarcar = array_merge($upd_remarcar, utec_tempo_campos_zerados());
+	}
+	$atualizado = $this->db->update('agendamentos', $upd_remarcar);
 
 	if($atualizado){
 		// Nova data/hora exige nova confirmacao do paciente — mesma regra de disparo da criacao.
@@ -680,6 +697,52 @@ function remarcar_agenda(){
 	}
 
 	redirect('adm/atendimento?data_agenda='.$data_agenda);
+}
+
+function checkin($id_agenda = 0){
+	$id_agenda = (int)$id_agenda;
+	if($this->input->method() !== 'post' || $id_agenda <= 0){ show_404(); return; }
+	if(!$this->padrao_model->can_access_agendamento($id_agenda)){
+		show_error('Acesso negado ao atendimento selecionado.', 403);
+		return;
+	}
+	$nivel = (int)$this->session->userdata('nivel');
+	if($nivel < 1 || $nivel > 4){ show_error('Acesso negado.', 403); return; }
+	$voltar = (string)$this->input->post('voltar', true);
+	if(!preg_match('#^adm/[a-z0-9_/]*$#iD', $voltar)){ $voltar = 'adm/atendimento'; }
+	if(!$this->tem_colunas_tempo()){
+		$this->session->set_flashdata('tempo_erro', 'Execute a migração adm/dev/migrar_tempos_atendimento.');
+		redirect($voltar);
+		return;
+	}
+	$ag = $this->db->query(
+		"SELECT id, status, data_agenda, chegada_em, inicio_atendimento_em FROM agendamentos WHERE id = ? LIMIT 1",
+		array($id_agenda)
+	)->row_array();
+	if(!$ag){ show_404(); return; }
+
+	if($this->input->post('acao') === 'desfazer'){
+		if(utec_tempo_pode_desfazer_checkin($ag)){
+			$this->db->where('id', $id_agenda);
+			$this->db->update('agendamentos', array('chegada_em' => null, 'chegada_por' => null));
+			$this->session->set_flashdata('tempo_ok', 'Chegada desfeita.');
+		}else{
+			$this->session->set_flashdata('tempo_erro', 'Não é possível desfazer: o atendimento já começou.');
+		}
+	}else{
+		if(utec_tempo_pode_checkin($ag, date('Y-m-d'))){
+			$this->db->where('id', $id_agenda);
+			$this->db->update('agendamentos', array('chegada_em' => date('Y-m-d H:i:s'), 'chegada_por' => (int)$this->session->userdata('id')));
+			$this->session->set_flashdata('tempo_ok', 'Chegada registrada.');
+		}else{
+			$this->session->set_flashdata('tempo_erro', 'O check-in vale só para agendamentos pendentes de hoje.');
+		}
+	}
+	redirect($voltar);
+}
+
+private function tem_colunas_tempo(){
+	return $this->db->field_exists('chegada_em', 'agendamentos') && $this->db->field_exists('inicio_atendimento_em', 'agendamentos');
 }
 
 function set_status_exame($id_exame,$status){

@@ -237,6 +237,8 @@
       }
       .ut-rotulo { display:inline-block; border:1px solid; border-radius:999px; padding:0 8px; font-size:11px; font-weight:700; background:#fff; margin:2px 4px 0 0; }
       .ut-rotulo-alerta { background:#fef2f2; }
+      .ut-tempo-resumo { font-size:12px; color:#0f766e; margin-top:2px; }
+      .ut-checkin-form { display:inline; margin:0; }
     </style>
   </head>
 <?php
@@ -248,6 +250,13 @@ if(isset($qr_agendamentos) && $ut_ci->rotulos_model->disponivel()){
   foreach($qr_agendamentos->result() as $ut_ag){ $ut_ids_ag[] = (int)$ut_ag->id_paciente; }
   $ut_alertas_paciente = $ut_ci->rotulos_model->rotulos_de_pacientes($ut_ids_ag);
 }
+?>
+<?php
+$ut_ci_tempo =& get_instance();
+$ut_ci_tempo->load->helper('tempo_atendimento');
+$ut_tempo_ok = $ut_ci_tempo->db->field_exists('chegada_em', 'agendamentos') && $ut_ci_tempo->db->field_exists('inicio_atendimento_em', 'agendamentos');
+$ut_hoje = date('Y-m-d');
+$ut_voltar_agenda = htmlspecialchars($this->uri->uri_string(), ENT_QUOTES, 'UTF-8');
 ?>
   <body class="menu-position-side menu-side-left full-screen with-content-panel">
     <div class="all-wrapper with-side-panel solid-bg-all">
@@ -295,6 +304,9 @@ if(isset($qr_agendamentos) && $ut_ci->rotulos_model->disponivel()){
           <div class="content-i">
             <div class="content-box">
               <?php $cadastro_ok = $this->session->flashdata('cadastro_ok'); $cadastro_aviso = $this->session->flashdata('cadastro_aviso'); ?>
+              <?php $ut_tempo_flash_ok = $this->session->flashdata('tempo_ok'); $ut_tempo_flash_erro = $this->session->flashdata('tempo_erro'); ?>
+              <?php if($ut_tempo_flash_ok){ ?><div class="alert alert-success"><?=htmlspecialchars((string)$ut_tempo_flash_ok)?></div><?php } ?>
+              <?php if($ut_tempo_flash_erro){ ?><div class="alert alert-danger"><?=htmlspecialchars((string)$ut_tempo_flash_erro)?></div><?php } ?>
               <?php if($cadastro_ok){ ?>
                 <div class="alert alert-success"><?=htmlspecialchars((string)$cadastro_ok)?></div>
               <?php } ?>
@@ -497,6 +509,7 @@ if(isset($qr_agendamentos) && $ut_ci->rotulos_model->disponivel()){
                                 <div>
                                   <div class="patient-name"><?=$agenda->paciente_nome?></div>
                                   <? if(!empty($ut_alertas_paciente[(int)$agenda->id_paciente])){ ?><div><?=utec_rotulos_chips_html($ut_alertas_paciente[(int)$agenda->id_paciente], true)?></div><? } ?>
+                                  <? if($ut_tempo_ok && ($ut_rs = utec_tempo_resumo_agenda($agenda)) !== ''){ ?><div class="ut-tempo-resumo"><?=htmlspecialchars($ut_rs, ENT_QUOTES, 'UTF-8')?></div><? } ?>
                                   <div class="patient-subtitle">Agendamento #<?=$agenda->id?></div>
                                 </div>
                               </div>
@@ -534,6 +547,18 @@ if(isset($qr_agendamentos) && $ut_ci->rotulos_model->disponivel()){
                                 <a href="<?=base_url()?>adm/atendimento/set_status_agenda/<?=$agenda->id?>/<?=$agenda->status?>" class="btn btn-sm btn-outline-secondary">
                                   <?=$agenda->status == 0 ? 'Iniciar' : ($agenda->status == 1 ? 'Finalizar' : 'Reabrir')?>
                                 </a>
+                                <? if($ut_tempo_ok && utec_tempo_pode_checkin($agenda, $ut_hoje)){ ?>
+                                  <form method="post" action="<?=base_url('adm/atendimento/checkin/'.(int)$agenda->id)?>" class="ut-checkin-form">
+                                    <input type="hidden" name="voltar" value="<?=$ut_voltar_agenda?>">
+                                    <button type="submit" class="btn btn-sm btn-outline-success">Chegou</button>
+                                  </form>
+                                <? } elseif($ut_tempo_ok && utec_tempo_pode_desfazer_checkin($agenda)){ ?>
+                                  <form method="post" action="<?=base_url('adm/atendimento/checkin/'.(int)$agenda->id)?>" class="ut-checkin-form">
+                                    <input type="hidden" name="voltar" value="<?=$ut_voltar_agenda?>">
+                                    <input type="hidden" name="acao" value="desfazer">
+                                    <button type="submit" class="btn btn-sm btn-link">Desfazer chegada</button>
+                                  </form>
+                                <? } ?>
                                 <button
                                   type="button"
                                   class="btn btn-sm btn-outline-primary btn-remarcar"
@@ -585,6 +610,7 @@ if(isset($qr_agendamentos) && $ut_ci->rotulos_model->disponivel()){
       <div style="flex:1">
         <p class="ut-active-card-name"><?=htmlspecialchars($agenda->paciente_nome)?></p>
         <? if(!empty($ut_alertas_paciente[(int)$agenda->id_paciente])){ ?><div><?=utec_rotulos_chips_html($ut_alertas_paciente[(int)$agenda->id_paciente], true)?></div><? } ?>
+        <? if($ut_tempo_ok && ($ut_rs = utec_tempo_resumo_agenda($agenda)) !== ''){ ?><div class="ut-tempo-resumo"><?=htmlspecialchars($ut_rs, ENT_QUOTES, 'UTF-8')?></div><? } ?>
         <p class="ut-active-card-meta"><?=substr($agenda->hora_agenda,0,5)?> · <?=ucfirst($agenda->tipo)?><?=$agenda->prestador_nome ? ' · '.$agenda->prestador_nome : ''?></p>
       </div>
       <span class="ut-status-pill atendimento">Em atend.</span>
@@ -628,12 +654,19 @@ if(isset($qr_agendamentos) && $ut_ci->rotulos_model->disponivel()){
       <div style="flex:1;min-width:0;">
         <p class="ut-queue-name"><?=htmlspecialchars($agenda->paciente_nome)?></p>
         <? if(!empty($ut_alertas_paciente[(int)$agenda->id_paciente])){ ?><div><?=utec_rotulos_chips_html($ut_alertas_paciente[(int)$agenda->id_paciente], true)?></div><? } ?>
+        <? if($ut_tempo_ok && ($ut_rs = utec_tempo_resumo_agenda($agenda)) !== ''){ ?><div class="ut-tempo-resumo"><?=htmlspecialchars($ut_rs, ENT_QUOTES, 'UTF-8')?></div><? } ?>
         <p class="ut-queue-meta"><?=substr($agenda->hora_agenda,0,5)?> · <?=ucfirst($agenda->tipo)?><?
           $wa_m = isset($agenda->whatsapp_status) ? (string)$agenda->whatsapp_status : '';
           if($wa_m === 'confirmado'){ echo ' · <span style="color:#16874b;font-weight:700;">&#10003; WhatsApp</span>'; }
           elseif($wa_m === 'cancelado'){ echo ' · <span style="color:#b91c1c;font-weight:700;">&#10007; WhatsApp</span>'; }
         ?></p>
       </div>
+      <? if($ut_tempo_ok && utec_tempo_pode_checkin($agenda, $ut_hoje)){ ?>
+        <form method="post" action="<?=base_url('adm/atendimento/checkin/'.(int)$agenda->id)?>" class="ut-checkin-form" onclick="event.stopPropagation();">
+          <input type="hidden" name="voltar" value="<?=$ut_voltar_agenda?>">
+          <button type="submit" class="btn btn-sm btn-outline-success" style="margin-right:6px;">Chegou</button>
+        </form>
+      <? } ?>
       <span class="ut-status-pill pendente" style="flex-shrink:0;">Pendente</span>
       <span class="ut-queue-chevron">›</span>
     </div>
@@ -673,6 +706,7 @@ if(isset($qr_agendamentos) && $ut_ci->rotulos_model->disponivel()){
         <div style="flex:1;min-width:0;">
           <p class="ut-queue-name"><?=htmlspecialchars($agenda->paciente_nome)?></p>
           <? if(!empty($ut_alertas_paciente[(int)$agenda->id_paciente])){ ?><div><?=utec_rotulos_chips_html($ut_alertas_paciente[(int)$agenda->id_paciente], true)?></div><? } ?>
+          <? if($ut_tempo_ok && ($ut_rs = utec_tempo_resumo_agenda($agenda)) !== ''){ ?><div class="ut-tempo-resumo"><?=htmlspecialchars($ut_rs, ENT_QUOTES, 'UTF-8')?></div><? } ?>
           <p class="ut-queue-meta"><?=substr($agenda->hora_agenda,0,5)?> · <?=ucfirst($agenda->tipo)?></p>
         </div>
         <span class="ut-status-pill finalizado" style="flex-shrink:0;">Finalizado</span>

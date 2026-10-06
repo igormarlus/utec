@@ -182,6 +182,59 @@
                 </div>
               </div>
 
+              <?php if(isset($tempos) && is_array($tempos)){
+                $ut_tg = $tempos['geral'];
+                $ut_tf = function($v){ return ($v === null || $v === '') ? '—' : utec_tempo_formatar((int)round((float)$v)); };
+                $ut_tn = function($n){ $n = (int)$n; return $n > 0 ? $n.' atendimento'.($n === 1 ? '' : 's') : 'Sem dados no período'; };
+              ?>
+              <div class="row">
+                <div class="col-md-4">
+                  <div class="report-card">
+                    <div class="report-label">Espera média</div>
+                    <div class="report-value"><?=htmlspecialchars($ut_tf($ut_tg['espera_media']), ENT_QUOTES, 'UTF-8')?></div>
+                    <div class="report-note">da chegada ao início · <?=htmlspecialchars($ut_tn($ut_tg['espera_n']), ENT_QUOTES, 'UTF-8')?></div>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="report-card">
+                    <div class="report-label">Atraso médio</div>
+                    <div class="report-value"><?=htmlspecialchars($ut_tf($ut_tg['atraso_medio']), ENT_QUOTES, 'UTF-8')?></div>
+                    <div class="report-note">do horário marcado ao início · <?=htmlspecialchars($ut_tn($ut_tg['atraso_n']), ENT_QUOTES, 'UTF-8')?></div>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="report-card">
+                    <div class="report-label">Duração média</div>
+                    <div class="report-value"><?=htmlspecialchars($ut_tf($ut_tg['duracao_media']), ENT_QUOTES, 'UTF-8')?></div>
+                    <div class="report-note">da consulta · <?=htmlspecialchars($ut_tn($ut_tg['duracao_n']), ENT_QUOTES, 'UTF-8')?></div>
+                  </div>
+                </div>
+              </div>
+              <div class="report-panel">
+                <div class="report-panel-header">
+                  <h6 class="element-header" style="margin-bottom:0">Tempos por profissional</h6>
+                </div>
+                <div class="report-panel-body">
+                  <div class="table-responsive">
+                    <table class="table table-lightborder report-table">
+                      <thead><tr><th>Profissional</th><th>Espera média</th><th>Atraso médio</th><th>Duração média</th></tr></thead>
+                      <tbody>
+                        <?php if(empty($tempos['por_profissional'])){ ?>
+                          <tr><td colspan="4">Sem dados no período</td></tr>
+                        <?php } foreach($tempos['por_profissional'] as $ut_tp){ ?>
+                          <tr>
+                            <td><?=htmlspecialchars($ut_tp['prestador_nome'] !== null && $ut_tp['prestador_nome'] !== '' ? $ut_tp['prestador_nome'] : 'Sem profissional', ENT_QUOTES, 'UTF-8')?></td>
+                            <td><?=htmlspecialchars($ut_tf($ut_tp['espera_media']).' ('.(int)$ut_tp['espera_n'].')', ENT_QUOTES, 'UTF-8')?></td>
+                            <td><?=htmlspecialchars($ut_tf($ut_tp['atraso_medio']).' ('.(int)$ut_tp['atraso_n'].')', ENT_QUOTES, 'UTF-8')?></td>
+                            <td><?=htmlspecialchars($ut_tf($ut_tp['duracao_media']).' ('.(int)$ut_tp['duracao_n'].')', ENT_QUOTES, 'UTF-8')?></td>
+                          </tr>
+                        <?php } ?>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+              <?php } ?>
               <div class="report-panel">
                 <div class="report-panel-header">
                   <h6 class="element-header" style="margin-bottom:0">Resumo por profissional</h6>

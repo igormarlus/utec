@@ -135,6 +135,7 @@ O projeto usa **CodeIgniter 3.1.10** em produção. **Não migrar para CI4 ou ou
 - `prontuario_exportacoes` — auditoria de exportação (`id_usuario`, `id_paciente`, `formato`, período, `ip_hash`)
 - `pacientes_rotulos` — catálogo de rótulos por conta (`id_conta` = raiz da árvore id_user), cor da paleta fixa, `alerta`
 - `pacientes_rotulos_vinculos` — paciente ↔ rótulo (PK composta)
+- `agendamentos.chegada_em` / `chegada_por` / `inicio_atendimento_em` / `fim_atendimento_em` — check-in e horários reais do atendimento (gravados por `set_status_agenda`, pelo formulário do prontuário (`set`) e por `checkin`, zerados na remarcação)
 - `pacientes_ficha` — ficha 1:1 do paciente (pessoal/responsável, saúde básica com `saude_atualizado_por/em`, convênio)
 
 **Produtos e Pedidos**
@@ -236,7 +237,7 @@ Verificado por `Padrao_model::can_access_saas_module()`. O Admin (nível 1) tem 
 | Arquivo | Rota | Função |
 |---------|------|--------|
 | `Usuarios.php` | `/adm/usuarios` | CRUD usuários, prontuários, upload fotos |
-| `Atendimento.php` | `/adm/atendimento` | Agendamentos, prontuários, exames, status + `exportar_prontuario/{id}/{pdf\|csv\|xlsx}?de=&ate=` (níveis 1–3, auditado) |
+| `Atendimento.php` | `/adm/atendimento` | Agendamentos, prontuários, exames, status + `exportar_prontuario/{id}/{pdf\|csv\|xlsx}?de=&ate=` (níveis 1–3, auditado) + `checkin/{id}` (POST, níveis 1–4, check-in do dia) |
 | `Produtos.php` | `/adm/produtos` | CRUD planos, tipos de plano, assinaturas legadas |
 | `Saas.php` | `/adm/saas` | Tenants, assinaturas, checkout MP, webhook |
 | `Dev.php` | `/adm/dev` | Migrações e utilitários de desenvolvimento |
@@ -546,6 +547,7 @@ Controller: `application/controllers/adm/Dev.php`
 | `adm/dev/migrar_prontuario_exportacoes` | Cria `prontuario_exportacoes` (idempotente) |
 | `adm/dev/migrar_rotulos_pacientes` | Cria `pacientes_rotulos` + `pacientes_rotulos_vinculos` (idempotente) |
 | `adm/dev/migrar_ficha_pacientes` | Cria `pacientes_ficha` (idempotente) |
+| `adm/dev/migrar_tempos_atendimento` | Adiciona `chegada_em`, `chegada_por`, `inicio_atendimento_em`, `fim_atendimento_em` em `agendamentos` (idempotente) |
 | `adm/dev/testar_detector_ia` | Roda os casos mínimos do detector de tráfego de IA (PASS/FAIL) |
 | `adm/dev/purgar_monitoramento_ia` | Remove registros de IA com mais de 18 meses (`?meses=N` ajusta) |
 
@@ -595,6 +597,7 @@ Para novas migrações: adicionar método em `Dev.php`, proteger com `nivel == 1
 - [x] Rótulos de pacientes (organização + alertas) com catálogo por clínica — prontuário, lista com filtro e alertas na agenda (`rotulos_helper.php`, `Rotulos_model`)
 - [x] Exportar prontuário por paciente (PDF/CSV/XLSX) com período e auditoria — helper `prontuario_export_helper.php`, `Xlsx_simples`, `Prontuario_export_model`. Deploy 2026-10-03: 8 arquivos runtime por FTP, `adm/dev/migrar_prontuario_exportacoes` executada e teste online OK (níveis 3/4). Nota: antes do deploy a view nova já estava no servidor sem o helper (prontuário quebrado em produção) — origem do upload não identificada; ao subir view que depende de helper novo, conferir o servidor antes.
 - [x] Ficha do paciente (pessoal/responsável, saúde básica, convênio) com alergias em destaque no prontuário (`ficha_paciente_helper.php`, `Ficha_paciente_model`). Entrega B (campos configuráveis por clínica) pendente.
+- [x] Tempo de espera: check-in na agenda, horários de início/fim, espera/atraso/duração por atendimento e médias em Relatórios clínicos (`tempo_atendimento_helper.php`)
 
 ### 15.2 Próximas Entregas (Prioridade Alta)
 
@@ -823,3 +826,19 @@ nas 3 views, sem mudar controller nem conteúdo):
   produção, verifica isso no fechamento de qualquer entrega com impacto
   visível ao usuário — mesmo portão que já usa para `php -l` e healthcheck
   pós-deploy.
+
+---
+
+## 20. Acompanhamento do Planejamento de Aceleração (Google Doc)
+
+O planejamento com o Marcos vive no Google Doc "Planajemento Aceleração UTEC - Marcos e Igor"
+(`1LkUBYF2gxZ5ltzzjBjIJWn5QeuqQ-Mz_0SRnIrwOkO0`); priorização técnica em
+`docs/produto/2026-10-03-roadmap-aceleracao-utec.md`.
+
+- **Arquivo de andamento:** `docs/produto/evolucao-30-dias-google-doc.md` — texto em linguagem de
+  negócio (sem nomes de função/tabela), feito para o Igor copiar e colar no Google Doc.
+- **Regra:** toda vez que uma demanda do planejamento muda de estado (spec/plano prontos, implementação
+  concluída e revisada, publicada em produção), atualizar esse arquivo no mesmo fechamento: status do
+  item (✅ / 🟢 / 🔄 / ⏳ / 💤), comentários do que foi entregue, quem pode usar, o que ficou de fora,
+  bloco "Resumo", data "Atualizado em" e uma linha nova em "Histórico de atualizações". Mesmo portão
+  da regra do manual (seção 19).

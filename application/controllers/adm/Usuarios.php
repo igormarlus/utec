@@ -1056,6 +1056,22 @@ function relatorios_clinicos(){
 			LIMIT 20"
 		);
 
+		$dados['tempos'] = null;
+		if($this->db->field_exists('chegada_em', 'agendamentos') && $this->db->field_exists('inicio_atendimento_em', 'agendamentos')){
+			$this->load->helper('tempo_atendimento');
+			$sel_tempos = utec_tempo_sql_agregados('a');
+			$dados['tempos'] = array(
+				'geral' => $this->db->query("SELECT ".$sel_tempos." FROM agendamentos a ".$where_agenda_sql." AND a.status <> 3")->row_array(),
+				'por_profissional' => $this->db->query(
+					"SELECT pr.nome AS prestador_nome, ".$sel_tempos."
+					FROM agendamentos a
+					LEFT JOIN usuarios pr ON pr.id = a.id_prestador
+					".$where_agenda_sql." AND a.status <> 3
+					GROUP BY a.id_prestador, pr.nome
+					ORDER BY pr.nome ASC"
+				)->result_array(),
+			);
+		}
 		$this->load->view('adm/relatorios/clinicos', $dados);
 }
 
