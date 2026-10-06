@@ -97,8 +97,8 @@ if(!function_exists('utec_tempo_pode_desfazer_checkin')){
 
 if(!function_exists('utec_tempo_sql_agregados')){
 	function utec_tempo_sql_agregados($alias){
-		$a = preg_replace('/[^a-z_]/i', '', (string)$alias);
-		if($a === ''){ $a = 'a'; }
+		$a = (string)$alias;
+		if(!preg_match('/^[a-z_]{1,20}$/i', $a)){ $a = 'a'; }
 		$esp = 'TIMESTAMPDIFF(MINUTE, '.$a.'.chegada_em, '.$a.'.inicio_atendimento_em)';
 		$atr = "TIMESTAMPDIFF(MINUTE, CONCAT(".$a.".data_agenda, ' ', ".$a.".hora_agenda), ".$a.".inicio_atendimento_em)";
 		$dur = 'TIMESTAMPDIFF(MINUTE, '.$a.'.inicio_atendimento_em, '.$a.'.fim_atendimento_em)';
