@@ -388,11 +388,7 @@
                             <span class="plan-badge"><?=max(0, (int)$plano->max_colaboradores)?> colaboradores</span>
                             <span class="plan-badge"><?=max(0, (int)$plano->max_pacientes)?> pacientes</span>
                         </div>
-                        <ul class="plan-list">
-                            <li>Agenda, pacientes, prontuario e historico clinico em uma unica operacao.</li>
-                            <li>Tenant criado com owner principal, assinatura e ciclo inicial prontos para cobranca.</li>
-                            <li>Base preparada para evoluir com WhatsApp, portal do paciente e onboarding guiado.</li>
-                        </ul>
+                        <?php $this->load->view('public/partials/funcionalidades', array('func_formato' => 'lista', 'func_ids' => array('agenda', 'prontuario', 'whatsapp_confirmacao', 'chatbot', 'relatorios'), 'func_agrupar' => false, 'func_titulo' => '')); ?>
                         <button type="button" class="plan-action" data-plan-id="<?=$plano->id?>">Escolher este plano</button>
                     </div>
                 <? } } else { ?>
@@ -428,6 +424,9 @@
                     </div>
                 </div>
             <? } ?>
+            <div class="compare-card">
+                <?php $this->load->view('public/partials/funcionalidades', array('func_formato' => 'grade', 'func_ids' => null, 'func_agrupar' => true, 'func_titulo' => 'Tudo o que está incluído')); ?>
+            </div>
         </div>
     </div>
     <script>

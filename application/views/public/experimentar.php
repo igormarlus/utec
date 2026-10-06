@@ -317,42 +317,8 @@
 
                 <div class="benefits-panel">
                     <h1 class="benefits-title">Por que clínicas e profissionais escolhem a UTecnologia Saúde?</h1>
-                    <div class="benefits-list">
-                        <div class="benefit-item">
-                            <span class="b-ico">📅</span>
-                            <div>
-                                <strong>Agenda inteligente</strong>
-                                Visualize e gerencie todos os atendimentos por profissional — filtre por data, status e especialidade sem retrabalho.
-                            </div>
-                        </div>
-                        <div class="benefit-item">
-                            <span class="b-ico">📋</span>
-                            <div>
-                                <strong>Prontuário eletrônico completo</strong>
-                                Anamnese, evolução clínica, hipóteses diagnósticas e prescrições em um histórico organizado e acessível a qualquer momento.
-                            </div>
-                        </div>
-                        <div class="benefit-item">
-                            <span class="b-ico">🔬</span>
-                            <div>
-                                <strong>Exames e arquivos integrados</strong>
-                                Solicite exames, registre resultados e armazene documentos diretamente no prontuário do paciente.
-                            </div>
-                        </div>
-                        <div class="benefit-item">
-                            <span class="b-ico">📊</span>
-                            <div>
-                                <strong>Relatórios e gestão</strong>
-                                Indicadores de atendimentos por profissional, período e especialidade para tomada de decisão rápida.
-                            </div>
-                        </div>
-                        <div class="benefit-item">
-                            <span class="b-ico">🔒</span>
-                            <div>
-                                <strong>Seguro e 100% online</strong>
-                                Dados dos pacientes protegidos, acesso por perfil e disponível em qualquer dispositivo com internet.
-                            </div>
-                        </div>
+                    <div class="benefits-list" id="funcionalidades">
+                        <?php $this->load->view('public/partials/funcionalidades', array('func_formato' => 'grade', 'func_ids' => null, 'func_agrupar' => true, 'func_titulo' => '')); ?>
                     </div>
                     <p class="benefits-note">
                         Utilizado por clínicas de medicina geral, psicologia, fisioterapia, nutrição, fonoaudiologia,
