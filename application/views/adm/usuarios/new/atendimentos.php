@@ -235,8 +235,20 @@
         .top-bar { display: none !important; }
         .content-w { padding-top: 0 !important; }
       }
+      .ut-rotulo { display:inline-block; border:1px solid; border-radius:999px; padding:0 8px; font-size:11px; font-weight:700; background:#fff; margin:2px 4px 0 0; }
+      .ut-rotulo-alerta { background:#fef2f2; }
     </style>
   </head>
+<?php
+$ut_alertas_paciente = array();
+$ut_ci =& get_instance();
+$ut_ci->load->model('Rotulos_model', 'rotulos_model');
+if(isset($qr_agendamentos) && $ut_ci->rotulos_model->disponivel()){
+  $ut_ids_ag = array();
+  foreach($qr_agendamentos->result() as $ut_ag){ $ut_ids_ag[] = (int)$ut_ag->id_paciente; }
+  $ut_alertas_paciente = $ut_ci->rotulos_model->rotulos_de_pacientes($ut_ids_ag);
+}
+?>
   <body class="menu-position-side menu-side-left full-screen with-content-panel">
     <div class="all-wrapper with-side-panel solid-bg-all">
       <? include("includes/adm/search.php"); ?>
@@ -484,6 +496,7 @@
                                 </div>
                                 <div>
                                   <div class="patient-name"><?=$agenda->paciente_nome?></div>
+                                  <? if(!empty($ut_alertas_paciente[(int)$agenda->id_paciente])){ ?><div><?=utec_rotulos_chips_html($ut_alertas_paciente[(int)$agenda->id_paciente], true)?></div><? } ?>
                                   <div class="patient-subtitle">Agendamento #<?=$agenda->id?></div>
                                 </div>
                               </div>
@@ -571,6 +584,7 @@
       <div class="ut-active-card-avatar"><?=$ini_ativo?></div>
       <div style="flex:1">
         <p class="ut-active-card-name"><?=htmlspecialchars($agenda->paciente_nome)?></p>
+        <? if(!empty($ut_alertas_paciente[(int)$agenda->id_paciente])){ ?><div><?=utec_rotulos_chips_html($ut_alertas_paciente[(int)$agenda->id_paciente], true)?></div><? } ?>
         <p class="ut-active-card-meta"><?=substr($agenda->hora_agenda,0,5)?> · <?=ucfirst($agenda->tipo)?><?=$agenda->prestador_nome ? ' · '.$agenda->prestador_nome : ''?></p>
       </div>
       <span class="ut-status-pill atendimento">Em atend.</span>
@@ -613,6 +627,7 @@
       <div class="ut-queue-avatar" style="background:var(--ut-green-900);"><?=$ini?></div>
       <div style="flex:1;min-width:0;">
         <p class="ut-queue-name"><?=htmlspecialchars($agenda->paciente_nome)?></p>
+        <? if(!empty($ut_alertas_paciente[(int)$agenda->id_paciente])){ ?><div><?=utec_rotulos_chips_html($ut_alertas_paciente[(int)$agenda->id_paciente], true)?></div><? } ?>
         <p class="ut-queue-meta"><?=substr($agenda->hora_agenda,0,5)?> · <?=ucfirst($agenda->tipo)?><?
           $wa_m = isset($agenda->whatsapp_status) ? (string)$agenda->whatsapp_status : '';
           if($wa_m === 'confirmado'){ echo ' · <span style="color:#16874b;font-weight:700;">&#10003; WhatsApp</span>'; }
@@ -657,6 +672,7 @@
         <div class="ut-queue-avatar" style="background:#6b7280;"><?=$ini?></div>
         <div style="flex:1;min-width:0;">
           <p class="ut-queue-name"><?=htmlspecialchars($agenda->paciente_nome)?></p>
+          <? if(!empty($ut_alertas_paciente[(int)$agenda->id_paciente])){ ?><div><?=utec_rotulos_chips_html($ut_alertas_paciente[(int)$agenda->id_paciente], true)?></div><? } ?>
           <p class="ut-queue-meta"><?=substr($agenda->hora_agenda,0,5)?> · <?=ucfirst($agenda->tipo)?></p>
         </div>
         <span class="ut-status-pill finalizado" style="flex-shrink:0;">Finalizado</span>

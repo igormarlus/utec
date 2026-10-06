@@ -109,13 +109,14 @@ class Manual_conteudo {
                     '*' => array(
                         'Acesse `Agenda` no menu lateral para ver os atendimentos do dia, semana ou mês.',
                         'Cada agendamento mostra o status (pendente, confirmado, cancelado) e, quando aplicável, a etiqueta de confirmação via WhatsApp.',
+                        'Pacientes com rótulo de alerta mostram o aviso (⚠) ao lado do nome na agenda.',
                     ),
                     2 => array('Acompanha a agenda de todos os prestadores vinculados à clínica em uma visão única.'),
                     3 => array('Usa a Agenda para iniciar, finalizar ou remarcar os próprios atendimentos.'),
                     4 => array('Usa a Agenda para confirmar, remarcar e organizar os atendimentos do dia da operação vinculada.'),
                 ),
                 'print' => 'agenda.png',
-                'atualizado_em' => '2026-09-07',
+                'atualizado_em' => '2026-10-03',
             ),
             array(
                 'slug' => 'horarios-atendimento',
@@ -148,12 +149,20 @@ class Manual_conteudo {
                     '*' => array(
                         'Acesse `Pacientes` para cadastrar um novo paciente ou localizar um já existente.',
                         'Mantenha telefone (com WhatsApp) e nome completo atualizados - são usados no envio de confirmação de agendamento.',
+                        'Use `Rótulos` no topo do prontuário para marcar o paciente com etiquetas como VIP, Convênio ou Retorno pendente. Rótulos de alerta (ex.: Gestante, Alérgico) aparecem em destaque no prontuário e na agenda do dia. Na lista de pacientes, filtre por rótulo ao lado da busca.',
                     ),
-                    2 => array('Revisa a base ativa de pacientes de toda a clínica.'),
-                    4 => array('Cadastra novos pacientes e localiza contatos rapidamente durante o atendimento telefônico ou presencial.'),
+                    2 => array(
+                        'Revisa a base ativa de pacientes de toda a clínica.',
+                        'Cria, edita e desativa os rótulos da clínica em `Pacientes > Rótulos`, escolhendo cor e se o rótulo é um alerta.',
+                    ),
+                    3 => array('Se você atende como profissional autônomo, gerencia os próprios rótulos em `Pacientes > Rótulos`; dentro de uma clínica, apenas aplica os rótulos definidos pelo estabelecimento.'),
+                    4 => array(
+                        'Cadastra novos pacientes e localiza contatos rapidamente durante o atendimento telefônico ou presencial.',
+                        'Aplica e remove rótulos dos pacientes pelo prontuário; a lista de rótulos é definida pela clínica.',
+                    ),
                 ),
                 'print' => 'pacientes-cadastro.png',
-                'atualizado_em' => '2026-09-07',
+                'atualizado_em' => '2026-10-03',
             ),
             array(
                 'slug' => 'prontuario',

@@ -484,6 +484,40 @@ class Dev extends CI_Controller {
 		echo '</ul>';
 	}
 
+	function migrar_rotulos_pacientes(){
+		if($this->session->userdata('nivel') != 1){
+			show_error('Acesso negado.', 403); return;
+		}
+		$logs = [];
+		$this->run_sql("CREATE TABLE IF NOT EXISTS `pacientes_rotulos` (
+			`id` INT AUTO_INCREMENT PRIMARY KEY,
+			`id_conta` INT NOT NULL,
+			`nome` VARCHAR(40) NOT NULL,
+			`cor` VARCHAR(20) NOT NULL DEFAULT 'cinza',
+			`alerta` TINYINT NOT NULL DEFAULT 0,
+			`ordem` INT NOT NULL DEFAULT 0,
+			`status` TINYINT NOT NULL DEFAULT 1,
+			`criado_por` INT NULL DEFAULT NULL,
+			`criado_em` DATETIME NOT NULL,
+			UNIQUE KEY `uk_rotulo_conta_nome` (`id_conta`, `nome`),
+			INDEX `idx_rotulo_conta_status` (`id_conta`, `status`)
+		) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", $logs, 'tabela `pacientes_rotulos` verificada');
+		$this->run_sql("CREATE TABLE IF NOT EXISTS `pacientes_rotulos_vinculos` (
+			`id_paciente` INT NOT NULL,
+			`id_rotulo` INT NOT NULL,
+			`aplicado_por` INT NULL DEFAULT NULL,
+			`aplicado_em` DATETIME NOT NULL,
+			PRIMARY KEY (`id_paciente`, `id_rotulo`),
+			INDEX `idx_vinculo_rotulo` (`id_rotulo`)
+		) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", $logs, 'tabela `pacientes_rotulos_vinculos` verificada');
+
+		echo '<h3>Migração: rótulos de pacientes</h3><ul>';
+		foreach($logs as $log){
+			echo '<li>'.htmlspecialchars($log).'</li>';
+		}
+		echo '</ul>';
+	}
+
 	function criar_tabela_arquivos_paciente(){
 		$sql = "CREATE TABLE IF NOT EXISTS `pacientes_arquivos` (
 			`id`             INT AUTO_INCREMENT PRIMARY KEY,

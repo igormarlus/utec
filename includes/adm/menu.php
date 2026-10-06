@@ -122,10 +122,12 @@ if(!$menu_is_patient){
 		'label' => 'Pacientes',
 		'icon' => 'os-icon-user-male-circle2',
 		'url' => base_url().'adm/usuarios/rel/5',
-		'children' => [
+		'children' => array_merge([
 			['label' => 'Lista de pacientes', 'url' => base_url().'adm/usuarios/rel/5'],
 			['label' => 'Novo paciente', 'url' => base_url().'adm/usuarios/cadastro/5'],
-		],
+		], in_array((int)$menu_level, [1, 2, 3], true) ? [
+			['label' => 'Rótulos', 'url' => base_url().'adm/rotulos'],
+		] : []),
 	];
 }
 

@@ -241,6 +241,11 @@
         .ul-btn { flex: 1 1 calc(50% - 8px); min-height: 38px; }
         .ul-user-block { align-items: flex-start; }
       }
+      .ut-rotulo { display:inline-block; border:1px solid; border-radius:999px; padding:0 8px; font-size:11px; font-weight:700; background:#fff; margin:2px 4px 0 0; }
+      .ut-rotulo-alerta { background:#fef2f2; }
+      .ul-search-wrap { display:flex; align-items:center; }
+      .ul-search-wrap .ul-search-input { flex:1 1 auto; width:auto; min-width:0; }
+      .ul-rotulo-select { flex:0 0 auto; width:auto; max-width:220px; margin-left:8px; }
     </style>
   </head>
   <body class="menu-position-side menu-side-left full-screen with-content-panel">
@@ -279,10 +284,30 @@
                 <a href="<?=base_url()?>adm/usuarios/cadastro/<?=$nivel?>" class="btn btn-success btn-sm">+ Novo registro</a>
               </div>
 
+              <?php
+              $ut_rot_mapa = array(); $ut_rot_opcoes = array();
+              $ut_ci =& get_instance();
+              $ut_ci->load->model('Rotulos_model', 'rotulos_model');
+              if($ut_ci->rotulos_model->disponivel()){
+                $ut_ids_pac = array();
+                foreach($usuarios_lista as $ut_u){ if((int)$ut_u->nivel === 5){ $ut_ids_pac[] = (int)$ut_u->id; } }
+                $ut_rot_mapa = $ut_ci->rotulos_model->rotulos_de_pacientes($ut_ids_pac);
+                foreach($ut_rot_mapa as $ut_lista_r){ foreach($ut_lista_r as $ut_r){ $ut_rot_opcoes[(int)$ut_r->id] = $ut_r->nome; } }
+                asort($ut_rot_opcoes);
+              }
+              ?>
               <? if ($total > 0): ?>
               <div class="ul-search-wrap">
                 <svg class="ul-search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                 <input type="text" id="ul-filter" class="ul-search-input" placeholder="Filtrar pelo nome..." autocomplete="off">
+                <? if(!empty($ut_rot_opcoes)): ?>
+                <select id="ul-filter-rotulo" class="form-control ul-rotulo-select" aria-label="Filtrar por rótulo">
+                  <option value="">Todos os rótulos</option>
+                  <? foreach($ut_rot_opcoes as $ut_id => $ut_nome): ?>
+                    <option value="<?=(int)$ut_id?>"><?=htmlspecialchars($ut_nome, ENT_QUOTES, 'UTF-8')?></option>
+                  <? endforeach; ?>
+                </select>
+                <? endif; ?>
               </div>
               <? endif; ?>
 
@@ -312,7 +337,8 @@
                   $cadastro = !empty($u->dt_cadastro) ? date('d/m/Y', strtotime($u->dt_cadastro)) : 'Nao informado';
                   $ultima_atividade = !empty($u->ultima_atividade) ? date('d/m/Y', strtotime($u->ultima_atividade)) : '';
                 ?>
-                <div class="ul-report-row" data-nome="<?=mb_strtolower($u->nome, 'UTF-8')?>">
+                <? $ut_rot_u = isset($ut_rot_mapa[(int)$u->id]) ? $ut_rot_mapa[(int)$u->id] : array(); ?>
+                <div class="ul-report-row" data-nome="<?=mb_strtolower($u->nome, 'UTF-8')?>" data-rotulos="<?=utec_rotulos_data_attr($ut_rot_u)?>">
                   <div class="ul-col ul-col-actions ul-col-full">
                     <? if ((int)$nivel === 5): ?>
                     <a href="<?=base_url()?>adm/usuarios/prontuario/<?=$u->id?>" class="ul-btn ul-btn-prontuario">
@@ -369,6 +395,7 @@
                             <?=htmlspecialchars($u->nome, ENT_QUOTES, 'UTF-8')?>
                           <? endif; ?>
                         </p>
+                        <? if(!empty($ut_rot_u)): ?><div><?=utec_rotulos_chips_html($ut_rot_u)?></div><? endif; ?>
                         <div class="ul-report-sub">
                           ID #<?=$u->id?>
                           <? if ((int)$u->nivel < 5 && !empty($u->login)): ?> · <?=htmlspecialchars($u->login, ENT_QUOTES, 'UTF-8')?><? endif; ?>
@@ -465,12 +492,17 @@
         }
       });
 
-      $('#ul-filter').on('input', function(){
-        var q = $.trim($(this).val()).toLowerCase();
+      function ulFiltrar(){
+        var q = $.trim($('#ul-filter').val() || '').toLowerCase();
+        var r = $('#ul-filter-rotulo').val() || '';
         $('#ul-grid .ul-report-row').each(function(){
-          $(this).toggle(!q || $(this).data('nome').indexOf(q) !== -1);
+          var okNome = !q || String($(this).data('nome')).indexOf(q) !== -1;
+          var okRot = !r || String($(this).attr('data-rotulos') || '').indexOf(',' + r + ',') !== -1;
+          $(this).toggle(okNome && okRot);
         });
-      });
+      }
+      $('#ul-filter').on('input', ulFiltrar);
+      $('#ul-filter-rotulo').on('change', ulFiltrar);
     </script>
   </body>
 </html>
