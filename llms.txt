@@ -26,7 +26,7 @@
 - **Prontuário por especialidade**: Os campos do atendimento mudam conforme a especialidade do profissional — por exemplo, escala de dor na fisioterapia ou dente tratado na odontologia.
 - **Ficha do paciente**: Dados pessoais, responsável legal, contato de emergência, convênio e saúde básica (tipo sanguíneo, alergias, medicamentos e comorbidades). As alergias aparecem em destaque no prontuário.
 - **Exames e arquivos**: Checklist de exames por atendimento e arquivos do paciente (laudos, imagens, documentos) guardados no prontuário.
-- **Exportar prontuário**: Gere o prontuário de um paciente em PDF, Excel ou CSV, do histórico completo ou de um período. Cada exportação fica registrada (quem, quando, qual paciente), como pede a LGPD.
+- **Exportar prontuário**: Gere o prontuário de um paciente em PDF, Excel ou CSV, do histórico completo ou de um período. Cada exportação fica registrada (quem, quando, qual paciente), para auditoria, em linha com a LGPD.
 - **Confirmação de consulta pelo WhatsApp**: Ao agendar, o paciente recebe a mensagem com botões de confirmar e cancelar. A resposta aparece na agenda e a equipe é avisada. Envio pela API oficial da Meta.
 - **Lembrete automático**: O sistema envia o lembrete ao paciente antes da consulta, pulando quem já confirmou.
 - **Chatbot para paciente e profissional**: Pelo número cadastrado, o paciente vê as próximas consultas e, com 24 horas ou mais de antecedência, remarca para um horário livre ou cancela. Profissional e recepção consultam a agenda de hoje e de amanhã.

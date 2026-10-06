@@ -370,7 +370,7 @@
 <section class="section">
     <div class="wrap">
         <div class="section-label">Funcionalidades relacionadas</div>
-        <?php $this->load->view('public/partials/funcionalidades', array('func_formato' => 'grade', 'func_ids' => array('tempo_espera', 'rotulos', 'relatorios', 'whatsapp_confirmacao', 'equipe'), 'func_agrupar' => false, 'func_titulo' => '')); ?>
+        <?php $this->load->view('public/partials/funcionalidades', array('func_formato' => 'grade', 'func_ids' => array('rotulos', 'ficha_paciente', 'exportar_prontuario', 'whatsapp_confirmacao', 'equipe'), 'func_agrupar' => false, 'func_titulo' => 'Funcionalidades que ajudam no dia a dia')); ?>
     </div>
 </section>
 
@@ -424,10 +424,10 @@
             </div>
             <div class="faq-item">
                 <div class="faq-q" onclick="this.closest('.faq-item').classList.toggle('open')">
-                    Dá para medir o tempo de espera dos pacientes?
+                    Consigo marcar pacientes com alertas, como alergia ou gestação?
                     <span class="faq-chevron">▾</span>
                 </div>
-                <div class="faq-a">Sim. A recepção marca a chegada do paciente com um clique na agenda e o sistema registra o início e o fim do atendimento. Em Relatórios clínicos aparecem a espera média, o atraso em relação ao horário marcado e a duração média das consultas, por profissional e por período.</div>
+                <div class="faq-a">Sim. Cada clínica cria seus próprios rótulos coloridos, como VIP, Convênio, Gestante ou Alérgico. Os rótulos de alerta aparecem em destaque no prontuário e na agenda do dia, e a lista de pacientes pode ser filtrada por rótulo.</div>
             </div>
         </div>
     </div>
@@ -501,8 +501,8 @@
     },
     {
       "@type": "Question",
-      "name": "Dá para medir o tempo de espera dos pacientes?",
-      "acceptedAnswer": {"@type": "Answer", "text": "Sim. A recepção marca a chegada do paciente com um clique na agenda e o sistema registra o início e o fim do atendimento. Em Relatórios clínicos aparecem a espera média, o atraso em relação ao horário marcado e a duração média das consultas, por profissional e por período."}
+      "name": "Consigo marcar pacientes com alertas, como alergia ou gestação?",
+      "acceptedAnswer": {"@type": "Answer", "text": "Sim. Cada clínica cria seus próprios rótulos coloridos, como VIP, Convênio, Gestante ou Alérgico. Os rótulos de alerta aparecem em destaque no prontuário e na agenda do dia, e a lista de pacientes pode ser filtrada por rótulo."}
     }
   ]
 }

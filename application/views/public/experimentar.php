@@ -267,7 +267,6 @@
             .card-title { font-size:22px; }
             .btn-submit { width:100%; font-size:16px; padding:15px 20px; justify-content:center; }
             input, select { font-size:16px; }
-            .benefits-panel { display:none; }
             .tipo-cards { grid-template-columns:1fr; gap:8px; }
             .tipo-card-label { flex-direction:row; text-align:left; gap:12px; padding:12px 14px; }
         }
@@ -319,6 +318,7 @@
                     <h1 class="benefits-title">Por que clínicas e profissionais escolhem a UTecnologia Saúde?</h1>
                     <div class="benefits-list" id="funcionalidades">
                         <?php $this->load->view('public/partials/funcionalidades', array('func_formato' => 'grade', 'func_ids' => null, 'func_agrupar' => true, 'func_titulo' => '')); ?>
+                        <p class="benefits-note" style="margin-top:12px;">No teste grátis, o WhatsApp envia até 3 mensagens por clínica; com o plano ativo, sem esse limite.</p>
                     </div>
                     <p class="benefits-note">
                         Utilizado por clínicas de medicina geral, psicologia, fisioterapia, nutrição, fonoaudiologia,

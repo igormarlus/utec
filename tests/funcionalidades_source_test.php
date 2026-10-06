@@ -25,7 +25,7 @@ naoTem('Exporte para PDF e tenha visão gerencial', $home, 'card antigo de relat
 $landings = array(
     'sistema-prontuario-eletronico' => array('Consigo exportar o prontuário do paciente?', 'O sistema avisa quando o paciente tem alergia?'),
     'sistema-para-clinicas' => array('Dá para medir o tempo de espera dos pacientes?'),
-    'software-para-clinicas' => array('Dá para medir o tempo de espera dos pacientes?'),
+    'software-para-clinicas' => array('Consigo marcar pacientes com alertas, como alergia ou gestação?'),
     'sistema-para-consultorio-medico' => array('O paciente consegue remarcar sozinho?'),
     'casos-de-uso' => array(),
 );

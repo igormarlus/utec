@@ -393,7 +393,7 @@
 <section class="section">
     <div class="wrap">
         <div class="section-label">Funcionalidades relacionadas</div>
-        <?php $this->load->view('public/partials/funcionalidades', array('func_formato' => 'grade', 'func_ids' => array('tempo_espera', 'rotulos', 'relatorios', 'whatsapp_confirmacao', 'equipe'), 'func_agrupar' => false, 'func_titulo' => '')); ?>
+        <?php $this->load->view('public/partials/funcionalidades', array('func_formato' => 'grade', 'func_ids' => array('tempo_espera', 'rotulos', 'relatorios', 'whatsapp_confirmacao', 'equipe'), 'func_agrupar' => false, 'func_titulo' => 'Funcionalidades que ajudam no dia a dia')); ?>
     </div>
 </section>
 

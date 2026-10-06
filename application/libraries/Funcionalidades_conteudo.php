@@ -55,7 +55,7 @@ class Funcionalidades_conteudo {
             ),
             array(
                 'id' => 'prontuario_especialidade', 'grupo' => 'prontuario', 'icone' => '🩺', 'titulo' => 'Prontuário por especialidade',
-                'resumo' => 'Rótulos e campos adaptados a fisioterapia, psicologia, odontologia e outras áreas.',
+                'resumo' => 'Títulos e campos adaptados a fisioterapia, psicologia, odontologia e outras áreas.',
                 'descricao' => 'Os campos do atendimento mudam conforme a especialidade do profissional — por exemplo, escala de dor na fisioterapia ou dente tratado na odontologia.',
                 'link' => 'sistema-prontuario-eletronico', 'novo' => false,
             ),
@@ -74,7 +74,7 @@ class Funcionalidades_conteudo {
             array(
                 'id' => 'exportar_prontuario', 'grupo' => 'prontuario', 'icone' => '📤', 'titulo' => 'Exportar prontuário',
                 'resumo' => 'PDF, Excel ou CSV por paciente, com período e registro de cada exportação.',
-                'descricao' => 'Gere o prontuário de um paciente em PDF, Excel ou CSV, do histórico completo ou de um período. Cada exportação fica registrada (quem, quando, qual paciente), como pede a LGPD.',
+                'descricao' => 'Gere o prontuário de um paciente em PDF, Excel ou CSV, do histórico completo ou de um período. Cada exportação fica registrada (quem, quando, qual paciente), para auditoria, em linha com a LGPD.',
                 'link' => '', 'novo' => true,
             ),
             array(
