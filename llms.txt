@@ -17,6 +17,25 @@
 - [Chatbot para clínica: o que faz e o que não faz](https://utecnologia.com.br/blog/chatbot-para-clinica-whatsapp-o-que-faz-e-o-que-nao-faz)
 - [Modelos de mensagem de confirmação de consulta](https://utecnologia.com.br/blog/modelo-de-mensagem-de-confirmacao-de-consulta-whatsapp)
 
+## Funcionalidades
+
+- **Agenda inteligente**: Visão do dia, da semana e do mês por profissional. Remarque e cancele direto na agenda, sem retrabalho.
+- **Horários de atendimento**: Cada profissional define dias, horários, duração da consulta e períodos bloqueados (férias, feriados). Ao agendar, o sistema sugere os horários livres e avisa quando é encaixe.
+- **Check-in e tempo de espera**: Com um clique em "Chegou", o sistema registra a chegada do paciente e, ao iniciar e finalizar o atendimento, mostra quanto ele esperou e quanto durou a consulta. Os relatórios trazem as médias por profissional.
+- **Prontuário eletrônico**: Registro de cada atendimento com histórico organizado, exames e documentos anexados, acessível de qualquer dispositivo.
+- **Prontuário por especialidade**: Os campos do atendimento mudam conforme a especialidade do profissional — por exemplo, escala de dor na fisioterapia ou dente tratado na odontologia.
+- **Ficha do paciente**: Dados pessoais, responsável legal, contato de emergência, convênio e saúde básica (tipo sanguíneo, alergias, medicamentos e comorbidades). As alergias aparecem em destaque no prontuário.
+- **Exames e arquivos**: Checklist de exames por atendimento e arquivos do paciente (laudos, imagens, documentos) guardados no prontuário.
+- **Exportar prontuário**: Gere o prontuário de um paciente em PDF, Excel ou CSV, do histórico completo ou de um período. Cada exportação fica registrada (quem, quando, qual paciente), como pede a LGPD.
+- **Confirmação de consulta pelo WhatsApp**: Ao agendar, o paciente recebe a mensagem com botões de confirmar e cancelar. A resposta aparece na agenda e a equipe é avisada. Envio pela API oficial da Meta.
+- **Lembrete automático**: O sistema envia o lembrete ao paciente antes da consulta, pulando quem já confirmou.
+- **Chatbot para paciente e profissional**: Pelo número cadastrado, o paciente vê as próximas consultas e, com 24 horas ou mais de antecedência, remarca para um horário livre ou cancela. Profissional e recepção consultam a agenda de hoje e de amanhã.
+- **Rótulos e alertas de pacientes**: Cada clínica cria seus rótulos. Os de alerta aparecem em destaque no prontuário e na agenda do dia.
+- **Avisos internos**: A equipe recebe avisos no sistema sobre as respostas dos pacientes, sem precisar conferir mensagem por mensagem.
+- **Relatórios clínicos**: Indicadores de atendimentos finalizados e pendentes, exames, espera média, atraso e duração das consultas.
+- **Equipe com acesso por perfil**: Cadastre profissionais e colaboradores; o acesso chega por e-mail (com a senha ou um convite para criar a senha). Cada perfil enxerga apenas a sua parte da operação.
+- **Manual de ajuda**: Manual com o passo a passo de cada perfil (clínica, profissional e recepção), atualizado a cada novidade.
+
 ## Por especialidade
 
 - [Psicologia](https://utecnologia.com.br/sistema-para-psicologos)

@@ -1,4 +1,5 @@
 <?php
+if (!defined('BASEPATH')) { define('BASEPATH', __DIR__); }
 function falha($m) { fwrite(STDERR, $m . PHP_EOL); exit(1); }
 function ler($rel) { $p = __DIR__ . '/../' . $rel; if (!is_file($p)) { falha('ausente: ' . $rel); } return file_get_contents($p); }
 function tem($agulha, $palheiro, $rotulo) { if (strpos($palheiro, $agulha) === false) { falha($rotulo . ' — ausente: ' . $agulha); } }
@@ -39,5 +40,11 @@ foreach ($landings as $slug => $perguntas) {
         foreach ($m[1] as $json) { if (json_decode($json) === null) { falha($slug . ' — JSON-LD invalido'); } }
     }
 }
+
+require_once __DIR__ . '/../application/libraries/Funcionalidades_conteudo.php';
+$llms = ler('llms.txt');
+tem('## Funcionalidades', $llms, 'llms secao');
+foreach (Funcionalidades_conteudo::itens() as $i) { tem($i['titulo'], $llms, 'llms item ' . $i['id']); }
+tem('Funcionalidades_conteudo', ler('CLAUDE.md'), 'CLAUDE.md cita o catalogo');
 
 echo "OK\n";

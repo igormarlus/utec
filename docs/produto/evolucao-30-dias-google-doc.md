@@ -114,8 +114,18 @@ Legenda:
 
 ---
 
+## Divulgação (site e buscadores)
+
+### Vitrine de funcionalidades no site — 🟢 Pronto, aguardando publicação
+- As páginas de cadastro (teste grátis e assinatura), a página inicial e as principais páginas de busca passaram a mostrar tudo o que o sistema já faz, incluindo WhatsApp (confirmação, lembrete e chatbot) e as novidades de outubro.
+- Perguntas frequentes novas sobre exportar prontuário, alergias, tempo de espera e remarcação pelo WhatsApp.
+- Próximo passo: pesquisa de palavras-chave para criar 2 páginas novas e artigos de blog.
+
+---
+
 ## Histórico de atualizações
 - 06/10/2026 — Documento criado com o andamento até aqui (Exportar prontuário, Rótulos, Ficha do paciente, Tempo de espera).
 - 06/10/2026 — Ficha do paciente marcada como publicada (05/10); Rótulos e Ficha aguardando validação online; Tempo de espera entrou em desenvolvimento.
 - 06/10/2026 — Tempo médio de espera concluído e revisado (check-in, horários de início/fim, médias em Relatórios clínicos); aguardando publicação.
 - 06/10/2026 — Tempo médio de espera publicado em produção. Rótulos, Ficha do paciente e Tempo de espera integrados à versão principal do sistema; os três aguardam validação online.
+- 06/10/2026 — Vitrine de funcionalidades do site pronta (cadastro, página inicial e páginas de busca), aguardando publicação.

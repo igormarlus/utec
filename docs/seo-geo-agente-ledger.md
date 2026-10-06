@@ -69,3 +69,5 @@ Gerados como `.sql` pendente de aplicação:
 > **Feito em 2026-10-06:** espaço chatbot/automação de WhatsApp auditado (landing `chatbot-para-clinicas` criada); os 2 artigos da "próxima leva" já tinham saído em 2026-09-23.
 >
 > **Para a próxima rodada (bloco 3 — variações semânticas e GEO):** testar `programa para clinica/consultorio`, `sistema para clinica gratis/gratuito`, `sistema para clinica na nuvem/web`, `como migrar de planilha`, `quanto custa sistema para clinica`, além dos itens ainda não testados `software para clinica ocupacional`, `software exame admissional`, `sistema esocial medicina do trabalho`.
+
+> **Feito em 2026-10-06 (vitrine de funcionalidades):** catálogo único com 16 funcionalidades (fonte: Funcionalidades_conteudo) exibido em /experimentar, /assinar, home e nas landings de prontuário eletrônico, sistema e software para clínicas, consultório médico e casos de uso; 4 FAQ novas (exportar prontuário, alergias, tempo de espera, remarcação pelo WhatsApp); llms.txt com seção Funcionalidades. Próximo: Entrega 2 (pesquisa de palavras-chave → 2 landings novas + artigos).
