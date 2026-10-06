@@ -15,4 +15,11 @@ naoTem('Tenant criado', $ass, 'sem texto tecnico');
 naoTem('owner principal', $ass, 'sem texto tecnico');
 tem('Tudo o que está incluído', $ass, 'secao completa no assinar');
 
-echo "OK\n";
+$home = ler('application/views/index-front.php');
+tem("Funcionalidades_conteudo::por_ids(array('prontuario', 'agenda', 'chatbot', 'ficha_paciente', 'tempo_espera', 'rotulos', 'relatorios', 'equipe'))", $home, 'home usa catalogo');
+tem('feature-card--whatsapp', $home, 'card do whatsapp mantido');
+tem('experimentar#funcionalidades', $home, 'link ver todas');
+naoTem('Exporte para PDF e tenha visão gerencial', $home, 'card antigo de relatorios removido');
+
+echo "OK
+";
