@@ -25,9 +25,15 @@ assertContains('utec_tempo_campos_zerados()', $ctl, 'remarcar zera horarios');
 assertContains('function checkin(', $ctl, 'endpoint checkin');
 assertContains("input->method() !== 'post'", $ctl, 'checkin so POST');
 assertContains('can_access_agendamento($id_agenda)', $ctl, 'checkin respeita escopo');
-assertContains("preg_match('#^adm/[a-z0-9_/]*$#i', \$voltar)", $ctl, 'voltar restrito');
+assertContains("preg_match('#^adm/[a-z0-9_/]*$#iD', \$voltar)", $ctl, 'voltar restrito');
+
+assertContains('utec_tempo_campos_transicao((int)$dd_agenda->status, $status_destino', $ctl, 'formulario do prontuario grava horarios');
+assertContains('if(!isset($new_status)){ show_404(); return; }', $ctl, 'status invalido 404');
+assertContains('if((int)$dd->status !== $status){', $ctl, 'link desatualizado nao sobrescreve');
+assertContains('$id_agenda = (int)$this->input->post(\'id_agenda\');', $ctl, 'id do formulario como inteiro');
 
 $usr = lerArquivo('application/controllers/adm/Usuarios.php');
+assertContains("a.status <> 3", $usr, 'cancelados fora das medias');
 assertContains("utec_tempo_sql_agregados('a')", $usr, 'relatorio usa agregacao');
 assertContains("\$dados['tempos']", $usr, 'relatorio passa tempos');
 $rel = lerArquivo('application/views/adm/relatorios/clinicos.php');

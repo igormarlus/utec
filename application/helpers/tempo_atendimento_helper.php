@@ -15,6 +15,8 @@ if(!function_exists('utec_tempo_campos_transicao')){
 		$n = (int)$status_novo;
 		if($a === 0 && $n === 1){ return array('inicio_atendimento_em' => $agora, 'fim_atendimento_em' => null); }
 		if($a === 1 && $n === 2){ return array('fim_atendimento_em' => $agora); }
+		// 0 -> 2: finalizar sem iniciar (so o formulario do prontuario permite); sem inicio a duracao fica sem calculo.
+		if($a === 0 && $n === 2){ return array('fim_atendimento_em' => $agora); }
 		if($a === 2 && $n === 0){ return array('inicio_atendimento_em' => null, 'fim_atendimento_em' => null); }
 		if($a === 3 && $n === 0){ return utec_tempo_campos_zerados(); }
 		return array();
@@ -89,6 +91,7 @@ if(!function_exists('utec_tempo_pode_checkin')){
 if(!function_exists('utec_tempo_pode_desfazer_checkin')){
 	function utec_tempo_pode_desfazer_checkin($ag){
 		$ag = (array)$ag;
+		if(!array_key_exists('status', $ag) || (int)$ag['status'] !== 0){ return false; }
 		$chegou = utec_tempo_ts(array_key_exists('chegada_em', $ag) ? $ag['chegada_em'] : '') !== null;
 		$iniciou = utec_tempo_ts(array_key_exists('inicio_atendimento_em', $ag) ? $ag['inicio_atendimento_em'] : '') !== null;
 		return $chegou && !$iniciou;

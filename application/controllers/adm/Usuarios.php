@@ -1061,12 +1061,12 @@ function relatorios_clinicos(){
 			$this->load->helper('tempo_atendimento');
 			$sel_tempos = utec_tempo_sql_agregados('a');
 			$dados['tempos'] = array(
-				'geral' => $this->db->query("SELECT ".$sel_tempos." FROM agendamentos a ".$where_agenda_sql)->row_array(),
+				'geral' => $this->db->query("SELECT ".$sel_tempos." FROM agendamentos a ".$where_agenda_sql." AND a.status <> 3")->row_array(),
 				'por_profissional' => $this->db->query(
 					"SELECT pr.nome AS prestador_nome, ".$sel_tempos."
 					FROM agendamentos a
 					LEFT JOIN usuarios pr ON pr.id = a.id_prestador
-					".$where_agenda_sql."
+					".$where_agenda_sql." AND a.status <> 3
 					GROUP BY a.id_prestador, pr.nome
 					ORDER BY pr.nome ASC"
 				)->result_array(),

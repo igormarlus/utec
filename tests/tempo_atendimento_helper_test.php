@@ -21,6 +21,8 @@ assertSameValue(array('fim_atendimento_em' => $agora), utec_tempo_campos_transic
 assertSameValue(array('inicio_atendimento_em' => null, 'fim_atendimento_em' => null), utec_tempo_campos_transicao(2, 0, $agora), '2->0');
 assertSameValue($zero, utec_tempo_campos_transicao(3, 0, $agora), '3->0');
 assertSameValue(array(), utec_tempo_campos_transicao(0, 3, $agora), 'cancelar nao mexe');
+assertSameValue(array('fim_atendimento_em' => $agora), utec_tempo_campos_transicao(0, 2, $agora), '0->2 grava so o fim');
+assertSameValue(array(), utec_tempo_campos_transicao(2, 2, $agora), 'resalvar finalizado nao mexe');
 assertSameValue(array(), utec_tempo_campos_transicao(1, 0, $agora), 'transicao invalida');
 assertSameValue($zero, utec_tempo_campos_zerados(), 'zerados');
 
@@ -71,6 +73,8 @@ assertTrue(utec_tempo_pode_desfazer_checkin($p3), 'pode desfazer');
 $p4 = $p3; $p4['inicio_atendimento_em'] = '2026-10-05 14:00:00';
 assertTrue(!utec_tempo_pode_desfazer_checkin($p4), 'nao desfaz apos inicio');
 assertTrue(!utec_tempo_pode_desfazer_checkin($pend), 'nao desfaz sem chegada');
+$p5 = $p3; $p5['status'] = '3';
+assertTrue(!utec_tempo_pode_desfazer_checkin($p5), 'nao desfaz cancelado');
 
 // --- SQL
 $sql = utec_tempo_sql_agregados('a');

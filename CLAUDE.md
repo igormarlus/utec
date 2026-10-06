@@ -135,7 +135,7 @@ O projeto usa **CodeIgniter 3.1.10** em produção. **Não migrar para CI4 ou ou
 - `prontuario_exportacoes` — auditoria de exportação (`id_usuario`, `id_paciente`, `formato`, período, `ip_hash`)
 - `pacientes_rotulos` — catálogo de rótulos por conta (`id_conta` = raiz da árvore id_user), cor da paleta fixa, `alerta`
 - `pacientes_rotulos_vinculos` — paciente ↔ rótulo (PK composta)
-- `agendamentos.chegada_em` / `chegada_por` / `inicio_atendimento_em` / `fim_atendimento_em` — check-in e horários reais do atendimento (gravados por `set_status_agenda`/`checkin`, zerados na remarcação)
+- `agendamentos.chegada_em` / `chegada_por` / `inicio_atendimento_em` / `fim_atendimento_em` — check-in e horários reais do atendimento (gravados por `set_status_agenda`, pelo formulário do prontuário (`set`) e por `checkin`, zerados na remarcação)
 - `pacientes_ficha` — ficha 1:1 do paciente (pessoal/responsável, saúde básica com `saude_atualizado_por/em`, convênio)
 
 **Produtos e Pedidos**

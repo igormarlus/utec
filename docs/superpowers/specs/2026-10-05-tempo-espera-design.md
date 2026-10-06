@@ -9,10 +9,12 @@ Registrar **chegada** (check-in pela recepção), **início** e **fim** de cada 
 - em Relatórios clínicos (`adm/usuarios/relatorios_clinicos`, view `adm/relatorios/clinicos`): espera média, atraso médio e duração média no período/profissional filtrados + tabela por profissional.
 
 Fora de escopo: painel de fila ao vivo com contador, "você é o próximo" pelo WhatsApp.
+Caminhos do chatbot/WhatsApp (cancelar/reconfirmar/remarcar com ≥ 24h) mudam status sem mexer nos horários — aceito.
+Médias excluem agendamentos cancelados.
 
 ## Situação atual
 `agendamentos.status`: 0 pendente · 1 em atendimento · 2 finalizado · 3 cancelado. Nenhum horário é gravado.
-Todas as telas (agenda desktop/mobile, calendário, prontuário) mudam status por `Atendimento::set_status_agenda($id, $status_atual)`, que só aplica a transição 0→1, 1→2, 2→0, 3→0. Cancelamento manual: `Atendimento.php:~650` (status 3). Remarcação: `Atendimento::remarcar_agenda()`.
+Status muda por dois caminhos: `Atendimento::set_status_agenda($id, $status_atual)` (agenda desktop/mobile, calendário, link do prontuário) e `Atendimento::set()` (formulário do prontuário: salvar/iniciar/finalizar/reabrir). Os dois gravam horários pela mesma função de transição, usando o status atual do banco; `set_status_agenda` recusa link desatualizado. Cancelamento manual: `Atendimento.php:~650` (status 3). Remarcação: `Atendimento::remarcar_agenda()`.
 
 ## Dados — migração `Dev::migrar_tempos_atendimento` (idempotente, nível 1)
 Via `ensure_column` existente, em `agendamentos`:
@@ -24,6 +26,7 @@ Função pura `utec_tempo_campos_transicao($status_atual, $status_novo, $agora)`
 |---|---|
 | 0 → 1 (iniciar) | `inicio_atendimento_em = $agora`, `fim_atendimento_em = NULL` |
 | 1 → 2 (finalizar) | `fim_atendimento_em = $agora` |
+| 0 → 2 (finalizar sem iniciar, só pelo formulário) | fim_atendimento_em = $agora (duração fica sem cálculo) |
 | 2 → 0 (reabrir) | `inicio_atendimento_em = NULL`, `fim_atendimento_em = NULL` (chegada mantida) |
 | 3 → 0 (descancelar) | `chegada_em = NULL`, `chegada_por = NULL`, `inicio_atendimento_em = NULL`, `fim_atendimento_em = NULL` |
 | qualquer outra | `array()` |
