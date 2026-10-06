@@ -34,4 +34,12 @@ $rel = lerArquivo('application/views/adm/relatorios/clinicos.php');
 assertContains('Espera média', $rel, 'card espera');
 assertContains('Tempos por profissional', $rel, 'tabela por profissional');
 
+$ag = lerArquivo('application/views/adm/usuarios/new/atendimentos.php');
+assertContains('utec_tempo_resumo_agenda($agenda)', $ag, 'resumo na agenda');
+assertContains('adm/atendimento/checkin/', $ag, 'form de check-in');
+assertContains('value="desfazer"', $ag, 'desfazer chegada');
+assertContains("flashdata('tempo_ok')", $ag, 'flash de tempo');
+assertContains("field_exists('chegada_em', 'agendamentos')", $ag, 'guarda sem migracao');
+if (substr_count($ag, 'utec_tempo_resumo_agenda($agenda)') !== 4) { fwrite(STDERR, "resumo deve aparecer 4x\n"); exit(1); }
+
 echo "OK\n";
