@@ -14,19 +14,21 @@ Legenda:
 - ✅ Exportar Prontuário (PDF, XLS, CSV) — em produção desde 03/10/2026
 - ✅ Rótulos dos pacientes — publicado em 03/10/2026, aguardando validação online
 - ✅ Informações adicionais do paciente (Ficha do paciente) — publicado em 05/10/2026, aguardando validação online
-- 🔄 Tempo médio de espera — em desenvolvimento desde 06/10/2026 (especificação e plano prontos em 05/10)
+- 🟢 Tempo médio de espera — pronto e revisado em 06/10/2026, aguardando publicação
 - ⏳ Próximos da Onda 1: Lista de espera/Encaixe, Gráficos de exames
 
 ---
 
 ## Atendimento
 
-### Tempo médio de espera — 🔄 Em andamento
-- Especificação e plano de desenvolvimento concluídos em 05/10/2026; desenvolvimento iniciado em 06/10/2026.
+### Tempo médio de espera — 🟢 Pronto, aguardando publicação
+- Desenvolvido e revisado em 06/10/2026; falta publicar e validar online.
 - Como vai funcionar: a recepção marca "Chegou" na agenda (check-in). O sistema registra automaticamente o horário de início e de fim do atendimento quando o profissional muda o status.
 - Na agenda, cada paciente mostra algo como: "Chegou 14:05 · esperou 18 min · consulta 32 min".
 - Em Relatórios clínicos: espera média, atraso médio (em relação ao horário marcado) e duração média, com filtro por período e por profissional, mais uma tabela por profissional.
 - Dá para desfazer um check-in feito por engano (enquanto o atendimento não começou).
+- Os horários são registrados tanto pelos botões da agenda quanto pelo formulário do prontuário (iniciar/finalizar/reabrir). Remarcar zera os horários; atendimentos cancelados ficam fora das médias.
+- Quem pode marcar a chegada: clínica, profissional e recepção.
 - Fica para depois: painel de fila ao vivo e aviso "você é o próximo" pelo WhatsApp.
 
 ### Lista de espera / Encaixe — ⏳ Próximo
@@ -115,3 +117,4 @@ Legenda:
 ## Histórico de atualizações
 - 06/10/2026 — Documento criado com o andamento até aqui (Exportar prontuário, Rótulos, Ficha do paciente, Tempo de espera).
 - 06/10/2026 — Ficha do paciente marcada como publicada (05/10); Rótulos e Ficha aguardando validação online; Tempo de espera entrou em desenvolvimento.
+- 06/10/2026 — Tempo médio de espera concluído e revisado (check-in, horários de início/fim, médias em Relatórios clínicos); aguardando publicação.
