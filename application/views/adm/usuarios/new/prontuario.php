@@ -322,6 +322,14 @@
       .ut-rotulo { display:inline-block; border:1px solid; border-radius:999px; padding:1px 10px; font-size:12px; font-weight:700; background:#fff; margin:2px 4px 2px 0; }
       .ut-rotulo-alerta { background:#fef2f2; }
       .ut-rotulos-linha { margin-top:8px; }
+      .ut-ficha-alergia { margin-top:8px; display:inline-block; background:#fef2f2; color:#b91c1c; border:1px solid #fecaca; border-radius:8px; padding:4px 10px; font-weight:700; font-size:13px; }
+      .ut-ficha-card { background:#fff; border:1px solid #dbe3ef; border-radius:16px; padding:18px 20px; margin:0 0 20px; }
+      .ut-ficha-grid { display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:18px; }
+      .ut-ficha-grid h6 { font-weight:800; color:#0f172a; margin-bottom:8px; }
+      .ut-ficha-grid dt { font-size:11px; text-transform:uppercase; color:#64748b; font-weight:700; margin-top:6px; }
+      .ut-ficha-grid dd { margin:0; color:#0f172a; }
+      .ut-ficha-vazio { color:#94a3b8; }
+      @media (max-width: 767.98px){ .ut-ficha-grid { grid-template-columns:1fr; } }
     </style>
     
   </head>
@@ -416,15 +424,33 @@
               ?>
               <?php if($ut_rot_flash_ok){ ?><div class="alert alert-success" style="margin-bottom:20px;"><?=htmlspecialchars($ut_rot_flash_ok)?></div><?php } ?>
               <?php if($ut_rot_flash_erro){ ?><div class="alert alert-danger" style="margin-bottom:20px;"><?=htmlspecialchars($ut_rot_flash_erro)?></div><?php } ?>
+              <?php
+              $ut_ficha_ok = false; $ut_ficha = array();
+              $ut_ci_ficha =& get_instance();
+              $ut_ci_ficha->load->model('Ficha_paciente_model', 'ficha_model');
+              if($ut_ci_ficha->ficha_model->disponivel() && (int)$paciente->nivel === 5 && in_array((int)$this->session->userdata('nivel'), array(1, 2, 3, 4), true)){
+                $ut_ficha_ok = true;
+                $ut_ficha = $ut_ci_ficha->ficha_model->obter((int)$paciente->id);
+              }
+              $ut_ficha_flash_ok = $this->session->flashdata('ficha_ok');
+              ?>
+              <?php if($ut_ficha_flash_ok){ ?><div class="alert alert-success" style="margin-bottom:20px;"><?=htmlspecialchars($ut_ficha_flash_ok)?></div><?php } ?>
               <div class="row">
                 <div class="col-sm-12">
                   <div class="patient-summary-card">
                     <div class="d-flex flex-wrap justify-content-between align-items-start" style="gap:16px">
                       <div>
                         <div class="section-heading" style="margin-bottom:6px"><?=$paciente->nome?></div>
+                        <?php if($ut_ficha_ok && $ut_ficha['nome_social'] !== ''){ ?><div style="margin:-4px 0 6px;color:#5f708c;font-size:13px;">Nome social: <strong><?=htmlspecialchars($ut_ficha['nome_social'], ENT_QUOTES, 'UTF-8')?></strong></div><?php } ?>
                         <p style="margin:0;color:#5f708c">Prontuário com histórico de atendimentos, evolução clínica e arquivos do paciente.</p>
                         <?php if($ut_rot_ok && !empty($ut_rot_paciente)){ ?>
                           <div class="ut-rotulos-linha" aria-label="Rótulos do paciente"><?=utec_rotulos_chips_html($ut_rot_paciente)?></div>
+                        <?php } ?>
+                        <?php if($ut_ficha_ok && trim($ut_ficha['alergias']) !== ''){
+                          $ut_alg = str_replace("\n", ' · ', $ut_ficha['alergias']);
+                          if(function_exists('mb_strlen') && mb_strlen($ut_alg, 'UTF-8') > 160){ $ut_alg = mb_substr($ut_alg, 0, 160, 'UTF-8').'…'; }
+                        ?>
+                          <div class="ut-ficha-alergia" role="note">&#9888; Alergias: <?=htmlspecialchars($ut_alg, ENT_QUOTES, 'UTF-8')?></div>
                         <?php } ?>
                       </div>
                       <div class="timeline-actions" style="margin-top:0">
@@ -486,6 +512,7 @@
                           </div>
                         </details>
                         <?php } ?>
+                        <?php if($ut_ficha_ok){ ?><a href="<?=base_url('adm/ficha/paciente/'.(int)$paciente->id)?>" class="btn btn-outline-secondary">Editar ficha</a><?php } ?>
                       </div>
                     </div>
                     <div class="patient-summary-grid">
@@ -510,6 +537,46 @@
                 </div>
               </div>
 
+              <?php if($ut_ficha_ok){
+                $ut_fv = function($valor){ return $valor !== '' ? nl2br(htmlspecialchars($valor, ENT_QUOTES, 'UTF-8')) : '<span class="ut-ficha-vazio">Não informado</span>'; };
+                $ut_fj = function(array $partes){ $partes = array_values(array_filter($partes, function($p){ return $p !== ''; })); return implode(' · ', $partes); };
+              ?>
+              <div class="ut-ficha-card">
+                <div class="d-flex justify-content-between align-items-center" style="margin-bottom:12px;gap:12px;">
+                  <div class="section-heading" style="font-size:18px;margin:0;">Ficha do paciente</div>
+                  <a href="<?=base_url('adm/ficha/paciente/'.(int)$paciente->id)?>" class="btn btn-sm btn-outline-secondary">Editar ficha</a>
+                </div>
+                <div class="ut-ficha-grid">
+                  <div>
+                    <h6>Pessoal / responsável</h6>
+                    <dl>
+                      <dt>Sexo</dt><dd><?=htmlspecialchars(utec_ficha_rotulo_opcao(utec_ficha_opcoes_sexo(), $ut_ficha['sexo']), ENT_QUOTES, 'UTF-8')?></dd>
+                      <dt>Estado civil</dt><dd><?=htmlspecialchars(utec_ficha_rotulo_opcao(utec_ficha_opcoes_estado_civil(), $ut_ficha['estado_civil']), ENT_QUOTES, 'UTF-8')?></dd>
+                      <dt>Responsável</dt><dd><?=$ut_fv($ut_fj(array($ut_ficha['responsavel_nome'], $ut_ficha['responsavel_parentesco'], utec_ficha_telefone_fmt($ut_ficha['responsavel_telefone']))))?></dd>
+                      <dt>Emergência</dt><dd><?=$ut_fv($ut_fj(array($ut_ficha['emergencia_nome'], $ut_ficha['emergencia_parentesco'], utec_ficha_telefone_fmt($ut_ficha['emergencia_telefone']))))?></dd>
+                    </dl>
+                  </div>
+                  <div>
+                    <h6>Saúde</h6>
+                    <dl>
+                      <dt>Tipo sanguíneo</dt><dd><?=$ut_fv($ut_ficha['tipo_sanguineo'])?></dd>
+                      <dt>Alergias</dt><dd><?=$ut_fv($ut_ficha['alergias'])?></dd>
+                      <dt>Medicamentos</dt><dd><?=$ut_fv($ut_ficha['medicamentos'])?></dd>
+                      <dt>Comorbidades</dt><dd><?=$ut_fv($ut_ficha['comorbidades'])?></dd>
+                      <?php if($ut_ficha['obs_saude'] !== ''){ ?><dt>Observações</dt><dd><?=$ut_fv($ut_ficha['obs_saude'])?></dd><?php } ?>
+                    </dl>
+                  </div>
+                  <div>
+                    <h6>Convênio</h6>
+                    <dl>
+                      <dt>Convênio</dt><dd><?=$ut_fv($ut_fj(array($ut_ficha['convenio_nome'], $ut_ficha['convenio_plano'])))?></dd>
+                      <dt>Carteirinha</dt><dd><?=$ut_fv($ut_ficha['convenio_carteirinha'])?></dd>
+                      <dt>Validade</dt><dd><?=$ut_fv(utec_ficha_data_br($ut_ficha['convenio_validade']))?></dd>
+                    </dl>
+                  </div>
+                </div>
+              </div>
+              <?php } ?>
               <div class="quick-metrics">
                 <div class="quick-metric-card">
                   <span class="patient-summary-label">Atendimentos</span>
