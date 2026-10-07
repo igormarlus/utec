@@ -96,6 +96,6 @@ assertSameValue(
 $le = null;
 foreach ($nivel4 as $capitulo) { if ($capitulo['slug'] === 'lista-espera') { $le = $capitulo; } }
 assertTrue($le !== null, 'Colaborador (nivel 4) deve ver o capitulo lista-espera.');
-assertSameValue(null, $le['print'], 'Capitulo lista-espera ainda sem print.');
+assertSameValue('lista-espera.png', $le['print'], 'Print do capitulo lista-espera.');
 
 echo "OK\n";

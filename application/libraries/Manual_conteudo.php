@@ -162,7 +162,7 @@ class Manual_conteudo {
                     3 => array('Recebe os avisos das vagas da sua própria agenda.'),
                     4 => array('Recebe os avisos de vaga da clínica e costuma ser quem faz o encaixe.'),
                 ),
-                'print' => null,
+                'print' => 'lista-espera.png',
                 'atualizado_em' => '2026-10-07',
             ),
             array(
