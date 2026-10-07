@@ -30,4 +30,20 @@ assertContains('INSERT IGNORE INTO `lista_espera_vagas`', $model, 'vaga deduplic
 assertContains('status IN (0,1,2)', $model, 'ocupacao considera so ativos');
 assertContains('id_prestador <=> ?', $model, 'duplicidade null-safe');
 
+// Aviso no sino
+$notif = lerArquivo('application/models/Notificacoes_model.php');
+assertContains('public function criar_aviso_lista_espera(', $notif, 'metodo de aviso');
+assertContains("'lista_espera_vaga'", $notif, 'tipo do aviso');
+
+// Library
+$lib = lerArquivo('application/libraries/Lista_espera_vagas.php');
+assertContains('class Lista_espera_vagas', $lib, 'classe');
+assertContains('public function vaga_aberta(', $lib, 'vaga_aberta');
+assertContains('public function vaga_do_agendamento(', $lib, 'vaga_do_agendamento');
+assertContains('catch (Throwable $e)', $lib, 'blindada');
+assertContains('utec_le_deve_avisar(', $lib, 'regra de aviso');
+assertContains('->horario_ocupado(', $lib, 'checa vaga livre');
+assertContains('->registrar_vaga(', $lib, 'deduplica');
+assertContains("'adm/lista_espera/vaga/'", $lib, 'url do aviso');
+
 echo "OK\n";
