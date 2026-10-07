@@ -15,7 +15,7 @@ Legenda:
 - ✅ Rótulos dos pacientes — publicado em 03/10/2026 e validado online em 07/10/2026
 - ✅ Informações adicionais do paciente (Ficha do paciente) — publicado em 05/10/2026 e validado online em 07/10/2026
 - ✅ Tempo médio de espera — publicado em 06/10/2026 e validado online em 07/10/2026
-- 🟢 Lista de espera / Encaixe — pronta em 07/10/2026, aguardando publicação
+- ✅ Lista de espera / Encaixe — publicada em 07/10/2026 e testada online (falta só o teste de cancelamento seguido de encaixe)
 - ⏳ Próximo da Onda 1: Gráficos de exames (antes, criar o registro de resultados numéricos dos exames)
 
 ---
@@ -32,8 +32,8 @@ Legenda:
 - Quem pode marcar a chegada: clínica, profissional e recepção.
 - Fica para depois: painel de fila ao vivo e aviso "você é o próximo" pelo WhatsApp.
 
-### Lista de espera / Encaixe — 🟢 Pronto, aguardando publicação
-- Desenvolvido e revisado em 07/10/2026; falta publicar. Quem pode usar: clínica, profissional e recepção.
+### Lista de espera / Encaixe — ✅ Concluído
+- Desenvolvido, revisado e publicado em 07/10/2026. Testado online; falta só conferir um cancelamento seguido de encaixe. Quem pode usar: clínica, profissional e recepção.
 - A recepção registra quem quer um horário: paciente e profissional (ou "qualquer profissional"), com preferências opcionais de turno, dias da semana, "a partir de" e observação.
 - Quando uma consulta futura é cancelada ou remarcada — pela agenda, pelo botão do WhatsApp ou pelo chatbot — o sino avisa o profissional, a clínica e a recepção: "Abriu vaga com Dr. X em 12/10 às 14:00. 3 pacientes na lista."
 - O aviso abre a vaga com os pacientes compatíveis primeiro (e quem espera há mais tempo antes). Um clique em "Agendar" abre o agendamento já preenchido, com a opção de confirmação pelo WhatsApp; o paciente sai da lista como "Agendado".
@@ -138,3 +138,4 @@ Legenda:
 - 07/10/2026 — Rótulos, Ficha do paciente e Tempo médio de espera testados e validados online (check-in, horários de início e fim e médias em Relatórios clínicos funcionando).
 - 07/10/2026 — Lista de espera: funcionamento definido (aviso de vaga no sino para a equipe, encaixe com agendamento preenchido); desenvolvimento em seguida.
 - 07/10/2026 — Lista de espera pronta e revisada (cadastro na lista, aviso de vaga no sino, encaixe com agendamento preenchido, remoção com motivo, capítulo no manual e vitrine do site); aguardando publicação.
+- 07/10/2026 — Lista de espera publicada em produção e testada online (cadastro na lista, tela e prontuário). Falta conferir o fluxo de cancelamento seguido de encaixe. Os prints do manual serão atualizados em seguida.
