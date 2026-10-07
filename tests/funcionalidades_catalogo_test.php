@@ -6,7 +6,7 @@ function falha($m) { fwrite(STDERR, $m . PHP_EOL); exit(1); }
 function igual($e, $a, $l) { if ($e !== $a) { falha($l . ' | esperado ' . var_export($e, true) . ' obtido ' . var_export($a, true)); } }
 
 $itens = Funcionalidades_conteudo::itens();
-igual(16, count($itens), '16 itens');
+igual(17, count($itens), '17 itens');
 igual(array('agenda' => 'Agenda', 'prontuario' => 'Prontuário', 'whatsapp' => 'WhatsApp', 'gestao' => 'Gestão'), Funcionalidades_conteudo::grupos(), 'grupos');
 
 $ids = array(); $novos = array();
@@ -27,8 +27,8 @@ foreach ($itens as $i) {
     }
 }
 sort($novos);
-igual(array('exportar_prontuario', 'ficha_paciente', 'rotulos', 'tempo_espera'), $novos, '4 novidades');
-igual(array('agenda', 'horarios', 'tempo_espera', 'prontuario', 'prontuario_especialidade', 'ficha_paciente', 'exames', 'exportar_prontuario',
+igual(array('exportar_prontuario', 'ficha_paciente', 'lista_espera', 'rotulos', 'tempo_espera'), $novos, '5 novidades');
+igual(array('agenda', 'horarios', 'tempo_espera', 'lista_espera', 'prontuario', 'prontuario_especialidade', 'ficha_paciente', 'exames', 'exportar_prontuario',
     'whatsapp_confirmacao', 'whatsapp_lembrete', 'chatbot', 'rotulos', 'avisos', 'relatorios', 'equipe', 'manual'), $ids, 'ordem dos ids');
 
 igual(3, count(Funcionalidades_conteudo::por_grupo('whatsapp')), 'grupo whatsapp');

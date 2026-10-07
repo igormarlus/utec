@@ -48,6 +48,12 @@ class Funcionalidades_conteudo {
                 'link' => '', 'novo' => true,
             ),
             array(
+                'id' => 'lista_espera', 'grupo' => 'agenda', 'icone' => '📝', 'titulo' => 'Lista de espera',
+                'resumo' => 'A equipe é avisada quando abre uma vaga e encaixa quem espera.',
+                'descricao' => 'Registre quem quer ser atendido antes. Quando uma consulta é cancelada ou remarcada, a equipe recebe um aviso com os pacientes que combinam com o horário e encaixa em poucos cliques.',
+                'link' => '', 'novo' => true,
+            ),
+            array(
                 'id' => 'prontuario', 'grupo' => 'prontuario', 'icone' => '📋', 'titulo' => 'Prontuário eletrônico',
                 'resumo' => 'Histórico de atendimentos, evolução clínica e arquivos em um só lugar.',
                 'descricao' => 'Registro de cada atendimento com histórico organizado, exames e documentos anexados, acessível de qualquer dispositivo.',

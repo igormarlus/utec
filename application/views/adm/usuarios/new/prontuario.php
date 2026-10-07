@@ -435,6 +435,18 @@
               $ut_ficha_flash_ok = $this->session->flashdata('ficha_ok');
               ?>
               <?php if($ut_ficha_flash_ok){ ?><div class="alert alert-success" style="margin-bottom:20px;"><?=htmlspecialchars($ut_ficha_flash_ok)?></div><?php } ?>
+              <?php
+              $ut_le_lista = array();
+              $ut_le_ok = false;
+              if((int)$paciente->nivel === 5 && in_array((int)$this->session->userdata('nivel'), array(1, 2, 3, 4), true)){
+                $ut_ci_le =& get_instance();
+                $ut_ci_le->load->model('Lista_espera_model', 'lista_espera_model');
+                if($ut_ci_le->lista_espera_model->disponivel()){
+                  $ut_le_lista = $ut_ci_le->lista_espera_model->aguardando_do_paciente((int)$paciente->id);
+                }
+                $ut_le_ok = $ut_ci_le->lista_espera_model->disponivel();
+              }
+              ?>
               <div class="row">
                 <div class="col-sm-12">
                   <div class="patient-summary-card">
@@ -452,10 +464,14 @@
                         ?>
                           <div class="ut-ficha-alergia" role="note">&#9888; Alergias: <?=htmlspecialchars($ut_alg, ENT_QUOTES, 'UTF-8')?></div>
                         <?php } ?>
+                        <?php foreach($ut_le_lista as $ut_le){ ?>
+                          <div style="margin-top:6px;font-size:13px;color:#0f766e;font-weight:700;">&#9203; Na lista de espera desde <?=htmlspecialchars(date('d/m', strtotime($ut_le->criado_em)), ENT_QUOTES, 'UTF-8')?> · <?=htmlspecialchars($ut_le->prestador_nome ? $ut_le->prestador_nome : 'Qualquer profissional', ENT_QUOTES, 'UTF-8')?> · <a href="<?=base_url('adm/lista_espera')?>">ver lista</a></div>
+                        <?php } ?>
                       </div>
                       <div class="timeline-actions" style="margin-top:0">
                         <a href="<?=base_url()?>adm/atendimento" class="btn btn-secondary">Voltar</a>
                         <a href="<?=base_url()?>adm/atendimento/novo/<?=$paciente->id?>" class="btn btn-success">Novo agendamento</a>
+                        <?php if(!empty($ut_le_ok)){ ?><a href="<?=base_url('adm/lista_espera?paciente='.(int)$paciente->id)?>" class="btn btn-outline-secondary">Lista de espera</a><?php } ?>
                         <?php if(in_array((int)$this->session->userdata('nivel'), array(1, 2, 3), true)){
                           $url_exp = base_url('adm/atendimento/exportar_prontuario/'.(int)$paciente->id.'/');
                           $formatos_exp = array('pdf' => 'PDF', 'csv' => 'CSV');

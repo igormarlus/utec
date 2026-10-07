@@ -557,6 +557,51 @@ class Dev extends CI_Controller {
 		echo '</ul>';
 	}
 
+	function migrar_lista_espera(){
+		if($this->session->userdata('nivel') != 1){
+			show_error('Acesso negado.', 403); return;
+		}
+		$logs = [];
+		$this->run_sql("CREATE TABLE IF NOT EXISTS `lista_espera` (
+			`id` INT AUTO_INCREMENT PRIMARY KEY,
+			`id_conta` INT NOT NULL,
+			`id_paciente` INT NOT NULL,
+			`id_prestador` INT NULL DEFAULT NULL,
+			`turno` VARCHAR(10) NOT NULL DEFAULT '',
+			`dias_semana` VARCHAR(20) NOT NULL DEFAULT '',
+			`a_partir_de` DATE NULL DEFAULT NULL,
+			`observacao` VARCHAR(500) NULL DEFAULT NULL,
+			`status` VARCHAR(12) NOT NULL DEFAULT 'aguardando',
+			`motivo_saida` VARCHAR(20) NULL DEFAULT NULL,
+			`id_agendamento` INT NULL DEFAULT NULL,
+			`criado_por` INT NULL DEFAULT NULL,
+			`criado_em` DATETIME NOT NULL,
+			`atualizado_por` INT NULL DEFAULT NULL,
+			`atualizado_em` DATETIME NULL DEFAULT NULL,
+			INDEX `idx_le_conta_status` (`id_conta`, `status`),
+			INDEX `idx_le_paciente_status` (`id_paciente`, `status`),
+			INDEX `idx_le_prestador_status` (`id_prestador`, `status`)
+		) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", $logs, 'tabela `lista_espera` verificada');
+		$this->run_sql("CREATE TABLE IF NOT EXISTS `lista_espera_vagas` (
+			`id` INT AUTO_INCREMENT PRIMARY KEY,
+			`id_conta` INT NOT NULL,
+			`id_prestador` INT NOT NULL,
+			`data_agenda` DATE NOT NULL,
+			`hora_agenda` VARCHAR(5) NOT NULL,
+			`origem` VARCHAR(30) NOT NULL,
+			`id_agendamento_origem` INT NOT NULL,
+			`criado_em` DATETIME NOT NULL,
+			UNIQUE KEY `uk_vaga_origem` (`id_agendamento_origem`, `data_agenda`, `hora_agenda`),
+			INDEX `idx_vaga_conta` (`id_conta`, `criado_em`)
+		) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", $logs, 'tabela `lista_espera_vagas` verificada');
+
+		echo '<h3>Migração: lista de espera</h3><ul>';
+		foreach($logs as $log){
+			echo '<li>'.htmlspecialchars($log).'</li>';
+		}
+		echo '</ul>';
+	}
+
 	function migrar_tempos_atendimento(){
 		if($this->session->userdata('nivel') != 1){
 			show_error('Acesso negado.', 403); return;

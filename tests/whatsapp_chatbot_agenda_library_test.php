@@ -95,6 +95,19 @@ class AgendaFakeNotificacoes
     public function criar_solicitacao_chatbot($contexto, $acao, $motivo, $idEvento) { $this->solicitacoes[] = compact('contexto', 'acao', 'motivo', 'idEvento'); return true; }
 }
 
+class AgendaFakeListaEspera
+{
+    public $chamadas = [];
+    public function vaga_aberta($p, $d, $h, $o, $a) { $this->chamadas[] = ['vaga_aberta', $o]; return false; }
+    public function vaga_do_agendamento($a, $o) { $this->chamadas[] = ['vaga_do_agendamento', $o]; return false; }
+}
+
+class AgendaFakeLoad
+{
+    public $ci;
+    public function library($nome) { if ($nome === 'Lista_espera_vagas') { $this->ci->lista_espera_vagas = new AgendaFakeListaEspera(); } }
+}
+
 function novoCenario()
 {
     $modelo = new AgendaFakeModel();
@@ -112,6 +125,8 @@ function novoCenario()
     $agenda->agora = strtotime('2026-09-22 10:00:00');
     $ci->whatsapp_chatbot_agenda = $agenda;
     $chatbot = new Whatsapp_chatbot($ci);
+    $ci->load = new AgendaFakeLoad();
+    $ci->load->ci = $ci;
     return [$chatbot, $agenda, $modelo, $disp, $envio, $notif];
 }
 

@@ -160,6 +160,33 @@ class Notificacoes_model extends CI_Model {
         return true;
     }
 
+    // Aviso de vaga aberta para a lista de espera. id_whatsapp_notificacao = id da vaga:
+    // a chave única (usuario, id_whatsapp_notificacao, tipo) impede aviso repetido da mesma vaga.
+    public function criar_aviso_lista_espera($id_vaga, $destinatarios, $titulo, $mensagem, $url, $id_agendamento, $tenant_id)
+    {
+        if ((int)$id_vaga <= 0 || !$this->tabela_possui_campos([
+            'tenant_id', 'id_usuario_destino', 'id_agendamento', 'id_whatsapp_notificacao', 'tipo', 'titulo', 'mensagem', 'url', 'lida', 'criado_em'
+        ])) {
+            return false;
+        }
+        $falhou = false;
+        foreach ($destinatarios as $idUsuario) {
+            if ((int)$idUsuario <= 0) {
+                continue;
+            }
+            $sql = "INSERT IGNORE INTO `{$this->table}`\n"
+                . '(tenant_id, id_usuario_destino, id_agendamento, id_whatsapp_notificacao, tipo, titulo, mensagem, url, lida, criado_em) VALUES ('
+                . (int)$tenant_id.', '.(int)$idUsuario.', '.(int)$id_agendamento.', '.(int)$id_vaga.', '
+                . $this->db->escape('lista_espera_vaga').', '.$this->db->escape((string)$titulo).', '
+                . $this->db->escape((string)$mensagem).', '.$this->db->escape((string)$url).", 0, '".date('Y-m-d H:i:s')."')";
+            if ($this->db->query($sql) === false) {
+                $falhou = true;
+                continue;
+            }
+        }
+        return !$falhou;
+    }
+
     public function listar_nao_lidas($id_usuario, $limite = 8)
     {
         $idUsuario = (int)$id_usuario;

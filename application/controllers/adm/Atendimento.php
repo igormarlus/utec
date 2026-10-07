@@ -180,6 +180,25 @@ function novo($id_user){
 	}
 	$dados['whatsapp_disponivel'] = $this->whatsapp_agendamento->is_disponivel();
 
+	// Pré-preenchimento vindo da lista de espera (adm/lista_espera/vaga). Valores inválidos são ignorados.
+	$pre_data = (string)$this->input->get('data');
+	$pre_hora = substr((string)$this->input->get('hora'), 0, 5);
+	$dados['pre_prestador'] = (int)$this->input->get('prestador');
+	$dados['pre_data'] = preg_match('/^\d{4}-\d{2}-\d{2}$/', $pre_data) ? $pre_data : '';
+	$dados['pre_hora'] = preg_match('/^\d{2}:\d{2}$/', $pre_hora) ? $pre_hora : '';
+	$dados['pre_lista_espera'] = 0;
+	$id_le = (int)$this->input->get('lista_espera');
+	if($id_le > 0){
+		$this->load->model('Lista_espera_model', 'lista_espera_model');
+		$le = $this->lista_espera_model->buscar($id_le);
+		if($le && $le->status === 'aguardando' && (int)$le->id_paciente === $id_user){
+			$dados['pre_lista_espera'] = $id_le;
+		}
+	}
+	if($dados['pre_prestador'] > 0){
+		$dados['prestador_padrao'] = $dados['pre_prestador'];
+	}
+
 	$this->load->view('adm/atendimento/atendimento' , $dados);	
 }
 
@@ -234,6 +253,18 @@ function cadastrar() {
 	#$this->db->where('id', $_POST['id']);
 	if ($this->db->insert('agendamentos', $dd)) {
 		$agendamento_id = (int)$this->db->insert_id();
+		// Encaixe pela lista de espera: tira o paciente da lista. Falha aqui não desfaz o agendamento.
+		$id_lista_espera = (int)$this->input->post('id_lista_espera');
+		if($id_lista_espera > 0){
+			try {
+				$this->load->model('Lista_espera_model', 'lista_espera_model');
+				if($this->lista_espera_model->disponivel()){
+					$this->lista_espera_model->marcar_agendado($id_lista_espera, $id_paciente, $agendamento_id, (int)$this->session->userdata('id'));
+				}
+			} catch (Throwable $e) {
+				log_message('error', '[lista_espera] marcar_agendado '.$id_lista_espera.': '.$e->getMessage());
+			}
+		}
 		$whatsapp_result = $this->whatsapp_agendamento->notificar_agendamento(
 			$agendamento_id,
 			utec_whatsapp_checkbox_marcado($post_data)
@@ -660,7 +691,12 @@ function cancelar_agenda($id_agenda){
 	}
 	$refer = $this->agent->referrer();
 	$this->db->where('id', $id_agenda);
-	$this->db->update('agendamentos', ['status' => 3, 'id_user_alt' => $this->session->userdata('id')]);
+	if($this->db->update('agendamentos', ['status' => 3, 'id_user_alt' => $this->session->userdata('id')])){
+		if (is_file(APPPATH.'libraries/Lista_espera_vagas.php')) {
+			$this->load->library('Lista_espera_vagas');
+			$this->lista_espera_vagas->vaga_do_agendamento($id_agenda, 'agenda_cancelar');
+		}
+	}
 	$refer = str_replace(base_url(),"",$refer);
 	redirect($refer);
 }
@@ -677,6 +713,7 @@ function remarcar_agenda(){
 		show_error('Data ou horario invalidos para remarcacao.', 400);
 		return;
 	}
+	$ant_remarcar = $this->db->query('SELECT id_prestador, data_agenda, hora_agenda, status FROM agendamentos WHERE id = ? LIMIT 1', array($id_agenda))->row();
 	$this->db->where('id', $id_agenda);
 	$upd_remarcar = [
 		'data_agenda' => $data_agenda,
@@ -694,6 +731,14 @@ function remarcar_agenda(){
 		// Nova data/hora exige nova confirmacao do paciente — mesma regra de disparo da criacao.
 		$whatsapp_result = $this->whatsapp_agendamento->notificar_agendamento($id_agenda, true);
 		$this->session->set_flashdata('whatsapp_status', utec_whatsapp_resumo_envio($whatsapp_result));
+		// O horário antigo virou vaga: avisa a lista de espera (falha aqui não afeta a remarcação).
+		if($ant_remarcar && (int)$ant_remarcar->status !== 3
+			&& (substr((string)$ant_remarcar->data_agenda, 0, 10) !== $data_agenda || substr((string)$ant_remarcar->hora_agenda, 0, 5) !== $hora_agenda)){
+			if (is_file(APPPATH.'libraries/Lista_espera_vagas.php')) {
+				$this->load->library('Lista_espera_vagas');
+				$this->lista_espera_vagas->vaga_aberta((int)$ant_remarcar->id_prestador, (string)$ant_remarcar->data_agenda, (string)$ant_remarcar->hora_agenda, 'agenda_remarcar', $id_agenda);
+			}
+		}
 	}
 
 	redirect('adm/atendimento?data_agenda='.$data_agenda);
