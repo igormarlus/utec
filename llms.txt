@@ -13,6 +13,7 @@
 ## WhatsApp para clínicas
 
 - [Confirmação, lembrete e chatbot por WhatsApp](https://utecnologia.com.br/confirmacao-de-consulta-por-whatsapp): o paciente confirma ou cancela por botão; com 24 horas ou mais de antecedência remarca e cancela sozinho pelo chatbot; profissional e recepção consultam a agenda de hoje e de amanhã. Envio pela API oficial da Meta. Limitações: o telefone precisa estar cadastrado; o chatbot segue um menu (não faz triagem nem conversa livre); a remarcação automática exige horários de atendimento cadastrados; não marca consulta nova do zero.
+- [Chatbot para clínicas](https://utecnologia.com.br/chatbot-para-clinicas): chatbot de WhatsApp ligado à agenda, com menus por perfil (paciente, profissional/atendente, administrador). O paciente vê as próximas consultas e remarca ou cancela sozinho com 24 horas ou mais de antecedência. Funciona por menus, sem IA; não marca consulta nova.
 - [Como o paciente remarca pelo WhatsApp](https://utecnologia.com.br/blog/paciente-remarcar-consulta-pelo-whatsapp)
 - [Chatbot para clínica: o que faz e o que não faz](https://utecnologia.com.br/blog/chatbot-para-clinica-whatsapp-o-que-faz-e-o-que-nao-faz)
 - [Modelos de mensagem de confirmação de consulta](https://utecnologia.com.br/blog/modelo-de-mensagem-de-confirmacao-de-consulta-whatsapp)

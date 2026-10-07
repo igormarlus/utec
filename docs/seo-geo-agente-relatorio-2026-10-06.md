@@ -85,11 +85,9 @@ iClinic (Afya), Clinicorp, Simples Dental, ProDoctor, Doctoralia, Medplus. Todos
 
 ## 3. Recomendações (não criadas)
 
-1. **"Melhor sistema para clínica médica" (demanda confirmada).** Não criei um artigo novo porque canibalizaria `software-medico-como-escolher-consultorio-clinica`, gerado em 2026-08-20 e ainda pendente de aplicação. Recomendo reorientar esse artigo **antes de aplicar o SQL**:
-   - title e meta para "Melhor sistema para clínica médica: como escolher (checklist)";
-   - um H2 "Melhores sistemas para clínicas médicas: o que comparar".
-
-   Ação análoga para odontologia: revisar o `software-clinica-odontologica-como-escolher`, já publicado.
+1. **"Melhor sistema para clínica médica" (demanda confirmada).** *(Corrigido na 2ª rodada do dia.)* O tema já está coberto por artigos no ar: `melhor-software-para-clinicas-como-avaliar` e `software-medico-como-escolher-para-consultorio-ou-clinica` (este também responde como `software-medico-como-escolher-consultorio-clinica`). Não há artigo pendente a reorientar. Recomendo:
+   - incluir "melhor sistema para clínica médica" e "melhores sistemas para clínicas médicas" no title/H1 ou num H2 do `melhor-software-para-clinicas-como-avaliar`;
+   - conferir se os dois slugs do artigo de software médico têm canonical único, para não dividir sinal.
 
 2. **"IA para clínicas", "agente/secretária de IA" (demanda forte).** O produto não tem IA no atendimento, e criar página agora seria conteúdo enganoso. É uma decisão de produto (agente-produto). O `Disponibilidade_model::proximos_livres()` já é a interface prevista para um chatbot de IA marcar consultas. Se isso entrar no roadmap, essa keyword justifica uma landing própria.
 
@@ -130,3 +128,61 @@ Não foram retestados agora: `ivix`, `docway` e `meupaciente`, com reteste agend
 - [ ] Deploy via agente-dev-infra: view, `Home.php`, `routes.php`, `sitemap.xml`. Subir a view antes da rota.
 - [ ] Reenviar o sitemap no Search Console após o deploy.
 - [ ] Recomendações 1, 6, 7 e 8 (rápidas e de impacto direto).
+
+---
+
+# Rodada 2 — bloco 3 (variações semânticas e GEO), 2026-10-06
+
+Feita a pedido do Igor depois da publicação da landing do chatbot (deploy: view, `Home.php`, `routes.php` e `sitemap.xml` enviados por FTP, com os arquivos de produção conferidos contra o `main` antes; healthcheck: landing 200, home/admin 200, `adm/atendimento` 302). Para não interferir na sessão que está na branch `feat/vitrine-funcionalidades`, o trabalho foi feito na worktree `../utec-seo` (branch `seo/bloco3-2026-10-06`).
+
+## Testado (28 consultas)
+
+| Grupo | Resultado |
+|---|---|
+| `programa para clínica/consultório` | Demanda forte, mas é sinônimo de "sistema" e já é atendida pelas landings `sistema-*` |
+| `sistema para clínica grátis/gratuito` | Demanda forte, já coberta por `sistema-gratuito-para-clinicas` |
+| `na nuvem`, `online`, `sistema web` | Vazio / eco |
+| `como migrar de planilha`, `quanto custa...`, `valor sistema...` | Vazio |
+| `planilha para clínica`, `planilha de controle de pacientes` | **Demanda forte** (excel grátis, psicologia, modelo, dentista) |
+| `modelo de prontuário` | **Demanda forte** (psicológico CRP/CFP/PDF/Word, médico, odontológico, fisioterapia) |
+| `quanto tempo guardar prontuário` | **Demanda forte** (médico, odontológico, psicológico) |
+| `ficha de anamnese` | Forte, mas dominado por estética e personal trainer |
+| Medicina do trabalho (`clínica ocupacional`, `exame admissional`, `eSocial`) | Vazio |
+
+## Criado: 4 artigos
+
+Arquivo: `docs/seo-geo-agente-blog-2026-10-06.sql` (não executado; `id_categoria = 1`, conferir).
+
+| Slug | Palavras | Link interno principal |
+|---|---|---|
+| `planilha-de-controle-de-pacientes` | 652 | `/sistema-para-clinicas`, WhatsApp |
+| `modelo-de-prontuario-psicologico` | 647 | `/sistema-para-psicologos`, artigo de prontuário para psicólogos |
+| `quanto-tempo-guardar-prontuario` | 601 | `/sistema-prontuario-eletronico` |
+| `modelo-de-prontuario-medico` | 674 | `/sistema-prontuario-eletronico`, `/sistema-para-clinica-medica` |
+
+**Fontes conferidas na rodada:**
+- CFM 1.638/2002, art. 5º (itens obrigatórios);
+- CFM 1.821/2007 (20 anos no papel, guarda permanente no eletrônico, NGS2);
+- CFP 01/2009 com a 05/2010 (itens do registro, 5 anos, acesso integral);
+- CFO 91/2009 e Lei 13.787/2018 (20 anos).
+
+**Afirmações sobre o produto conferidas no código:**
+- rótulos de psicologia em `utec_pront_rotulos()`, usados pelo prontuário real (`prontuario.php:606`);
+- campos extras de psicologia em `Dev.php` (nº da sessão, modalidade, CID);
+- exportação com auditoria.
+
+**Formato GEO:** cada artigo responde a pergunta logo no primeiro parágrafo e cita a norma pelo número, e o de prazos traz uma tabela-resumo. É o que mais aumenta a chance de citação em respostas de IA.
+
+**Nenhum artigo afirma certificação SBIS/NGS2.** O artigo de prazos orienta a perguntar ao fornecedor; se o UTecnologia tiver ou buscar certificação, vale citar.
+
+## Publicação em duas etapas
+
+1. Já no ar: `llms.txt` com a landing `chatbot-para-clinicas` (servidor conferido contra o `main` antes).
+2. Preparado na branch `seo/bloco3-2026-10-06`, **sem subir**: `sitemap-blog.xml` com os 4 artigos e `llms.txt` com a seção "Guias de prontuário". Sobe só depois de o SQL ser aplicado, para o sitemap não apontar para 404.
+
+## Recomendações novas
+
+- **"Programa para consultório médico/clínica":** incluir o termo "programa" em title, H1 ou FAQ de `sistema-para-consultorio-medico`, `sistema-para-clinica-medica` e `sistema-gratuito-para-clinicas`, em vez de criar landings.
+- **Fase 1 de 2026-08-20** (`como-migrar-da-planilha...`, `quanto-custa...`, `software-gratuito...trial-vs-gratuito`): continua sem aplicar e mira termos sem demanda. Sugestão: aplicar só o `software-gratuito-para-clinicas-trial-vs-gratuito` (há demanda para "gratuito"); o de planilha foi superado pelo artigo novo.
+- **Próximas pautas** com demanda confirmada: modelo de prontuário odontológico, modelo de prontuário de fisioterapia, ficha de anamnese de fisioterapia/psicológica.
+- **Planilha para download:** oferecer um `.xlsx` real do modelo de planilha (há busca por "excel grátis"); hoje o artigo traz a estrutura em tabela.
