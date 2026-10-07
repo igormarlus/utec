@@ -62,4 +62,22 @@ $bot = lerArquivo('application/libraries/Whatsapp_chatbot_agenda.php');
 assertContains("'chatbot_cancelar'", $bot, 'cancelar pelo chatbot');
 assertContains("'chatbot_remarcar'", $bot, 'remarcar pelo chatbot');
 
+// Controller e telas
+$ctl = lerArquivo('application/controllers/adm/Lista_espera.php');
+foreach (array('class Lista_espera extends CI_Controller', 'public function index(', 'public function salvar(',
+    'public function remover(', 'public function vaga(', 'can_access_usuario(', 'utec_le_normalizar(', 'utec_le_ordenar(',
+    '#^adm/[a-z0-9_/?=&-]*$#i') as $t) {
+    assertContains($t, $ctl, 'controller ' . $t);
+}
+$vIndex = lerArquivo('application/views/adm/lista_espera/index.php');
+foreach (array('Como funciona', 'adm/lista_espera/salvar', 'adm/lista_espera/remover/', 'adm/atendimento/buscar_paciente',
+    'Qualquer profissional', 'migrar_lista_espera', 'utec_le_resumo_preferencias(', 'utec_le_dias_espera(') as $t) {
+    assertContains($t, $vIndex, 'view index ' . $t);
+}
+$vVaga = lerArquivo('application/views/adm/lista_espera/vaga.php');
+foreach (array('Vaga já preenchida', 'Compatível', 'adm/atendimento/novo/', 'lista_espera=') as $t) {
+    assertContains($t, $vVaga, 'view vaga ' . $t);
+}
+assertContains("'Lista de espera', 'url' => base_url().'adm/lista_espera'", lerArquivo('includes/adm/menu.php'), 'menu');
+
 echo "OK\n";

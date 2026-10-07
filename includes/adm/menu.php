@@ -97,6 +97,7 @@ if(!$menu_is_patient){
 		'url' => base_url().'adm/atendimento',
 		'children' => [
 			['label' => 'Atendimentos', 'url' => base_url().'adm/atendimento'],
+			['label' => 'Lista de espera', 'url' => base_url().'adm/lista_espera'],
 		],
 	];
 
