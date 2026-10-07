@@ -1,6 +1,6 @@
 # Planejamento Aceleração UTEC — Andamento
 
-Atualizado em: 06/10/2026
+Atualizado em: 07/10/2026
 Documento de origem: Google Doc "Planajemento Aceleração UTEC - Marcos e Igor"
 Critério de prioridade combinado: menor esforço primeiro (ganhos rápidos antes dos módulos grandes).
 
@@ -116,7 +116,8 @@ Legenda:
 
 ## Divulgação (site e buscadores)
 
-### Vitrine de funcionalidades no site — 🟢 Pronto, aguardando publicação
+### Vitrine de funcionalidades no site — ✅ Concluído
+- Publicado em 07/10/2026.
 - As páginas de cadastro (teste grátis e assinatura), a página inicial e as principais páginas de busca passaram a mostrar tudo o que o sistema já faz, incluindo WhatsApp (confirmação, lembrete e chatbot) e as novidades de outubro.
 - Perguntas frequentes novas sobre exportar prontuário, alergias, tempo de espera e remarcação pelo WhatsApp.
 - Próximo passo: pesquisa de palavras-chave para criar 2 páginas novas e artigos de blog.
@@ -129,3 +130,4 @@ Legenda:
 - 06/10/2026 — Tempo médio de espera concluído e revisado (check-in, horários de início/fim, médias em Relatórios clínicos); aguardando publicação.
 - 06/10/2026 — Tempo médio de espera publicado em produção. Rótulos, Ficha do paciente e Tempo de espera integrados à versão principal do sistema; os três aguardam validação online.
 - 06/10/2026 — Vitrine de funcionalidades do site pronta (cadastro, página inicial e páginas de busca), aguardando publicação.
+- 07/10/2026 — Vitrine de funcionalidades publicada: página de teste grátis (agora também no celular, com o aviso do limite de mensagens de WhatsApp no período de teste), assinatura, página inicial e páginas de busca. Publicada também a página sobre chatbot para clínicas.
