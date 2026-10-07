@@ -69,13 +69,16 @@ Sem controle de acesso (quem chama impõe escopo); guardas `table_exists`.
 - `aguardando_do_paciente($id_paciente)` — para o selo no prontuário
 - `contar_aguardando_para($id_conta, $id_prestador)` — prestador igual ou NULL
 - `registrar_vaga($vaga)` → id da vaga (INSERT IGNORE; se já existia, retorna 0 = não avisar de novo)
-- `buscar_vaga($id_vaga)`; `destinatarios_conta($id_conta, $id_prestador)` → ids únicos: prestador + nível 2 raiz + nível 4 da árvore da conta (via `expand_user_tree_ids`)
+- `buscar_vaga($id_vaga)`; `horario_ocupado($id_prestador, $data, $hora)`; `aguardando_para($id_conta, $id_prestador)`
+- `destinatarios_conta($id_conta, $id_prestador)` → ids únicos: prestador + nível 2 + nível 4 da árvore da conta. Desce só por nós de equipe (níveis 2–4, até 5 camadas) para não varrer pacientes
 
-## Library — `application/libraries/Lista_espera.php`
+## Library — `application/libraries/Lista_espera_vagas.php`
+(Nome diferente do controller `adm/Lista_espera` para não colidir a classe no CI.)
+`vaga_do_agendamento($id_agendamento, $origem)` lê prestador/data/hora do agendamento e chama:
 `vaga_aberta($id_prestador, $data, $hora, $origem, $id_agendamento_origem)`:
 1. Model indisponível → return. Tudo em `try/catch (Throwable)` → `log_message('error', '[lista_espera] ...')`, nunca relança.
 2. `id_conta = conta_raiz($id_prestador)`; `qtd = contar_aguardando_para(...)`; `utec_le_deve_avisar` falso → return.
-3. Vaga ainda livre: `Disponibilidade_model::verificar_horario($id_prestador, $data, $hora)` ≠ `ocupado` (se o model de disponibilidade não existir, segue).
+3. Vaga ainda livre: `Lista_espera_model::horario_ocupado()` (agendamento do prestador na data e `LEFT(hora_agenda,5)` com `status IN (0,1,2)`). Não usa `verificar_horario()`, que responde `livre` para profissional sem grade.
 4. `registrar_vaga` → 0 → return (evento repetido).
 5. Para cada destinatário: INSERT IGNORE em `notificacoes_usuarios` com `tipo = 'lista_espera_vaga'`, `id_whatsapp_notificacao = id_vaga`
    (a chave única `(usuario, id_whatsapp_notificacao, tipo)` deduplica), `id_agendamento = id_agendamento_origem`,
@@ -92,12 +95,12 @@ Sem controle de acesso (quem chama impõe escopo); guardas `table_exists`.
 | Remarcar pelo chatbot | `Whatsapp_chatbot_agenda` (após `remarcar_agendamento_chatbot` ok) | data/hora antigas do `$agendamento` |
 
 ## Controller — `application/controllers/adm/Lista_espera.php` (rota padrão CI `adm/lista_espera`)
-Níveis 1–4 (senão 403). Pacientes e prestadores sempre validados com `can_access_usuario`. Conta do logado via
+Níveis 1–4 (senão 403). Atalho: `adm/lista_espera?paciente={id}` pré-seleciona o paciente (botão no prontuário). Pacientes e prestadores sempre validados com `can_access_usuario`. Conta do logado via
 `conta_raiz`; nível 1 usa a conta do paciente/prestador. Sem migração → tela com aviso, sem formulário.
 - `index()` — abas Aguardando / Agendados / Removidos (`?aba=`), formulário "Adicionar" (busca de paciente igual à da agenda, select de prestadores visíveis + "Qualquer profissional"), quadro "Como funciona" (`<details>`).
 - `salvar()` (POST) — adicionar ou editar (`id`); flash `le_ok` / `le_erro`; redirect para `voltar` se casar com `#^adm/[a-z0-9_/?=&-]*$#i`, senão `adm/lista_espera`.
 - `remover($id)` (POST) — motivo obrigatório da lista.
-- `vaga($id_vaga)` — cartão da vaga (profissional, data, hora); se `verificar_horario` = `ocupado` → "Vaga já preenchida" e sem botões; senão lista aguardando ordenada por `utec_le_ordenar`, com selo "Compatível". Botão "Agendar" → `adm/atendimento/novo/{id_paciente}?prestador=&data=&hora=&lista_espera={id}`. Vaga de outra conta → 403.
+- `vaga($id_vaga)` — cartão da vaga (profissional, data, hora); se `horario_ocupado` → "Vaga já preenchida" e sem botões; senão lista aguardando ordenada por `utec_le_ordenar`, com selo "Compatível". Botão "Agendar" → `adm/atendimento/novo/{id_paciente}?prestador=&data=&hora=&lista_espera={id}`. Vaga de outra conta → 403.
 
 ## Encaixe — `Atendimento::novo()` e `cadastrar()`
 - `novo()`: lê `prestador`, `data`, `hora`, `lista_espera` da query string (validados: int, AAAA-MM-DD, HH:MM) e passa à view `adm/atendimento/atendimento.php`, que pré-preenche os campos e inclui `<input type="hidden" name="id_lista_espera">`.
