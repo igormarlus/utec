@@ -50,6 +50,13 @@
 - [Oftalmologia](https://utecnologia.com.br/sistema-para-clinica-oftalmologica)
 - [Medicina do trabalho](https://utecnologia.com.br/sistema-para-medicina-do-trabalho)
 
+## Guias de prontuário
+
+- [Quanto tempo guardar prontuário](https://utecnologia.com.br/blog/quanto-tempo-guardar-prontuario): no mínimo 20 anos a partir do último registro (Lei 13.787/2018), com as regras do CFM, CFO e CFP em tabela.
+- [Modelo de prontuário médico](https://utecnologia.com.br/blog/modelo-de-prontuario-medico): itens obrigatórios da Resolução CFM 1.638/2002.
+- [Modelo de prontuário psicológico](https://utecnologia.com.br/blog/modelo-de-prontuario-psicologico): o que a Resolução CFP 01/2009 exige.
+- [Planilha de controle de pacientes](https://utecnologia.com.br/blog/planilha-de-controle-de-pacientes): colunas do modelo para Excel e quando migrar para um sistema.
+
 ## Blog
 
 - [Blog UTecnologia Saúde](https://utecnologia.com.br/blog): gestão de clínica, LGPD, redução de faltas e WhatsApp.
