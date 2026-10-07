@@ -180,7 +180,7 @@ class Manual_conteudo {
                     '*' => array(
                         'Abra o prontuário a partir do agendamento em andamento, na Agenda ou na ficha do paciente.',
                         'Especialidades como Fisioterapia, Psicologia, Odontologia, Psiquiatria, Nutrição e Pediatria têm rótulos e exemplos de preenchimento adaptados - por exemplo, Fisioterapia mostra "Queixa / Avaliação Postural" onde a Clínica Médica mostra "Queixa Principal".',
-                        'O conteúdo digitado continua sendo texto livre; o que muda por especialidade é apenas o rótulo e o texto de apoio (placeholder) de cada campo.',
+                        'Os três blocos continuam em texto livre; o que muda por especialidade é o rótulo e o texto de apoio de cada campo. Algumas especialidades também têm campos extras próprios, como a escala de dor na fisioterapia ou o dente tratado na odontologia.',
                         'Alergias registradas na ficha do paciente aparecem em destaque (⚠) no topo do prontuário.',
                     ),
                     3 => array(
@@ -197,7 +197,7 @@ class Manual_conteudo {
                     ),
                 ),
                 'print' => 'prontuario.png',
-                'atualizado_em' => '2026-10-05',
+                'atualizado_em' => '2026-10-06',
             ),
             array(
                 'slug' => 'exames',

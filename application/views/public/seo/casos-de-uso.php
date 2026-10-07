@@ -279,6 +279,13 @@
     </div>
 </section>
 
+<section class="section">
+    <div class="wrap">
+        <div class="section-label">Funcionalidades relacionadas</div>
+        <?php $this->load->view('public/partials/funcionalidades', array('func_formato' => 'grade', 'func_ids' => array('whatsapp_confirmacao', 'chatbot', 'tempo_espera', 'rotulos', 'exportar_prontuario'), 'func_agrupar' => false, 'func_titulo' => 'Funcionalidades que ajudam no dia a dia')); ?>
+    </div>
+</section>
+
 <section class="section" style="background:var(--white);">
     <div class="wrap">
         <p class="section-label">Perguntas frequentes</p>

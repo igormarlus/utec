@@ -81,3 +81,5 @@ Gerados como `.sql` pendente de aplicação:
 > **Feito em 2026-10-06:** espaço chatbot/automação de WhatsApp auditado (landing `chatbot-para-clinicas` criada); os 2 artigos da "próxima leva" já tinham saído em 2026-09-23.
 >
 > **Bloco 3 feito em 2026-10-06** (4 artigos). Próximas pautas com demanda já confirmada: `modelo de prontuario odontologico`, `modelo de prontuario fisioterapia`, `ficha de anamnese fisioterapia/psicologica`, `planilha de agendamento de pacientes`.
+
+> **Feito em 2026-10-06 (vitrine de funcionalidades):** catálogo único com 16 funcionalidades (fonte: Funcionalidades_conteudo) exibido em /experimentar, /assinar, home e nas landings de prontuário eletrônico, sistema e software para clínicas, consultório médico e casos de uso; 4 FAQ novas (exportar prontuário, alergias, tempo de espera, remarcação pelo WhatsApp); llms.txt com seção Funcionalidades. Próximo: Entrega 2 (pesquisa de palavras-chave → 2 landings novas + artigos).

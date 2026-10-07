@@ -328,6 +328,9 @@
         }
         .feature-card h4 { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
         .feature-card p { font-size: 14px; color: var(--muted); line-height: 1.65; }
+        .feature-novo { display:inline-block; font-size:11px; font-weight:800; color:#047857; background:#ecfdf5; border:1px solid #a7f3d0; border-radius:999px; padding:0 8px; vertical-align:middle; }
+        .features-more { text-align:center; margin:28px 0 0; font-weight:700; }
+        .features-more a { color:#0f766e; }
         .feature-card--whatsapp {
             background: linear-gradient(145deg, #ecfdf5 0%, #f8fafc 64%);
             border-color: #a7f3d0;
@@ -909,16 +912,6 @@
         </div>
 
         <div class="features-grid">
-            <div class="feature-card">
-                <div class="feature-icon" style="background:#eff6ff;">📋</div>
-                <h4>Prontuário Eletrônico Completo</h4>
-                <p>Registre anamnese, evolução clínica, hipóteses diagnósticas, prescrições e anotações. Histórico completo do paciente em poucos cliques.</p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon" style="background:#f0fdf4;">📅</div>
-                <h4>Agenda Inteligente</h4>
-                <p>Controle de consultas por profissional, com visão diária, semanal e mensal. Cancele e remarque diretamente na agenda sem retrabalho.</p>
-            </div>
             <div class="feature-card feature-card--whatsapp">
                 <a class="feature-card__link" href="<?=base_url()?>confirmacao-de-consulta-por-whatsapp" aria-label="Conheça a confirmação de consulta e o atendimento pelo WhatsApp">
                     <img class="feature-card__image" src="<?=base_url()?>img/seo/chatbot-whatsapp-resumo.svg" alt="Ilustração: paciente ou profissional envia uma mensagem no WhatsApp, escolhe uma opção adequada ao seu perfil e conclui uma ação." width="440" height="230" loading="lazy">
@@ -927,27 +920,17 @@
                     <span class="feature-card__more">Conhecer o recurso →</span>
                 </a>
             </div>
+            <?php
+            if (!class_exists('Funcionalidades_conteudo')) { $this->load->library('funcionalidades_conteudo'); }
+            foreach (Funcionalidades_conteudo::por_ids(array('prontuario', 'agenda', 'chatbot', 'ficha_paciente', 'tempo_espera', 'rotulos', 'relatorios', 'equipe')) as $fx_h) { ?>
             <div class="feature-card">
-                <div class="feature-icon" style="background:#fefce8;">🔬</div>
-                <h4>Exames e Documentos</h4>
-                <p>Organize laudos, exames laboratoriais, imagens e documentos de cada paciente. Acesse o histórico completo em qualquer atendimento.</p>
+                <div class="feature-icon" style="background:#f8fafc;" aria-hidden="true"><?=htmlspecialchars($fx_h['icone'], ENT_QUOTES, 'UTF-8')?></div>
+                <h4><?=htmlspecialchars($fx_h['titulo'], ENT_QUOTES, 'UTF-8')?><?php if ($fx_h['novo']) { ?> <span class="feature-novo">Novo</span><?php } ?></h4>
+                <p><?=htmlspecialchars($fx_h['descricao'], ENT_QUOTES, 'UTF-8')?></p>
             </div>
-            <div class="feature-card">
-                <div class="feature-icon" style="background:#fdf4ff;">👥</div>
-                <h4>Cadastro Completo de Pacientes</h4>
-                <p>Dados cadastrais, contatos, convênios, responsáveis e observações gerais. Base de pacientes organizada e fácil de pesquisar.</p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon" style="background:#fff7ed;">📊</div>
-                <h4>Relatórios Clínicos</h4>
-                <p>Gere relatórios de atendimentos por profissional, período e especialidade. Exporte para PDF e tenha visão gerencial da clínica.</p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon" style="background:#f0f9ff;">🔒</div>
-                <h4>Segurança e Controle de Acesso</h4>
-                <p>Perfis individuais para cada membro da equipe com permissões distintas. Dados dos pacientes protegidos e acessíveis só por quem deve.</p>
-            </div>
+            <?php } ?>
         </div>
+        <p class="features-more"><a href="<?=base_url()?>experimentar#funcionalidades">Ver todas as funcionalidades →</a></p>
     </div>
 </section>
 

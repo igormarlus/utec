@@ -367,6 +367,13 @@
     </div>
 </section>
 
+<section class="section">
+    <div class="wrap">
+        <div class="section-label">Funcionalidades relacionadas</div>
+        <?php $this->load->view('public/partials/funcionalidades', array('func_formato' => 'grade', 'func_ids' => array('rotulos', 'ficha_paciente', 'exportar_prontuario', 'whatsapp_confirmacao', 'equipe'), 'func_agrupar' => false, 'func_titulo' => 'Funcionalidades que ajudam no dia a dia')); ?>
+    </div>
+</section>
+
 <section class="section" style="background:var(--white);">
     <div class="wrap">
         <div class="section-label">Perguntas frequentes</div>
@@ -414,6 +421,13 @@
                     <span class="faq-chevron">▾</span>
                 </div>
                 <div class="faq-a">O Plano Solo custa R$ 79/mês (1 profissional, 2 colaboradores). O Plano Clínica R$ 199/mês (até 5 profissionais). O Plano Pro R$ 399/mês (até 20 profissionais). Sem taxa de adesão nos planos mensais e sem fidelidade contratual.</div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-q" onclick="this.closest('.faq-item').classList.toggle('open')">
+                    Consigo marcar pacientes com alertas, como alergia ou gestação?
+                    <span class="faq-chevron">▾</span>
+                </div>
+                <div class="faq-a">Sim. Cada clínica cria seus próprios rótulos coloridos, como VIP, Convênio, Gestante ou Alérgico. Os rótulos de alerta aparecem em destaque no prontuário e na agenda do dia, e a lista de pacientes pode ser filtrada por rótulo.</div>
             </div>
         </div>
     </div>
@@ -484,6 +498,11 @@
       "@type": "Question",
       "name": "É possível testar o software antes de contratar?",
       "acceptedAnswer": {"@type": "Answer", "text": "Sim. O trial de 30 dias é gratuito e sem cartão de crédito. Você usa todas as funcionalidades com dados reais. Só assina se gostar."}
+    },
+    {
+      "@type": "Question",
+      "name": "Consigo marcar pacientes com alertas, como alergia ou gestação?",
+      "acceptedAnswer": {"@type": "Answer", "text": "Sim. Cada clínica cria seus próprios rótulos coloridos, como VIP, Convênio, Gestante ou Alérgico. Os rótulos de alerta aparecem em destaque no prontuário e na agenda do dia, e a lista de pacientes pode ser filtrada por rótulo."}
     }
   ]
 }

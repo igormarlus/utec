@@ -413,6 +413,7 @@ application/views/
 - **CSS principal:** `css/clicklinica-main.css` (dependência externa internalizada)
 - **Fontes:** Lato (Google Fonts) nas views admin; Inter na landing page
 - **Bower Components:** Bootstrap, Select2, FullCalendar, Perfect Scrollbar, Slick Carousel, Dropzone, DateRangePicker, DataTables
+- **Catálogo de funcionalidades do site:** `application/libraries/Funcionalidades_conteudo.php` (fonte única, 16 itens) + partial `application/views/public/partials/funcionalidades.php` (grade/lista) usado em /experimentar, /assinar, home e landings. Funcionalidade nova visível ao cliente → acrescentar aqui também (além do manual, §19).
 
 ---
 
