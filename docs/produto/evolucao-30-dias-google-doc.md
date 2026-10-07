@@ -12,9 +12,9 @@ Legenda:
 ## Resumo
 
 - ✅ Exportar Prontuário (PDF, XLS, CSV) — em produção desde 03/10/2026
-- ✅ Rótulos dos pacientes — publicado em 03/10/2026, aguardando validação online
-- ✅ Informações adicionais do paciente (Ficha do paciente) — publicado em 05/10/2026, aguardando validação online
-- ✅ Tempo médio de espera — publicado em 06/10/2026, aguardando validação online
+- ✅ Rótulos dos pacientes — publicado em 03/10/2026 e validado online em 07/10/2026
+- ✅ Informações adicionais do paciente (Ficha do paciente) — publicado em 05/10/2026 e validado online em 07/10/2026
+- ✅ Tempo médio de espera — publicado em 06/10/2026 e validado online em 07/10/2026
 - ⏳ Próximos da Onda 1: Lista de espera/Encaixe, Gráficos de exames
 
 ---
@@ -22,7 +22,7 @@ Legenda:
 ## Atendimento
 
 ### Tempo médio de espera — ✅ Concluído
-- Desenvolvido, revisado e publicado em 06/10/2026. Falta a validação online (teste em produção) para fechar.
+- Desenvolvido, revisado e publicado em 06/10/2026. Validado online em 07/10/2026.
 - Como vai funcionar: a recepção marca "Chegou" na agenda (check-in). O sistema registra automaticamente o horário de início e de fim do atendimento quando o profissional muda o status.
 - Na agenda, cada paciente mostra algo como: "Chegou 14:05 · esperou 18 min · consulta 32 min".
 - Em Relatórios clínicos: espera média, atraso médio (em relação ao horário marcado) e duração média, com filtro por período e por profissional, mais uma tabela por profissional.
@@ -50,7 +50,7 @@ Legenda:
 - Fora desta entrega: exportar vários pacientes de uma vez e assinatura eletrônica no PDF.
 
 ### Rótulos dos pacientes — ✅ Concluído
-- Publicado em 03/10/2026. Falta a validação online (teste em produção) para fechar.
+- Publicado em 03/10/2026. Validado online em 07/10/2026.
 - Etiquetas coloridas por paciente, para organizar (ex.: VIP, Convênio, Retorno pendente) e para alertar (ex.: Gestante, Alérgico).
 - Aparecem no topo do prontuário, na lista de pacientes (com filtro por rótulo ao lado da busca) e, os de alerta, na agenda do dia.
 - Cada clínica tem o seu próprio catálogo de rótulos, com 8 cores fixas. O sistema já cria 5 sugestões iniciais.
@@ -58,7 +58,7 @@ Legenda:
 - Fora desta entrega: aplicar em vários pacientes de uma vez e regras automáticas (ex.: rótulo "inadimplente").
 
 ### Informações adicionais do paciente (Ficha do paciente) — ✅ Concluído
-- Desenvolvido, revisado e publicado em 05/10/2026. Falta a validação online (teste em produção) para fechar.
+- Desenvolvido, revisado e publicado em 05/10/2026. Validado online em 07/10/2026.
 - Ficha com três grupos:
   - Pessoal e responsável: nome social, sexo, estado civil, responsável (nome, parentesco, telefone, CPF) e contato de emergência.
   - Saúde básica: tipo sanguíneo, alergias, medicamentos em uso, comorbidades e observações.
@@ -131,3 +131,4 @@ Legenda:
 - 06/10/2026 — Tempo médio de espera publicado em produção. Rótulos, Ficha do paciente e Tempo de espera integrados à versão principal do sistema; os três aguardam validação online.
 - 06/10/2026 — Vitrine de funcionalidades do site pronta (cadastro, página inicial e páginas de busca), aguardando publicação.
 - 07/10/2026 — Vitrine de funcionalidades publicada: página de teste grátis (agora também no celular, com o aviso do limite de mensagens de WhatsApp no período de teste), assinatura, página inicial e páginas de busca. Publicada também a página sobre chatbot para clínicas.
+- 07/10/2026 — Rótulos, Ficha do paciente e Tempo médio de espera testados e validados online (check-in, horários de início e fim e médias em Relatórios clínicos funcionando).
