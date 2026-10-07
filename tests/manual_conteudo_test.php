@@ -30,9 +30,9 @@ $nivel3 = $mc->capitulos_por_nivel(3);
 $nivel4 = $mc->capitulos_por_nivel(4);
 $nivelInvalido = $mc->capitulos_por_nivel(99);
 
-assertSameValue(13, count($nivel2), 'Nivel 2 deve ver os 13 capitulos.');
-assertSameValue(13, count($nivel3), 'Nivel 3 deve ver os 13 capitulos.');
-assertSameValue(12, count($nivel4), 'Nivel 4 nao ve o capitulo de equipe.');
+assertSameValue(14, count($nivel2), 'Nivel 2 deve ver os 14 capitulos.');
+assertSameValue(14, count($nivel3), 'Nivel 3 deve ver os 14 capitulos.');
+assertSameValue(13, count($nivel4), 'Nivel 4 nao ve o capitulo de equipe.');
 assertSameValue(0, count($nivelInvalido), 'Nivel sem capitulos cadastrados retorna lista vazia.');
 
 $slugsNivel4 = array_column($nivel4, 'slug');
@@ -92,5 +92,10 @@ assertSameValue(
     $metodoPrint->invoke($mc, array('4' => 'nivel4.png'), 2),
     'Print por nivel sem * e sem o nivel pedido deve resolver para null.'
 );
+
+$le = null;
+foreach ($nivel4 as $capitulo) { if ($capitulo['slug'] === 'lista-espera') { $le = $capitulo; } }
+assertTrue($le !== null, 'Colaborador (nivel 4) deve ver o capitulo lista-espera.');
+assertSameValue(null, $le['print'], 'Capitulo lista-espera ainda sem print.');
 
 echo "OK\n";

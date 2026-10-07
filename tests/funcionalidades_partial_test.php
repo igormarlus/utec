@@ -16,7 +16,7 @@ $grade = render(array('func_formato' => 'grade', 'func_ids' => null, 'func_agrup
 foreach (array('Agenda', 'Prontuário', 'WhatsApp', 'Gestão', 'Tudo o que está incluído', 'Agenda inteligente', 'Manual de ajuda') as $t) {
     if (strpos($grade, htmlspecialchars($t, ENT_QUOTES, 'UTF-8')) === false) { falha('grade sem: ' . $t); }
 }
-if (substr_count($grade, 'class="fx-novo"') !== 4) { falha('esperado 4 selos Novo, veio ' . substr_count($grade, 'class="fx-novo"')); }
+if (substr_count($grade, 'class="fx-novo"') !== 5) { falha('esperado 5 selos Novo, veio ' . substr_count($grade, 'class="fx-novo"')); }
 if (strpos($grade, 'https://exemplo.test/sistema-prontuario-eletronico') === false) { falha('link saiba mais ausente'); }
 if (substr_count($grade, '<style') !== 1) { falha('css deve sair uma vez'); }
 

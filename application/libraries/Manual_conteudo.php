@@ -144,6 +144,28 @@ class Manual_conteudo {
                 'atualizado_em' => '2026-09-22',
             ),
             array(
+                'slug' => 'lista-espera',
+                'titulo' => 'Lista de espera',
+                'icone' => 'os-icon-clock',
+                'niveis' => array(2, 3, 4),
+                'resumo' => 'Guarde quem quer um horário antes do disponível. Quando uma consulta é cancelada ou remarcada, o sistema avisa no sino quem combina com a vaga, e você encaixa o paciente em poucos cliques.',
+                'topicos' => array(
+                    '*' => array(
+                        'Em `Agenda > Lista de espera`, clique em `Adicionar à lista`: escolha o paciente e o profissional (ou `Qualquer profissional`). Turno, dias da semana, "a partir de" e observação são opcionais — sem eles, o paciente serve para qualquer vaga.',
+                        'No prontuário, o botão `Lista de espera` já abre o formulário com o paciente escolhido, e o selo "Na lista de espera desde ..." mostra quem está aguardando.',
+                        'Quando uma consulta futura é cancelada ou remarcada — na agenda, pelo botão do WhatsApp ou pelo chatbot — o sino avisa: "Abriu vaga com ... em ...". Clique no aviso para ver a vaga.',
+                        'Na vaga, os pacientes `Compatíveis` aparecem primeiro, e entre eles quem espera há mais tempo. Ligue ou chame no WhatsApp para confirmar.',
+                        'Clique em `Agendar`: o agendamento abre preenchido com paciente, profissional, data e hora. Ao salvar, o paciente sai da lista e vai para a aba `Agendados`.',
+                        'Se outra pessoa já ocupou o horário, a vaga mostra "Vaga já preenchida". Para tirar alguém da lista, use `Remover` e informe o motivo.',
+                    ),
+                    2 => array('Recebe os avisos de vaga de todos os profissionais da clínica.'),
+                    3 => array('Recebe os avisos das vagas da sua própria agenda.'),
+                    4 => array('Recebe os avisos de vaga da clínica e costuma ser quem faz o encaixe.'),
+                ),
+                'print' => null,
+                'atualizado_em' => '2026-10-07',
+            ),
+            array(
                 'slug' => 'pacientes-cadastro',
                 'titulo' => 'Pacientes e cadastro',
                 'icone' => 'os-icon-folder',

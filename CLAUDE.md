@@ -137,6 +137,8 @@ O projeto usa **CodeIgniter 3.1.10** em produção. **Não migrar para CI4 ou ou
 - `pacientes_rotulos_vinculos` — paciente ↔ rótulo (PK composta)
 - `agendamentos.chegada_em` / `chegada_por` / `inicio_atendimento_em` / `fim_atendimento_em` — check-in e horários reais do atendimento (gravados por `set_status_agenda`, pelo formulário do prontuário (`set`) e por `checkin`, zerados na remarcação)
 - `pacientes_ficha` — ficha 1:1 do paciente (pessoal/responsável, saúde básica com `saude_atualizado_por/em`, convênio)
+- `lista_espera` — entradas da lista de espera por conta (`id_conta`, `id_paciente`, `id_prestador` NULL = qualquer profissional, `turno` manha|tarde|noite|'', `dias_semana` CSV 0..6, `a_partir_de`, `observacao`, `status` aguardando|agendado|removido, `motivo_saida`, `id_agendamento`)
+- `lista_espera_vagas` — vaga aberta por cancelamento/remarcação (conta, prestador, `data_agenda`, `hora_agenda`, `origem`, `id_agendamento_origem`); UNIQUE (`id_agendamento_origem`, `data_agenda`, `hora_agenda`) evita aviso duplicado
 
 **Produtos e Pedidos**
 - `produtos` — catálogo de planos/serviços
@@ -248,6 +250,7 @@ Verificado por `Padrao_model::can_access_saas_module()`. O Admin (nível 1) tem 
 | `Notificacoes.php` | `/adm/notificacoes/abrir/{id}` | Marca o aviso interno como lido pelo destinatário logado e redireciona para a `url` da notificação |
 | `Rotulos.php` | `/adm/rotulos` | Catálogo de rótulos da clínica (níveis 1, 2 e 3 autônomo) + `paciente/{id}` (POST) para aplicar rótulos (níveis 1–4, escopo) |
 | `Ficha.php` | `/adm/ficha/paciente/{id}` | Ficha do paciente (GET/POST): níveis 1–4 veem e editam pessoal/convênio; saúde só 1–3 |
+| `Lista_espera.php` | `/adm/lista_espera` | Tela (abas Aguardando/Agendados/Removidos), `salvar` (POST), `remover/{id}` (POST, com motivo) e `vaga/{id}` (vaga aberta com pacientes compatíveis); níveis 1–4, escopo da conta; `?paciente={id}` pré-seleciona o paciente |
 
 > `Atencimento.php` (com typo) foi renomeado para `.bak` — não é controller ativo.
 
@@ -361,6 +364,14 @@ Avisos internos em `notificacoes_usuarios`. Também guarda por `table_exists`/`f
 Cálculo puro em `application/helpers/disponibilidade_helper.php` (testes em `tests/disponibilidade_*`). Ocupam vaga agendamentos `status IN (0,1,2)`. Na agenda manual é só aviso (encaixe permitido). `proximos_livres()` é a interface prevista para o chatbot de IA marcar consultas. Agendamentos existentes são contados com a duração ATUAL do profissional — trocar a duração muda como os agendamentos passados ocupam a grade. O model não tem controle de acesso por design — quem chama (controller/chatbot) precisa impor o escopo.
 
 Status de deploy (2026-09-22): merge em `main` (`cc95198`) e 11 arquivos runtime enviados por FTP; healthcheck OK (home/`admin` 200, rotas `adm/*` 302 para login). **Pendente:** executar `adm/dev/migrar_horarios_atendimento` logado como nível 1 — até lá a agenda funciona como antes e `adm/horarios` avisa que as tabelas não existem. Nota de deploy: a extensão FTP Sync do VS Code criou no servidor um *arquivo* `application/views/adm/horarios` (com o caminho local dentro) no lugar da pasta; foi apagado antes do upload — se uma pasta nova falhar com `curl: (9)`, conferir isso.
+
+### 7.8 `Lista_espera_model` e library `Lista_espera_vagas`
+
+`Lista_espera_model` guarda as entradas e as vagas (`lista_espera`, `lista_espera_vagas`); `disponivel()` = as 2 tabelas existem (sem elas a tela avisa e nada dispara). Sem controle de acesso por design — quem chama impõe o escopo da conta.
+
+A library `Lista_espera_vagas` (`vaga_aberta()` / `vaga_do_agendamento()`) é chamada em 5 pontos: `Atendimento::cancelar_agenda`, `Atendimento::remarcar_agenda` (horário antigo), `Webhooks::processar_resposta_agendamento` (botão cancelar, após `processado`) e `Whatsapp_chatbot_agenda` (cancelar e remarcar). Ela registra a vaga e cria o aviso no sino (`notificacoes_usuarios.tipo = 'lista_espera_vaga'`, `id_whatsapp_notificacao` = id da vaga) para o prestador + níveis 2 e 4 da conta. **Nunca bloqueia** o fluxo de origem: `Throwable` é capturado e logado como `[lista_espera]`.
+
+Agendamento pela vaga: `adm/atendimento/novo/{id}?prestador=&data=&hora=&lista_espera=` abre o formulário preenchido e `cadastrar()` marca a entrada como `agendado`. O prontuário mostra o selo "Na lista de espera desde dd/mm" e o botão "Lista de espera". Migração: `adm/dev/migrar_lista_espera`.
 
 ---
 
@@ -549,6 +560,7 @@ Controller: `application/controllers/adm/Dev.php`
 | `adm/dev/migrar_rotulos_pacientes` | Cria `pacientes_rotulos` + `pacientes_rotulos_vinculos` (idempotente) |
 | `adm/dev/migrar_ficha_pacientes` | Cria `pacientes_ficha` (idempotente) |
 | `adm/dev/migrar_tempos_atendimento` | Adiciona `chegada_em`, `chegada_por`, `inicio_atendimento_em`, `fim_atendimento_em` em `agendamentos` (idempotente) |
+| `adm/dev/migrar_lista_espera` | Cria `lista_espera` + `lista_espera_vagas` (idempotente) |
 | `adm/dev/testar_detector_ia` | Roda os casos mínimos do detector de tráfego de IA (PASS/FAIL) |
 | `adm/dev/purgar_monitoramento_ia` | Remove registros de IA com mais de 18 meses (`?meses=N` ajusta) |
 
@@ -599,6 +611,7 @@ Para novas migrações: adicionar método em `Dev.php`, proteger com `nivel == 1
 - [x] Exportar prontuário por paciente (PDF/CSV/XLSX) com período e auditoria — helper `prontuario_export_helper.php`, `Xlsx_simples`, `Prontuario_export_model`. Deploy 2026-10-03: 8 arquivos runtime por FTP, `adm/dev/migrar_prontuario_exportacoes` executada e teste online OK (níveis 3/4). Nota: antes do deploy a view nova já estava no servidor sem o helper (prontuário quebrado em produção) — origem do upload não identificada; ao subir view que depende de helper novo, conferir o servidor antes.
 - [x] Ficha do paciente (pessoal/responsável, saúde básica, convênio) com alergias em destaque no prontuário (`ficha_paciente_helper.php`, `Ficha_paciente_model`). Entrega B (campos configuráveis por clínica) pendente.
 - [x] Tempo de espera: check-in na agenda, horários de início/fim, espera/atraso/duração por atendimento e médias em Relatórios clínicos (`tempo_atendimento_helper.php`)
+- [x] Lista de espera / encaixe: registro de quem quer um horário antes, aviso de vaga no sino quando uma consulta futura é cancelada ou remarcada (agenda, WhatsApp, chatbot) e encaixe com agendamento preenchido — `Lista_espera_model`, `Lista_espera_vagas`, `adm/lista_espera` (ver 7.8). Spec/plano: `docs/superpowers/specs/2026-10-07-lista-espera-design.md`, `docs/superpowers/plans/2026-10-07-lista-espera.md`; texto de negócio: `docs/produto/2026-10-07-lista-espera-como-funciona.md`
 
 ### 15.2 Próximas Entregas (Prioridade Alta)
 
@@ -812,7 +825,7 @@ nas 3 views, sem mudar controller nem conteúdo):
   `Manual_conteudo::capitulos()` (chave `print`): `boas-vindas`, `agenda`,
   `pacientes-cadastro`, `prontuario`, `exames`, `whatsapp-confirmacao`,
   `whatsapp-lembrete`. Os capítulos sem `print` (acesso, avisos internos,
-  equipe, assinatura, boas práticas) renderizam só com texto. **Ao publicar,
+  equipe, assinatura, boas práticas) renderizam só com texto. O capítulo `lista-espera` (2026-10-07) ainda está sem print (`'print' => null`), e `agenda.png`, `prontuario.png` e `pacientes-cadastro.png` precisam ser recapturados (são anteriores a Chegou, rótulos, ficha e exportar) — fazer depois que a funcionalidade estiver online. **Ao publicar,
   enviar também os PNGs** — o PDF embute via `FCPATH` e a tela via
   `base_url()`; se o arquivo não existe no servidor a imagem some sem erro.
 - **Deploy v2 (2026-09-22):** 3 views + `Manual_conteudo.php` + 7 PNGs de
