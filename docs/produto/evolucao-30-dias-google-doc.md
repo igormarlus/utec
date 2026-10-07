@@ -15,7 +15,8 @@ Legenda:
 - ✅ Rótulos dos pacientes — publicado em 03/10/2026 e validado online em 07/10/2026
 - ✅ Informações adicionais do paciente (Ficha do paciente) — publicado em 05/10/2026 e validado online em 07/10/2026
 - ✅ Tempo médio de espera — publicado em 06/10/2026 e validado online em 07/10/2026
-- ⏳ Próximos da Onda 1: Lista de espera/Encaixe, Gráficos de exames
+- 🔄 Lista de espera / Encaixe — funcionamento definido em 07/10/2026, desenvolvimento em seguida
+- ⏳ Próximo da Onda 1: Gráficos de exames (antes, criar o registro de resultados numéricos dos exames)
 
 ---
 
@@ -31,11 +32,14 @@ Legenda:
 - Quem pode marcar a chegada: clínica, profissional e recepção.
 - Fica para depois: painel de fila ao vivo e aviso "você é o próximo" pelo WhatsApp.
 
-### Lista de espera / Encaixe — ⏳ Próximo
-- O encaixe já funciona hoje: a agenda avisa quando o horário está fora da grade ou ocupado, mas permite marcar.
-- Falta a lista de espera: guardar quem quer um horário e avisar quando abrir vaga. Vai usar a busca de horários livres que já existe (a mesma do chatbot) e pode avisar pelo WhatsApp.
-- Esforço estimado: médio (1 a 2 semanas).
-
+### Lista de espera / Encaixe — 🔄 Em andamento
+- Funcionamento definido em 07/10/2026; desenvolvimento em seguida.
+- A recepção registra quem quer um horário: paciente e profissional (ou "qualquer profissional"), com preferências opcionais de turno, dias da semana, "a partir de" e observação.
+- Quando uma consulta futura é cancelada ou remarcada — pela agenda, pelo botão do WhatsApp ou pelo chatbot — o sino avisa o profissional, a clínica e a recepção: "Abriu vaga com Dr. X em 12/10 às 14:00. 3 pacientes na lista."
+- O aviso abre a vaga com os pacientes compatíveis primeiro (e quem espera há mais tempo antes). Um clique em "Agendar" abre o agendamento já preenchido, com a opção de confirmação pelo WhatsApp; o paciente sai da lista como "Agendado".
+- Também dá para remover alguém da lista com motivo (desistiu, conseguiu horário, outro), e o prontuário mostra "Na lista de espera desde ...".
+- Tutorial: quadro "Como funciona" na própria tela e capítulo novo no Manual de ajuda (tela e PDF), junto com a atualização dos prints do manual.
+- Fica para depois: aviso automático ao paciente pelo WhatsApp (precisa de modelo de mensagem aprovado na Meta), prioridade/urgência e botão "Ver vagas".
 ---
 
 ## Prontuário
@@ -132,3 +136,4 @@ Legenda:
 - 06/10/2026 — Vitrine de funcionalidades do site pronta (cadastro, página inicial e páginas de busca), aguardando publicação.
 - 07/10/2026 — Vitrine de funcionalidades publicada: página de teste grátis (agora também no celular, com o aviso do limite de mensagens de WhatsApp no período de teste), assinatura, página inicial e páginas de busca. Publicada também a página sobre chatbot para clínicas.
 - 07/10/2026 — Rótulos, Ficha do paciente e Tempo médio de espera testados e validados online (check-in, horários de início e fim e médias em Relatórios clínicos funcionando).
+- 07/10/2026 — Lista de espera: funcionamento definido (aviso de vaga no sino para a equipe, encaixe com agendamento preenchido); desenvolvimento em seguida.
