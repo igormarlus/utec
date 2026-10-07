@@ -1592,8 +1592,11 @@ Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
 
 ## Deploy (depois da revisão final e do ok do Igor — `agente-dev-infra`)
 1. Merge `feat/lista-espera` → `main`.
-2. Baixar do servidor e comparar com o HEAD da branch: `Atendimento.php`, `Webhooks.php`, `Whatsapp_chatbot_agenda.php`, `Notificacoes_model.php`, `Dev.php`, `menu.php`, `prontuario.php`, `atendimento/atendimento.php`, `Manual_conteudo.php`, `Funcionalidades_conteudo.php`.
-3. Subir na ordem: helper → model → `Notificacoes_model.php` → library `Lista_espera_vagas.php` → `Dev.php` → controller + views `lista_espera/` → `Atendimento.php` → `Webhooks.php` → `Whatsapp_chatbot_agenda.php` → `atendimento/atendimento.php` → `prontuario.php` → `menu.php` → `Manual_conteudo.php` + `Funcionalidades_conteudo.php` → 4 PNGs. (Os pontos de disparo só sobem depois da library; sem as tabelas eles não fazem nada.)
-4. Rodar `adm/dev/migrar_lista_espera` (nível 1).
-5. Healthcheck: home/`admin` 200; `adm/lista_espera` sem sessão 302; `webhooks/whatsapp` GET sem token 403; PNGs 200. Baixar de novo e `cmp`.
-6. Atualizar andamento para ✅ publicado e CLAUDE.md com o status de deploy.
+2. Baixar do servidor e comparar com o HEAD da branch: `Atendimento.php`, `Webhooks.php`, `Whatsapp_chatbot_agenda.php`, `Notificacoes_model.php`, `Dev.php`, `menu.php`, `prontuario.php`, `atendimento/atendimento.php`, `Manual_conteudo.php`, `Funcionalidades_conteudo.php`, `llms.txt`, `application/models/Rotulos_model.php` e `application/helpers/rotulos_helper.php` (os dois últimos são dependência nova de `Lista_espera_model::conta_raiz`).
+3. Antes de subir, conferir no servidor que `application/views/adm/lista_espera` NÃO existe como *arquivo* (pitfall conhecido da extensão FTP Sync); se existir, apagar — senão o upload falha com `curl: (9)`.
+4. Subir os arquivos de código na ordem: helper → model → `Notificacoes_model.php` → library `Lista_espera_vagas.php` → `Dev.php` → controller + views `lista_espera/` → `Atendimento.php` → `Webhooks.php` → `Whatsapp_chatbot_agenda.php` → `atendimento/atendimento.php` → `prontuario.php` → `menu.php` → `Manual_conteudo.php`. (Os pontos de disparo só sobem depois da library; sem as tabelas eles não fazem nada.)
+5. Rodar `adm/dev/migrar_lista_espera` (nível 1).
+6. Healthcheck: home/`admin` 200; `adm/lista_espera` sem sessão 302; `webhooks/whatsapp` GET sem token 403. Baixar de novo e `cmp`.
+7. Só depois do healthcheck, subir por último `Funcionalidades_conteudo.php` + `llms.txt` (anunciam a funcionalidade publicamente). Os prints do manual são capturados após o go-live (ainda não existem).
+8. Smoke test: na agenda, cancelar e remarcar uma consulta futura de um prestador com alguém na lista de espera; botão "Cancelar" do WhatsApp; cancelar/remarcar pelo chatbot; abrir o aviso pelo sino → "Agendar" → salvar → a entrada aparece em "Agendados".
+9. Atualizar andamento para ✅ publicado e CLAUDE.md com o status de deploy.

@@ -49,8 +49,8 @@ class Funcionalidades_conteudo {
             ),
             array(
                 'id' => 'lista_espera', 'grupo' => 'agenda', 'icone' => '📝', 'titulo' => 'Lista de espera',
-                'resumo' => 'Quem quer um horário antes é avisado à equipe assim que abre uma vaga.',
-                'descricao' => 'Registre quem quer ser atendido antes. Quando uma consulta é cancelada ou remarcada, a equipe recebe um aviso com os pacientes que combinam com o horário e encaixa com um clique.',
+                'resumo' => 'A equipe é avisada quando abre uma vaga e encaixa quem espera.',
+                'descricao' => 'Registre quem quer ser atendido antes. Quando uma consulta é cancelada ou remarcada, a equipe recebe um aviso com os pacientes que combinam com o horário e encaixa em poucos cliques.',
                 'link' => '', 'novo' => true,
             ),
             array(

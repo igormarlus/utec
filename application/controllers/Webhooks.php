@@ -183,8 +183,10 @@ class Webhooks extends CI_Controller {
         // Cancelamento pelo botão libera o horário: avisa a lista de espera por último,
         // depois da resposta ao paciente e dos avisos à equipe. Falha aqui só gera log.
         if ($acao === 'cancelar') {
-            $this->load->library('Lista_espera_vagas');
-            $this->lista_espera_vagas->vaga_do_agendamento($idAgendamento, 'whatsapp_cancelar');
+            if (is_file(APPPATH.'libraries/Lista_espera_vagas.php')) {
+                $this->load->library('Lista_espera_vagas');
+                $this->lista_espera_vagas->vaga_do_agendamento($idAgendamento, 'whatsapp_cancelar');
+            }
         }
     }
 

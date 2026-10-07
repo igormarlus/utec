@@ -23,7 +23,7 @@
 - **Agenda inteligente**: Visão do dia, da semana e do mês por profissional. Remarque e cancele direto na agenda, sem retrabalho.
 - **Horários de atendimento**: Cada profissional define dias, horários, duração da consulta e períodos bloqueados (férias, feriados). Ao agendar, o sistema sugere os horários livres e avisa quando é encaixe.
 - **Check-in e tempo de espera**: Com um clique em "Chegou", o sistema registra a chegada do paciente e, ao iniciar e finalizar o atendimento, mostra quanto ele esperou e quanto durou a consulta. Os relatórios trazem as médias por profissional.
-- **Lista de espera**: Registre quem quer ser atendido antes. Quando uma consulta é cancelada ou remarcada, a equipe recebe um aviso com os pacientes que combinam com o horário e encaixa com um clique.
+- **Lista de espera**: Registre quem quer ser atendido antes. Quando uma consulta é cancelada ou remarcada, a equipe recebe um aviso com os pacientes que combinam com o horário e encaixa em poucos cliques.
 - **Prontuário eletrônico**: Registro de cada atendimento com histórico organizado, exames e documentos anexados, acessível de qualquer dispositivo.
 - **Prontuário por especialidade**: Os campos do atendimento mudam conforme a especialidade do profissional — por exemplo, escala de dor na fisioterapia ou dente tratado na odontologia.
 - **Ficha do paciente**: Dados pessoais, responsável legal, contato de emergência, convênio e saúde básica (tipo sanguíneo, alergias, medicamentos e comorbidades). As alergias aparecem em destaque no prontuário.

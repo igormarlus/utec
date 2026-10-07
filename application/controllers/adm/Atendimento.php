@@ -692,8 +692,10 @@ function cancelar_agenda($id_agenda){
 	$refer = $this->agent->referrer();
 	$this->db->where('id', $id_agenda);
 	if($this->db->update('agendamentos', ['status' => 3, 'id_user_alt' => $this->session->userdata('id')])){
-		$this->load->library('Lista_espera_vagas');
-		$this->lista_espera_vagas->vaga_do_agendamento($id_agenda, 'agenda_cancelar');
+		if (is_file(APPPATH.'libraries/Lista_espera_vagas.php')) {
+			$this->load->library('Lista_espera_vagas');
+			$this->lista_espera_vagas->vaga_do_agendamento($id_agenda, 'agenda_cancelar');
+		}
 	}
 	$refer = str_replace(base_url(),"",$refer);
 	redirect($refer);
@@ -732,8 +734,10 @@ function remarcar_agenda(){
 		// O horário antigo virou vaga: avisa a lista de espera (falha aqui não afeta a remarcação).
 		if($ant_remarcar && (int)$ant_remarcar->status !== 3
 			&& (substr((string)$ant_remarcar->data_agenda, 0, 10) !== $data_agenda || substr((string)$ant_remarcar->hora_agenda, 0, 5) !== $hora_agenda)){
-			$this->load->library('Lista_espera_vagas');
-			$this->lista_espera_vagas->vaga_aberta((int)$ant_remarcar->id_prestador, (string)$ant_remarcar->data_agenda, (string)$ant_remarcar->hora_agenda, 'agenda_remarcar', $id_agenda);
+			if (is_file(APPPATH.'libraries/Lista_espera_vagas.php')) {
+				$this->load->library('Lista_espera_vagas');
+				$this->lista_espera_vagas->vaga_aberta((int)$ant_remarcar->id_prestador, (string)$ant_remarcar->data_agenda, (string)$ant_remarcar->hora_agenda, 'agenda_remarcar', $id_agenda);
+			}
 		}
 	}
 

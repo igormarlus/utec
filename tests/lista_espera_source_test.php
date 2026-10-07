@@ -91,4 +91,7 @@ assertContains('$pre_hora', $form, 'hora pre-preenchida');
 $pront = lerArquivo('application/views/adm/usuarios/new/prontuario.php');
 assertContains('Na lista de espera desde', $pront, 'selo no prontuario');
 assertContains("adm/lista_espera?paciente=", $pront, 'atalho para adicionar');
+foreach (array('application/controllers/adm/Atendimento.php', 'application/controllers/Webhooks.php', 'application/libraries/Whatsapp_chatbot_agenda.php') as $arqGuarda) {
+    assertContains("is_file(APPPATH.'libraries/Lista_espera_vagas.php')", lerArquivo($arqGuarda), 'guarda de arquivo em '.$arqGuarda);
+}
 echo "OK\n";

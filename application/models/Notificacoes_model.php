@@ -169,6 +169,7 @@ class Notificacoes_model extends CI_Model {
         ])) {
             return false;
         }
+        $falhou = false;
         foreach ($destinatarios as $idUsuario) {
             if ((int)$idUsuario <= 0) {
                 continue;
@@ -179,10 +180,11 @@ class Notificacoes_model extends CI_Model {
                 . $this->db->escape('lista_espera_vaga').', '.$this->db->escape((string)$titulo).', '
                 . $this->db->escape((string)$mensagem).', '.$this->db->escape((string)$url).", 0, '".date('Y-m-d H:i:s')."')";
             if ($this->db->query($sql) === false) {
-                return false;
+                $falhou = true;
+                continue;
             }
         }
-        return true;
+        return !$falhou;
     }
 
     public function listar_nao_lidas($id_usuario, $limite = 8)
