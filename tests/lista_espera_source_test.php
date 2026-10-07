@@ -80,4 +80,15 @@ foreach (array('Vaga já preenchida', 'Compatível', 'adm/atendimento/novo/', 'l
 }
 assertContains("'Lista de espera', 'url' => base_url().'adm/lista_espera'", lerArquivo('includes/adm/menu.php'), 'menu');
 
+// Encaixe e prontuário
+$atd = lerArquivo('application/controllers/adm/Atendimento.php');
+assertContains("\$dados['pre_lista_espera']", $atd, 'novo recebe lista_espera');
+assertContains('->marcar_agendado(', $atd, 'cadastrar marca agendado');
+$form = lerArquivo('application/views/adm/atendimento/atendimento.php');
+assertContains('name="id_lista_espera"', $form, 'hidden no formulario');
+assertContains('$pre_data', $form, 'data pre-preenchida');
+assertContains('$pre_hora', $form, 'hora pre-preenchida');
+$pront = lerArquivo('application/views/adm/usuarios/new/prontuario.php');
+assertContains('Na lista de espera desde', $pront, 'selo no prontuario');
+assertContains("adm/lista_espera?paciente=", $pront, 'atalho para adicionar');
 echo "OK\n";
