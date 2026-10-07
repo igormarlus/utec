@@ -660,7 +660,10 @@ function cancelar_agenda($id_agenda){
 	}
 	$refer = $this->agent->referrer();
 	$this->db->where('id', $id_agenda);
-	$this->db->update('agendamentos', ['status' => 3, 'id_user_alt' => $this->session->userdata('id')]);
+	if($this->db->update('agendamentos', ['status' => 3, 'id_user_alt' => $this->session->userdata('id')])){
+		$this->load->library('Lista_espera_vagas');
+		$this->lista_espera_vagas->vaga_do_agendamento($id_agenda, 'agenda_cancelar');
+	}
 	$refer = str_replace(base_url(),"",$refer);
 	redirect($refer);
 }
@@ -677,6 +680,7 @@ function remarcar_agenda(){
 		show_error('Data ou horario invalidos para remarcacao.', 400);
 		return;
 	}
+	$ant_remarcar = $this->db->query('SELECT id_prestador, data_agenda, hora_agenda, status FROM agendamentos WHERE id = ? LIMIT 1', array($id_agenda))->row();
 	$this->db->where('id', $id_agenda);
 	$upd_remarcar = [
 		'data_agenda' => $data_agenda,
@@ -694,6 +698,12 @@ function remarcar_agenda(){
 		// Nova data/hora exige nova confirmacao do paciente — mesma regra de disparo da criacao.
 		$whatsapp_result = $this->whatsapp_agendamento->notificar_agendamento($id_agenda, true);
 		$this->session->set_flashdata('whatsapp_status', utec_whatsapp_resumo_envio($whatsapp_result));
+		// O horário antigo virou vaga: avisa a lista de espera (falha aqui não afeta a remarcação).
+		if($ant_remarcar && (int)$ant_remarcar->status !== 3
+			&& (substr((string)$ant_remarcar->data_agenda, 0, 10) !== $data_agenda || substr((string)$ant_remarcar->hora_agenda, 0, 5) !== $hora_agenda)){
+			$this->load->library('Lista_espera_vagas');
+			$this->lista_espera_vagas->vaga_aberta((int)$ant_remarcar->id_prestador, (string)$ant_remarcar->data_agenda, (string)$ant_remarcar->hora_agenda, 'agenda_remarcar', $id_agenda);
+		}
 	}
 
 	redirect('adm/atendimento?data_agenda='.$data_agenda);

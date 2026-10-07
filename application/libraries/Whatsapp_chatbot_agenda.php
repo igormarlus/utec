@@ -187,6 +187,15 @@ class Whatsapp_chatbot_agenda {
         }
         $resposta = $this->texto($perfil, utec_whatsapp_agenda_texto_remarcado($novo->data_agenda, $novo->hora_agenda, $prestador), (int)$agendamento->id);
         $this->avisar_equipe('remarcar', $agendamento, $r, '', $idEvento);
+        $anterior = utec_whatsapp_read($r, 'anterior', null) ?: $agendamento;
+        $this->CI->load->library('Lista_espera_vagas');
+        $this->CI->lista_espera_vagas->vaga_aberta(
+            (int)utec_whatsapp_read($anterior, 'id_prestador', 0),
+            (string)utec_whatsapp_read($anterior, 'data_agenda', ''),
+            (string)utec_whatsapp_read($anterior, 'hora_agenda', ''),
+            'chatbot_remarcar',
+            (int)$agendamento->id
+        );
         return $resposta;
     }
 
@@ -219,6 +228,8 @@ class Whatsapp_chatbot_agenda {
         }
         $resposta = $this->texto($perfil, '❌ Consulta cancelada. Se quiser remarcar depois, é só chamar aqui.', (int)$agendamento->id);
         $this->avisar_equipe('cancelar', $agendamento, $r, $motivo, $idEvento);
+        $this->CI->load->library('Lista_espera_vagas');
+        $this->CI->lista_espera_vagas->vaga_do_agendamento((int)$agendamento->id, 'chatbot_cancelar');
         return $resposta;
     }
 

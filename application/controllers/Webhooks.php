@@ -179,6 +179,13 @@ class Webhooks extends CI_Controller {
             '[whatsapp_webhook] Notificacao a equipe. id='.(int)$notificacao->id
                 .' enviados='.(int)$envioEquipe['enviados'].' falhas='.(int)$envioEquipe['falhas']
         );
+
+        // Cancelamento pelo botão libera o horário: avisa a lista de espera por último,
+        // depois da resposta ao paciente e dos avisos à equipe. Falha aqui só gera log.
+        if ($acao === 'cancelar') {
+            $this->load->library('Lista_espera_vagas');
+            $this->lista_espera_vagas->vaga_do_agendamento($idAgendamento, 'whatsapp_cancelar');
+        }
     }
 
     protected function responder_json($data, $status = 200)

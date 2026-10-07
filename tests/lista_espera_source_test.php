@@ -46,4 +46,20 @@ assertContains('->horario_ocupado(', $lib, 'checa vaga livre');
 assertContains('->registrar_vaga(', $lib, 'deduplica');
 assertContains("'adm/lista_espera/vaga/'", $lib, 'url do aviso');
 
+// Pontos de disparo
+$atd = lerArquivo('application/controllers/adm/Atendimento.php');
+assertContains("vaga_do_agendamento(\$id_agenda, 'agenda_cancelar')", $atd, 'cancelar na agenda');
+assertContains("'agenda_remarcar'", $atd, 'remarcar na agenda');
+$posAnt = strpos($atd, '$ant_remarcar = $this->db->query(');
+$posUpd = strpos($atd, '$atualizado = $this->db->update(\'agendamentos\', $upd_remarcar);');
+if ($posAnt === false || $posUpd === false || $posAnt > $posUpd) { fwrite(STDERR, "remarcar le a vaga antiga antes do UPDATE\n"); exit(1); }
+$wh = lerArquivo('application/controllers/Webhooks.php');
+assertContains("vaga_do_agendamento(\$idAgendamento, 'whatsapp_cancelar')", $wh, 'botao cancelar do WhatsApp');
+$posProc = strpos($wh, "if (!\$resultado['processado'])");
+$posVaga = strpos($wh, "'whatsapp_cancelar'");
+if ($posProc === false || $posVaga === false || $posVaga < $posProc) { fwrite(STDERR, "webhook so dispara apos processado\n"); exit(1); }
+$bot = lerArquivo('application/libraries/Whatsapp_chatbot_agenda.php');
+assertContains("'chatbot_cancelar'", $bot, 'cancelar pelo chatbot');
+assertContains("'chatbot_remarcar'", $bot, 'remarcar pelo chatbot');
+
 echo "OK\n";
